@@ -4,6 +4,8 @@
     "ms-vscode-remote.vscode-remote-extensionpack",
     "esbenp.prettier-vscode",
     "equinusocio.vsc-material-theme-icons",
-    "mhutchie.git-graph"
+    "mhutchie.git-graph",
+    "joaompinto.vscode-graphviz",
+    "tintinweb.graphviz-interactive-preview"
   ]
 }

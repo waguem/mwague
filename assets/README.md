@@ -1,1 +1,1 @@
-###**Assets directory
+###\*\*Assets directory
