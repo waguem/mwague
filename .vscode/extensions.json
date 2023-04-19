@@ -1,10 +1,9 @@
 {
-    "recommendations": [
-      "ms-vscode-remote.remote-containers",
-      "ms-vscode-remote.vscode-remote-extensionpack",
-      "esbenp.prettier-vscode",
-      "equinusocio.vsc-material-theme-icons",
-      "mhutchie.git-graph"
-    ]
-  }
-  
+  "recommendations": [
+    "ms-vscode-remote.remote-containers",
+    "ms-vscode-remote.vscode-remote-extensionpack",
+    "esbenp.prettier-vscode",
+    "equinusocio.vsc-material-theme-icons",
+    "mhutchie.git-graph"
+  ]
+}
