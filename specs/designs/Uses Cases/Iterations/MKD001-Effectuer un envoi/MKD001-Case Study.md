@@ -44,6 +44,9 @@
 - [ ] 9 -  partage avec le destinataire 
 - [ ] 10 - Peut s'envoyer le reçu ou encore les infos de la transactions
 
+### 1-1 Sequence Diagram
+
+![ Diagramme de sequence du scenario nomilal ](./mkdi001_nominal.jpg "Diagrame de séquence")
 ### Alternatives
 
 ### Unfinished process
@@ -54,6 +57,11 @@
 
 ![Sequence Nominal ](./mkdi001_unfinished_process.jpg "diagram de sequene")
 
+### Authenticate first
+
+L'utilisateur peut faire une parti du process sans être authentifié,
+mais doit être authentifié avant de pouvoir selection les points de retrait et les commencer le payment
+!["Authenticate first"](./mkdi001_authenticate_first.jpg "Authenticate first")
 
 - [ ] 2a - Le client a un compte mais n'as plas encore validé son email
 	- [ ] Le client peut demander le renvoi du mail de validation pour valider son emai
