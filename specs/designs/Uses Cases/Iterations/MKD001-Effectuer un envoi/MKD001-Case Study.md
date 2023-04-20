@@ -46,6 +46,15 @@
 
 ### Alternatives
 
+### Unfinished process
+	- à l'étape 2, l'utilisateur choisit d'abandonner le processus 
+	- oubien la session devient inactive après 30 min
+- [ ] 2a - Le client commence le processus d'envoi et abandonne le processus
+### Diagram de Sequence
+
+![Sequence Nominal ](./mkdi001_unfinished_process.jpg "diagram de sequene")
+
+
 - [ ] 2a - Le client a un compte mais n'as plas encore validé son email
 	- [ ] Le client peut demander le renvoi du mail de validation pour valider son emai
 	- [ ]  Le client peut changer son mail 
