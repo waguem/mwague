@@ -53,6 +53,7 @@
 	- à l'étape 2, l'utilisateur choisit d'abandonner le processus 
 	- oubien la session devient inactive après 30 min
 - [ ] 2a - Le client commence le processus d'envoi et abandonne le processus
+
 ### Diagram de Sequence
 
 ![Sequence Nominal ](./mkdi001_unfinished_process.jpg "diagram de sequene")
@@ -62,20 +63,4 @@
 L'utilisateur peut faire une parti du process sans être authentifié,
 mais doit être authentifié avant de pouvoir selection les points de retrait et les commencer le payment
 !["Authenticate first"](./mkdi001_authenticate_first.jpg "Authenticate first")
-
-- [ ] 2a - Le client a un compte mais n'as plas encore validé son email
-	- [ ] Le client peut demander le renvoi du mail de validation pour valider son emai
-	- [ ]  Le client peut changer son mail 
-- [ ] 2b - Le client a un compte valide mais n'as pas encore validé son document d'identité
-	- [ ] Le client doit ajouter son pièce d'identité au format pdf, image 
-	- [ ] Une fois le document soumis, le document est transmis au service client pour review et validation
-	- [ ] Une fois que le compte est validé, si il y'a un envoi encours qui était en pause, redirigé le client vers la finalisation d'envoi.
-- [ ] 3a - Le client entre des données invalid
-	- [ ] Le formulaire montre une erreur, et refuse de faire une soumission
-- [ ] 5a - Le lieu de retrait choisi ne montre aucun agent qui peut payer si le moyen de paiement choisi est un retrait physique
-	- [ ] Un message d'erreur est affiché pour lui proposer une alternative 
-- [ ] 7a - Echec de paiement du client
-	- [ ]  Toutes les informations sont enregistrées, saut les informations bancaires
-	- [ ]   La transaction n'est pas créer 
-	- [ ]  On propose au client de changer le moyent de paiement et le cycle se retourne au 7
 
