@@ -1,6 +1,7 @@
-from pathlib import Path
 from typing import Any, Dict, List, Optional
-from pydantic import AnyHttpUrl, BaseModel, BaseSettings, FilePath, PostgresDsn, validator
+
+from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn, validator
+
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "minkadi backend"
@@ -20,9 +21,9 @@ class Settings(BaseSettings):
 
     POSTGRES_HOST: str = "localhost"
     POSTGRES_PORT: str = "5432"
-    POSTGRES_USER: str = "postgres"
-    POSTGRES_PASSWORD: str = "postgres"
-    POSTGRES_DB: str = "postgres"
+    POSTGRES_USER: str = "fastapi"
+    POSTGRES_PASSWORD: str = "fastapi"
+    POSTGRES_DB: str = "fastapi"
     DATABASE_URI: Optional[PostgresDsn] = None
     DATABASE_MAX_TX_RETRY_COUNT: int = 3
 

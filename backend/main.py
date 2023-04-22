@@ -1,19 +1,52 @@
-import fastapi
-from datetime import datetime
 import json
-from mkdi_backend.config import settings
-from mkdi_shared.utils import utcnow
+from datetime import datetime
+from pathlib import Path
+
+import alembic.command
+import alembic.config
+import fastapi
 from mkdi_backend.api.v1.api import api_router
+from mkdi_backend.config import settings
+from mkdi_backend.database import init_db
+from mkdi_shared.utils import utcnow
+
 app = fastapi.FastAPI(title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json")
 startup_time: datetime = utcnow()
 
 
 def get_openapi_schema():
     return json.dumps(app.openapi())
+
+
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+
+@app.on_event("startup")
+def on_startup():
+    init_db()
+
+
+if settings.UPDATE_ALEMBIC:
+
+    @app.on_event("startup")
+    def alembic_upgrade():
+        print("Attempting to upgrade alembic on startup")
+        try:
+            alembic_ini_path = Path(__file__).parent / "alembic.ini"
+            alembic_cfg = alembic.config.Config(str(alembic_ini_path))
+            alembic_cfg.set_main_option("sqlalchemy.url", settings.DATABASE_URI)
+            alembic.command.upgrade(alembic_cfg, "head")
+            print("Successfully upgraded alembic on startup")
+        except Exception as e:
+            print("Alembic upgrade failed on startup")
+            print(e)
+
+
 def main():
     import argparse
+
     import uvicorn
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--print-openapi-schema",
@@ -23,11 +56,11 @@ def main():
     )
     parser.add_argument("--host", help="The host to run the server", default="0.0.0.0")
     parser.add_argument("--port", help="The port to run the server", default=8080)
-    
+
     args = parser.parse_args()
     if args.print_openapi_schema:
         print(get_openapi_schema())
-    
+
     if not (args.print_openapi_schema):
         uvicorn.run(app, host=args.host, port=args.port)
 
