@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     AUTH_INFO: bytes = b"NextAuth.js Generated Encryption Key"
     AUTH_SALT: bytes = b""
     AUTH_LENGTH: int = 32
-    AUTH_SECRET: bytes = b"O/M2uIbGj+gs2oyNa8ax4jEOJqCPJzO53UbWShmq98="
+    AUTH_SECRET: bytes = b"tyqABZo4LDtM27Y4j5x1XFmgcyHdmsNQlJ2IhXM+XsI="
     AUTH_COOKIE_NAME: str = "next-auth.session-token"
     AUTH_ALGORITHM: str = "HS256"
     AUTH_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30

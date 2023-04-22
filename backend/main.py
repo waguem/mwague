@@ -7,7 +7,6 @@ import alembic.config
 import fastapi
 from mkdi_backend.api.v1.api import api_router
 from mkdi_backend.config import settings
-from mkdi_backend.database import init_db
 from mkdi_shared.utils import utcnow
 
 app = fastapi.FastAPI(title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json")
@@ -19,12 +18,6 @@ def get_openapi_schema():
 
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
-
-
-@app.on_event("startup")
-def on_startup():
-    init_db()
-
 
 if settings.UPDATE_ALEMBIC:
 
