@@ -5,6 +5,7 @@ from pathlib import Path
 import alembic.command
 import alembic.config
 import fastapi
+from loguru import logger
 from mkdi_backend.api.v1.api import api_router
 from mkdi_backend.config import settings
 from mkdi_shared.utils import utcnow
@@ -23,16 +24,16 @@ if settings.UPDATE_ALEMBIC:
 
     @app.on_event("startup")
     def alembic_upgrade():
-        print("Attempting to upgrade alembic on startup")
+        logger.info("Attempting to upgrade alembic on startup")
         try:
             alembic_ini_path = Path(__file__).parent / "alembic.ini"
             alembic_cfg = alembic.config.Config(str(alembic_ini_path))
             alembic_cfg.set_main_option("sqlalchemy.url", settings.DATABASE_URI)
             alembic.command.upgrade(alembic_cfg, "head")
-            print("Successfully upgraded alembic on startup")
+            logger.info("Successfully upgraded alembic on startup")
         except Exception as e:
-            print("Alembic upgrade failed on startup")
-            print(e)
+            logger.exception("Alembic upgrade failed on startup")
+            logger.exception(e)
 
 
 def main():
