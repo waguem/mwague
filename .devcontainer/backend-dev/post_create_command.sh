@@ -11,9 +11,9 @@ pre-commit install
 python3 -m venv .venv
 
 # install python dependencies in /backend
-# cd backend
-# pip install -r requirements.txt
-# cd ..
+cd backend
+pip install -r requirements.txt
+cd ..
 
 # install code in editable mode in /oasst-shared
 # pip install -e ./oasst-shared[dev]
