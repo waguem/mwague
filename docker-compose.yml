@@ -1,0 +1,68 @@
+version: "3.8"
+
+services:
+  # Use `docker compose --profile backend-dev up --build --attach-dependencies` to start a database and work and the backend.
+
+  # Use `docker compose --profile frontend-dev up --build --attach-dependencies` to start the services needed to work on the frontend. If you want to also run the inference, add a second `--profile inference` argument.
+
+  # The profile ci is used by CI automations. (i.e E2E testing)
+
+  # This DB is for the FastAPI Backend.
+  db:
+    image: postgres
+    pull_policy: always
+    container_name: mkdi-db
+    restart: always
+    profiles: ["frontend-dev", "backend-dev", "ci"]
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+
+  # This fakes an SMTP email server used by website authentication.
+  # User registration emails can be found by going to localhost:1080 and
+  # opening the emails listed.
+  maildev:
+    image: maildev/maildev
+    restart: always
+    profiles: ["frontend-dev", "ci"]
+    environment:
+      - MAILDEV_WEB_PORT=1080
+      - MAILDEV_SMTP_PORT=1025
+    ports:
+      - "1080:1080"
+      - "1025:1025"
+
+  adminer:
+    image: adminer
+    restart: always
+    profiles: ["frontend-dev", "backend-dev"]
+    ports:
+      - 8089:8080
+  # The oassist backend service.
+  backend:
+    build:
+      dockerfile: docker/Dockerfile.backend
+      context: .
+    image: mkdi-backend
+    environment:
+      - POSTGRES_HOST=mkdi-db
+      - REDIS_HOST=redis
+      - DEBUG_USE_SEED_DATA=True
+      - DEBUG_ALLOW_SELF_LABELING=True
+      - MAX_WORKERS=1
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles: ["frontend-dev", "ci", "backend-dev"]
+    ports:
+      - "8080:8080"
