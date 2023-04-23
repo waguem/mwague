@@ -1,4 +1,4 @@
-### Case 03 :  Maintenir les taux d'envoi
+### Case 03 : Maintenir les taux d'envoi
 
 ### Acteur principal
 
@@ -7,7 +7,7 @@
 
 ### Objectifs
 
-- [ ]  Garder une base de taux monaitaire à jours et attractive
+- [ ] Garder une base de taux monaitaire à jours et attractive
 
 ### Préconditions
 
@@ -16,7 +16,9 @@
 
 ### Postconditions
 
-- [ ] Une nouvelle catalogue à jour est disponible et utilisé pour les prochaines transactions
+- [ ] Une nouvelle catalogue à jour est disponible et utilisé pour les
+      prochaines transactions
+
 ### **Scenario**
 
 - [ ] 1 - L'employé se connecte
@@ -28,9 +30,5 @@
 
 ### **Exigences**
 
-- [ ] durée de la mise à jour moins 2 min 
+- [ ] durée de la mise à jour moins 2 min
 - [ ] sinon demander à l'agent de recommencer
-
-
-
-
