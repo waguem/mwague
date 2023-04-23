@@ -37,4 +37,18 @@
 - [ ] 8 - Le service client valide la transaction, le client est notifié,
       l'agent est notifié
 
+!["Effectuer un paiement cas nominal"](./mkdi002_nominal.jpg "Effectuer un paiement")
+
 ### Alternatives
+
+- [ ] 2a - transaction n'existe pas oubien la transaction n'est pas en attente
+      de paiement (pending)
+  - [ ] afficher une erreur si la transaction n'existe pas
+  - [ ] sinon montrer une icone grisée pour montrer que la transaction n'est pas
+        payable
+- [ ] 6a - le justificatif de paiement n'est pas au bon format
+  - [ ] afficher une erreur
+- [ ] 7a - après avoir ajouter le justificatif, l'utilisateur choisi
+      d'abandonner le paiement
+  - [ ] supprimer l'attachementn'e ubien ajouter une option enregistrer pour
+        plutard)
