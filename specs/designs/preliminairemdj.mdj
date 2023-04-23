@@ -1113,7 +1113,7 @@
 									"font": "Arial;13;0",
 									"left": 441,
 									"top": 1039.5,
-									"width": 119.8017578125,
+									"width": 119,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGHgZ+vLJYYjsc="
@@ -1312,7 +1312,7 @@
 									"font": "Arial;13;0",
 									"left": 457.5,
 									"top": 532.5,
-									"width": 121.24267578125,
+									"width": 120,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGHgaATn5ZLSpk="
@@ -2802,7 +2802,7 @@
 									"font": "Arial;13;0",
 									"left": 376.5,
 									"top": 759.5,
-									"width": 117.84033203125,
+									"width": 117,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGHgaHxK6cvpVA="
@@ -3546,7 +3546,7 @@
 									"font": "Arial;13;0",
 									"left": 569,
 									"top": 704.5,
-									"width": 157.37353515625,
+									"width": 156,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGHgaLAVLfZdhg="
@@ -4019,7 +4019,7 @@
 									"font": "Arial;13;0",
 									"left": 113,
 									"top": 283.5,
-									"width": 158.82080078125,
+									"width": 158,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGHgaNeVdOTWCA="
@@ -4218,7 +4218,7 @@
 									"font": "Arial;13;0",
 									"left": 146,
 									"top": 356.5,
-									"width": 85.8671875,
+									"width": 85,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGHgaOc9tncmOA="
@@ -4965,7 +4965,7 @@
 									"font": "Arial;13;0",
 									"left": 585,
 									"top": 832.5,
-									"width": 119.80810546875,
+									"width": 119,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGHhGLZ58ebddQ="
@@ -6183,7 +6183,7 @@
 									"font": "Arial;13;0",
 									"left": 495,
 									"top": 1271.5,
-									"width": 148.708984375,
+									"width": 148,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGHhG1jdvwiX+4="
@@ -7013,7 +7013,7 @@
 									"font": "Arial;13;0",
 									"left": 456,
 									"top": 1148.5,
-									"width": 76.447265625,
+									"width": 76,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGHhHCZkBmLRFU="
