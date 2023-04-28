@@ -112,8 +112,7 @@ export function UserMenu() {
         <MenuDivider />
         <MenuItem gap="3" borderRadius="md" p="4" onClick={handleSignOut}>
           <LogOut size="1em" aria-hidden="true" />
-          {/* <Text>{t("sign_out")}</Text> */}
-          <Text>{"sign_out"}</Text>
+          <Text>{t("sign_out")}</Text>
         </MenuItem>
       </MenuList>
     </Menu>

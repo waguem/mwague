@@ -14,7 +14,7 @@ const acceptToS = async () => {
 };
 
 export const ToSWrapper = ({ children }: { children?: ReactNode | undefined }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation("tos");
   const { session, status } = {
     session: { user: { name: "amadou", image: "", role: "admin", tosAcceptanceDate: "" } },
     status: "",

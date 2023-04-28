@@ -1,6 +1,7 @@
 import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import { Show } from "@chakra-ui/react";
 import Image from "next/image";
+import { useTranslation } from "next-i18next";
 import Link from "next/link";
 // import { useSession } from "next-auth/react";
 import React from "react";
@@ -29,6 +30,7 @@ export type HeaderProps = { preLogoSlot?: ReactNode; fixed?: boolean };
 const ANNOUNCEMENT_CACHE_KEY = "announcement";
 
 export function Header({ preLogoSlot, fixed = true }: HeaderProps) {
+  const { t } = useTranslation();
   const homeURL = "/";
   const initialShowAnnouncement = "initialShowAnnouncement";
   const [showAnnouncement, setShowAnnouncement] = React.useState(true);
@@ -42,7 +44,7 @@ export function Header({ preLogoSlot, fixed = true }: HeaderProps) {
 
   return (
     <>
-      {initialShowAnnouncement && showAnnouncement && (
+      {/* {initialShowAnnouncement && showAnnouncement && (
         <Box
           zIndex={30}
           position={fixed ? "fixed" : "relative"}
@@ -59,7 +61,7 @@ export function Header({ preLogoSlot, fixed = true }: HeaderProps) {
             OK
           </Button>
         </Box>
-      )}
+      )} */}
       <Box
         as="header"
         className="oa-basic-theme"
@@ -78,7 +80,7 @@ export function Header({ preLogoSlot, fixed = true }: HeaderProps) {
           <Flex as={Link} gap="3" href={homeURL} aria-label="Home" alignItems="center">
             <Image src="/images/logos/logo.svg" className="mx-auto object-fill" width="50" height="50" alt="logo" />
             <Text fontSize={["lg", "2xl"]} fontWeight="bold" className="hidden sm:block">
-              Title
+              {t("title")}
             </Text>
           </Flex>
         </Flex>
