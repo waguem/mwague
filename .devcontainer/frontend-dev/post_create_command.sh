@@ -4,6 +4,6 @@
 pre-commit install
 
 # npm install in /website
-# cd website
-# npm install
-# cd ..
+cd website
+pnpm install
+cd ..

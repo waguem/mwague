@@ -1,5 +1,6 @@
 import { Box } from "@chakra-ui/react";
 import { PropsWithChildren } from "react";
+
 import { SIDE_MENU_WIDTH, SideMenu, SideMenuProps } from "@/ui/SideMenu";
 import { colors } from "@/styles/Theme/colors";
 

@@ -16,6 +16,7 @@ import { AlertTriangle, Layout, LogOut, Settings, Shield } from "lucide-react";
 import NextLink from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import React, { ElementType, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 // import { UserScore } from "src/components/Header/UserScore";
 // import { useHasAnyRole } from "src/hooks/auth/useHasAnyRole";
 
@@ -27,29 +28,27 @@ interface MenuOption {
 }
 
 export function UserMenu() {
-  //const { t } = useTranslation();
+  const { t } = useTranslation();
   const borderColor = useColorModeValue("gray.300", "gray.600");
   const handleSignOut = useCallback(() => {
     signOut({ callbackUrl: "/" });
   }, []);
   //const { data: session, status } = useSession();
   const { session, status } = { session: { user: { name: "amadou", image: "", role: "admin" } }, status: "" };
-  // const isAdminOrMod = useHasAnyRole(["admin", "moderator"]);
+  //const isAdminOrMod = useHasAnyRole(["admin", "moderator"]);
   const isAdminOrMod = true;
   if (!session || status !== "authenticated") {
     return null;
   }
   const options: MenuOption[] = [
     {
-      //name: t("dashboard"),
-      name: "dashboard",
+      name: t("dashboard"),
       href: "/dashboard",
       icon: Layout,
       isExternal: false,
     },
     {
-      // name: t("account_settings"),
-      name: "account_settings",
+      name: t("account_settings"),
       href: "/account",
       icon: Settings,
       isExternal: false,
@@ -65,8 +64,7 @@ export function UserMenu() {
 
   if (isAdminOrMod) {
     options.unshift({
-      // name: t("admin_dashboard"),
-      name: "admin_dashboard",
+      name: t("admin_dashboard"),
       href: "/admin",
       icon: Shield,
       isExternal: false,
