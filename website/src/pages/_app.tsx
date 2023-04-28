@@ -21,10 +21,10 @@ const swrConfig: SWRConfiguration = {
   revalidateOnFocus: false,
   revalidateOnMount: true,
 };
-function App({ Component, pageProps: { session, ...pageProps }, cookie, env }: AppPropsWithLayout) {
-  if (typeof window === "undefined") {
-    (window as unknown as { __env: BrowserEnv }).__env = env;
-  }
+function App({ Component, pageProps, cookie, env }: AppPropsWithLayout) {
+  // if (typeof window === "undefined") {
+  //   (window as unknown as { __env: BrowserEnv }).__env = env;
+  // }
   // get page lagout if defined
   // otherwise use default layout
   const getLayout = Component.getLayout ?? getDefaultLayout;
@@ -43,7 +43,8 @@ function App({ Component, pageProps: { session, ...pageProps }, cookie, env }: A
       <FlagsProvider value={flags}>
         <Chakra cookie={cookie}>
           <SWRConfig value={swrConfig}>
-            <SessionProvider session={session}>{page}</SessionProvider>
+            {page}
+            {/* <SessionProvider session={session}>{page}</SessionProvider> */}
           </SWRConfig>
         </Chakra>
       </FlagsProvider>
