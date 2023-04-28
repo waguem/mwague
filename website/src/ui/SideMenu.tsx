@@ -3,10 +3,9 @@ import clsx from "clsx";
 import { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-// import { useTranslation } from "next-i18next";
-// import { getTypeSafei18nKey } from "@/lib/i18n";
-
 import { HEADER_HEIGHT } from "./Header/Header";
+import { getTypeSafei18nKey } from "@/lib/i18next";
+import { useTranslation } from "next-i18next";
 
 export interface SideMenuItemType {
   labelID: string;
@@ -62,9 +61,9 @@ export const SideMenuItem = ({
 }) => {
   const isChat = variant === "chat";
   const router = useRouter();
-  //const { t } = useTranslation();
-  //const label = t(getTypeSafei18nKey(item.labelID));
-  const label = "label";
+  const { t } = useTranslation();
+  const label = t(getTypeSafei18nKey(item.labelID));
+
   const isActive = active ?? router.pathname === item.pathname;
   return (
     <Tooltip

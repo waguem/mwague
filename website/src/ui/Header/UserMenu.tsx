@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { AlertTriangle, Layout, LogOut, Settings, Shield } from "lucide-react";
 import NextLink from "next/link";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import React, { ElementType, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 // import { UserScore } from "src/components/Header/UserScore";

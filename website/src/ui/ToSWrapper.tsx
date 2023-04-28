@@ -21,6 +21,7 @@ export const ToSWrapper = ({ children }: { children?: ReactNode | undefined }) =
   };
 
   //   const { data: session, status } = useSession();
+
   const hasAcceptedTos = Boolean(session?.user.tosAcceptanceDate);
   const isLoading = status === "loading";
   const notLoggedIn = status === "unauthenticated";
