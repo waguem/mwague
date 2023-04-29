@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "fix:lint": "eslint --fix src/ --ext .js,.jsx,.ts,.tsx",
+    "fix:format": "prettier --write ./src",
+    "fix": "pnpm run fix:format && pnpm run fix:lint"
   },
   "dependencies": {
     "@chakra-ui/anatomy": "^2.1.1",

@@ -19,7 +19,7 @@ function AccountButton() {
   return (
     <Link href="/auth/signin" aria-label="Home">
       <Flex alignItems="center">
-        <Button variant="outline">user button</Button>
+        <Button variant="outline">Sign In</Button>
       </Flex>
     </Link>
   );
@@ -80,7 +80,8 @@ export function Header({ preLogoSlot, fixed = true }: HeaderProps) {
           <Flex as={Link} gap="3" href={homeURL} aria-label="Home" alignItems="center">
             <Image src="/images/logos/logo.svg" className="mx-auto object-fill" width="50" height="50" alt="logo" />
             <Text fontSize={["lg", "2xl"]} fontWeight="bold" className="hidden sm:block">
-              {t("title")}
+              Minkadi
+              {/* {t("title")} */}
             </Text>
           </Flex>
         </Flex>

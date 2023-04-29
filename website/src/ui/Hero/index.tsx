@@ -2,7 +2,6 @@ import { Box, Button, Text, useColorMode } from "@chakra-ui/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
-import { getEnv } from "@/lib/browserEnv";
 
 import { AnimatedCircles } from "@/ui/AnimatedCircles";
 import { Container } from "@/ui/Container";
@@ -19,16 +18,25 @@ export function Hero() {
         <Box className="lg:grid lg:grid-cols-12 lg:gap-x-8 lg:gap-y-20">
           <Box className="relative mx-auto max-w-2xl lg:col-span-7 lg:max-w-none lg:pt-6 xl:col-span-6">
             <Text as="h1" className="text-5xl mb-6 font-bold tracking-tight">
-              {t("common:title")}
+              {/* {t("common:title")} */}
+              One Send
             </Text>
             <Text
               as="h2"
               className={`bg-gradient-to-r ${fancyTextGradientClasses} font-bold mt-8 text-3xl inline bg-clip-text font-display tracking-tight text-transparent`}
             >
-              {t("subtitle")}
+              Send fast to your relatives
+              {/* {t("subtitle")} */}
             </Text>
-            <Text className={`mt-6 text-lg ${pTextColor}`}>{t("blurb")}</Text>
-            <Text className={`mt-6 text-lg ${pTextColor}`}>{t("blurb1")}</Text>
+            <Text className={`mt-6 text-lg ${pTextColor}`}>
+              We believe we can create a revolution.
+              {/* {t("blurb")} */}
+            </Text>
+            <Text className={`mt-6 text-lg ${pTextColor}`}>
+              In the same way that Stable Diffusion helped the world make art and images in new ways, we want to improve
+              the world by providing amazing conversational AI.
+              {/* {t("blurb1")} */}
+            </Text>
             <Box className={`mt-6 flex gap-6 ${pTextColor} flex-wrap`}>
               <Link href="/dashboard" aria-label="Dashboard">
                 <Button variant="outline" px={5} py={6}>

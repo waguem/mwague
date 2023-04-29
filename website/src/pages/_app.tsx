@@ -38,7 +38,7 @@ function App({ Component, pageProps, cookie, env }: AppPropsWithLayout) {
   return (
     <>
       <Head>
-        <meta name="description" key="description" content={t("common:description") ?? "description"} />
+        <meta name="description" key="description" content={t("index:description")} />
       </Head>
       <FlagsProvider value={flags}>
         <Chakra cookie={cookie}>
