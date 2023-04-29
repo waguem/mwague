@@ -1,4 +1,5 @@
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.10
+WORKDIR /app
 
 COPY ./backend/requirements.txt /app/requirements.txt
 
@@ -14,3 +15,4 @@ COPY ./backend/alembic /app/alembic
 COPY ./backend/alembic.ini /app/alembic.ini
 COPY ./backend/main.py /app/main.py
 COPY ./backend/mkdi_backend /app/mkdi_backend
+COPY ./backend/tests /app/tests

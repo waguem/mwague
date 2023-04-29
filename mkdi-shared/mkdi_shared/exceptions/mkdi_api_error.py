@@ -2,7 +2,7 @@ from enum import IntEnum
 from http import HTTPStatus
 
 
-class OasstErrorCode(IntEnum):
+class MkdiErrorCode(IntEnum):
     """
     Error codes of the Open-Assistant backend API.
 
@@ -17,14 +17,14 @@ class OasstErrorCode(IntEnum):
     GENERIC_ERROR = 0
 
 
-class OasstError(Exception):
+class MkdiError(Exception):
     """Base class for Open-Assistant exceptions."""
 
     message: str
     error_code: int
     http_status_code: HTTPStatus
 
-    def __init__(self, message: str, error_code: OasstErrorCode, http_status_code: HTTPStatus = HTTPStatus.BAD_REQUEST):
+    def __init__(self, message: str, error_code: MkdiErrorCode, http_status_code: HTTPStatus = HTTPStatus.BAD_REQUEST):
         super().__init__(message, error_code, http_status_code)  # make exception picklable (fill args member)
         self.message = message
         self.error_code = error_code
