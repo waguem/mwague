@@ -10,14 +10,27 @@ from mkdi_shared.api_client import MkdiApiClient
 from mkdi_shared.schemas import protocol as protocol_schema
 
 
-class MockClientSession(aiohttp.ClientSession):
-    response: Any
+class MockClientSession:
+    def __init__(self):
+        self._session = aiohttp.ClientSession()
 
-    def set_response(self, response: Any):
+    async def get(self, url):
+        return MockClientResponse(await self._session.get(url))
+
+    # other methods go here
+
+
+class MockClientResponse:
+    def __init__(self, response):
         self.response = response
+        self.status = response.status
+        self.reason = response.reason
+        self.headers = response.headers
 
-    async def post(self, *args, **kwargs):
-        return self.response
+    async def text(self):
+        return await self.response.text()
+
+    # other methods go here
 
 
 @pytest.fixture
@@ -30,12 +43,14 @@ def mkdi_api_client_fake_http(mock_http_session):
     """
     An oasst_api_client that uses a mocked http session. No real requests are made.
     """
-    client = MkdiApiClient(backend_url="http://localhost:8080", api_key="123", session=mock_http_session)
+    client = MkdiApiClient(
+        backend_url="http://localhost:8080", api_key="123", session=mock_http_session
+    )
     yield client
 
 
 @pytest.fixture
-async def mkdi_api_client_mocked():
+def mkdi_api_client_mocked():
     """
     A an oasst_api_client pointed at the mocked backend.
     Relies on ./scripts/backend-development/start-mock-server.sh
@@ -46,7 +61,7 @@ async def mkdi_api_client_mocked():
     # TODO The fixture should close this connection, but there seems to be a bug
     # with async fixtures and pytest.
     # Since this only results in a warning, I'm leaving this for now.
-    await client.close()
+    # client.close()
 
 
 @pytest.mark.asyncio
