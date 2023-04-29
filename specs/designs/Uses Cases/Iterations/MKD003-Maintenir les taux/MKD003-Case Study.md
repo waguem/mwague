@@ -26,6 +26,8 @@
 - [ ] 3 - Selectionne un match
 - [ ] 4 - le met à jour et publie la mise à jour
 
+!["Maintenir le taux"](./mkdi003_rate_management.jpg "maintenir le taux")
+
 ### Alternatives
 
 ### **Exigences**
