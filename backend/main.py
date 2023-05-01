@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from http import HTTPStatus
 from pathlib import Path
 
 import alembic.command
@@ -8,6 +9,8 @@ import fastapi
 from loguru import logger
 from mkdi_backend.api.v1.api import api_router
 from mkdi_backend.config import settings
+from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
+from mkdi_shared.schemas import protocol as protocol_schema
 from mkdi_shared.utils import utcnow
 
 app = fastapi.FastAPI(title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json")
@@ -19,6 +22,29 @@ def get_openapi_schema():
 
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+
+@app.exception_handler(MkdiError)
+async def mkdi_exception_handler(request: fastapi.Request, ex: MkdiError):
+    logger.error(f"{request.method} {request.url} failed: {repr(ex)}")
+
+    return fastapi.responses.JSONResponse(
+        status_code=int(ex.http_status_code),
+        content=protocol_schema.MkdiErrorResponse(
+            message=ex.message,
+            error_code=MkdiErrorCode(ex.error_code),
+        ).dict(),
+    )
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: fastapi.Request, ex: Exception):
+    logger.exception(f"{request.method} {request.url} failed [UNHANDLED]: {repr(ex)}")
+    status = HTTPStatus.INTERNAL_SERVER_ERROR
+    return fastapi.responses.JSONResponse(
+        status_code=status.value, content={"message": status.name, "error_code": MkdiErrorCode.GENERIC_ERROR}
+    )
+
 
 if settings.UPDATE_ALEMBIC:
 

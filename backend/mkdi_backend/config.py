@@ -12,8 +12,10 @@ class Settings(BaseSettings):
     # These fields need to be shared with the web's auth settings in order to
     # correctly decrypt the web tokens.
     AUTH_INFO: bytes = b"NextAuth.js Generated Encryption Key"
-    AUTH_SALT: bytes = b""
+    AUTH_SALT: bytes = b"ea01136f23b4acbe"
+    # the length of the encrypted token in bytes
     AUTH_LENGTH: int = 32
+    # this key is used for key derivation and token creation
     AUTH_SECRET: bytes = b"tyqABZo4LDtM27Y4j5x1XFmgcyHdmsNQlJ2IhXM+XsI="
     AUTH_COOKIE_NAME: str = "next-auth.session-token"
     AUTH_ALGORITHM: str = "HS256"

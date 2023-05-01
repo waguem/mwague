@@ -43,9 +43,7 @@ def mkdi_api_client_fake_http(mock_http_session):
     """
     An oasst_api_client that uses a mocked http session. No real requests are made.
     """
-    client = MkdiApiClient(
-        backend_url="http://localhost:8080", api_key="123", session=mock_http_session
-    )
+    client = MkdiApiClient(backend_url="http://localhost:8080", api_key="123", session=mock_http_session)
     yield client
 
 

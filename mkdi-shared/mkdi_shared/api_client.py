@@ -66,14 +66,12 @@ class MkdiApiClient:
     async def post(self, path: str, data: dict[str, Any]) -> Optional[dict[str, Any]]:
         """Make a POST request to the backend."""
         logger.debug(f"POST {self.backend_url}{path} DATA: {data}")
-        response = await self.session.post(
-            f"{self.backend_url}{path}", json=data, headers={"x-api-key": self.api_key}
-        )
+        response = await self.session.post(f"{self.backend_url}{path}", json=data, headers={"x-api-key": self.api_key})
         logger.debug(f"response: {response}")
 
         # If the response is not a 2XX, check to see
         # if the json has the fields to create an
-        # OasstError.
+        # MkdiError.
         if response.status >= 300:
             text = await response.text()
             logger.debug(f"resp text: {text}")

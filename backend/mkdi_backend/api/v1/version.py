@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from loguru import logger
 
 router = APIRouter()
 
@@ -10,4 +11,5 @@ def ping():
 
 @router.get("/version")
 def get_version():
+    logger.info("Getting version")
     return {"version": "0.0.1"}

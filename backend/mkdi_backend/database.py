@@ -1,9 +1,9 @@
 from mkdi_backend.config import settings
-from mkdi_shared.exceptions.mkdi_api_error import OasstError, OasstErrorCode
+from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from sqlmodel import create_engine
 
 if settings.DATABASE_URI is None:
-    raise OasstError("DATABASE_URI is not set", error_code=OasstErrorCode.DATABASE_URI_NOT_SET)
+    raise MkdiError("DATABASE_URI is not set", error_code=MkdiErrorCode.DATABASE_URI_NOT_SET)
 
 engine = create_engine(
     settings.DATABASE_URI,
