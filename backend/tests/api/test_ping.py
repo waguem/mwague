@@ -1,8 +1,4 @@
-from fastapi.testclient import TestClient
-
-from backend.main import app
-
-client = TestClient(app)
+from .client import client
 
 
 def test_ping():
