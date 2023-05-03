@@ -1,12 +1,14 @@
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn, validator
+from pydantic import AnyHttpUrl, BaseSettings, FilePath, PostgresDsn, validator
 
 
 class Settings(BaseSettings):
+    ENV: str = "production"
     PROJECT_NAME: str = "minkadi backend"
     API_V1_STR: str = "/api/v1"
-    OFFICIAL_WEB_API_KEY: str = "1234"
+    OFFICIAL_WEB_API_KEY: str = "755b9e02daafdc25deb5a3ad0ae865b532cab53027f90acf6e1fd453f73a84fa"
 
     # Encryption fields for handling the web generated JSON Web Tokens.
     # These fields need to be shared with the web's auth settings in order to
@@ -37,6 +39,8 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_PORT: str = "6379"
 
+    DEBUG_USE_SEED_DATA: bool = False
+    DEBUG_USE_SEED_DATA_PATH: Optional[FilePath] = Path(__file__).parent.parent / "test_data/seed.json"
     DEBUG_DATABASE_ECHO: bool = False
     DEBUG_IGNORE_TOS_ACCEPTANCE: bool = (  # ignore whether users accepted the ToS
         True  # TODO: set False after ToS acceptance UI was added to web-frontend

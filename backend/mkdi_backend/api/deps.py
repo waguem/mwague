@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from secrets import token_hex
 from typing import Generator
 from uuid import UUID
@@ -5,7 +6,7 @@ from uuid import UUID
 import mkdi_shared.exceptions.mkdi_api_error as mkdi_api_error
 from fastapi import Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from fastapi.security.api_key import APIKeyHeader, APIKeyQuery
+from fastapi.security.api_key import APIKey, APIKeyHeader, APIKeyQuery
 from loguru import logger
 from mkdi_backend.config import Settings
 from mkdi_backend.database import engine
@@ -77,3 +78,19 @@ def create_api_client(
     session.commit()
     session.refresh(api_client)
     return api_client
+
+
+def api_auth(
+    api_key: APIKey,
+    db: Session,
+) -> ApiClient:
+    if api_key:
+        api_client = db.query(ApiClient).filter(ApiClient.api_key == api_key).first()
+        if api_client is not None and api_client.enabled:
+            return api_client
+
+    raise mkdi_api_error.MkdiError(
+        "Could not validate credentials",
+        error_code=mkdi_api_error.MkdiErrorCode.API_CLIENT_NOT_AUTHORIZED,
+        http_status_code=HTTPStatus.FORBIDDEN,
+    )

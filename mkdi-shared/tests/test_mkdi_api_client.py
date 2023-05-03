@@ -65,6 +65,6 @@ async def test_can_ping_backend(mkdi_api_client_mocked: MkdiApiClient):
 
 @pytest.mark.asyncio
 async def test_can_authenticate(mkdi_api_client_mocked: MkdiApiClient):
-    response = await mkdi_api_client_mocked.authenticate("thierno", "thierno")
+    response = await mkdi_api_client_mocked.authenticate("Alice", "Alice")
     assert response is not None
     assert response["access_token"] is not None

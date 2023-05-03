@@ -7,11 +7,14 @@ import alembic.command
 import alembic.config
 import fastapi
 from loguru import logger
+from mkdi_backend.api.deps import api_auth, create_api_client
 from mkdi_backend.api.v1.api import api_router
 from mkdi_backend.config import settings
+from mkdi_backend.database import engine
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol as protocol_schema
 from mkdi_shared.utils import utcnow
+from sqlmodel import Session
 
 app = fastapi.FastAPI(title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json")
 startup_time: datetime = utcnow()
@@ -22,6 +25,35 @@ def get_openapi_schema():
 
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+
+if settings.OFFICIAL_WEB_API_KEY:
+
+    @app.on_event("startup")
+    def create_official_web_api_client():
+        with Session(engine) as session:
+            try:
+                api_auth(settings.OFFICIAL_WEB_API_KEY, db=session)
+            except:
+                logger.info("Creating official web api client")
+                create_api_client(
+                    session=session,
+                    api_key=settings.OFFICIAL_WEB_API_KEY,
+                    description="The Official web client for mkdi backend",
+                    frontend_type="web",
+                    trusted=True,
+                )
+
+
+if settings.DEBUG_USE_SEED_DATA:
+    logger.info("Seeding database with debug data")
+
+    @app.on_event("startup")
+    def seed_data():
+        from mkdi_backend.utils.seed import create_seed_data
+
+        create_seed_data()
+        logger.info("Seeded database with debug data")
 
 
 @app.exception_handler(MkdiError)

@@ -20,7 +20,7 @@ def test_create_api_client():
 def test_login_for_access_token():
     response = client.post(
         "/api/v1/auth/token",
-        data={"username": "thierno", "password": "thierno"},
+        data={"username": "Alice", "password": "Alice"},
     )
     assert response.status_code == 200
     response = response.json()
@@ -32,13 +32,13 @@ def test_login_for_access_token():
         # headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == 200
-    assert response.json() == "thierno@gmail.com"
+    assert response.json() == "alice@gmail.com"
 
 
 def test_login_for_access_token_fail():
     response = client.post(
         "/api/v1/auth/token",
-        data={"username": "thierno", "password": "wrong"},
+        data={"username": "Alice", "password": "aliceeeee"},
     )
     assert response.status_code == 401
     response = response.json()
