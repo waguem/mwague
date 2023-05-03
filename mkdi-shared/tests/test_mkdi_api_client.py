@@ -43,9 +43,7 @@ def mkdi_api_client_fake_http(mock_http_session):
     """
     An oasst_api_client that uses a mocked http session. No real requests are made.
     """
-    client = MkdiApiClient(
-        backend_url="http://localhost:8080", api_key="123", session=mock_http_session
-    )
+    client = MkdiApiClient(backend_url="http://localhost:8080", api_key="123", session=mock_http_session)
     yield client
 
 
@@ -58,12 +56,15 @@ def mkdi_api_client_mocked():
     """
     client = MkdiApiClient(backend_url="http://localhost:8080", api_key="123")
     yield client
-    # TODO The fixture should close this connection, but there seems to be a bug
-    # with async fixtures and pytest.
-    # Since this only results in a warning, I'm leaving this for now.
-    # client.close()
 
 
 @pytest.mark.asyncio
 async def test_can_ping_backend(mkdi_api_client_mocked: MkdiApiClient):
     assert await mkdi_api_client_mocked.ping() is not None
+
+
+@pytest.mark.asyncio
+async def test_can_authenticate(mkdi_api_client_mocked: MkdiApiClient):
+    response = await mkdi_api_client_mocked.authenticate("Alice", "Alice")
+    assert response is not None
+    assert response["access_token"] is not None

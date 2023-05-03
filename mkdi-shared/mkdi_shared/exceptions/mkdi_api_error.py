@@ -15,6 +15,11 @@ class MkdiErrorCode(IntEnum):
 
     # 0-1000: general errors
     GENERIC_ERROR = 0
+    DATABASE_URI_NOT_SET = 1
+    API_CLIENT_NOT_AUTHORIZED = 2
+    ROOT_TOKEN_NOT_AUTHORIZED = 3
+    # for creating a new user, returned if the username is already taken
+    USER_EXISTS = 4
 
 
 class MkdiError(Exception):

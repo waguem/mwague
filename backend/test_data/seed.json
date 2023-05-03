@@ -1,0 +1,24 @@
+{
+  "users": [
+    {
+      "id": "user_id",
+      "display_name": "Bob",
+      "username": "Bob",
+      "email": "bob@gmail.com",
+      "auth_method": "local",
+      "enabled": true,
+      "notes": "notes",
+      "password": "Bob"
+    },
+    {
+      "id": "test",
+      "display_name": "Alice",
+      "username": "Alice",
+      "email": "alice@gmail.com",
+      "auth_method": "local",
+      "enabled": true,
+      "notes": "notes",
+      "password": "Alice"
+    }
+  ]
+}

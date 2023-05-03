@@ -1,19 +1,23 @@
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn, validator
+from pydantic import AnyHttpUrl, BaseSettings, FilePath, PostgresDsn, validator
 
 
 class Settings(BaseSettings):
+    ENV: str = "production"
     PROJECT_NAME: str = "minkadi backend"
     API_V1_STR: str = "/api/v1"
-    OFFICIAL_WEB_API_KEY: str = "1234"
+    OFFICIAL_WEB_API_KEY: str = "755b9e02daafdc25deb5a3ad0ae865b532cab53027f90acf6e1fd453f73a84fa"
 
     # Encryption fields for handling the web generated JSON Web Tokens.
     # These fields need to be shared with the web's auth settings in order to
     # correctly decrypt the web tokens.
     AUTH_INFO: bytes = b"NextAuth.js Generated Encryption Key"
-    AUTH_SALT: bytes = b""
+    AUTH_SALT: bytes = b"ea01136f23b4acbe"
+    # the length of the encrypted token in bytes
     AUTH_LENGTH: int = 32
+    # this key is used for key derivation and token creation
     AUTH_SECRET: bytes = b"tyqABZo4LDtM27Y4j5x1XFmgcyHdmsNQlJ2IhXM+XsI="
     AUTH_COOKIE_NAME: str = "next-auth.session-token"
     AUTH_ALGORITHM: str = "HS256"
@@ -35,6 +39,8 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_PORT: str = "6379"
 
+    DEBUG_USE_SEED_DATA: bool = False
+    DEBUG_USE_SEED_DATA_PATH: Optional[FilePath] = Path(__file__).parent.parent / "test_data/seed.json"
     DEBUG_DATABASE_ECHO: bool = False
     DEBUG_IGNORE_TOS_ACCEPTANCE: bool = (  # ignore whether users accepted the ToS
         True  # TODO: set False after ToS acceptance UI was added to web-frontend

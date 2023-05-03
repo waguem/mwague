@@ -48,18 +48,24 @@ services:
       - 8089:8080
   # The oassist backend service.
   backend:
-    build:
-      dockerfile: docker/Dockerfile.backend
-      context: .
-    image: mkdi-backend
+    image: tiangolo/uvicorn-gunicorn-fastapi:python3.10
+    working_dir: /backend
+    container_name: mkdi-backend
+    volumes:
+      - "./backend:/backend"
+      - "./mkdi-shared:/mkdi-shared"
+      - "./scripts/prestart.sh:/app/prestart.sh"
+    command: /start-reload.sh
     environment:
       - POSTGRES_HOST=mkdi-db
+      - ENV=developement
       - REDIS_HOST=redis
       - DEBUG_USE_SEED_DATA=True
       - DEBUG_ALLOW_SELF_LABELING=True
       - MAX_WORKERS=1
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - PYTHONPATH=/backend
     depends_on:
       db:
         condition: service_healthy
