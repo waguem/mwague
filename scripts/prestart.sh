@@ -9,11 +9,11 @@ sleep 10;
 # Run migrations
 alembic upgrade head
 "
-echo "updating pip"
-pip install --upgrade pip
-echo "installing requirements"
-pip install --no-cache-dir -r /backend/requirements.txt
-pip install -e /mkdi-shared[dev]
+# echo "updating pip"
+# pip install --upgrade pip
+# echo "installing requirements"
+# pip install --no-cache-dir -r /backend/requirements.txt
+# pip install -e /mkdi-shared[dev]
 echo "running migrations"
 cd /backend
 echo "waiting 3 seconds for db to start"

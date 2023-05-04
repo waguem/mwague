@@ -23,11 +23,21 @@ router = APIRouter()
 
 
 class Token(BaseModel):
+    """_summary_
+
+    Args:
+        BaseModel (_type_): _description_
+    """
+
     access_token: str
     token_type: str
 
 
 class TokenData(BaseModel):
+    """
+    Token data
+    """
+
     username: str | None = None
     email: Union[EmailStr, None] = None
 
@@ -66,6 +76,15 @@ async def create_api_client(
     # root_token : str = Depends(deps.get_root_token),
     session: deps.Session = Depends(deps.get_db),
 ) -> str:
+    """_summary_
+
+    Args:
+        request (CreateApiClientRequest): _description_
+        session (deps.Session, optional): _description_. Defaults to Depends(deps.get_db).
+
+    Returns:
+        str: _description_
+    """
     logger.info(f"Creating new api client with {request=}")
     api_client = deps.create_api_client(
         session=session,
@@ -80,9 +99,10 @@ async def create_api_client(
 
 @router.post("/users", response_model=protocol.User)
 async def create_user(
-    request: protocol.CreateFrontendUserRequest, db: Session = Depends(deps.get_db)
+    request: protocol.CreateFrontendUserRequest, database: Session = Depends(deps.get_db)
 ) -> protocol.FrontEndUser:
-    user_repo = UserRepository(db)
+    """_summary_"""
+    user_repo = UserRepository(database)
     user = user_repo.create_local_user(request)
     return user.to_protocol_frontend_user()
 
@@ -91,9 +111,21 @@ async def create_user(
 async def login_for_access_token(
     # form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(deps.get_db),
+    session: Session = Depends(deps.get_db),
 ) -> Token:
-    user = authenticate_user(db, form_data.username, form_data.password)
+    """_summary_
+
+    Args:
+        form_data (OAuth2PasswordRequestForm, optional): _description_. Defaults to Depends().
+        session (Session, optional): _description_. Defaults to Depends(deps.get_db).
+
+    Raises:
+        HTTPException: _description_
+
+    Returns:
+        Token: _description_
+    """
+    user = authenticate_user(session, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -106,4 +138,7 @@ async def login_for_access_token(
 
 @router.get("/check", response_model=str)
 async def auth_check(token_data: TokenData = Depends(get_current_user)) -> str:
+    """
+    Check if user is authenticated
+    """
     return token_data.email
