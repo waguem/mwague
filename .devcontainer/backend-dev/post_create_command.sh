@@ -17,6 +17,7 @@ cd ..
 
 # install code in editable mode in /oasst-shared
 pip install -e ./mkdi-shared[dev]
+pip install -e ./functional-tests[dev]
 
 # # install code in editable mode in /oasst-data
 # pip install -e ./oasst-data[dev]
