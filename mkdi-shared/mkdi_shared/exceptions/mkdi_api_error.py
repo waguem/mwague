@@ -21,6 +21,10 @@ class MkdiErrorCode(IntEnum):
     # for creating a new user, returned if the username is already taken
     USER_EXISTS = 4
     DATABASE_MAX_RETRIES_EXHAUSTED = 5
+    SERVER_ERROR0 = 500
+    SERVER_ERROR1 = 501
+
+    INVALID_AUTHENTICATION = 600
 
 
 class MkdiError(Exception):
@@ -36,9 +40,7 @@ class MkdiError(Exception):
         error_code: MkdiErrorCode,
         http_status_code: HTTPStatus = HTTPStatus.BAD_REQUEST,
     ):
-        super().__init__(
-            message, error_code, http_status_code
-        )  # make exception picklable (fill args member)
+        super().__init__(message, error_code, http_status_code)  # make exception picklable (fill args member)
         self.message = message
         self.error_code = error_code
         self.http_status_code = http_status_code

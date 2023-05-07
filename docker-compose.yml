@@ -54,6 +54,7 @@ services:
     volumes:
       - "./backend:/backend"
       - "./mkdi-shared:/mkdi-shared"
+      - "./functional-tests:/functional-tests"
       - "./scripts/prestart.sh:/app/prestart.sh"
     command: /start-reload.sh
     environment:

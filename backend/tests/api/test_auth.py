@@ -42,4 +42,4 @@ def test_login_for_access_token_fail():
     )
     assert response.status_code == 401
     response = response.json()
-    assert response == {"detail": "Incorrect username or password"}
+    assert response == {"error_code": 600, "message": "Incorrect username or password"}
