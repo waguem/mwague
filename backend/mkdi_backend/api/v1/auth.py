@@ -11,6 +11,7 @@ from mkdi_backend.api import deps
 from mkdi_backend.auth.auth import authenticate_user, create_access_token, get_user, register_user
 from mkdi_backend.config import settings
 from mkdi_backend.repositories.user import UserRepository
+from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol
 from pydantic import BaseModel, EmailStr
 from sqlmodel import Session
@@ -127,11 +128,16 @@ async def login_for_access_token(
     """
     user = authenticate_user(session, form_data.username, form_data.password)
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
+        raise MkdiError(
+            error_code=MkdiErrorCode.INVALID_AUTHENTICATION,
+            message="Incorrect username or password",
+            http_status_code=status.HTTP_401_UNAUTHORIZED,
         )
+        # raise HTTPException(
+        #     status_code=status.HTTP_401_UNAUTHORIZED,
+        #     detail="Incorrect username or password",
+        #     headers={"WWW-Authenticate": "Bearer"},
+        # )
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
 

@@ -14,6 +14,7 @@ alembic upgrade head
 # echo "installing requirements"
 # pip install --no-cache-dir -r /backend/requirements.txt
 # pip install -e /mkdi-shared[dev]
+pip install -e /functional-tests[dev]
 echo "running migrations"
 cd /backend
 echo "waiting 3 seconds for db to start"
