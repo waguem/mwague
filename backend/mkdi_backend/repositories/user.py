@@ -1,6 +1,3 @@
-from typing import Optional
-from uuid import UUID
-
 from mkdi_backend.api import deps
 from mkdi_backend.auth import auth
 from mkdi_backend.models import ApiClient, User
@@ -11,6 +8,10 @@ from sqlmodel import Session
 
 
 class UserRepository:
+    """
+    Repository for managing users
+    """
+
     # def __init__(self, db: Session, api_client: ApiClient):
     def __init__(self, db: Session):
         self.db = db

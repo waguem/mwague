@@ -50,17 +50,18 @@ def managed_tx_method(auto_commit: CommitMode = CommitMode.COMMIT, num_retries=s
                                 self.db.refresh(result)
                             retry_exhausted = False
                             break
-                        except PendingRollbackError as e:
-                            logger.info(str(e))
+                        except PendingRollbackError as error:
+                            logger.info(str(error))
                             self.db.rollback()
-                        except OperationalError as e:
-                            if e.orig is not None and isinstance(
-                                e.orig, (SerializationFailure, DeadlockDetected, UniqueViolation, ExclusionViolation)
+                        except OperationalError as error:
+                            if error.orig is not None and isinstance(
+                                error.orig,
+                                (SerializationFailure, DeadlockDetected, UniqueViolation, ExclusionViolation),
                             ):
-                                logger.info(f"{type(e.orig)} Inner {e.orig.pgcode} {type(e.orig.pgcode)}")
+                                logger.info(f"{type(error.orig)} Inner {error.orig.pgcode} {type(error.orig.pgcode)}")
                                 self.db.rollback()
                             else:
-                                raise e
+                                raise error
                         logger.info(f"Retry {i+1}/{num_retries}")
                     if retry_exhausted:
                         raise MkdiError(
@@ -77,9 +78,9 @@ def managed_tx_method(auto_commit: CommitMode = CommitMode.COMMIT, num_retries=s
                     elif auto_commit == CommitMode.ROLLBACK:
                         self.db.rollback()
                 return result
-            except Exception as e:
-                logger.info(str(e))
-                raise e
+            except Exception as error:
+                logger.info(str(error))
+                raise error
 
         return wrapped_f
 
