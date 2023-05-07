@@ -10,6 +10,14 @@ from sqlmodel import Session
 
 
 def create_seed_data():
+    """
+    Seed the database with data from the DEBUG_USE_SEED_DATA_PATH setting
+    this will work only if the DEBUG_USE_SEED_DATA setting is set to True
+    and the ENV setting is not set to production
+
+    Raises:
+        ValueError: Error
+    """
     if not settings.ENV != "production":
         logger.critical("Cannot use seed data in production")
         raise ValueError("Cannot use seed data in production")
@@ -18,15 +26,15 @@ def create_seed_data():
     with Session(engine) as session:
         api_auth(settings.OFFICIAL_WEB_API_KEY, db=session)
         logger.info("Creating seed data")
-        ur = user_repo.UserRepository(session)
-        with open(settings.DEBUG_USE_SEED_DATA_PATH) as f:
-            data = json.load(f)
+        repo = user_repo.UserRepository(session)
+        with open(settings.DEBUG_USE_SEED_DATA_PATH, encoding="UTF-8") as seed_file:
+            data = json.load(seed_file)
         users = [protocol.CreateFrontendUserRequest(**user) for user in data["users"]]
         for user in users:
             try:
-                ur.create_local_user(user)
-            except Exception as e:
+                repo.create_local_user(user)
+            except Exception as error:
                 logger.error(f"Failed to create user {user.username}")
-                logger.error(repr(e))
+                logger.error(repr(error))
             finally:
                 logger.info(f"Created user {user.username}")
