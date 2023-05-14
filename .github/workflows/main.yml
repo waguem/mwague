@@ -8,7 +8,7 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      # in case of PR, check out the PR's head branch
+      # in case of PR, check out the PR's head branch, test workflow
       - uses: actions/checkout@v3
         if: github.event_name == 'pull_request_target'
         with:
