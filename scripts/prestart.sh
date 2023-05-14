@@ -12,8 +12,8 @@ alembic upgrade head
 # echo "updating pip"
 # pip install --upgrade pip
 # echo "installing requirements"
-# pip install --no-cache-dir -r /backend/requirements.txt
-# pip install -e /mkdi-shared[dev]
+pip install --no-cache-dir -r /backend/requirements.txt
+pip install -e /mkdi-shared[dev]
 pip install -e /functional-tests[dev]
 echo "running migrations"
 cd /backend
