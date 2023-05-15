@@ -24,6 +24,11 @@ jobs:
           python-version: "3.10"
           cache: "pip"
           cache-dependency-path: "**/requirements*.txt"
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14 # Replace with your desired Node.js version
+      - name: Install pnpm
+        run: npm install -g pnpm
       - uses: pre-commit/action@v3.0.0
       - name: Post PR comment on failure
         if: failure() && github.event_name == 'pull_request_target'
