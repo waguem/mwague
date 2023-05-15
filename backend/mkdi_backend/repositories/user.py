@@ -21,8 +21,12 @@ class UserRepository:
     def create_local_user(self, request: protocol.CreateFrontendUserRequest):
         user: User = self.db.query(User).filter(User.username == request.username).first()
         if user:
-            raise MkdiError(f"Username {request.username} already exists", error_code=MkdiErrorCode.USER_EXISTS)
-        api_client: ApiClient = deps.create_api_client(self.db, "", request.notes, False, request.email)
+            raise MkdiError(
+                f"Username {request.username} already exists", error_code=MkdiErrorCode.USER_EXISTS
+            )
+        api_client: ApiClient = deps.create_api_client(
+            self.db, "", request.notes, False, request.email
+        )
         user = User(
             username=request.username,
             display_name=request.display_name,

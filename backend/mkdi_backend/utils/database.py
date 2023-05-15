@@ -11,10 +11,6 @@ from psycopg2.errors import DeadlockDetected, ExclusionViolation, SerializationF
 from sqlalchemy.exc import OperationalError, PendingRollbackError
 from sqlmodel import Session, SQLModel
 
-"""
-Error Handling Reference: https://www.postgresql.org/docs/15/mvcc-serialization-failure-handling.html
-"""
-
 
 class CommitMode(IntEnum):
     """
@@ -34,7 +30,9 @@ class CommitMode(IntEnum):
 """
 
 
-def managed_tx_method(auto_commit: CommitMode = CommitMode.COMMIT, num_retries=settings.DATABASE_MAX_TX_RETRY_COUNT):
+def managed_tx_method(
+    auto_commit: CommitMode = CommitMode.COMMIT, num_retries=settings.DATABASE_MAX_TX_RETRY_COUNT
+):
     def decorator(f):
         @wraps(f)
         def wrapped_f(self, *args, **kwargs):
@@ -56,9 +54,16 @@ def managed_tx_method(auto_commit: CommitMode = CommitMode.COMMIT, num_retries=s
                         except OperationalError as error:
                             if error.orig is not None and isinstance(
                                 error.orig,
-                                (SerializationFailure, DeadlockDetected, UniqueViolation, ExclusionViolation),
+                                (
+                                    SerializationFailure,
+                                    DeadlockDetected,
+                                    UniqueViolation,
+                                    ExclusionViolation,
+                                ),
                             ):
-                                logger.info(f"{type(error.orig)} Inner {error.orig.pgcode} {type(error.orig.pgcode)}")
+                                logger.info(
+                                    f"{type(error.orig)} Inner {error.orig.pgcode} {type(error.orig.pgcode)}"
+                                )
                                 self.db.rollback()
                             else:
                                 raise error
@@ -110,9 +115,17 @@ def async_managed_tx_method(
                             self.db.rollback()
                         except OperationalError as e:
                             if e.orig is not None and isinstance(
-                                e.orig, (SerializationFailure, DeadlockDetected, UniqueViolation, ExclusionViolation)
+                                e.orig,
+                                (
+                                    SerializationFailure,
+                                    DeadlockDetected,
+                                    UniqueViolation,
+                                    ExclusionViolation,
+                                ),
                             ):
-                                logger.info(f"{type(e.orig)} Inner {e.orig.pgcode} {type(e.orig.pgcode)}")
+                                logger.info(
+                                    f"{type(e.orig)} Inner {e.orig.pgcode} {type(e.orig.pgcode)}"
+                                )
                                 self.db.rollback()
                             else:
                                 raise e
@@ -174,9 +187,16 @@ def managed_tx_function(
                             except OperationalError as e:
                                 if e.orig is not None and isinstance(
                                     e.orig,
-                                    (SerializationFailure, DeadlockDetected, UniqueViolation, ExclusionViolation),
+                                    (
+                                        SerializationFailure,
+                                        DeadlockDetected,
+                                        UniqueViolation,
+                                        ExclusionViolation,
+                                    ),
                                 ):
-                                    logger.info(f"{type(e.orig)} Inner {e.orig.pgcode} {type(e.orig.pgcode)}")
+                                    logger.info(
+                                        f"{type(e.orig)} Inner {e.orig.pgcode} {type(e.orig.pgcode)}"
+                                    )
                                     session.rollback()
                                 else:
                                     raise e
@@ -235,7 +255,12 @@ def async_managed_tx_function(
                             except OperationalError as error:
                                 if error.orig is not None and isinstance(
                                     error.orig,
-                                    (SerializationFailure, DeadlockDetected, UniqueViolation, ExclusionViolation),
+                                    (
+                                        SerializationFailure,
+                                        DeadlockDetected,
+                                        UniqueViolation,
+                                        ExclusionViolation,
+                                    ),
                                 ):
                                     logger.info(
                                         f"{type(error.orig)} Inner {error.orig.pgcode} {type(error.orig.pgcode)}"

@@ -15,7 +15,9 @@ app = Celery(
     include=["mkdi_backend.tasks.scheduled_tasks"],
 )
 
-logger.info(f"celery.conf.broker_url {app.conf.broker_url}, app.conf.result_backend{app.conf.result_backend}")
+logger.info(
+    f"celery.conf.broker_url {app.conf.broker_url}, app.conf.result_backend{app.conf.result_backend}"
+)
 
 # see https://docs.celeryq.dev/en/stable/userguide/periodic-tasks.html
 app.conf.beat_schedule = {
