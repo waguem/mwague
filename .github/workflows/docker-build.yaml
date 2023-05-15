@@ -34,5 +34,9 @@ jobs:
           username: ${{ secrets.M_USERNAME }}
           password: ${{ secrets.M_GITHUB_TOKEN }}
       - name: Get Base registry
-        run: /
-          echo "TAG_PREFIX=${{ github.ref_name }}-" >> $GITHUB_ENV
+        run: |
+          echo "REGISTRY=ghcr.io/${M_GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+      - name: Set tag prefix
+        if: github.ref_name != 'main'
+        run : /
+          echo "TAG_PREFIX=${GITHUB_REF##*/}-" >> $GITHUB_ENV
