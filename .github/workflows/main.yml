@@ -26,9 +26,9 @@ jobs:
           cache-dependency-path: "**/requirements*.txt"
       - uses: actions/setup-node@v2
         with:
-          node-version: 17 # Replace with your desired Node.js version
+          node-version: 16.13.2 # Replace with your desired Node.js version
       - name: Install pnpm
-        run: npm install -g pnpm
+        run: npm install -g pnpm@7.14.1
       - uses: pre-commit/action@v3.0.0
       - name: Post PR comment on failure
         if: failure() && github.event_name == 'pull_request_target'
