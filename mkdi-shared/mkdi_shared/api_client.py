@@ -28,7 +28,13 @@ class MkdiApiClient:
         return None
 
     async def authenticate(
-        self, username, password, grant_type: str = "", scope: str = "", client_id: str = "", client_secret: str = ""
+        self,
+        username,
+        password,
+        grant_type: str = "",
+        scope: str = "",
+        client_id: str = "",
+        client_secret: str = "",
     ):
         logger.debug("authenticate api client")
         credentials = {
@@ -114,7 +120,9 @@ class MkdiApiClient:
         """Make a POST request to the backend."""
         logger.debug(f"POST {self.backend_url}{path} DATA: {data}")
         async with aiohttp.ClientSession() as session:
-            response = await session.post(f"{self.backend_url}{path}", json=data, headers={"x-api-key": self.api_key})
+            response = await session.post(
+                f"{self.backend_url}{path}", json=data, headers={"x-api-key": self.api_key}
+            )
             logger.debug(f"response: {response}")
 
             # If the response is not a 2XX, check to see

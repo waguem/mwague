@@ -12,7 +12,10 @@ class ApiClient(SQLModel, table=True):
 
     id: Optional[UUID] = Field(
         sa_column=sa.Column(
-            pg.UUID(as_uuid=True), primary_key=True, default=uuid4, server_default=sa.text("gen_random_uuid()")
+            pg.UUID(as_uuid=True),
+            primary_key=True,
+            default=uuid4,
+            server_default=sa.text("gen_random_uuid()"),
         ),
     )
     api_key: str = Field(max_length=512, index=True, unique=True)

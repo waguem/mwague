@@ -50,7 +50,9 @@ class CreateApiClientRequest(BaseModel):
     admin_email: EmailStr | None = None
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], session: Session = Depends(deps.get_db)):
+async def get_current_user(
+    token: Annotated[str, Depends(oauth2_scheme)], session: Session = Depends(deps.get_db)
+):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",

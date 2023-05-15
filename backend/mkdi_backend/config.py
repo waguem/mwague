@@ -40,7 +40,9 @@ class Settings(BaseSettings):
     REDIS_PORT: str = "6379"
 
     DEBUG_USE_SEED_DATA: bool = False
-    DEBUG_USE_SEED_DATA_PATH: Optional[FilePath] = Path(__file__).parent.parent / "test_data/seed.json"
+    DEBUG_USE_SEED_DATA_PATH: Optional[FilePath] = (
+        Path(__file__).parent.parent / "test_data/seed.json"
+    )
     DEBUG_DATABASE_ECHO: bool = False
     DEBUG_IGNORE_TOS_ACCEPTANCE: bool = (  # ignore whether users accepted the ToS
         True  # TODO: set False after ToS acceptance UI was added to web-frontend

@@ -72,7 +72,11 @@ def create_api_client(
         api_key = token_hex(32)
     logger.info(f"Creating new api client with {api_key=}")
     api_client = ApiClient(
-        api_key=api_key, description=description, trusted=trusted, admin_email=admin_email, frontend_type=frontend_type
+        api_key=api_key,
+        description=description,
+        trusted=trusted,
+        admin_email=admin_email,
+        frontend_type=frontend_type,
     )
     session.add(api_client)
     session.commit()

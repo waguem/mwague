@@ -16,7 +16,9 @@ from mkdi_shared.schemas import protocol as protocol_schema
 from mkdi_shared.utils import utcnow
 from sqlmodel import Session
 
-app = fastapi.FastAPI(title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json")
+app = fastapi.FastAPI(
+    title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"
+)
 startup_time: datetime = utcnow()
 
 
@@ -74,7 +76,8 @@ async def unhandled_exception_handler(request: fastapi.Request, ex: Exception):
     logger.exception(f"{request.method} {request.url} failed [UNHANDLED]: {repr(ex)}")
     status = HTTPStatus.INTERNAL_SERVER_ERROR
     return fastapi.responses.JSONResponse(
-        status_code=status.value, content={"message": status.name, "error_code": MkdiErrorCode.GENERIC_ERROR}
+        status_code=status.value,
+        content={"message": status.name, "error_code": MkdiErrorCode.GENERIC_ERROR},
     )
 
 

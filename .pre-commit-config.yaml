@@ -61,6 +61,8 @@ repos:
     rev: 23.3.0
     hooks:
       - id: black-jupyter
+        args: [--line-length=100]
+        exclude: ^backend/mkdi_backend/utils/database.py
 
   # - repo: https://github.com/pycqa/flake8
   #   rev: 6.0.0

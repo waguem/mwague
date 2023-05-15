@@ -17,7 +17,10 @@ class User(SQLModel, table=True):
 
     id: Optional[UUID] = Field(
         sa_column=sa.Column(
-            pg.UUID(as_uuid=True), primary_key=True, default=uuid4, server_default=sa.text("gen_random_uuid()")
+            pg.UUID(as_uuid=True),
+            primary_key=True,
+            default=uuid4,
+            server_default=sa.text("gen_random_uuid()"),
         ),
     )
     # the username of the user
@@ -32,19 +35,27 @@ class User(SQLModel, table=True):
     hashed_password: str = Field(nullable=False, max_length=512, default="")
     display_name: str = Field(nullable=False, max_length=256)
     created_date: Optional[datetime] = Field(
-        sa_column=sa.Column(sa.DateTime(timezone=True), nullable=False, server_default=sa.func.current_timestamp())
+        sa_column=sa.Column(
+            sa.DateTime(timezone=True), nullable=False, server_default=sa.func.current_timestamp()
+        )
     )
     # the api client that created the user will be assigned to the user
     api_client_id: UUID = Field(foreign_key="api_client.id")
     # the user can be enabled or disabled
     enabled: bool = Field(sa_column=sa.Column(sa.Boolean, nullable=False, server_default=sa.true()))
-    notes: str = Field(sa_column=sa.Column(AutoString(length=1024), nullable=False, server_default=""))
+    notes: str = Field(
+        sa_column=sa.Column(AutoString(length=1024), nullable=False, server_default="")
+    )
     # the user can be deleted or not
-    deleted: bool = Field(sa_column=sa.Column(sa.Boolean, nullable=False, server_default=sa.false()))
+    deleted: bool = Field(
+        sa_column=sa.Column(sa.Boolean, nullable=False, server_default=sa.false())
+    )
 
     # only used for time span "total"
     last_activity_date: Optional[datetime] = Field(
-        sa_column=sa.Column(sa.DateTime(timezone=True), nullable=True, server_default=sa.func.current_timestamp())
+        sa_column=sa.Column(
+            sa.DateTime(timezone=True), nullable=True, server_default=sa.func.current_timestamp()
+        )
     )
 
     def to_protocol_frontend_user(self):
