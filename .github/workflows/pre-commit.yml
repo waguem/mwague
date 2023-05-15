@@ -8,7 +8,7 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      # in case of PR, check out the PR's head branch
+      # in case of PR, check out the PR's head branch, test workflow
       - uses: actions/checkout@v3
         if: github.event_name == 'pull_request_target'
         with:
@@ -23,6 +23,11 @@ jobs:
           python-version: "3.10"
           cache: "pip"
           cache-dependency-path: "**/requirements*.txt"
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16.13.2 # Replace with your desired Node.js version
+      - name: Install pnpm
+        run: npm install -g pnpm@7.14.1
       - uses: pre-commit/action@v3.0.0
       - name: Post PR comment on failure
         if: failure() && github.event_name == 'pull_request_target'
