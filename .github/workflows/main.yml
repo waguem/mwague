@@ -26,7 +26,7 @@ jobs:
           cache-dependency-path: "**/requirements*.txt"
       - uses: actions/setup-node@v2
         with:
-          node-version: 14 # Replace with your desired Node.js version
+          node-version: 17 # Replace with your desired Node.js version
       - name: Install pnpm
         run: npm install -g pnpm
       - uses: pre-commit/action@v3.0.0
