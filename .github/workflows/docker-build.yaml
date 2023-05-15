@@ -39,4 +39,4 @@ jobs:
       - name: Set tag prefix
         if: github.ref_name != 'main'
         run : /
-          echo "TAG_PREFIX=${GITHUB_REF##*/}-" >> $GITHUB_ENV
+          echo "TAG_PREFIX=${{ github.ref_name}}-" >> $GITHUB_ENV
