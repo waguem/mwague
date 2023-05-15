@@ -1,9 +1,7 @@
 from behave import fixture, use_fixture
 from mkdi_shared.api_client import MkdiApiClient
 
-OFFICIAL_WEB_API_KEY: str = (
-    "755b9e02daafdc25deb5a3ad0ae865b532cab53027f90acf6e1fd453f73a84fa"
-)
+OFFICIAL_WEB_API_KEY: str = "755b9e02daafdc25deb5a3ad0ae865b532cab53027f90acf6e1fd453f73a84fa"
 
 
 @fixture
