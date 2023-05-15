@@ -38,5 +38,5 @@ jobs:
           echo "REGISTRY=ghcr.io/${M_GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
       - name: Set tag prefix
         if: github.ref_name != 'main'
-        run : /
+        run: /
           echo "TAG_PREFIX=${{ github.ref_name }}-" >> $GITHUB_ENV
