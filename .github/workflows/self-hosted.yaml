@@ -9,4 +9,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
-          ls -al && cd /home/amadou && docker images
+          ls -al && cd /home/amadou && whoami && pwd
