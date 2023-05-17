@@ -4,7 +4,7 @@ on:
   push:
 jobs:
   pre-commit:
-    uses: ./github/workflows/pre-commit.yml
+    uses: ./github/workflows/pre-commit.yaml
   build-backend:
     uses: ./github/workflows/docker-build.yaml
     needs: pre-commit
