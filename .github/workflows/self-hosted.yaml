@@ -1,0 +1,12 @@
+name: run on self hosted runner
+
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          ls -al && cd /home/amadou && docker images
