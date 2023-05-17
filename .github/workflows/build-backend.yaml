@@ -1,15 +1,15 @@
-name: Build Backend
+name: Build Backend Docker Image
 
 on:
-    push:
+  push:
 jobs:
-    pre-commit:
-        uses: ./github/workflows/pre-commit.yaml
-    build-backend:
-        uses: ./github/workflows/build-docker.yaml
-        needs: pre-commit
-        with:
-            image-name: mkdi-backend
-            context: .
-            dockerfile: docker/Dockerfile.backend
-            build-args: ""
+  pre-commit:
+    uses: ./github/workflows/pre-commit.yaml
+  build-backend:
+    uses: ./github/workflows/docker-build.yaml
+    needs: pre-commit
+    with:
+      image-name: mkdi-backend
+      context: .
+      dockerfile: docker/Dockerfile.backend
+      build-args: ""
