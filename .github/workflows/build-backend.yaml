@@ -4,9 +4,9 @@ on:
   push:
 jobs:
   pre-commit:
-    uses: ./github/workflows/pre-commit.yaml
+    uses: ./.github/workflows/pre-commit.yaml
   build-backend:
-    uses: ./github/workflows/docker-build.yaml
+    uses: ./.github/workflows/docker-build.yaml
     needs: pre-commit
     with:
       image-name: mkdi-backend
