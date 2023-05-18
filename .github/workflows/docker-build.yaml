@@ -57,6 +57,14 @@ jobs:
             type=raw,value=latest,enable=${{ github.ref_name == 'main' }}
             type=sha,prefix=${{ steps.extract.outputs.PROJECT_INITIAL }}-${{ steps.extract.outputs.TICKET_NUMBER }},format=short,enable=${{ github.ref_name != 'main' }}
             type=ref,event=tag,enable=${{ github.ref_name != 'main' }}
+      - name: Create tag
+        id: tag
+        run: |
+          if [[ "${{github.ref_name }}" == "main" ]]; then
+            echo "TAG=latest" >> $GITHUB_OUTPUT
+          else
+            echo "TAG=${{ steps.extract.outputs.PROJECT_INITIAL }}-${{ steps.extract.outputs.TICKET_NUMBER }}" >> $GITHUB_OUTPUT
+          fi
       - name: Build docker images on local runner
         uses: docker/build-push-action@v3.2.0
         with:
@@ -64,7 +72,7 @@ jobs:
           context: ${{ inputs.context }}
           build-args: ${{ inputs.build-args }}
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME}}/${{ inputs.image-name }}:${{ steps.extract.outputs.PROJECT_INITIAL }}-${{ steps.extract.outputs.TICKET_NUMBER }}
+          tags: ${{ env.TAG }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
