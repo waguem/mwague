@@ -26,10 +26,6 @@ jobs:
       - uses: actions/checkout@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2.2.1
-      - name: Set tag prefix
-        if: github.ref_name != 'main'
-        run: |
-          echo "TAG_PREFIX=${{ github.ref_name }}-" >> $GITHUB_ENV
       - name: Extract ticket number
         id: extract
         if: github.ref_name != 'main'
@@ -40,6 +36,9 @@ jobs:
         if: github.ref_name == 'main'
         run: |
           echo "TAG=${{steps.extract.outputs.PROJECT_INITIAL}}-${{steps.extract.outputs.TICKET_NUMBER}}" >> $GITHUB_ENV
+      - name : Show tag
+        run: |
+          echo ${{ env.TAG }}
       - name : Build docker images on local runner
         uses: docker/build-push-action@v3.2.0
         with:
@@ -50,5 +49,5 @@ jobs:
             load: true
             tags: ${{ env.TAG }}
             # labels: ${{ steps.meta.outputs.labels }}
-            cache-from: type=gha
-            cache-to: type=gha,mode=max
+            # cache-from: type=gha
+            # cache-to: type=gha,mode=max
