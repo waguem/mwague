@@ -32,13 +32,13 @@ jobs:
         run: |
           echo "PROJECT_INITIAL=$(echo ${{github.ref_name}} | cut -d'-' -f1)" >> $GITHUB_OUTPUT
           echo "TICKET_NUMBER=$(echo ${{github.ref_name}} | cut -d'-' -f2)" >> $GITHUB_OUTPUT
-      - name: Set tag prefix
-        if: github.ref_name == 'main'
-        run: |
-          echo "TAG=${{steps.extract.outputs.PROJECT_INITIAL}}-${{steps.extract.outputs.TICKET_NUMBER}}" >> $GITHUB_ENV
+      # - name: Set tag prefix
+      #   if: github.ref_name == 'main'
+      #   run: |
+      #     echo "TAG=${{steps.extract.outputs.PROJECT_INITIAL}}-${{steps.extract.outputs.TICKET_NUMBER}}" >> $GITHUB_ENV
       - name : Show tag
         run: |
-          echo ${{ env.TAG }}
+          echo ${{ steps.extract.outputs.PROJECT_INITIAL }}-${{ steps.extract.outputs.TICKET_NUMBER }}
       - name : Build docker images on local runner
         uses: docker/build-push-action@v3.2.0
         with:
@@ -47,7 +47,7 @@ jobs:
             build-args: ${{ inputs.build-args }}
             push: false
             load: true
-            tags: ${{ env.TAG }}
+            tags: ${{ steps.extract.outputs.PROJECT_INITIAL }}-${{ steps.extract.outputs.TICKET_NUMBER }}
             # labels: ${{ steps.meta.outputs.labels }}
             # cache-from: type=gha
             # cache-to: type=gha,mode=max
