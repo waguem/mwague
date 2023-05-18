@@ -72,7 +72,7 @@ jobs:
           context: ${{ inputs.context }}
           build-args: ${{ inputs.build-args }}
           push: true
-          tags: ${{ env.TAG }}
+          tags: ${{ secrets.DOCKER_USERNAME}}/${{ inputs.image-name }}:${{ env.TAG }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
