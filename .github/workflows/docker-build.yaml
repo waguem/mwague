@@ -30,7 +30,7 @@ jobs:
         id: extract
         if: github.ref_name != 'main'
         run: |
-          echo "PROJECT_INITIAL=$(echo ${{github.ref_name}} | cut -d'-' -f1)" >> $GITHUB_OUTPUT
+          echo "PROJECT_INITIAL=$(echo ${{github.ref_name}} |  cut -d'-' -f1 | tr '[:upper:]' '[:lower:]' )" >> $GITHUB_OUTPUT
           echo "TICKET_NUMBER=$(echo ${{github.ref_name}} | cut -d'-' -f2)" >> $GITHUB_OUTPUT
       # - name: Set tag prefix
       #   if: github.ref_name == 'main'
@@ -47,7 +47,7 @@ jobs:
             build-args: ${{ inputs.build-args }}
             push: false
             load: true
-            tags: ${{ steps.extract.outputs.PROJECT_INITIAL }}-${{ steps.extract.outputs.TICKET_NUMBER }}
+            tags: "${{ steps.extract.outputs.PROJECT_INITIAL }}-${{ steps.extract.outputs.TICKET_NUMBER }}"
             # labels: ${{ steps.meta.outputs.labels }}
             # cache-from: type=gha
             # cache-to: type=gha,mode=max
