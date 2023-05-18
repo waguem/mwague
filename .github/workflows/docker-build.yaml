@@ -57,15 +57,14 @@ jobs:
             type=raw,value=latest,enable=${{ github.ref_name == 'main' }}
             type=sha,prefix=${{ steps.extract.outputs.PROJECT_INITIAL }}-${{ steps.extract.outputs.TICKET_NUMBER }},format=short,enable=${{ github.ref_name != 'main' }}
             type=ref,event=tag,enable=${{ github.ref_name != 'main' }}
-      - name : Build docker images on local runner
+      - name: Build docker images on local runner
         uses: docker/build-push-action@v3.2.0
         with:
-            file: ${{ inputs.dockerfile }}
-            context: ${{ inputs.context }}
-            build-args: ${{ inputs.build-args }}
-            push: true
-            load: false
-            tags: ${{ secrets.DOCKER_USERNAME}}/${{ inputs.image-name }}:${{ steps.extract.outputs.PROJECT_INITIAL }}-${{ steps.extract.outputs.TICKET_NUMBER }}
-            # labels: ${{ steps.meta.outputs.labels }}
-            # cache-from: type=gha
-            # cache-to: type=gha,mode=max
+          file: ${{ inputs.dockerfile }}
+          context: ${{ inputs.context }}
+          build-args: ${{ inputs.build-args }}
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME}}/${{ inputs.image-name }}:${{ steps.extract.outputs.PROJECT_INITIAL }}-${{ steps.extract.outputs.TICKET_NUMBER }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
