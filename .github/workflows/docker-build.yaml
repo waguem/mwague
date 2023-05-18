@@ -1,0 +1,71 @@
+name: Docker Build
+
+on:
+  workflow_call:
+    inputs:
+      dockerfile:
+        required: true
+        type: string
+      context:
+        required: true
+        type: string
+      image-name:
+        required: true
+        type: string
+      build-args:
+        required: false
+        type: string
+jobs:
+  build:
+    name: Build Images
+    runs-on: self-hosted
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2.2.1
+      - name: Check if Docker username is set
+        run: |
+          if [[ -z "${{ secrets.DOCKER_USERNAME }}" ]]; then
+            echo "DOCKER_USERNAME is not set"
+            exit 1
+          fi
+          if [[ -z "${{ secrets.DOCKER_TOKEN }}" ]]; then
+            echo "DOCKER_TOKEN is not set"
+            exit 1
+          fi
+      - name: Login to Docker Container Registry
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      - name: Extract ticket number
+        id: extract
+        if: github.ref_name != 'main'
+        run: |
+          echo "PROJECT_INITIAL=$(echo ${{github.ref_name}} |  cut -d'-' -f1 | tr '[:upper:]' '[:lower:]' )" >> $GITHUB_OUTPUT
+          echo "TICKET_NUMBER=$(echo ${{github.ref_name}} | cut -d'-' -f2)" >> $GITHUB_OUTPUT
+          # - name: Set tag prefix
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4.1.1
+        with:
+          images: ${{ secrets.DOCKER_USERNAME }}/${{ inputs.image-name }}
+          tags: |
+            type=raw,value=latest,enable=${{ github.ref_name == 'main' }}
+            type=sha,prefix=${{ steps.extract.outputs.PROJECT_INITIAL }}-${{ steps.extract.outputs.TICKET_NUMBER }},format=short,enable=${{ github.ref_name != 'main' }}
+            type=ref,event=tag,enable=${{ github.ref_name != 'main' }}
+      - name : Build docker images on local runner
+        uses: docker/build-push-action@v3.2.0
+        with:
+            file: ${{ inputs.dockerfile }}
+            context: ${{ inputs.context }}
+            build-args: ${{ inputs.build-args }}
+            push: true
+            load: false
+            tags: ${{ secrets.DOCKER_USERNAME}}/${{ inputs.image-name }}:${{ steps.extract.outputs.PROJECT_INITIAL }}-${{ steps.extract.outputs.TICKET_NUMBER }}
+            # labels: ${{ steps.meta.outputs.labels }}
+            # cache-from: type=gha
+            # cache-to: type=gha,mode=max

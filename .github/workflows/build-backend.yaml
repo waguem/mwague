@@ -1,0 +1,18 @@
+name: Build Backend Docker Image
+permissions:
+  contents: read
+  packages: write
+on:
+  push:
+jobs:
+  # pre-commit:
+  #   uses: ./.github/workflows/pre-commit.yaml
+  build-backend:
+    # needs: pre-commit
+    uses: ./.github/workflows/docker-build.yaml
+    secrets: inherit
+    with:
+      image-name: mkdi-backend
+      context: .
+      dockerfile: docker/Dockerfile.backend
+      build-args: ""
