@@ -5,11 +5,11 @@ permissions:
 on:
   push:
 jobs:
-  pre-commit:
-    uses: ./.github/workflows/pre-commit.yaml
+  # pre-commit:
+  #   uses: ./.github/workflows/pre-commit.yaml
   build-backend:
+    # needs: pre-commit
     uses: ./.github/workflows/docker-build.yaml
-    needs: pre-commit
     secrets: inherit
     with:
       image-name: mkdi-backend

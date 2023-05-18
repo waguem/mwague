@@ -64,9 +64,9 @@ jobs:
             file: ${{ inputs.dockerfile }}
             context: ${{ inputs.context }}
             build-args: ${{ inputs.build-args }}
-            push: false
-            load: true
-            tags: "${{ steps.extract.outputs.PROJECT_INITIAL }}-${{ steps.extract.outputs.TICKET_NUMBER }}"
+            push: true
+            load: false
+            tags: ${{ secrets.DOCKER_USERNAME}}/${{ inputs.image-name }}:"${{ steps.extract.outputs.PROJECT_INITIAL }}-${{ steps.extract.outputs.TICKET_NUMBER }}"
             # labels: ${{ steps.meta.outputs.labels }}
             # cache-from: type=gha
             # cache-to: type=gha,mode=max
