@@ -9,19 +9,27 @@ jobs:
     uses: ./.github/workflows/pre-commit.yaml
   test-backend:
     runs-on: self-hosted
-    needs: build-backend
+    needs: pre-commit
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Start backend env
-        run: docker compose --profile ci up --build
-      - run: docker exec -it mkdi-backend pytest /backend
-      - run: docker exec -it mkdi-backend pytest /mkdi-shared
+        run: |
+          docker compose --profile ci up --build -d
+      - name: Run unitests
+        run: |
+          docker exec -it mkdi-backend pytest /backend
+      - name: Run functinal tests
+        run: |
+          docker exec -it mkdi-backend pytest /mkdi-shared
       - name: Run behave tests
         run: |
           docker exec -it mkdi-backend behave /functional-tests/features
+      - name: Stop backend env
+        run: |
+          docker compose --profile ci down
   build-backend:
-    needs: pre-commit
+    needs: test-backend
     uses: ./.github/workflows/docker-build.yaml
     secrets: inherit
     with:
