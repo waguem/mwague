@@ -63,10 +63,6 @@
       loop:
         - name: backend
         - name: web
-    # - name: Log into DockerHub
-    #   community.docker.docker_login:
-    #     username: "{{ dockerhub_username }}}"
-    #     password: "{{ dockerhub_password }}"
     - name: Create postgres containers
       community.docker.docker_container:
         name: "mkdi-{{ stack_name }}-postgres-{{ item.name }}"
@@ -105,6 +101,8 @@
         env:
           POSTGRES_HOST: "mkdi-{{ stack_name }}-postgres-backend"
           POSTGRES_PASSWORD: "{{ postgres_password }}"
+          POSTGRES_USER: "{{ postgres_user }}"
+          POSTGRES_DB: "{{ postgres_db }}"
           REDIS_HOST: "mkdi-{{ stack_name }}-redis"
           DEBUG_USE_SEED_DATA:
             "{{ 'true' if stack_name == 'dev' else 'false' }}"
