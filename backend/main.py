@@ -29,6 +29,22 @@ def get_openapi_schema():
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 
+if settings.UPDATE_ALEMBIC:
+
+    @app.on_event("startup")
+    def alembic_upgrade():
+        logger.info("Attempting to upgrade alembic on startup")
+        try:
+            alembic_ini_path = Path(__file__).parent / "alembic.ini"
+            alembic_cfg = alembic.config.Config(str(alembic_ini_path))
+            alembic_cfg.set_main_option("sqlalchemy.url", settings.DATABASE_URI)
+            alembic.command.upgrade(alembic_cfg, "head")
+            logger.info("Successfully upgraded alembic on startup")
+        except Exception as e:
+            logger.exception("Alembic upgrade failed on startup")
+            logger.exception(e)
+
+
 if settings.OFFICIAL_WEB_API_KEY:
 
     @app.on_event("startup")
@@ -79,22 +95,6 @@ async def unhandled_exception_handler(request: fastapi.Request, ex: Exception):
         status_code=status.value,
         content={"message": status.name, "error_code": MkdiErrorCode.GENERIC_ERROR},
     )
-
-
-if settings.UPDATE_ALEMBIC:
-
-    @app.on_event("startup")
-    def alembic_upgrade():
-        logger.info("Attempting to upgrade alembic on startup")
-        try:
-            alembic_ini_path = Path(__file__).parent / "alembic.ini"
-            alembic_cfg = alembic.config.Config(str(alembic_ini_path))
-            alembic_cfg.set_main_option("sqlalchemy.url", settings.DATABASE_URI)
-            alembic.command.upgrade(alembic_cfg, "head")
-            logger.info("Successfully upgraded alembic on startup")
-        except Exception as e:
-            logger.exception("Alembic upgrade failed on startup")
-            logger.exception(e)
 
 
 def main():
