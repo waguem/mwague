@@ -28,6 +28,7 @@ jobs:
         run: |
           docker exec  mkdi-backend-test behave /functional-tests/features
       - name: Stop backend env
+        if : ${{ always() }}
         run: |
           docker compose --profile ci down
   build-backend:
