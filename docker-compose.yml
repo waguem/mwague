@@ -52,10 +52,33 @@ services:
     ports:
       - 8089:8080
   # The mkdi backend service.
-  backend:
+  backend-test:
+    image: mkdi-backend
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    container_name: mkdi-backend-test
+    environment:
+      - POSTGRES_HOST=mkdi-db
+      - ENV=production
+      - REDIS_HOST=redis
+      - DEBUG_USE_SEED_DATA=True
+      - DEBUG_ALLOW_SELF_LABELING=True
+      - MAX_WORKERS=1
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - PYTHONPATH=/backend
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles: ["ci"]
+    ports:
+      - "8080:8080"
+
+  backend-dev:
     image: tiangolo/uvicorn-gunicorn-fastapi:python3.10
     working_dir: /backend
-    container_name: mkdi-backend
+    container_name: mkdi-backend-test
     volumes:
       - "./backend:/backend"
       - "./mkdi-shared:/mkdi-shared"
@@ -75,7 +98,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    profiles: ["frontend-dev", "ci", "backend-dev"]
+    profiles: ["frontend-dev", "backend-dev"]
     ports:
       - "8080:8080"
   # Redis - caching + rate limiting on BE

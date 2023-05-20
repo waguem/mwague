@@ -17,3 +17,4 @@ COPY ./backend/main.py /backend/main.py
 COPY ./backend/__init__.py /backend/__init__.py
 COPY ./backend/mkdi_backend /backend/mkdi_backend
 COPY ./backend/tests /backend/tests
+COPY ./functional-tests /functional-tests
