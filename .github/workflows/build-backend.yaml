@@ -16,6 +16,7 @@ jobs:
       - name: Start backend env
         run: |
           docker compose --profile ci up --build -d
+          docker compose --profile ci logs
           sleep 60
       - name: Run unitests
         run: |
