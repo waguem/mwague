@@ -16,3 +16,21 @@ jobs:
       context: .
       dockerfile: docker/Dockerfile.backend
       build-args: ""
+  test-backend:
+    runs-on: self-hosted
+    needs: build-backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Start backend env
+        run: |
+          docker compose --profile ci --build -d
+      - name: Run unitests
+        run: |
+          docker exec -it mkdi-backend pytest /backend
+      - name: Run functinal tests
+        run: |
+          docker exec -it mkdi-backend pytest /mkdi-shared
+      - name: Run behave tests
+        run: |
+          docker exec -it mkdi-backend behave /functional-tests/features

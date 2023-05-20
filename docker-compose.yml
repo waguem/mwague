@@ -9,7 +9,7 @@ services:
 
   # This DB is for the FastAPI Backend.
   db:
-    image: postgres
+    image: postgres:15
     pull_policy: always
     container_name: mkdi-db
     restart: always
@@ -20,6 +20,11 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
+      BACKUP_DIR: /backup
+    volumes:
+      - ./docker/mkdi-postgres/backup_pg.sh:/scripts/backup_pg.sh
+      - ./backup:/backup
+
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 2s
