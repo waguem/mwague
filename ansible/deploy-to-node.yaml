@@ -63,10 +63,10 @@
       loop:
         - name: backend
         - name: web
-    - name: Log into DockerHub
-      community.docker.docker_login:
-        username: "{{ dockerhub_username }}}"
-        password: "{{ dockerhub_password }}"
+    # - name: Log into DockerHub
+    #   community.docker.docker_login:
+    #     username: "{{ dockerhub_username }}}"
+    #     password: "{{ dockerhub_password }}"
     - name: Create postgres containers
       community.docker.docker_container:
         name: "mkdi-{{ stack_name }}-postgres-{{ item.name }}"
