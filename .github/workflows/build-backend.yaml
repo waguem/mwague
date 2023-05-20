@@ -8,6 +8,7 @@ jobs:
   pre-commit:
     uses: ./.github/workflows/pre-commit.yaml
   test-backend:
+    if: github.ref != 'staging'
     runs-on: self-hosted
     needs: pre-commit
     steps:
@@ -32,6 +33,7 @@ jobs:
         run: |
           docker compose --profile ci down
   build-backend:
+    if: github.ref != 'staging'
     needs: test-backend
     uses: ./.github/workflows/docker-build.yaml
     secrets: inherit

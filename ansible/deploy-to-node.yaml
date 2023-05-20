@@ -13,6 +13,8 @@
     postgres_db: postgres
     web_api_key: "1234"
     base_registry: ""
+    dockerhub_username: ""
+    dockerhub_password: ""
   tasks:
     # reduces the chance of oom when pulling new images
     - name: Clear unused images
@@ -61,7 +63,10 @@
       loop:
         - name: backend
         - name: web
-
+    - name: Log into DockerHub
+      community.docker.docker_login:
+        username: "{{ dockerhub_username }}}"
+        password: "{{ dockerhub_password }}"
     - name: Create postgres containers
       community.docker.docker_container:
         name: "mkdi-{{ stack_name }}-postgres-{{ item.name }}"
