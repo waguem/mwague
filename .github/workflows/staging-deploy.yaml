@@ -11,6 +11,6 @@ jobs:
     secrets: inherit
     with:
       stack-name: staging
-      image-tag: staging
+      image-tag: latest
       backend-port: 8280
       website-port: 3200
