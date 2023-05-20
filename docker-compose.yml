@@ -78,7 +78,7 @@ services:
   backend-dev:
     image: tiangolo/uvicorn-gunicorn-fastapi:python3.10
     working_dir: /backend
-    container_name: mkdi-backend-test
+    container_name: mkdi-backend-dev
     volumes:
       - "./backend:/backend"
       - "./mkdi-shared:/mkdi-shared"
