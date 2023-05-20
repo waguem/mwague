@@ -16,15 +16,16 @@ jobs:
       - name: Start backend env
         run: |
           docker compose --profile ci up --build -d
+          sleep 60
       - name: Run unitests
         run: |
-          docker exec -it mkdi-backend pytest /backend
+          docker exec mkdi-backend pytest /backend
       - name: Run functinal tests
         run: |
-          docker exec -it mkdi-backend pytest /mkdi-shared
+          docker exec mkdi-backend pytest /mkdi-shared
       - name: Run behave tests
         run: |
-          docker exec -it mkdi-backend behave /functional-tests/features
+          docker exec  mkdi-backend behave /functional-tests/features
       - name: Stop backend env
         run: |
           docker compose --profile ci down
