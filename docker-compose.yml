@@ -60,7 +60,7 @@ services:
     container_name: mkdi-backend-test
     environment:
       - POSTGRES_HOST=mkdi-db
-      - ENV=production
+      - ENV=developement
       - REDIS_HOST=redis
       - DEBUG_USE_SEED_DATA=True
       - DEBUG_ALLOW_SELF_LABELING=True
