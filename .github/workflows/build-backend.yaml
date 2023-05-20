@@ -14,14 +14,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Start backend env
-        run: |
-          docker compose --profile ci up --build
-      - name: Run unitests
-        run: |
-          docker exec -it mkdi-backend pytest /backend
-      - name: Run functinal tests
-        run: |
-          docker exec -it mkdi-backend pytest /mkdi-shared
+        run: docker compose --profile ci up --build
+      - run: docker exec -it mkdi-backend pytest /backend
+      - run: docker exec -it mkdi-backend pytest /mkdi-shared
       - name: Run behave tests
         run: |
           docker exec -it mkdi-backend behave /functional-tests/features
