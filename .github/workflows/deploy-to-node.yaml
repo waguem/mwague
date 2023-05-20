@@ -50,4 +50,5 @@ jobs:
             postgres_user=${{secrets.POSTGRES_USER }} \
             postgres_password=${{secrets.POSTGRES_PASSWORD}} \
             postgres_db=${{secrets.POSTGRES_DB}} \
-            web_api_key=${{secrets.WEB_API_KEY}}"
+            web_api_key=${{secrets.WEB_API_KEY}}" \
+            base_registry=${{secrets.DOCKER_USERNAME}}

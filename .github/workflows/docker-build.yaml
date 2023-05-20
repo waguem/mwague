@@ -63,7 +63,11 @@ jobs:
           if [[ "${{github.ref_name }}" == "main" ]]; then
             echo "TAG=latest" >> $GITHUB_OUTPUT
           else
-            echo "TAG=${{ steps.extract.outputs.PROJECT_INITIAL }}-${{ steps.extract.outputs.TICKET_NUMBER }}" >> $GITHUB_OUTPUT
+            if[[ "${{ github.ref_name }}" == "staging" ]]; then
+              echo "TAG=staging" >> $GITHUB_OUTPUT
+            else
+              echo "TAG=${{ steps.extract.outputs.PROJECT_INITIAL }}-${{ steps.extract.outputs.TICKET_NUMBER }}" >> $GITHUB_OUTPUT
+            fi
           fi
       - name: Build docker images on local runner
         uses: docker/build-push-action@v3.2.0
