@@ -1,0 +1,56 @@
+name: Deploy to node
+
+on:
+  workflow_call:
+    inputs:
+      stack-name:
+        required: false
+        type: string
+        default: dev
+      image-tag:
+        required: false
+        type: string
+        default: latest
+      backend-port:
+        required: false
+        type: string
+        default: "8080"
+      website-port:
+        required: false
+        type: string
+        default: "3000"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.stack-name }}
+    env:
+      BACKEND_URL: ${{ vars.BACKEND_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Run deploy playbook
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          # Required, playbook filepath
+          playbook: deploy-to-node.yaml
+          # Optional, directory where playbooks live
+          directory: ansible
+          # Optional, SSH private key
+          key: ${{secrets.DEV_NODE_PRIVATE_KEY}}
+          # Optional, literal inventory file contents
+          inventory: |
+            [dev]
+            dev01 ansible_host=${{secrets.DEV_NODE_IP}} ansible_connection=ssh ansible_user=amadou
+          options: |
+            --extra-vars "stack_name=${{inputs.stack-name}} \
+            image_tag=${{inputs.image-tag}} \
+            backend_port=${{inputs.backend-port}} \
+            website_port=${{inputs.website-port}} \
+            postgres_user=${{secrets.POSTGRES_USER }} \
+            postgres_password=${{secrets.POSTGRES_PASSWORD}} \
+            postgres_db=${{secrets.POSTGRES_DB}} \
+            web_api_key=${{secrets.WEB_API_KEY}} \
+            base_registry=${{secrets.DOCKER_USERNAME}} \
+            dockerhub_username=${{secrets.DOCKER_USERNAME}} \
+            dockerhub_password=${{secrets.DOCKER_TOKEN}}"

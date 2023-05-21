@@ -1,0 +1,118 @@
+# ansible playbook to set up some docker containers
+
+- name: Deploy to node
+  hosts: dev
+  gather_facts: true
+  vars:
+    stack_name: "dev"
+    image_tag: latest
+    backend_port: 8080
+    website_port: 3000
+    postgres_password: postgres
+    postgres_user: postgres
+    postgres_db: postgres
+    web_api_key: "1234"
+    base_registry: ""
+    dockerhub_username: ""
+    dockerhub_password: ""
+  tasks:
+    # reduces the chance of oom when pulling new images
+    - name: Clear unused images
+      community.docker.docker_prune:
+        images: true
+
+    - name: Create network
+      community.docker.docker_network:
+        name: "mkdi-{{ stack_name }}"
+        state: present
+        driver: bridge
+
+    - name: Create stack files directory
+      ansible.builtin.file:
+        path: "./{{ stack_name }}"
+        state: directory
+        mode: 0755
+
+    - name: Copy redis.conf to managed node
+      ansible.builtin.copy:
+        src: ./redis.conf
+        dest: "./{{ stack_name }}/redis.conf"
+        mode: 0644
+
+    - name: Set up Redis
+      community.docker.docker_container:
+        name: "mkdi-{{ stack_name }}-redis"
+        image: redis
+        state: started
+        recreate: "{{ (stack_name == 'dev') | bool }}"
+        restart_policy: always
+        network_mode: "mkdi-{{ stack_name }}"
+        healthcheck:
+          test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+          interval: 2s
+          timeout: 2s
+          retries: 10
+        command: redis-server /usr/local/etc/redis/redis.conf
+        volumes:
+          - "./{{ stack_name }}/redis.conf:/usr/local/etc/redis/redis.conf"
+
+    - name: Create volumes for postgres
+      community.docker.docker_volume:
+        name: "mkdi-{{ stack_name }}-postgres-{{ item.name }}"
+        state: present
+      loop:
+        - name: backend
+        - name: web
+    - name: Create postgres containers
+      community.docker.docker_container:
+        name: "mkdi-{{ stack_name }}-postgres-{{ item.name }}"
+        image: postgres:15
+        state: started
+        pull: true
+        recreate: "{{ (stack_name == 'dev') | bool }}"
+        restart_policy: always
+        network_mode: "mkdi-{{ stack_name }}"
+        env:
+          POSTGRES_USER: "{{ postgres_user }}"
+          POSTGRES_PASSWORD: "{{ postgres_password }}"
+          POSTGRES_DB: "{{ postgres_db }}"
+        volumes:
+          - "mkdi-{{ stack_name }}-postgres-{{ item.name
+            }}:/var/lib/postgresql/data"
+        healthcheck:
+          test: ["CMD", "pg_isready", "-U", "{{ postgres_user }}"]
+          interval: 2s
+          timeout: 2s
+          retries: 10
+        shm_size: 1G
+      loop:
+        - name: backend
+        - name: web
+
+    - name: Run the minkadi mkdi-backend
+      community.docker.docker_container:
+        name: "mkdi-{{ stack_name }}-backend"
+        image: "{{ base_registry }}/mkdi-backend:{{ image_tag }}"
+        state: started
+        recreate: true
+        pull: true
+        restart_policy: always
+        network_mode: "mkdi-{{ stack_name }}"
+        env:
+          POSTGRES_HOST: "mkdi-{{ stack_name }}-postgres-backend"
+          POSTGRES_PASSWORD: "{{ postgres_password }}"
+          POSTGRES_USER: "{{ postgres_user }}"
+          POSTGRES_DB: "{{ postgres_db }}"
+          ENV: "{{ 'production' if stack_name == 'prod' else 'development' }}"
+          PYTHONPATH: /backend
+          REDIS_HOST: "mkdi-{{ stack_name }}-redis"
+          DEBUG_USE_SEED_DATA:
+            "{{ 'true' if stack_name == 'dev' else 'false' }}"
+          DEBUG_ALLOW_SELF_LABELING:
+            "{{ 'true' if stack_name == 'dev' else 'false' }}"
+          MAX_WORKERS: "1"
+          RATE_LIMIT: "{{ 'false' if stack_name == 'dev' else 'true' }}"
+          DEBUG_SKIP_EMBEDDING_COMPUTATION: "true"
+          OFFICIAL_WEB_API_KEY: "{{ web_api_key }}"
+        ports:
+          - "{{ backend_port }}:8080"
