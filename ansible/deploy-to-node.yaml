@@ -102,6 +102,8 @@
           POSTGRES_HOST: "mkdi-{{ stack_name }}-postgres-backend"
           POSTGRES_PASSWORD: "{{ postgres_password }}"
           POSTGRES_USER: "{{ postgres_user }}"
+          ENV: "{{ 'production' if stack_name == 'prod' else 'development' }}"
+          PYTHONPATH: /backend
           POSTGRES_DB: "{{ postgres_db }}"
           REDIS_HOST: "mkdi-{{ stack_name }}-redis"
           DEBUG_USE_SEED_DATA:
