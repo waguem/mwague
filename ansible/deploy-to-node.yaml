@@ -73,9 +73,9 @@
         restart_policy: always
         network_mode: "mkdi-{{ stack_name }}"
         env:
-          POSTGRES_USER: postgres
+          POSTGRES_USER: "{{ postgres_user }}"
           POSTGRES_PASSWORD: "{{ postgres_password }}"
-          POSTGRES_DB: postgres
+          POSTGRES_DB: "{{ postgres_db }}"
         volumes:
           - "mkdi-{{ stack_name }}-postgres-{{ item.name
             }}:/var/lib/postgresql/data"
@@ -101,8 +101,8 @@
         env:
           POSTGRES_HOST: "mkdi-{{ stack_name }}-postgres-backend"
           POSTGRES_PASSWORD: "{{ postgres_password }}"
-          POSTGRES_USER: postgres
-          POSTGRES_DB: postgres
+          POSTGRES_USER: "{{ postgres_user }}"
+          POSTGRES_DB: "{{ postgres_db }}"
           ENV: "{{ 'production' if stack_name == 'prod' else 'development' }}"
           PYTHONPATH: /backend
           REDIS_HOST: "mkdi-{{ stack_name }}-redis"
