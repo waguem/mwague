@@ -89,9 +89,9 @@ repos:
     hooks:
       - id: next-lint-website
         name: Lint website
-        files: ^website/
-        exclude: ^website/node_modules/
+        files: ^frontend/
+        exclude: ^frontend/node_modules/
         types_or: [javascript, jsx, ts, tsx]
         language: node
         pass_filenames: false
-        entry: website/next-lint.js
+        entry: frontend/next-lint.js

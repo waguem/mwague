@@ -1,4 +1,4 @@
-import "@/styles/dist.css";
+import "@/styles/global.css";
 import "focus-visible";
 import { Inter } from "next/font/google";
 
@@ -11,8 +11,8 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html className="h-full bg-gray-50 antialiased" lang="en">
+      <body className="flex h-full flex-col">{children}</body>
     </html>
   );
 }
