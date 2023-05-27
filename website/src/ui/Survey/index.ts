@@ -1,1 +1,0 @@
-export { SurveyCard } from "./SurverCard";
