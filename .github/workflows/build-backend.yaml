@@ -47,9 +47,9 @@ jobs:
   build-web:
     uses: ./.github/workflows/docker-build.yaml
     secrets: inherit
-    needs: build-backend
+    needs: pre-commit
     with:
-      image-name: mkdi-wev
+      image-name: mkdi-web
       context: .
       dockerfile: docker/Dockerfile.website
       build-args: ""
