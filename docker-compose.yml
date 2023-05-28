@@ -52,28 +52,27 @@ services:
     ports:
       - 8089:8080
   # The mkdi backend service.
-  backend-test:
-    image: mkdi-backend
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.backend
-    container_name: mkdi-backend-test
-    environment:
-      - POSTGRES_HOST=mkdi-db
-      - ENV=developement
-      - REDIS_HOST=redis
-      - DEBUG_USE_SEED_DATA=True
-      - DEBUG_ALLOW_SELF_LABELING=True
-      - MAX_WORKERS=1
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - PYTHONPATH=/backend
-    depends_on:
-      db:
-        condition: service_healthy
-    profiles: ["ci"]
-    ports:
-      - "8080:8080"
+  # backend-test:
+  #   image: mkdi-backend
+  #   build:
+  #     context: .
+  #     dockerfile: docker/Dockerfile.backend
+  #   container_name: mkdi-backend-test
+  #   environment:
+  #     - POSTGRES_HOST=mkdi-db
+  #     - ENV=developement
+  #     - REDIS_HOST=redis
+  #     - DEBUG_USE_SEED_DATA=True
+  #     - DEBUG_ALLOW_SELF_LABELING=True
+  #     - MAX_WORKERS=1
+  #     - CELERY_BROKER_URL=redis://redis:6379/0
+  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
+  #     - PYTHONPATH=/backend
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   ports:
+  #     - "8080:8080"
 
   backend-dev:
     image: tiangolo/uvicorn-gunicorn-fastapi:python3.10
@@ -117,6 +116,35 @@ services:
     command: redis-server /usr/local/etc/redis/redis.conf
     volumes:
       - ./redis.conf:/usr/local/etc/redis/redis.conf
+  # This DB is for Web Authentication and data caching.
+  webdb:
+    image: postgres:15
+    restart: always
+    profiles: ["frontend-dev", "ci", "inference-dev"]
+    container_name: mdki-web-db
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mkdi_web
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+  web:
+    build:
+      dockerfile: docker/Dockerfile.website
+      context: .
+    image: mkdi-web
+    container_name: mkdi-web
+    depends_on:
+      webdb:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    profiles: ["ci"]
   # The mkdi backend celery worker service.
   backend-worker:
     build:
