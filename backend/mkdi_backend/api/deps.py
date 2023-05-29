@@ -1,16 +1,18 @@
 from http import HTTPStatus
 from secrets import token_hex
-from typing import Generator
+from typing import Generator, Optional
 from uuid import UUID
 
 import mkdi_shared.exceptions.mkdi_api_error as mkdi_api_error
-from fastapi import Security
+from fastapi import Depends, Request, Response, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.security.api_key import APIKey, APIKeyHeader, APIKeyQuery
+from fastapi_limiter.depends import RateLimiter
 from loguru import logger
-from mkdi_backend.config import Settings
+from mkdi_backend.config import Settings, settings
 from mkdi_backend.database import engine
 from mkdi_backend.models import ApiClient
+from pydantic import conint
 from sqlmodel import Session
 
 api_key_query = APIKeyQuery(name="api_key", scheme_name="api-key", auto_error=False)
@@ -98,3 +100,71 @@ def api_auth(
         error_code=mkdi_api_error.MkdiErrorCode.API_CLIENT_NOT_AUTHORIZED,
         http_status_code=HTTPStatus.FORBIDDEN,
     )
+
+
+async def user_identifier(request: Request) -> str:
+    """Identify a request by user based on api_key and user header"""
+    api_key = request.headers.get("X-API-Key") or request.query_params.get("api_key")
+    user = request.headers.get("x-mkdi-user")
+    if not user:
+        payload = await request.json()
+        auth_method = payload.get("user").get("auth_method")
+        user_id = payload.get("user").get("id")
+        user = f"{auth_method}:{user_id}"
+    return f"{api_key}:{user}"
+
+
+class UserRateLimiter(RateLimiter):
+    def __init__(
+        self,
+        times: int = 100,
+        milliseconds: int = 0,
+        seconds: int = 0,
+        minutes: int = 1,
+        hours: int = 0,
+    ) -> None:
+        super().__init__(times, milliseconds, seconds, minutes, hours, user_identifier)
+
+    async def __call__(
+        self, request: Request, response: Response, api_key: str = Depends(get_api_key)
+    ) -> None:
+        # Skip if rate limiting is disabled
+        if not settings.RATE_LIMIT:
+            return
+
+        # Attempt to retrieve api_key and user information
+        user = (await request.json()).get("user")
+
+        # Skip when api_key and user information are not available
+        # (such that it will be handled by `APIClientRateLimiter`)
+        if not api_key or not user or not user.get("id"):
+            return
+
+        return await super().__call__(request, response)
+
+
+class APIClientRateLimiter(RateLimiter):
+    def __init__(
+        self,
+        times: conint(ge=0) = 10_000,
+        milliseconds: conint(ge=-1) = 0,
+        seconds: conint(ge=-1) = 0,
+        minutes: conint(ge=-1) = 0,
+        hours: conint(ge=-1) = 0,
+    ) -> None:
+        async def identifier(request: Request) -> Optional[str]:
+            """Identify a request based on api_key and user.id"""
+            api_key = request.headers.get("X-API-Key") or request.query_params.get("api_key")
+            return f"{api_key}"
+
+        super().__init__(times, milliseconds, seconds, minutes, hours, identifier)
+
+    async def __call__(
+        self, request: Request, response: Response, api_key: str = Depends(get_api_key)
+    ) -> None:
+        if not settings.RATE_LIMIT:
+            return
+        user = (await request.json()).get("user")
+        if not api_key or user:
+            return
+        await super().__call__(request, response)

@@ -24,6 +24,8 @@ class MkdiErrorCode(IntEnum):
     SERVER_ERROR0 = 500
     SERVER_ERROR1 = 501
 
+    TOO_MANY_REQUESTS = 429
+
     INVALID_AUTHENTICATION = 600
 
 
