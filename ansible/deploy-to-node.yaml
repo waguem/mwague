@@ -107,11 +107,11 @@
           PYTHONPATH: /backend
           REDIS_HOST: "mkdi-{{ stack_name }}-redis"
           DEBUG_USE_SEED_DATA:
-            "{{ 'true' if stack_name == 'dev' else 'false' }}"
+            "{{ 'true' if stack_name == 'staging' else 'false' }}"
           DEBUG_ALLOW_SELF_LABELING:
-            "{{ 'true' if stack_name == 'dev' else 'false' }}"
+            "{{ 'true' if stack_name == 'staging' else 'false' }}"
           MAX_WORKERS: "1"
-          RATE_LIMIT: "{{ 'false' if stack_name == 'dev' else 'true' }}"
+          RATE_LIMIT: "{{ 'false' if stack_name == 'staging' else 'true' }}"
           DEBUG_SKIP_EMBEDDING_COMPUTATION: "true"
           OFFICIAL_WEB_API_KEY: "{{ web_api_key }}"
         ports:

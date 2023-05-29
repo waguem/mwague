@@ -1,11 +1,14 @@
 import json
 from datetime import datetime
 from http import HTTPStatus
+from math import ceil
 from pathlib import Path
 
 import alembic.command
 import alembic.config
 import fastapi
+import redis.asyncio as redis
+from fastapi_limiter import FastAPILimiter
 from loguru import logger
 from mkdi_backend.api.deps import api_auth, create_api_client
 from mkdi_backend.api.v1.api import api_router
@@ -61,6 +64,31 @@ if settings.OFFICIAL_WEB_API_KEY:
                     frontend_type="web",
                     trusted=True,
                 )
+
+
+if settings.RATE_LIMIT:
+
+    @app.on_event("startup")
+    async def connect_redis():
+        async def http_callback(request: fastapi.Request, response: fastapi.Response, pexpire: int):
+            """Error callback function when too many requests"""
+            expire = ceil(pexpire / 1000)
+            raise MkdiError(
+                f"Too Many Requests. Retry After {expire} seconds.",
+                MkdiErrorCode.TOO_MANY_REQUESTS,
+                HTTPStatus.TOO_MANY_REQUESTS,
+            )
+
+        try:
+            redis_client = redis.from_url(
+                f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/0",
+                encoding="utf-8",
+                decode_responses=True,
+            )
+            logger.info(f"Connected to {redis_client=}")
+            await FastAPILimiter.init(redis_client, http_callback=http_callback)
+        except Exception:
+            logger.exception("Failed to connect to redis")
 
 
 if settings.DEBUG_USE_SEED_DATA:
