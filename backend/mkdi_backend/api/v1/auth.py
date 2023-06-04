@@ -100,16 +100,6 @@ async def create_api_client(
     return api_client.api_key
 
 
-@router.post("/users", response_model=protocol.User)
-async def create_user(
-    request: protocol.CreateFrontendUserRequest, database: Session = Depends(deps.get_db)
-) -> protocol.FrontEndUser:
-    """_summary_"""
-    user_repo = UserRepository(database)
-    user = user_repo.create_local_user(request)
-    return user.to_protocol_frontend_user()
-
-
 @router.post("/token", response_model=Token)
 async def login_for_access_token(
     # form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
@@ -135,11 +125,6 @@ async def login_for_access_token(
             message="Incorrect username or password",
             http_status_code=status.HTTP_401_UNAUTHORIZED,
         )
-        # raise HTTPException(
-        #     status_code=status.HTTP_401_UNAUTHORIZED,
-        #     detail="Incorrect username or password",
-        #     headers={"WWW-Authenticate": "Bearer"},
-        # )
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
 
