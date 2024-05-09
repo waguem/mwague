@@ -36,22 +36,24 @@ jobs:
         if : ${{ always() }}
         run: |
           docker compose --profile ci down
-  # build-backend:
-  #   needs: test-backend
-  #   uses: ./.github/workflows/docker-build.yaml
-  #   secrets: inherit
-  #   with:
-  #     image-name: mkdi-backend
-  #     context: .
-  #     dockerfile: docker/Dockerfile.backend
-  #     build-args: ""
+  build-backend:
+    needs: test-backend
+    uses: ./.github/workflows/docker-build.yaml
+    secrets: inherit
+    if: github.ref_name == 'main'
+    with:
+      image-name: mkdi-backend
+      context: .
+      dockerfile: docker/Dockerfile.backend
+      build-args: ""
 
-  # build-web:
-  #   uses: ./.github/workflows/docker-build.yaml
-  #   secrets: inherit
-  #   needs: pre-commit
-  #   with:
-  #     image-name: mkdi-web
-  #     context: .
-  #     dockerfile: docker/Dockerfile.website
-  #     build-args: ""
+  build-web:
+    uses: ./.github/workflows/docker-build.yaml
+    secrets: inherit
+    needs: pre-commit
+    if: github.ref_name == 'main'
+    with:
+      image-name: mkdi-web
+      context: .
+      dockerfile: docker/Dockerfile.website
+      build-args: ""
