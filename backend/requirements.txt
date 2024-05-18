@@ -1,13 +1,13 @@
 aiohttp==3.8.3
-alembic==1.8.1
+alembic==1.13.1
 # asgiref==3.6.0
 Celery==5.2.0
 cryptography==39.0.0
-fastapi==0.88.0
+fastapi==0.111.0
 fastapi-limiter==0.1.5
 fastapi-utils==0.2.1
 httpx
-loguru==0.7.0
+loguru
 passlib[bcrypt]==1.7.4
 # numpy>=1.23.2
 # prometheus-fastapi-instrumentator==5.9.1
@@ -20,7 +20,8 @@ python-jose[cryptography]==3.3.0
 python-multipart
 redis
 # scipy==1.8.1
-SQLAlchemy==1.4.41
-sqlmodel==0.0.8
+SQLAlchemy
+sqlmodel
+python-keycloak
 # tqdm>=4.64.1
 uvicorn==0.20.0

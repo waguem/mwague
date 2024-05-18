@@ -1,18 +1,14 @@
-from datetime import timedelta
 from typing import Annotated, Union
 
-from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
-from fastapi import APIRouter, Depends, HTTPException, Security, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from loguru import logger
 from mkdi_backend.api import deps
-from mkdi_backend.auth.auth import authenticate_user, create_access_token, get_user, register_user
+from mkdi_backend.auth.auth import authenticate_user, create_access_token, get_user
 from mkdi_backend.config import settings
-from mkdi_backend.repositories.user import UserRepository
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
-from mkdi_shared.schemas import protocol
 from pydantic import BaseModel, EmailStr
 from sqlmodel import Session
 
@@ -50,9 +46,7 @@ class CreateApiClientRequest(BaseModel):
     admin_email: EmailStr | None = None
 
 
-async def get_current_user(
-    token: Annotated[str, Depends(oauth2_scheme)], session: Session = Depends(deps.get_db)
-):
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], session: Session = Depends(deps.get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",

@@ -146,11 +146,11 @@ class UserRateLimiter(RateLimiter):
 class APIClientRateLimiter(RateLimiter):
     def __init__(
         self,
-        times: conint(ge=0) = 10_000,
-        milliseconds: conint(ge=-1) = 0,
-        seconds: conint(ge=-1) = 0,
-        minutes: conint(ge=-1) = 0,
-        hours: conint(ge=-1) = 0,
+        times: int = 10_000,
+        milliseconds: int = 0,
+        seconds: int = 0,
+        minutes: int = 0,
+        hours: int = 0,
     ) -> None:
         async def identifier(request: Request) -> Optional[str]:
             """Identify a request based on api_key and user.id"""

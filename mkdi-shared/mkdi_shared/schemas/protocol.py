@@ -12,7 +12,7 @@ class User(BaseModel):
     username: str
     email: str
     auth_method: Literal["local", "google", "system"]
-
+    user_type: Literal["normal", "admin","cashier"]
 
 class CreateFrontendUserRequest(User):
     enabled: bool = True

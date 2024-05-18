@@ -1,0 +1,67 @@
+@startuml "Database Schema"
+' Table definitions
+object Employee {
+    + id: int
+    + email: string
+    + username: string
+    + auth_method: string
+    + hashed_password: string
+    + enabled: boolean
+    + deleted: boolean
+    + created_at: datetime
+    + last_activity_at: datetime
+    + api_key: ApiClient
+}
+
+object ApiClient {
+    + id: int
+    + api_key: string
+    + user_id: int
+    + name: string
+    + enabled: boolean
+    + trusted: boolean
+    + created_at: datetime
+    + updated_at: datetime
+}
+
+object Entreprise {
+    + id: string
+    + name: string
+    + initials: string
+    + enabled: boolean
+    + deleted: boolean
+    + created_at: datetime
+    + updated_at: datetime
+}
+
+object Account{
+    + id: string
+    + name: string
+    + type: string
+    + owner_id: string
+}
+
+object Agent{
+    + id: string
+    + name: string
+    + initials: string
+}
+
+object Activity{
+    + id: string
+    + state: string
+    + openned_at: datetime
+    + closed_at: datetime
+    + start_funds: float
+    + end_funds: float
+    + account_id: string
+    + openned_by: string
+}
+
+' Relationships
+Employee "1" *-- "1" ApiClient
+Entreprise "1" -- "*" Employee
+Entreprise "1" -- "*" Account
+Agent "1" -- "*" Account
+Entreprise "1" -- "*" Agent
+@enduml
