@@ -68,7 +68,7 @@ jobs:
             auth_secret=${{secrets.AUTH_SECRET}} \
             base_registry=${{secrets.DOCKER_USERNAME}} \
             dockerhub_username=${{secrets.DOCKER_USERNAME}} \
-            dockerhub_password=${{secrets.DOCKER_TOKEN}}" \
+            dockerhub_password=${{secrets.DOCKER_TOKEN}} \
             domain=${{env.DOMAIN}} \
             web_domain=${{env.WEB_DOMAIN}} \
-            backend_domain=${{env.BACKEND_DOMAIN}}
+            backend_domain=${{env.BACKEND_DOMAIN}}"

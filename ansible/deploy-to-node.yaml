@@ -5,9 +5,9 @@
   gather_facts: true
   vars:
     stack_name: "dev"
+    domain: "localhost"
     backend_domain: "backend.localhost"
     web_domain: "web.localhost"
-    domain: "localhost"
     image_tag: latest
     backend_port: 8080
     website_port: 3000
@@ -207,12 +207,3 @@
 
           traefik.http.services.mkdi-web-https.loadbalancer.server.port: 3000
           traefik.http.routers.mkdi-web-secure.service: mkdi-web-https
-
-          # - "traefik.http.routers.mkdi-web.tls.domains[0].options=staging"
-          # - "traefik.http.routers.mkdi-web.tls.domains[0].certresolver=letsencrypt"
-          # - "traefik.http.routers.mkdi-web.tls.domains[0].keyType=RSA4096"
-          # - "traefik.http.routers.mkdi-web.tls.domains[0].keyType=EC256"
-          # - "traefik.http.routers.mkdi-web.tls.domains[0].keyType=EC384"
-          # - "traefik.http.routers.mkdi-web.tls.domains[0].keyType=EC521"
-          # - "traefik.http.routers.mkdi-web.tls.domains[0].keyType=ED25519"
-          # - "traefik.http.routers.mkdi-web.tls.domains[0].keyType=RSA2048"
