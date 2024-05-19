@@ -139,7 +139,7 @@
             "Host(`{{ backend_domain }}`)"
           traefik.http.routers.mkdi-backend-secure.tls.certresolver: cloudflare
           traefik.http.routers.mkdi-backend-secure.tls.domains[0].main:
-            { { domain } }
+            "{{ domain }}"
           traefik.http.routers.mkdi-backend-secure.tls.domains[0].sans:
             "*.{{ domain }}"
 
@@ -182,7 +182,7 @@
           traefik.http.routers.mkdi-web-secure.rule: "Host(`{{ web_domain }}`)"
           traefik.http.routers.mkdi-web-secure.tls.certresolver: cloudflare
           traefik.http.routers.mkdi-web-secure.tls.domains[0].main:
-            { { domain } }
+            "{{ domain }}"
           traefik.http.routers.mkdi-web-secure.tls.domains[0].sans:
             "*.{{ domain }}"
 
