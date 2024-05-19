@@ -134,7 +134,7 @@
         ports:
           - "{{ backend_port }}:8080"
         labels:
-          traefik.enable: true
+          traefik.enable: "true"
           traefik.docker.network: mkdi-{{ stack_name }}
           # http redirect router
           traefik.http.routers.mkdi-backend.rule: "Host(`{{ backend_domain }}`)"
@@ -143,7 +143,7 @@
           traefik.http.middlewares.mkdi-backend-https-redirect.redirectscheme.scheme: https
           traefik.http.routers.mkdi-backend.priority: 1
           # https router
-          traefik.http.routers.mkdi-backend-secure.tls: true
+          traefik.http.routers.mkdi-backend-secure.tls: "true"
           traefik.http.routers.mkdi-backend-secure.entrypoints: websecure
           traefik.http.routers.mkdi-backend-secure.rule:
             "Host(`{{ backend_domain }}`)"
@@ -187,7 +187,7 @@
             "postgres://{{ postgres_user }}:{{ postgres_password }}@mkdi-{{
             stack_name }}-postgres-web/{{ postgres_db }}"
         labels:
-          traefik.enable: true
+          traefik.enable: "true"
           traefik.docker.network: mkdi-{{ stack_name }}
           # http redirect router
           traefik.http.routers.mkdi-web.rule: "Host(`{{ web_domain }}`)"
@@ -196,7 +196,7 @@
           traefik.http.middlewares.mkdi-web-https-redirect.redirectscheme.scheme: https
           traefik.http.routers.mkdi-web.priority: 1
           # https router
-          traefik.http.routers.mkdi-web-secure.tls: true
+          traefik.http.routers.mkdi-web-secure.tls: "true"
           traefik.http.routers.mkdi-web-secure.entrypoints: websecure
           traefik.http.routers.mkdi-web-secure.rule: "Host(`{{ web_domain }}`)"
           traefik.http.routers.mkdi-web-secure.tls.certresolver: cloudflare
