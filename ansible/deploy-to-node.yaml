@@ -130,7 +130,7 @@
             "{{lookup('ansible.builtin.env', 'KC_AUTHORIZATION_URL') }}"
           KC_TOKEN_URL: "{{lookup('ansible.builtin.env', 'KC_TOKEN_URL') }}"
           KC_VERIFY_CERTS:
-            "{{lookup('ansible.builtin.env', 'KC_VERIFY_CERTS') }}"
+            "{{ 'true' if lookup('ansible.builtin.env', 'KC_VERIFY_CERTS') == 'enabled' else 'false'}}"
         ports:
           - "{{ backend_port }}:8080"
         labels:
