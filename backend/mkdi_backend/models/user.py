@@ -9,7 +9,7 @@ from sqlmodel import AutoString, Field, Index, SQLModel
 
 
 class User(SQLModel, table=True):
-    __tablename__ = "user"
+    __tablename__ = "users"
     __table_args__ = (
         Index("ix_user_username", "api_client_id", "username", "auth_method", unique=True),
         Index("ix_user_display_name_id", "display_name", "id", unique=True),
@@ -33,24 +33,28 @@ class User(SQLModel, table=True):
     # in case of local authentication method the user will provide
     # a password, which will be used to generate a hash
     hashed_password: str = Field(nullable=False, max_length=512, default="")
+
     display_name: str = Field(nullable=False, max_length=256)
-    created_date: Optional[datetime] = Field(
-        sa_column=sa.Column(
-            sa.DateTime(timezone=True), nullable=False, server_default=sa.func.current_timestamp()
-        )
-    )
     # the api client that created the user will be assigned to the user
     api_client_id: UUID = Field(foreign_key="api_client.id")
     # the user can be enabled or disabled
     enabled: bool = Field(sa_column=sa.Column(sa.Boolean, nullable=False, server_default=sa.true()))
-    notes: str = Field(
-        sa_column=sa.Column(AutoString(length=1024), nullable=False, server_default="")
-    )
     # the user can be deleted or not
     deleted: bool = Field(
         sa_column=sa.Column(sa.Boolean, nullable=False, server_default=sa.false())
     )
 
+    notes: str = Field(
+        sa_column=sa.Column(AutoString(length=1024), nullable=False, server_default="")
+    )
+
+    created_date: Optional[datetime] = Field(
+        sa_column=sa.Column(
+            sa.DateTime(timezone=True), nullable=False, server_default=sa.func.current_timestamp()
+        )
+    )
+    # the type of the user
+    user_type: str = Field(nullable=False, max_length=16, default="normal")
     # only used for time span "total"
     last_activity_date: Optional[datetime] = Field(
         sa_column=sa.Column(
@@ -70,4 +74,5 @@ class User(SQLModel, table=True):
             enabled=self.enabled,
             deleted=self.deleted,
             created_date=self.created_date,
+            user_type=self.user_type,
         )

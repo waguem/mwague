@@ -90,7 +90,8 @@ repos:
       - id: next-lint-website
         name: Lint website
         files: ^frontend/
-        exclude: ^frontend/node_modules/
+        # exclude: ^frontend/node_modules/ and frontend/pnpm-lock.yaml
+        exclude: ^frontend/node_modules/ | ^frontend/pnpm-lock.yaml
         types_or: [javascript, jsx, ts, tsx]
         language: node
         pass_filenames: false
