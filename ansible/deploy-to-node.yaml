@@ -5,6 +5,9 @@
   gather_facts: true
   vars:
     stack_name: "dev"
+    backend_domain: "backend.localhost"
+    web_domain: "web.localhost"
+    domain: "localhost"
     image_tag: latest
     backend_port: 8080
     website_port: 3000
@@ -120,6 +123,29 @@
           AUTH_SECRET: "{{ auth_secret }}"
         ports:
           - "{{ backend_port }}:8080"
+        labels:
+          traefik.enable: true
+          traefik.docker.network: mkdi-{{ stack_name }}
+          # http redirect router
+          traefik.http.routers.mkdi-backend.rule: "Host(`{{ backend_domain }}`)"
+          traefik.http.routers.mkdi-backend.entrypoints: web
+          traefik.http.routers.mkdi-backend.middlewares: mkdi-backend-https-redirect
+          traefik.http.middlewares.mkdi-backend-https-redirect.redirectscheme.scheme: https
+          traefik.http.routers.mkdi-backend.priority: 1
+          # https router
+          traefik.http.routers.mkdi-backend-secure.tls: true
+          traefik.http.routers.mkdi-backend-secure.entrypoints: websecure
+          traefik.http.routers.mkdi-backend-secure.rule:
+            "Host(`{{ backend_domain }}`)"
+          traefik.http.routers.mkdi-backend-secure.tls.certresolver: cloudflare
+          traefik.http.routers.mkdi-backend-secure.tls.domains[0].main:
+            { { domain } }
+          traefik.http.routers.mkdi-backend-secure.tls.domains[0].sans:
+            "*.{{ domain }}"
+
+          traefik.http.services.mkdi-web-https.loadbalancer.server.port: 8080
+          traefik.http.routers.mkdi-backend-secure.service: mkdi-web-https
+
     - name: Run the minkadi mkdi-web frontend
       community.docker.docker_container:
         name: "mkdi-{{ stack_name }}-web"
@@ -141,3 +167,33 @@
           DATABASE_URL:
             "postgres://{{ postgres_user }}:{{ postgres_password }}@mkdi-{{
             stack_name }}-postgres-web/{{ postgres_db }}"
+        labels:
+          traefik.enable: true
+          traefik.docker.network: mkdi-{{ stack_name }}
+          # http redirect router
+          traefik.http.routers.mkdi-web.rule: "Host(`web.{{ web_domain }}`)"
+          traefik.http.routers.mkdi-web.entrypoints: web
+          traefik.http.routers.mkdi-web.middlewares: mkdi-web-https-redirect
+          traefik.http.middlewares.mkdi-web-https-redirect.redirectscheme.scheme: https
+          traefik.http.routers.mkdi-web.priority: 1
+          # https router
+          traefik.http.routers.mkdi-web-secure.tls: true
+          traefik.http.routers.mkdi-web-secure.entrypoints: websecure
+          traefik.http.routers.mkdi-web-secure.rule: "Host(`{{ web_domain }}`)"
+          traefik.http.routers.mkdi-web-secure.tls.certresolver: cloudflare
+          traefik.http.routers.mkdi-web-secure.tls.domains[0].main:
+            { { domain } }
+          traefik.http.routers.mkdi-web-secure.tls.domains[0].sans:
+            "*.{{ domain }}"
+
+          traefik.http.services.mkdi-web-https.loadbalancer.server.port: 3000
+          traefik.http.routers.mkdi-web-secure.service: mkdi-web-https
+
+          # - "traefik.http.routers.mkdi-web.tls.domains[0].options=staging"
+          # - "traefik.http.routers.mkdi-web.tls.domains[0].certresolver=letsencrypt"
+          # - "traefik.http.routers.mkdi-web.tls.domains[0].keyType=RSA4096"
+          # - "traefik.http.routers.mkdi-web.tls.domains[0].keyType=EC256"
+          # - "traefik.http.routers.mkdi-web.tls.domains[0].keyType=EC384"
+          # - "traefik.http.routers.mkdi-web.tls.domains[0].keyType=EC521"
+          # - "traefik.http.routers.mkdi-web.tls.domains[0].keyType=ED25519"
+          # - "traefik.http.routers.mkdi-web.tls.domains[0].keyType=RSA2048"

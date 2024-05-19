@@ -7,6 +7,7 @@ import sqlalchemy.dialects.postgresql as pg
 from mkdi_shared.schemas import protocol
 from sqlmodel import AutoString, Field, Index, SQLModel
 
+
 class User(SQLModel, table=True):
     __tablename__ = "users"
     __table_args__ = (
@@ -53,7 +54,7 @@ class User(SQLModel, table=True):
         )
     )
     # the type of the user
-    user_type: str = Field(nullable=False,max_length=16, default="normal")
+    user_type: str = Field(nullable=False, max_length=16, default="normal")
     # only used for time span "total"
     last_activity_date: Optional[datetime] = Field(
         sa_column=sa.Column(
@@ -73,5 +74,5 @@ class User(SQLModel, table=True):
             enabled=self.enabled,
             deleted=self.deleted,
             created_date=self.created_date,
-            user_type=self.user_type
+            user_type=self.user_type,
         )

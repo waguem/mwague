@@ -6,7 +6,6 @@ import { Container } from "@/ui/Container";
 import { Logo } from "@/ui/Logo";
 import { Button } from "@/ui/Button";
 import { NavLinks } from "@/ui/NavLinks";
-import { useState } from "react";
 
 function MenuIcon(props: any) {
   return (

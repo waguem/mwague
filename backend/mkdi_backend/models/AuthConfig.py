@@ -1,4 +1,6 @@
 from pydantic import BaseModel
+
+
 class AuthConfiguration(BaseModel):
     server_url: str
     realm: str

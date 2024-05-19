@@ -1,9 +1,9 @@
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
-from fastapi import APIRouter, Depends, HTTPException, status,Security
+from fastapi import APIRouter, Depends, HTTPException, Security, status
 from fastapi.security import OAuth2AuthorizationCodeBearer
+from mkdi_backend.authproviders import keycloak_openid
 from mkdi_backend.config import settings
 from pydantic import BaseModel
-from mkdi_backend.authproviders import keycloak_openid
 
 # This is used for fastapi docs authentification
 oauth2_scheme = OAuth2AuthorizationCodeBearer(
@@ -24,12 +24,14 @@ class KcUser(BaseModel):
     realm_roles: list
     client_roles: list
 
+
 async def get_idp_public_key():
     return (
         "-----BEGIN PUBLIC KEY-----\n"
         f"{keycloak_openid.public_key()}"
         "\n-----END PUBLIC KEY-----"
     )
+
 
 # Get the payload/token from keycloak
 async def get_payload(token: str = Security(oauth2_scheme)) -> dict:
@@ -38,7 +40,7 @@ async def get_payload(token: str = Security(oauth2_scheme)) -> dict:
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=str(e), # "Invalid authentication credentials",
+            detail=str(e),  # "Invalid authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -53,12 +55,12 @@ async def get_user_info(payload: dict = Depends(get_payload)) -> KcUser:
             first_name=payload.get("given_name"),
             last_name=payload.get("family_name"),
             realm_roles=payload.get("realm_access", {}).get("roles", []),
-            client_roles=payload.get("realm_access", {}).get("roles", [])
+            client_roles=payload.get("realm_access", {}).get("roles", []),
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e), # "Invalid authentication credentials",
+            detail=str(e),  # "Invalid authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
 

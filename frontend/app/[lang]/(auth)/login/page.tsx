@@ -1,33 +1,21 @@
+"use client";
 import { Button } from "@/ui/Button";
-import { TextField } from "@/ui/Fields";
+import { signIn } from "next-auth/react";
 
 export default function Login() {
   return (
-    <form>
-      <div className="space-y-6">
-        <TextField
-          label="Email address"
-          id="email"
-          className={""}
-          name="email"
-          type="email"
-          autoComplete="email"
-          required
-        />
-        <TextField
-          label="Password"
-          id="password"
-          name="password"
-          className={""}
-          type="password"
-          autoComplete="current-password"
-          required
-        />
-      </div>
-      {/**@ts-ignore */}
-      <Button type="submit" color="cyan" className="mt-8 w-full">
-        Sign in to account
-      </Button>
-    </form>
+    <Button
+      type="submit"
+      color="cyan"
+      className="mt-8 w-full"
+      onClick={() =>
+        signIn("keycloak", {
+          callbackUrl: "http://localhost:3000/",
+          redirect: false,
+        })
+      }
+    >
+      Sign in
+    </Button>
   );
 }
