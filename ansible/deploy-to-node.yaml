@@ -124,10 +124,13 @@
           KC_SERVER_URL: "{{lookup('ansible.builtin.env', 'KC_SERVER_URL') }}"
           KC_REALM: "{{lookup('ansible.builtin.env', 'KC_REALM') }}"
           KC_CLIENT_ID: "{{lookup('ansible.builtin.env', 'KC_CLIENT_ID') }}"
-          KC_CLIENT_SECRET: "{{lookup('ansible.builtin.env', 'KC_CLIENT_SECRET') }}"
-          KC_AUTHORIZATION_URL: "{{lookup('ansible.builtin.env', 'KC_AUTHORIZATION_URL') }}"
+          KC_CLIENT_SECRET:
+            "{{lookup('ansible.builtin.env', 'KC_CLIENT_SECRET') }}"
+          KC_AUTHORIZATION_URL:
+            "{{lookup('ansible.builtin.env', 'KC_AUTHORIZATION_URL') }}"
           KC_TOKEN_URL: "{{lookup('ansible.builtin.env', 'KC_TOKEN_URL') }}"
-          KC_VERIFY_CERTS: "{{lookup('ansible.builtin.env', 'KC_VERIFY_CERTS') }}"
+          KC_VERIFY_CERTS:
+            "{{lookup('ansible.builtin.env', 'KC_VERIFY_CERTS') }}"
         ports:
           - "{{ backend_port }}:8080"
         labels:
@@ -171,10 +174,14 @@
           POSTGRES_USER: "{{ postgres_user }}"
           POSTGRES_DB: "{{ postgres_db }}"
           REDIS_HOST: "mkdi-{{ stack_name }}-redis"
-          NEXTAUTH_SECRET: "{{ lookup('ansible.builtin.env', 'NEXTAUTH_SECRET') }}"
-          KEYCLOAK_CLIENT_ID: "{{ lookup('ansible.builtin.env', 'KEYCLOAK_CLIENT_ID') }}"
-          KEYCLOAK_CLIENT_SECRET: "{{ lookup('ansible.builtin.env', 'KEYCLOAK_CLIENT_SECRET') }}"
-          KEYCLOAK_ISSUER: "{{ lookup('ansible.builtin.env', 'KEYCLOAK_ISSUER') }}"
+          NEXTAUTH_SECRET:
+            "{{ lookup('ansible.builtin.env', 'NEXTAUTH_SECRET') }}"
+          KEYCLOAK_CLIENT_ID:
+            "{{ lookup('ansible.builtin.env', 'KEYCLOAK_CLIENT_ID') }}"
+          KEYCLOAK_CLIENT_SECRET:
+            "{{ lookup('ansible.builtin.env', 'KEYCLOAK_CLIENT_SECRET') }}"
+          KEYCLOAK_ISSUER:
+            "{{ lookup('ansible.builtin.env', 'KEYCLOAK_ISSUER') }}"
           NODE_ENV: production
           DATABASE_URL:
             "postgres://{{ postgres_user }}:{{ postgres_password }}@mkdi-{{
