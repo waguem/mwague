@@ -51,7 +51,7 @@
         state: started
         recreate: "{{ (stack_name == 'dev') | bool }}"
         restart_policy: always
-        network_mode: "mkdi-{{ stack_name }}"
+        network_mode: "proxy_{{ stack_name }}"
         healthcheck:
           test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
           interval: 2s
@@ -76,7 +76,7 @@
         pull: true
         recreate: "{{ (stack_name == 'dev') | bool }}"
         restart_policy: always
-        network_mode: "mkdi-{{ stack_name }}"
+        network_mode: "proxy_{{ stack_name }}"
         env:
           POSTGRES_USER: "{{ postgres_user }}"
           POSTGRES_PASSWORD: "{{ postgres_password }}"
@@ -102,7 +102,7 @@
         recreate: true
         pull: true
         restart_policy: always
-        network_mode: "mkdi-{{ stack_name }}"
+        network_mode: "proxy_{{ stack_name }}"
         env:
           POSTGRES_HOST: "mkdi-{{ stack_name }}-postgres-backend"
           POSTGRES_PASSWORD: "{{ postgres_password }}"
@@ -135,7 +135,7 @@
           - "{{ backend_port }}:8080"
         labels:
           traefik.enable: "true"
-          traefik.docker.network: mkdi-{{ stack_name }}
+          traefik.docker.network: proxy_{{ stack_name }}
           # http redirect router
           traefik.http.routers.mkdi-backend.rule: "Host(`{{ backend_domain }}`)"
           traefik.http.routers.mkdi-backend.entrypoints: web
@@ -164,7 +164,7 @@
         recreate: true
         pull: true
         restart_policy: always
-        network_mode: "mkdi-{{ stack_name }}"
+        network_mode: "proxy_{{ stack_name }}"
         ports:
           - "{{ website_port }}:3000"
         command: sh wait-for-postgres.sh node server.js
@@ -188,7 +188,7 @@
             stack_name }}-postgres-web/{{ postgres_db }}"
         labels:
           traefik.enable: "true"
-          traefik.docker.network: mkdi-{{ stack_name }}
+          traefik.docker.network: proxy_{{ stack_name }}
           # http redirect router
           traefik.http.routers.mkdi-web.rule: "Host(`{{ web_domain }}`)"
           traefik.http.routers.mkdi-web.entrypoints: web
