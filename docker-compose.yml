@@ -12,6 +12,8 @@ services:
     image: postgres:15
     pull_policy: always
     container_name: mkdi-db
+    networks:
+      - private
     restart: always
     profiles: ["frontend-dev", "backend-dev", "ci"]
     ports:
@@ -73,7 +75,7 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "8080:8080"
+      - "8081:8080"
 
   backend-dev:
     image: tiangolo/uvicorn-gunicorn-fastapi:python3.10
@@ -95,18 +97,22 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - PYTHONPATH=/backend
+    networks:
+      - private
     depends_on:
       db:
         condition: service_healthy
     profiles: ["frontend-dev", "backend-dev"]
     ports:
-      - "8080:8080"
+      - "8083:8080"
   # Redis - caching + rate limiting on BE
   redis:
     image: redis
     restart: always
     container_name: mkdi-redis
     profiles: ["frontend-dev", "backend-dev", "ci"]
+    networks:
+      - private
     ports:
       - 6379:6379
     healthcheck:
@@ -123,6 +129,8 @@ services:
     restart: always
     profiles: ["frontend-dev", "ci", "inference-dev"]
     container_name: mkdi-web-db
+    networks:
+      - private
     ports:
       - 5433:5432
     environment:
@@ -140,6 +148,8 @@ services:
       context: .
     image: mkdi-web
     container_name: mkdi-web
+    networks:
+      - private
     depends_on:
       webdb:
         condition: service_healthy
@@ -169,3 +179,7 @@ services:
       redis:
         condition: service_healthy
     profiles: ["frontend-dev", "ci"]
+
+networks:
+  private:
+    external: true

@@ -1,21 +1,22 @@
-"use client";
 import Header from "@/ui/Header";
 import { Hero } from "@/ui/Hero";
-import { useTranslation } from "@/app/i18n";
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 type PageProps = {
   params: {
     lang: string;
   };
 };
 export default async function HomePage(props: PageProps) {
-  const { t } = await useTranslation(props.params.lang, "index");
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user) {
+    redirect("/login");
+  }
   return (
     <>
       <Header />
       <main>
-        <div>
-          <h1>{t("Welcome")}</h1>
-        </div>
         <Hero />
       </main>
     </>

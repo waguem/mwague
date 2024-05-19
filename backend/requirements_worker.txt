@@ -6,7 +6,7 @@ cryptography==39.0.0
 fastapi==0.88.0
 fastapi-limiter==0.1.5
 fastapi-utils==0.2.1
-loguru==0.6.0
+loguru
 numpy>=1.22.4
 psycopg2==2.9.3
 pydantic==1.9.1
