@@ -28,6 +28,17 @@ jobs:
       DOMAIN: ${{ vars.DOMAIN }}
       WEB_DOMAIN: ${{ vars.WEB_DOMAIN }}
       BACKEND_DOMAIN: ${{ vars.BACKEND_DOMAIN }}
+      KEYCLOAK_ISSUER: ${{ vars.KEYCLOAK_ISSUER }}
+      KEYCLOAK_CLIENT_ID: ${{ secrets.KEYCLOAK_CLIENT_ID }}
+      KEYCLOAK_CLIENT_SECRET: ${{ secrets.KEYCLOAK_CLIENT_SECRET }}
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      KC_SERVER_URL: ${{ vars.KC_SERVER_URL }}
+      KC_REALM: ${{ vars.KC_REALM }}
+      KC_CLIENT_ID: ${{ secrets.KC_CLIENT_ID }}
+      KC_CLIENT_SECRET: ${{ secrets.KC_CLIENT_SECRET }}
+      KC_AUTHORIZATION_URL: ${{ vars.KC_AUTHORIZATION_URL }}
+      KC_TOKEN_URL: ${{ vars.KC_TOKEN_URL }}
+      KC_VERIFY_CERTS: ${{ vars.KC_VERIFY_CERTS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
