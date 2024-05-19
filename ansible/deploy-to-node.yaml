@@ -141,7 +141,7 @@
           traefik.http.routers.mkdi-backend.entrypoints: web
           traefik.http.routers.mkdi-backend.middlewares: mkdi-backend-https-redirect
           traefik.http.middlewares.mkdi-backend-https-redirect.redirectscheme.scheme: https
-          traefik.http.routers.mkdi-backend.priority: 1
+          traefik.http.routers.mkdi-backend.priority: "1"
           # https router
           traefik.http.routers.mkdi-backend-secure.tls: "true"
           traefik.http.routers.mkdi-backend-secure.entrypoints: websecure
@@ -153,7 +153,7 @@
           traefik.http.routers.mkdi-backend-secure.tls.domains[0].sans:
             "*.{{ domain }}"
 
-          traefik.http.services.mkdi-web-https.loadbalancer.server.port: 8080
+          traefik.http.services.mkdi-web-https.loadbalancer.server.port: "8080"
           traefik.http.routers.mkdi-backend-secure.service: mkdi-web-https
 
     - name: Run the minkadi mkdi-web frontend
@@ -194,7 +194,7 @@
           traefik.http.routers.mkdi-web.entrypoints: web
           traefik.http.routers.mkdi-web.middlewares: mkdi-web-https-redirect
           traefik.http.middlewares.mkdi-web-https-redirect.redirectscheme.scheme: https
-          traefik.http.routers.mkdi-web.priority: 1
+          traefik.http.routers.mkdi-web.priority: "1"
           # https router
           traefik.http.routers.mkdi-web-secure.tls: "true"
           traefik.http.routers.mkdi-web-secure.entrypoints: websecure
@@ -205,5 +205,5 @@
           traefik.http.routers.mkdi-web-secure.tls.domains[0].sans:
             "*.{{ domain }}"
 
-          traefik.http.services.mkdi-web-https.loadbalancer.server.port: 3000
+          traefik.http.services.mkdi-web-https.loadbalancer.server.port: "3000"
           traefik.http.routers.mkdi-web-secure.service: mkdi-web-https
