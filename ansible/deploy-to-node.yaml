@@ -153,8 +153,8 @@
           traefik.http.routers.mkdi-backend-secure.tls.domains[0].sans:
             "*.{{ domain }}"
 
-          traefik.http.services.mkdi-web-https.loadbalancer.server.port: "8080"
-          traefik.http.routers.mkdi-backend-secure.service: mkdi-web-https
+          traefik.http.services.mkdi-backend-https.loadbalancer.server.port: "8080"
+          traefik.http.routers.mkdi-backend-secure.service: mkdi-backend-https
 
     - name: Run the minkadi mkdi-web frontend
       community.docker.docker_container:
