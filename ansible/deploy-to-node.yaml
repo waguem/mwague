@@ -190,6 +190,8 @@
             "{{ lookup('ansible.builtin.env', 'KEYCLOAK_CLIENT_SECRET') }}"
           KEYCLOAK_ISSUER:
             "{{ lookup('ansible.builtin.env', 'KEYCLOAK_ISSUER') }}"
+          KEYCLOAK_REDIRECT_URI:
+            "{{ lookup('ansible.builtin.env', 'KEYCLOAK_REDIRECT_URI') }}"
           NODE_ENV: production
           DATABASE_URL:
             "postgres://{{ postgres_user }}:{{ postgres_password }}@mkdi-{{
