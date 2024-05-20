@@ -10,7 +10,7 @@ export default function Login() {
       className="mt-8 w-full"
       onClick={() =>
         signIn("keycloak", {
-          callbackUrl: "http://localhost:3000/",
+          callbackUrl: process.env.KEYCLOAK_REDIRECT_URI || "/",
           redirect: false,
         })
       }
