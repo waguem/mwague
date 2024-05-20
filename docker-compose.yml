@@ -160,6 +160,11 @@ services:
     environment:
       - DATABASE_URL=postgres://postgres:postgres@mkdi-web-db/mkdi_web
       - FASTAPI_URL=http://backend:8080
+      - KEYCLOAK_CLIENT_ID=rns:mwague:portal
+      - KEYCLOAK_CLIENT_SECRET=bmdsVvDMsh1CJ91SDaXGXTZc0DFp1Ufi
+      - KEYCLOAK_ISSUER=https://keycloak:8443/auth/realms/mwague
+      - NEXTAUTH_SECRET=nextsecret
+      - NODE_ENV=development
   # The mkdi backend celery worker service.
   backend-worker:
     build:

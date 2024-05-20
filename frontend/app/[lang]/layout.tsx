@@ -1,11 +1,8 @@
 import "@/styles/global.css";
 import "focus-visible";
 import { dir } from "i18next";
-import { Inter } from "next/font/google";
 import { Providers } from "./Providers";
 import SessionGuard from "@/components/SessionGuard";
-export { getDefaultServerSideProps as generateStaticParams } from "@/lib/defaultServerSideProps";
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Minkadi App",
