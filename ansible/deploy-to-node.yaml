@@ -85,7 +85,15 @@
           - "mkdi-{{ stack_name }}-postgres-{{ item.name
             }}:/var/lib/postgresql/data"
         healthcheck:
-          test: ["CMD", "pg_isready", "-U", "{{ postgres_user }}","-d", "{{ postgres_db }}"]
+          test:
+            [
+              "CMD",
+              "pg_isready",
+              "-U",
+              "{{ postgres_user }}",
+              "-d",
+              "{{ postgres_db }}",
+            ]
           interval: 2s
           timeout: 2s
           retries: 10
