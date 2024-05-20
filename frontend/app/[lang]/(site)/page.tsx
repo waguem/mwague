@@ -2,7 +2,7 @@ import Header from "@/ui/Header";
 import { Hero } from "@/ui/Hero";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/utils/AuthOptions";
 type PageProps = {
   params: {
     lang: string;

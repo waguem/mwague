@@ -24,6 +24,7 @@
       "@/app/*": ["app/*"],
       "@/lib/*": ["lib/*"],
       "@/components/*": ["components/*"],
+      "@/utils/*": ["utils/*"],
       "@/styles/*": ["styles/*"],
       "@/ui/*": ["ui/*"],
       "@/images/*": ["public/images/*"]
