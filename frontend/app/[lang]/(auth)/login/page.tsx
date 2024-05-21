@@ -9,9 +9,7 @@ export default function Login() {
       color="cyan"
       className="mt-8 w-full"
       onClick={() =>
-        signIn("keycloak", {
-          callbackUrl: process.env.KEYCLOAK_REDIRECT_URI || "/",
-        })
+        signIn("keycloak")
       }
     >
       Sign in

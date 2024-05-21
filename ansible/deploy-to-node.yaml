@@ -190,7 +190,7 @@
             "{{ lookup('ansible.builtin.env', 'KEYCLOAK_CLIENT_SECRET') }}"
           KEYCLOAK_ISSUER:
             "{{ lookup('ansible.builtin.env', 'KEYCLOAK_ISSUER') }}"
-          KEYCLOAK_REDIRECT_URI:
+          NEXTAUTH_URL:
             "{{ lookup('ansible.builtin.env', 'KEYCLOAK_REDIRECT_URI') }}"
           NODE_ENV: production
           DATABASE_URL:
