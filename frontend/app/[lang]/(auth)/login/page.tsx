@@ -11,7 +11,6 @@ export default function Login() {
       onClick={() =>
         signIn("keycloak", {
           callbackUrl: process.env.KEYCLOAK_REDIRECT_URI || "/",
-          redirect: false,
         })
       }
     >
