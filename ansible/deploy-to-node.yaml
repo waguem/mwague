@@ -175,7 +175,7 @@
         network_mode: "proxy_{{ stack_name }}"
         ports:
           - "{{ website_port }}:3000"
-        command: sh wait-for-postgres.sh node server.js
+        command: node server.js
         env:
           POSTGRES_HOST: "mkdi-{{ stack_name }}-postgres-web"
           POSTGRES_PASSWORD: "{{ postgres_password }}"
