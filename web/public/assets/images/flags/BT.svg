@@ -15,8 +15,7 @@
         <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-3">
             <stop stop-color="#FFD951" offset="0%"></stop>
             <stop stop-color="#FFD43B" offset="100%"></stop>
-        </linearGradient>
-    </defs>
+w    </defs>
     <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <g id="BT">
             <rect id="FlagBackground" fill="url(#linearGradient-1)" x="0" y="0" width="21" height="15"></rect>
