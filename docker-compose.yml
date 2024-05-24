@@ -155,7 +155,7 @@ services:
         condition: service_healthy
     ports:
       - "3000:3000"
-    command: sh wait-for-postgres.sh node server.js
+    command: node server.js
     profiles: ["ci"]
     environment:
       - DATABASE_URL=postgres://postgres:postgres@mkdi-web-db/mkdi_web

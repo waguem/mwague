@@ -3,4 +3,5 @@ frontend/.next
 **/__pycache__
 **/pytest_cache
 frontend/.env
+web/.env
 **/.env

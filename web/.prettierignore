@@ -1,0 +1,7 @@
+.next
+.vscode
+.eslintrc.json
+tailwind.config.js
+.storybook/*
+node_modules/*
+public/mockServiceWorker.js
