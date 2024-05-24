@@ -1,5 +1,5 @@
 /* Animate css */
-@import './animate.css';
+@import "./animate.css";
 
 @tailwind base;
 @tailwind components;
@@ -339,7 +339,7 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
     label {
         @apply mb-1.5 block font-semibold;
     }
-    [dir='rtl'] select {
+    [dir="rtl"] select {
         background-position: left 0.5rem center;
     }
 
@@ -630,7 +630,7 @@ pre.hljs {
     @apply ltr:!mr-1.5 rtl:!mr-0 rtl:ml-1.5;
 }
 
-[dir='rtl'] .apexcharts-tooltip-marker {
+[dir="rtl"] .apexcharts-tooltip-marker {
     @apply ml-2.5 mr-0;
 }
 
