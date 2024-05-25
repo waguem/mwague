@@ -21,9 +21,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en">
       <body className={nunito.variable}>
-        <ProviderComponent>
-          {children}
-        </ProviderComponent>
+        <ProviderComponent>{children}</ProviderComponent>
       </body>
     </html>
   );

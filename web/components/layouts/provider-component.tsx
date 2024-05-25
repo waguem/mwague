@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 import React, { ReactNode, Suspense } from "react";
 // import { appWithI18Next } from 'ni18n';
 // import { ni18nConfig } from 'ni18n.config.ts';
-import { SessionProvider} from 'next-auth/react'
+import { SessionProvider } from "next-auth/react";
 import Loading from "@/components/layouts/loading";
 
 interface IProps {
@@ -14,14 +14,14 @@ interface IProps {
 
 const ProviderComponent = ({ children }: IProps) => {
   return (
-    <SessionProvider refetchInterval={3*60}>
+    <SessionProvider refetchInterval={3 * 60}>
       <Provider store={store}>
         <Suspense fallback={<Loading />}>
           <App>{children} </App>
         </Suspense>
       </Provider>
     </SessionProvider>
-    );
+  );
 };
 
 export default ProviderComponent;

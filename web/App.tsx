@@ -42,7 +42,7 @@ function App({ children }: PropsWithChildren) {
     themeConfig.animation,
     themeConfig.navbar,
     themeConfig.locale,
-    themeConfig.semidark
+    themeConfig.semidark,
   ]);
 
   // if((!gSession || !gSession.user) && !pathname.includes("/login")){

@@ -111,7 +111,13 @@ const Header = () => {
               <span className="align-middle text-2xl font-semibold ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light lg:inline">
                 W
               </span>
-              <Image height={49} width={56} className="ml-[5px] w-8 flex-none" src="/assets/images/logo.svg" alt="logo" />
+              <Image
+                height={49}
+                width={56}
+                className="ml-[5px] w-8 flex-none"
+                src="/assets/images/logo.svg"
+                alt="logo"
+              />
               <span className="align-middle text-2xl font-semibold ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light lg:inline">
                 GUE
               </span>
