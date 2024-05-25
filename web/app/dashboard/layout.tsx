@@ -7,8 +7,7 @@ import ScrollToTop from "@/components/layouts/scroll-to-top";
 import Setting from "@/components/layouts/setting";
 import Sidebar from "@/components/layouts/sidebar";
 import Portals from "@/components/portals";
-
-export default function DefaultLayout({ children }: { children: React.ReactNode }) {
+export default async function DefaultLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       {/* BEGIN MAIN CONTAINER */}

@@ -10,6 +10,8 @@ import IconMenuDashboard from "@/components/icon/menu/icon-menu-dashboard";
 import IconCaretDown from "@/components/icon/icon-caret-down";
 import { usePathname } from "next/navigation";
 import { getTranslation } from "@/i18n";
+import Image from "next/image";
+import SignOutButton from "../auth/signOut";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
@@ -69,7 +71,11 @@ const Sidebar = () => {
           <div className="flex items-center justify-between px-4 py-3">
             <Link href="/" className="main-logo flex shrink-0 items-center">
               <span className="align-middle text-2xl font-semibold ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light lg:inline">
-                MWAGUE
+                W
+              </span>
+              <Image height={49} width={56} className="ml-[5px] w-8 flex-none" src="/assets/images/logo.svg" alt="logo" />
+              <span className="align-middle text-2xl font-semibold ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light lg:inline">
+                GUE
               </span>
             </Link>
 
@@ -100,6 +106,9 @@ const Sidebar = () => {
                     <IconCaretDown />
                   </div>
                 </button>
+              </li>
+              <li className="menu nav-item">
+                <SignOutButton />
               </li>
             </ul>
           </PerfectScrollbar>
