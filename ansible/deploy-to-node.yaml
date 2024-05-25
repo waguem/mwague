@@ -184,11 +184,11 @@
           REDIS_HOST: "mkdi-{{ stack_name }}-redis"
           NEXTAUTH_SECRET:
             "{{ lookup('ansible.builtin.env', 'NEXTAUTH_SECRET') }}"
-          KEYCLOAK_CLIENT_ID:
+          AUTH_KEYCLOAK_ID:
             "{{ lookup('ansible.builtin.env', 'KEYCLOAK_CLIENT_ID') }}"
-          KEYCLOAK_CLIENT_SECRET:
+          AUTH_KEYCLOAK_SECRET:
             "{{ lookup('ansible.builtin.env', 'KEYCLOAK_CLIENT_SECRET') }}"
-          KEYCLOAK_ISSUER:
+          AUTH_KEYCLOAK_ISSUER:
             "{{ lookup('ansible.builtin.env', 'KEYCLOAK_ISSUER') }}"
           NEXTAUTH_URL:
             "{{ lookup('ansible.builtin.env', 'KEYCLOAK_REDIRECT_URI') }}"
