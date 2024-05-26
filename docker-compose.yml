@@ -26,6 +26,7 @@ services:
     volumes:
       - ./docker/mkdi-postgres/backup_pg.sh:/scripts/backup_pg.sh
       - ./backup:/backup
+      - backend_data:/var/lib/postgresql/data
 
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
@@ -33,54 +34,26 @@ services:
       timeout: 2s
       retries: 10
 
-  # This fakes an SMTP email server used by website authentication.
-  # User registration emails can be found by going to localhost:1080 and
-  # opening the emails listed.
-  maildev:
-    image: maildev/maildev
-    restart: always
-    profiles: ["frontend-dev", "ci"]
-    environment:
-      - MAILDEV_WEB_PORT=1080
-      - MAILDEV_SMTP_PORT=1025
-    ports:
-      - "1080:1080"
-      - "1025:1025"
-
-  adminer:
-    image: adminer
+  pgAdmin:
+    image: dpage/pgadmin4
     restart: always
     profiles: ["frontend-dev", "backend-dev"]
-    ports:
-      - 8089:8080
-  #The mkdi backend service.
-  backend-test:
-    image: mkdi-backend
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.backend
-    container_name: mkdi-backend-test
     environment:
-      - POSTGRES_HOST=mkdi-db
-      - ENV=developement
-      - REDIS_HOST=redis
-      - DEBUG_USE_SEED_DATA=True
-      - DEBUG_ALLOW_SELF_LABELING=True
-      - MAX_WORKERS=1
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - PYTHONPATH=/backend
-    profiles: ["ci"]
-    depends_on:
-      db:
-        condition: service_healthy
+      PGADMIN_DEFAULT_EMAIL: bah.amadouth96@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: pgadmin
+      PGADMIN_LISTEN_PORT: 80
+      # SCRIPT_NAME: '/pgadmin4'
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    networks:
+      - private
     ports:
-      - "8081:8080"
+      - 8089:80
 
-  backend-dev:
+  backend:
     image: tiangolo/uvicorn-gunicorn-fastapi:python3.10
     working_dir: /backend
-    container_name: mkdi-backend-dev
+    container_name: mkdi-backend
     volumes:
       - "./backend:/backend"
       - "./mkdi-shared:/mkdi-shared"
@@ -104,7 +77,28 @@ services:
         condition: service_healthy
     profiles: ["frontend-dev", "backend-dev"]
     ports:
-      - "8083:8080"
+      - "8080:8080"
+  # The mkdi backend celery worker service.
+  backend-worker:
+    build:
+      dockerfile: docker/Dockerfile.backend-worker
+      context: .
+    command: celery -A mkdi_backend.tasks.worker worker -l info
+    image: mkdi-backend-worker
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - POSTGRES_HOST=db
+      - REDIS_HOST=redis
+      - MAX_WORKERS=1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    profiles: ["frontend-dev", "ci"]
+    networks:
+      - private
   # Redis - caching + rate limiting on BE
   redis:
     image: redis
@@ -142,6 +136,9 @@ services:
       interval: 2s
       timeout: 2s
       retries: 10
+    volumes:
+      - web_data:/var/lib/postgresql/data
+
   web:
     build:
       dockerfile: docker/Dockerfile.website
@@ -165,25 +162,11 @@ services:
       - KEYCLOAK_ISSUER=https://keycloak:8443/auth/realms/mwague
       - NEXTAUTH_SECRET=nextsecret
       - NODE_ENV=development
-  # The mkdi backend celery worker service.
-  backend-worker:
-    build:
-      dockerfile: docker/Dockerfile.backend-worker
-      context: .
-    command: celery -A mkdi_backend.tasks.worker worker -l info
-    image: mkdi-backend-worker
-    environment:
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - POSTGRES_HOST=db
-      - REDIS_HOST=redis
-      - MAX_WORKERS=1
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    profiles: ["frontend-dev", "ci"]
+
+volumes:
+  pgadmin:
+  backend_data:
+  web_data:
 
 networks:
   private:

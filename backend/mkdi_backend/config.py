@@ -6,7 +6,7 @@ from pydantic import AnyHttpUrl, BaseSettings, FilePath, PostgresDsn, validator
 
 class Settings(BaseSettings):
     ENV: str = "production"
-    PROJECT_NAME: str = "minkadi backend"
+    PROJECT_NAME: str = "Mwague backend"
     API_V1_STR: str = "/api/v1"
     OFFICIAL_WEB_API_KEY: str = "755b9e02daafdc25deb5a3ad0ae865b532cab53027f90acf6e1fd453f73a84fa"
 

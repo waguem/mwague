@@ -1,10 +1,16 @@
 from datetime import datetime
 from typing import Literal, Optional
 from uuid import UUID
-
 from mkdi_shared.exceptions.mkdi_api_error import MkdiErrorCode
-from pydantic import BaseModel
+from pydantic import BaseModel,Field
 
+class CreateOrganizationRequest(BaseModel):
+    initials: str = Field(max_length=6,min_length=3)
+    org_name: str = Field(max_length=64,min_length=3)
+
+class OrganizationResponse(BaseModel):
+    initials: str
+    org_name: str
 
 class User(BaseModel):
     id: str
