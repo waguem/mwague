@@ -14,9 +14,9 @@ export const authOptions: AuthOptions = {
   ],
   callbacks: {
     async session({ session, token, user }) {
-      // console.log("session : ",session)
-      // console.log("token : ",token)
-      // console.log("user : ",user)
+      console.log("session : ",session)
+      console.log("token : ",token)
+      console.log("user : ",user)
       if (!token) return session;
       if (session.user) {
         session.user.name = token.name ?? "";
@@ -25,6 +25,7 @@ export const authOptions: AuthOptions = {
       }
       session.error = token.error;
       session.access_token = token.access_token;
+      console.log("Session After : ",session)
       return session;
     },
     async jwt({ token, profile, account, user }) {
