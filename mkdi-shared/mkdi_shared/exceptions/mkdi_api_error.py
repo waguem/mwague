@@ -20,7 +20,7 @@ class MkdiErrorCode(IntEnum):
     ROOT_TOKEN_NOT_AUTHORIZED = 3
     # for creating a new user, returned if the username is already taken
     USER_EXISTS = 4
-    ORGANIZATION_EXISTS=5
+    ORGANIZATION_EXISTS = 5
     SERVER_ERROR0 = 500
     SERVER_ERROR1 = 501
 

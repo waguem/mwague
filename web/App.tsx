@@ -21,7 +21,7 @@ function App({ children }: PropsWithChildren) {
   const dispatch = useDispatch();
   const { initLocale } = getTranslation();
   const [isLoading, setIsLoading] = useState(true);
-  const session = useSession()
+  const session = useSession();
   useEffect(() => {
     dispatch(toggleTheme(localStorage.getItem("theme") || themeConfig.theme));
     dispatch(toggleMenu(localStorage.getItem("menu") || themeConfig.menu));
@@ -32,7 +32,7 @@ function App({ children }: PropsWithChildren) {
     dispatch(toggleSemidark(localStorage.getItem("semidark") || themeConfig.semidark));
     // locale
     initLocale(themeConfig.locale);
-    if(session && session.data?.access_token){
+    if (session && session.data?.access_token) {
       localStorage.setItem("token", session.data.access_token);
     }
     setIsLoading(false);
@@ -47,7 +47,7 @@ function App({ children }: PropsWithChildren) {
     themeConfig.navbar,
     themeConfig.locale,
     themeConfig.semidark,
-    session
+    session,
   ]);
 
   // if((!gSession || !gSession.user) && !pathname.includes("/login")){

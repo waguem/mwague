@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from mkdi_backend.api.v1 import auth, version,organization
+from mkdi_backend.api.v1 import auth, organization, version
 
 api_router = APIRouter()
 api_router.include_router(version.router, tags=["version"])

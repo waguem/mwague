@@ -1,18 +1,20 @@
 import json
 from datetime import datetime
 from http import HTTPStatus
+
 import fastapi
 from loguru import logger
 from mkdi_backend.api.v1.api import api_router
 from mkdi_backend.config import settings
+from mkdi_backend.utils.lifespan import lifespan
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol as protocol_schema
 from mkdi_shared.utils import utcnow
-from mkdi_backend.utils.lifespan import lifespan
 
 app = fastapi.FastAPI(
-    title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json",
-    lifespan=lifespan
+    title=settings.PROJECT_NAME,
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    lifespan=lifespan,
 )
 startup_time: datetime = utcnow()
 
@@ -22,6 +24,7 @@ def get_openapi_schema():
 
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
 
 @app.exception_handler(MkdiError)
 async def mkdi_exception_handler(request: fastapi.Request, ex: MkdiError):

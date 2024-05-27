@@ -145,7 +145,6 @@ def main():
         print(get_openapi_schema())
 
     if not (args.print_openapi_schema):
-
         uvicorn.run(app, host=args.host, port=args.port)
 
 

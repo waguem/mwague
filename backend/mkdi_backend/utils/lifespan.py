@@ -1,11 +1,13 @@
-from alembic import command as a_command,config as a_config
-from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from mkdi_backend.database import engine
-from sqlmodel import Session
+from pathlib import Path
+
+from alembic import command as a_command
+from alembic import config as a_config
+from fastapi import FastAPI
 from loguru import logger
 from mkdi_backend.config import settings
-from pathlib import Path
+from mkdi_backend.database import engine
+from sqlmodel import Session
 
 
 async def alembic_upgrade():
@@ -20,6 +22,8 @@ async def alembic_upgrade():
     except Exception as e:
         logger.exception("Alembic upgrade failed on startup")
         logger.exception(e)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.db = Session(engine)

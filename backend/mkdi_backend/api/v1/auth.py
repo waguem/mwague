@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2AuthorizationCodeBearer
-
 from mkdi_backend.api.deps import KcUser, get_user_info
 from mkdi_backend.config import settings
 
@@ -12,7 +11,6 @@ oauth2_scheme = OAuth2AuthorizationCodeBearer(
 
 router = APIRouter()
 # get token header
-
 
 
 @router.get("/secure")

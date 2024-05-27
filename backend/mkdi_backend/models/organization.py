@@ -1,10 +1,12 @@
-import sqlalchemy as sa
 from typing import Optional
-from uuid import UUID,uuid4
-from sqlmodel import Field, SQLModel
-import sqlalchemy.dialects.postgresql as pg
+from uuid import UUID, uuid4
 
-class Organization(SQLModel,table=True):
+import sqlalchemy as sa
+import sqlalchemy.dialects.postgresql as pg
+from sqlmodel import Field, SQLModel
+
+
+class Organization(SQLModel, table=True):
     __tablename__ = "organizations"
 
     id: Optional[UUID] = Field(
@@ -16,5 +18,5 @@ class Organization(SQLModel,table=True):
         ),
     )
     # this is the initials of the organization
-    initials : str = Field(nullable=False,max_length=8,unique=True)
-    org_name : str = Field(nullable=False,max_length=64)
+    initials: str = Field(nullable=False, max_length=8, unique=True)
+    org_name: str = Field(nullable=False, max_length=64)

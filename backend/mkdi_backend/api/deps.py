@@ -4,14 +4,15 @@ from typing import Generator, Optional
 from uuid import UUID
 
 import mkdi_shared.exceptions.mkdi_api_error as mkdi_api_error
-from fastapi import Depends, Request, Response, Security,HTTPException, status
+from fastapi import Depends, HTTPException, Request, Response, Security, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2AuthorizationCodeBearer
 from fastapi.security.api_key import APIKey, APIKeyHeader, APIKeyQuery
 from fastapi_limiter.depends import RateLimiter
 from loguru import logger
+from mkdi_backend.authproviders import keycloak_openid
 from mkdi_backend.config import Settings, settings
 from mkdi_backend.database import engine
-from mkdi_backend.authproviders import keycloak_openid
+
 # from mkdi_backend.models import ApiClient
 from pydantic import BaseModel, conint
 from sqlmodel import Session
@@ -28,6 +29,7 @@ oauth2_scheme = OAuth2AuthorizationCodeBearer(
     authorizationUrl=settings.KC_AUTHORIZATION_URL,
     tokenUrl=settings.KC_TOKEN_URL,
 )
+
 
 def get_db() -> Generator:
     with Session(engine) as db:
@@ -188,10 +190,17 @@ class KcUser(BaseModel):
 
 # Get the payload/token from keycloak
 async def get_payload(token: str = Security(oauth2_scheme)) -> dict:
+    introspect = keycloak_openid.introspect(token)
+    # make sure the token is active
+    if not introspect["active"]:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    logger.info(f"Introspect result: {introspect}")
     try:
-        
-        result = keycloak_openid.introspect(token)
-        logger.info(f"Introspect result: {result}")
         # introspect user token
         return keycloak_openid.decode_token(token)
     except Exception as e:

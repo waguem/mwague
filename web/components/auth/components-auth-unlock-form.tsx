@@ -1,15 +1,9 @@
-"use client";
-import React from "react";
+import { loginAction } from "@/lib/action";
 import IconLock from "../icon/icon-lock";
-import { signIn } from "next-auth/react";
 
 const ComponentsAuthUnlockForm = () => {
-  const submitForm = async (e: any) => {
-    e.preventDefault();
-    await signIn("keycloak", { callbackUrl: "/dashboard" });
-  };
   return (
-    <form className="space-y-5" onSubmit={submitForm}>
+    <form className="space-y-5" action={loginAction}>
       <button
         type="submit"
         className="btn btn-gradient !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"

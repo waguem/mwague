@@ -1,4 +1,5 @@
-import "next-auth";
+import { DefaultJWT } from "next-auth/jwt";
+import { DefaultSession } from "next-auth";
 // Declare custom types for NextAuth modules
 declare module "next-auth" {
   // Define custom session properties
@@ -16,15 +17,15 @@ declare module "next-auth" {
       telephone?: string;
     };
     error?: string | null;
-    access_token: string;
+    accessToken: (string & DefaultSession) | any;
   }
 }
 
 // Declare custom JWT properties
 declare module "next-auth/jwt" {
   interface JWT {
-    access_token: string;
-    refresh_token: string;
+    accessToken: string & DefaultJWT;
+    refreshToken: string;
     refresh_expires_in: number;
     expires_in: number;
     user: {
@@ -47,7 +48,7 @@ declare module "next-auth/jwt" {
     provider: string;
     type: ProviderType;
     id: string;
-    access_token: string;
+    accessToken: string;
     refresh_token: string;
     idToken: string;
     expires_in: number;
