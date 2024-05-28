@@ -193,13 +193,13 @@ async def get_payload(token: str = Security(oauth2_scheme)) -> dict:
     introspect = keycloak_openid.introspect(token)
     # make sure the token is active
     if not introspect["active"]:
+        logger.info(f"Introspect result: {introspect}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    logger.info(f"Introspect result: {introspect}")
     try:
         # introspect user token
         return keycloak_openid.decode_token(token)

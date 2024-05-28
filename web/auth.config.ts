@@ -2,8 +2,9 @@ import type { NextAuthConfig } from "next-auth";
 import Keycloak from "next-auth/providers/keycloak";
 import { refreshTokenRequest } from "@/lib/oidc";
 import { JWT } from "next-auth/jwt";
+import logger from "@/lib/logger";
 
-export default {
+const config: NextAuthConfig = {
   providers: [Keycloak],
   callbacks: {
     async session({ session, token, user }) {
@@ -22,9 +23,14 @@ export default {
           };
         }
       } else {
+        if (token?.expires_in && Date.now() / 1000 < token.expires_in) {
+          return token;
+        }
+        // if the token has expired then refresh it
         try {
           // refresh token
           if (!token?.refreshToken) return token;
+
           const repsonse = await refreshTokenRequest(token.refreshToken);
           const tokens = await repsonse.data;
           if (repsonse.status !== 200) throw tokens;
@@ -38,7 +44,7 @@ export default {
             error: null,
           };
         } catch (e) {
-          console.log(e);
+          logger.error(e);
           return null as unknown as JWT;
         }
       }
@@ -47,4 +53,6 @@ export default {
   },
   debug: true,
   secret: process.env.AUTH_SECRET,
-} satisfies NextAuthConfig;
+};
+
+export default config;

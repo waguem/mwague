@@ -12,9 +12,7 @@ export const authOptions: AuthOptions = {
     }),
   ],
   events: {
-    async signIn(message: any) {
-      console.log("signIn event", message);
-    },
+    async signIn(message: any) {},
     async signOut({ token }) {
       await logoutRequest(token.refresh_token);
     },

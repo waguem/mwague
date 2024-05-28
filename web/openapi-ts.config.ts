@@ -7,5 +7,5 @@ export default defineConfig({
     path: "./lib/client",
   },
   client: "axios",
-  input: "http://localhost:8080/api/v1/openapi.json",
+  input: process.env.OPENAPI_INPUT || "./openapi.yaml",
 });

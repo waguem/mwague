@@ -34,21 +34,21 @@ services:
       timeout: 2s
       retries: 10
 
-  pgAdmin:
-    image: dpage/pgadmin4
-    restart: always
-    profiles: ["frontend-dev", "backend-dev"]
-    environment:
-      PGADMIN_DEFAULT_EMAIL: bah.amadouth96@gmail.com
-      PGADMIN_DEFAULT_PASSWORD: pgadmin
-      PGADMIN_LISTEN_PORT: 80
-      # SCRIPT_NAME: '/pgadmin4'
-    volumes:
-      - pgadmin:/var/lib/pgadmin
-    networks:
-      - private
-    ports:
-      - 8089:80
+  # pgAdmin:
+  #   image: dpage/pgadmin4
+  #   restart: always
+  #   profiles: ["frontend-dev", "backend-dev"]
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: bah.amadouth96@gmail.com
+  #     PGADMIN_DEFAULT_PASSWORD: pgadmin
+  #     PGADMIN_LISTEN_PORT: 80
+  #     # SCRIPT_NAME: '/pgadmin4'
+  #   volumes:
+  #     - pgadmin:/var/lib/pgadmin
+  #   networks:
+  #     - private
+  #   ports:
+  #     - 8089:80
 
   backend:
     image: tiangolo/uvicorn-gunicorn-fastapi:python3.10
@@ -159,7 +159,7 @@ services:
       - FASTAPI_URL=http://backend:8080
       - KEYCLOAK_CLIENT_ID=rns:mwague:portal
       - KEYCLOAK_CLIENT_SECRET=bmdsVvDMsh1CJ91SDaXGXTZc0DFp1Ufi
-      - KEYCLOAK_ISSUER=https://keycloak:8443/auth/realms/mwague
+      - KEYCLOAK_ISSUER=https://keycloak:8080/auth/realms/mwague
       - NEXTAUTH_SECRET=nextsecret
       - NODE_ENV=development
 

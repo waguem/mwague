@@ -31,16 +31,14 @@ class Settings(BaseSettings):
     DATABASE_URI: Optional[PostgresDsn] = None
     DATABASE_MAX_TX_RETRY_COUNT: int = 3
     # KEYCLOAK configuration
-    KC_SERVER_URL = "https://localhost.auth.com:8443/auth/"
+    KC_SERVER_URL = "http://localhost.auth.com:8443/auth/"
     KC_REALM = "mwague"
     KC_CLIENT_ID = "rns:mwague:portal"
     KC_CLIENT_SECRET = "bmdsVvDMsh1CJ91SDaXGXTZc0DFp1Ufi"
     KC_AUTHORIZATION_URL = (
-        f"https://localhost.auth.com:8443/auth/realms/mwague/protocol/openid-connect/auth"
+        f"http://localhost.auth.com:8443/auth/realms/mwague/protocol/openid-connect/auth"
     )
-    KC_TOKEN_URL = (
-        "https://localhost.auth.com:8443/auth/realms/mwague/protocol/openid-connect/token"
-    )
+    KC_TOKEN_URL = "http://localhost.auth.com:8443/auth/realms/mwague/protocol/openid-connect/token"
     KC_VERIFY_CERTS = False
 
     DATABASE_POOL_SIZE = 75

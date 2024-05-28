@@ -1,28 +1,16 @@
 import { Metadata } from "next";
 import React from "react";
 import { getOrganizationsApiV1OrgOrganizationGet as getOrganizations } from "@/lib/client";
-import { OpenAPI } from "@/lib/client";
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
+import useApi from "@/app/hooks/useApi";
 
 export const metadata: Metadata = {
   title: "Admin",
 };
 
-const Sales = async () => {
-  const session = await auth();
-  if (!session || !session.user) {
-    redirect("/auth/login");
-  }
-  // TODO use a hook to set the session token
-  // add  access_token to request
-  OpenAPI.interceptors.request.use((req) => {
-    req.headers = {
-      ...req.headers,
-      Authorization: `bearer ${session?.accessToken}`,
-    };
-    return req;
-  });
+const Organization = async () => {
+  // set session token to OpenAPI headers
+  await useApi();
+
   const organizations: Awaited<ReturnType<typeof getOrganizations>> = await getOrganizations();
 
   return (
@@ -37,4 +25,4 @@ const Sales = async () => {
   );
 };
 
-export default Sales;
+export default Organization;
