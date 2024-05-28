@@ -3,6 +3,7 @@ import IconLock from "../icon/icon-lock";
 
 const ComponentsAuthUnlockForm = () => {
   return (
+    // @ts-ignore
     <form className="space-y-5" action={loginAction}>
       <button
         type="submit"

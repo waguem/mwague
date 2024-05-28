@@ -13,7 +13,7 @@ export interface OnCancel {
   readonly isResolved: boolean;
   readonly isRejected: boolean;
   readonly isCancelled: boolean;
-
+  // eslint-disable-next-line
   (cancelHandler: () => void): void;
 }
 
@@ -23,13 +23,18 @@ export class CancelablePromise<T> implements Promise<T> {
   private _isCancelled: boolean;
   readonly cancelHandlers: (() => void)[];
   readonly promise: Promise<T>;
+  // eslint-disable-next-line
   private _resolve?: (value: T | PromiseLike<T>) => void;
+  // eslint-disable-next-line
   private _reject?: (reason?: unknown) => void;
 
   constructor(
     executor: (
+      // eslint-disable-next-line
       resolve: (value: T | PromiseLike<T>) => void,
+      // eslint-disable-next-line
       reject: (reason?: unknown) => void,
+      // eslint-disable-next-line
       onCancel: OnCancel
     ) => void
   ) {
@@ -85,13 +90,16 @@ export class CancelablePromise<T> implements Promise<T> {
   }
 
   public then<TResult1 = T, TResult2 = never>(
+    // eslint-disable-next-line
     onFulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | null,
+    // eslint-disable-next-line
     onRejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null
   ): Promise<TResult1 | TResult2> {
     return this.promise.then(onFulfilled, onRejected);
   }
 
   public catch<TResult = never>(
+    // eslint-disable-next-line
     onRejected?: ((reason: unknown) => TResult | PromiseLike<TResult>) | null
   ): Promise<T | TResult> {
     return this.promise.catch(onRejected);

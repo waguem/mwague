@@ -2,8 +2,10 @@ import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import type { ApiRequestOptions } from "./ApiRequestOptions";
 
 type Headers = Record<string, string>;
+// eslint-disable-next-line
 type Middleware<T> = (value: T) => T | Promise<T>;
-type Resolver<T> = (options: ApiRequestOptions) => Promise<T>;
+// eslint-disable-next-line
+type Resolver<T> = (_options: ApiRequestOptions) => Promise<T>;
 
 export class Interceptors<T> {
   _fns: Middleware<T>[];
@@ -27,6 +29,7 @@ export class Interceptors<T> {
 export type OpenAPIConfig = {
   BASE: string;
   CREDENTIALS: "include" | "omit" | "same-origin";
+  // eslint-disable-next-line
   ENCODE_PATH?: ((path: string) => string) | undefined;
   HEADERS?: Headers | Resolver<Headers> | undefined;
   PASSWORD?: string | Resolver<string> | undefined;

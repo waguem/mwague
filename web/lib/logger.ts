@@ -1,3 +1,4 @@
+// eslint-disable-next-line
 type LogType = (...args: any[]) => void;
 
 const logger: { log: LogType; error: LogType } = {
