@@ -184,7 +184,7 @@
           POSTGRES_DB: "{{ postgres_db }}"
           REDIS_HOST: "mkdi-{{ stack_name }}-redis"
           AUTH_TRUST_HOST: "true"
-          AUTH_URL: "https://{{ web_domain }}"
+          NEXTAUTH_URL_INTERNAL: "https://{{ web_domain }}"
           AUTH_SECRET: "{{ lookup('ansible.builtin.env', 'AUTH_SECRET') }}"
           AUTH_KEYCLOAK_ID:
             "{{ lookup('ansible.builtin.env', 'AUTH_KEYCLOAK_ID') }}"
