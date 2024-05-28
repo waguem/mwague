@@ -7,7 +7,7 @@ import logger from "@/lib/logger";
 const config: NextAuthConfig = {
   providers: [Keycloak],
   callbacks: {
-    async session({ session, token, user }) {
+    async session({ session, token }) {
       if (token?.accessToken) {
         session.accessToken = token.accessToken;
       }

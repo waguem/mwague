@@ -143,6 +143,8 @@ services:
     build:
       dockerfile: docker/Dockerfile.website
       context: .
+      args:
+        - HOSTNAME=localhost
     image: mkdi-web
     container_name: mkdi-web
     networks:
@@ -155,13 +157,16 @@ services:
     command: node server.js
     profiles: ["ci"]
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@mkdi-web-db/mkdi_web
-      - FASTAPI_URL=http://backend:8080
-      - KEYCLOAK_CLIENT_ID=rns:mwague:portal
-      - KEYCLOAK_CLIENT_SECRET=bmdsVvDMsh1CJ91SDaXGXTZc0DFp1Ufi
-      - KEYCLOAK_ISSUER=https://keycloak:8080/auth/realms/mwague
-      - NEXTAUTH_SECRET=nextsecret
-      - NODE_ENV=development
+      DATABASE_URL: postgres://postgres:postgres@mkdi-web-db/mkdi_web
+      NODE_ENV: development
+      AUTH_KEYCLOAK_ID: rns:mwague:portal
+      AUTH_KEYCLOAK_SECRET: bmdsVvDMsh1CJ91SDaXGXTZc0DFp1Ufi
+      AUTH_KEYCLOAK_ISSUER: http://localhost.auth.com:8443/auth/realms/mwague
+      AUTH_SECRET: Wj58QaC7drb1TDXcsv0FGL0fn1ToYuo+OX+W+54TZS4=
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+      WEB_DOMAIN: http://localhost:3000
+      HOSTNAME: 0.0.0.0
+      AUTH_TRUST_HOST: True
 
 volumes:
   pgadmin:

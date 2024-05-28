@@ -7,18 +7,23 @@ WORKDIR /app
 COPY ./web/package.json ./web/pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
+ARG WEB_DOMAIN
 FROM base AS builder
 WORKDIR /app
 COPY ./web ./
 
+
+ENV HOSTNAME=${WEB_DOMAIN}
 # mount node_modules instead of copying them
 RUN --mount=type=bind,from=deps,source=/app/node_modules,target=/app/node_modules,readwrite \
   #npx prisma generate && pnpm build
   pnpm build
 
 FROM base AS runner
+ARG WEB_DOMAIN
 WORKDIR /app
 ENV NODE_ENV production
+ENV HOSTNAME=${WEB_DOMAIN}
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs --ingroup nodejs
 
@@ -36,11 +41,13 @@ COPY --chown=nextjs:nodejs ./web/wait-for-postgres.sh ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/next.config.js ./next.config.js
+COPY --from=deps    --chown=nextjs:nodejs /app/node_modules/sharp .
 USER nextjs
 
 EXPOSE 3000
 
 ENV PORT 3000
+ENV NEXT_SHARP_PATH=/app/node_modules/sharp
 # allow the heap to grow larger than the default
 ENV NODE_OPTIONS "--max-old-space-size=4096"
 
