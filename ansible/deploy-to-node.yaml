@@ -140,6 +140,7 @@
           KC_VERIFY_CERTS:
             "{{ 'true' if lookup('ansible.builtin.env', 'KC_VERIFY_CERTS') ==
             'enabled' else 'false'}}"
+          AUTH_TRUST_HOST: "true"
         ports:
           - "{{ backend_port }}:8080"
         labels:
