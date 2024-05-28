@@ -10,9 +10,7 @@ export const metadata: Metadata = {
 const Organization = async () => {
   // set session token to OpenAPI headers
   await useApi();
-
   const organizations: Awaited<ReturnType<typeof getOrganizations>> = await getOrganizations();
-
   return (
     <div>
       Your oganizations
