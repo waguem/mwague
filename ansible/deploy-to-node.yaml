@@ -192,6 +192,7 @@
           AUTH_KEYCLOAK_ISSUER:
             "{{ lookup('ansible.builtin.env', 'AUTH_KEYCLOAK_ISSUER') }}"
           NEXT_PUBLIC_API_BASE_URL: "https://{{ backend_domain }}"
+          WEB_DOMAIN: "https://{{ web_domain }}"
           NODE_ENV: production
           DATABASE_URL:
             "postgres://{{ postgres_user }}:{{ postgres_password }}@mkdi-{{

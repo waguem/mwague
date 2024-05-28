@@ -2,5 +2,6 @@ import { signIn } from "@/auth";
 
 export const loginAction = async () => {
   "use server";
-  await signIn("keycloak", { redirectTo: "/dashboard" });
+  const redirectUri = process.env.WEB_DOMAIN ? `${process.env.WEB_DOMAIN}/dashboard` : "/dashboard";
+  await signIn("keycloak", { redirectTo: redirectUri });
 };
