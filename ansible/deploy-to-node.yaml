@@ -102,67 +102,68 @@
         - name: backend
         - name: web
 
-    # - name: Run the minkadi mkdi-backend
-    #   community.docker.docker_container:
-    #     name: "mkdi-{{ stack_name }}-backend"
-    #     image: "{{ base_registry }}/mkdi-backend:{{ image_tag }}"
-    #     state: started
-    #     recreate: true
-    #     pull: true
-    #     restart_policy: always
-    #     network_mode: "proxy_{{ stack_name }}"
-    #     env:
-    #       POSTGRES_HOST: "mkdi-{{ stack_name }}-postgres-backend"
-    #       POSTGRES_PASSWORD: "{{ postgres_password }}"
-    #       POSTGRES_USER: "{{ postgres_user }}"
-    #       POSTGRES_DB: "{{ postgres_db }}"
-    #       ENV: "{{ 'production' if stack_name == 'prod' else 'development' }}"
-    #       PYTHONPATH: /backend
-    #       REDIS_HOST: "mkdi-{{ stack_name }}-redis"
-    #       DEBUG_USE_SEED_DATA:
-    #         "{{ 'true' if stack_name == 'staging' else 'false' }}"
-    #       DEBUG_ALLOW_SELF_LABELING:
-    #         "{{ 'true' if stack_name == 'staging' else 'false' }}"
-    #       MAX_WORKERS: "1"
-    #       RATE_LIMIT: "{{ 'false' if stack_name == 'staging' else 'true' }}"
-    #       DEBUG_SKIP_EMBEDDING_COMPUTATION: "true"
-    #       OFFICIAL_WEB_API_KEY: "{{ web_api_key }}"
-    #       AUTH_SALT: "{{ auth_salt }}"
-    #       AUTH_SECRET: "{{ auth_secret }}"
-    #       KC_SERVER_URL: "{{lookup('ansible.builtin.env', 'KC_SERVER_URL') }}"
-    #       KC_REALM: "{{lookup('ansible.builtin.env', 'KC_REALM') }}"
-    #       KC_CLIENT_ID: "{{lookup('ansible.builtin.env', 'KC_CLIENT_ID') }}"
-    #       KC_CLIENT_SECRET:
-    #         "{{lookup('ansible.builtin.env', 'KC_CLIENT_SECRET') }}"
-    #       KC_AUTHORIZATION_URL:
-    #         "{{lookup('ansible.builtin.env', 'KC_AUTHORIZATION_URL') }}"
-    #       KC_TOKEN_URL: "{{lookup('ansible.builtin.env', 'KC_TOKEN_URL') }}"
-    #       KC_VERIFY_CERTS:
-    #         "{{ 'true' if lookup('ansible.builtin.env', 'KC_VERIFY_CERTS') == 'enabled' else 'false'}}"
-    #     ports:
-    #       - "{{ backend_port }}:8080"
-    #     labels:
-    #       traefik.enable: "true"
-    #       traefik.docker.network: proxy_{{ stack_name }}
-    #       # http redirect router
-    #       traefik.http.routers.mkdi-backend.rule: "Host(`{{ backend_domain }}`)"
-    #       traefik.http.routers.mkdi-backend.entrypoints: web
-    #       traefik.http.routers.mkdi-backend.middlewares: mkdi-backend-https-redirect
-    #       traefik.http.middlewares.mkdi-backend-https-redirect.redirectscheme.scheme: https
-    #       traefik.http.routers.mkdi-backend.priority: "1"
-    #       # https router
-    #       traefik.http.routers.mkdi-backend-secure.tls: "true"
-    #       traefik.http.routers.mkdi-backend-secure.entrypoints: websecure
-    #       traefik.http.routers.mkdi-backend-secure.rule:
-    #         "Host(`{{ backend_domain }}`)"
-    #       traefik.http.routers.mkdi-backend-secure.tls.certresolver: cloudflare
-    #       traefik.http.routers.mkdi-backend-secure.tls.domains[0].main:
-    #         "{{ domain }}"
-    #       traefik.http.routers.mkdi-backend-secure.tls.domains[0].sans:
-    #         "*.{{ domain }}"
+    - name: Run the minkadi mkdi-backend
+      community.docker.docker_container:
+        name: "mkdi-{{ stack_name }}-backend"
+        image: "{{ base_registry }}/mkdi-backend:{{ image_tag }}"
+        state: started
+        recreate: true
+        pull: true
+        restart_policy: always
+        network_mode: "proxy_{{ stack_name }}"
+        env:
+          POSTGRES_HOST: "mkdi-{{ stack_name }}-postgres-backend"
+          POSTGRES_PASSWORD: "{{ postgres_password }}"
+          POSTGRES_USER: "{{ postgres_user }}"
+          POSTGRES_DB: "{{ postgres_db }}"
+          ENV: "{{ 'production' if stack_name == 'prod' else 'development' }}"
+          PYTHONPATH: /backend
+          REDIS_HOST: "mkdi-{{ stack_name }}-redis"
+          DEBUG_USE_SEED_DATA:
+            "{{ 'true' if stack_name == 'staging' else 'false' }}"
+          DEBUG_ALLOW_SELF_LABELING:
+            "{{ 'true' if stack_name == 'staging' else 'false' }}"
+          MAX_WORKERS: "1"
+          RATE_LIMIT: "{{ 'false' if stack_name == 'staging' else 'true' }}"
+          DEBUG_SKIP_EMBEDDING_COMPUTATION: "true"
+          OFFICIAL_WEB_API_KEY: "{{ web_api_key }}"
+          AUTH_SALT: "{{ auth_salt }}"
+          AUTH_SECRET: "{{ auth_secret }}"
+          KC_SERVER_URL: "{{lookup('ansible.builtin.env', 'KC_SERVER_URL') }}"
+          KC_REALM: "{{lookup('ansible.builtin.env', 'KC_REALM') }}"
+          KC_CLIENT_ID: "{{lookup('ansible.builtin.env', 'KC_CLIENT_ID') }}"
+          KC_CLIENT_SECRET:
+            "{{lookup('ansible.builtin.env', 'KC_CLIENT_SECRET') }}"
+          KC_AUTHORIZATION_URL:
+            "{{lookup('ansible.builtin.env', 'KC_AUTHORIZATION_URL') }}"
+          KC_TOKEN_URL: "{{lookup('ansible.builtin.env', 'KC_TOKEN_URL') }}"
+          KC_VERIFY_CERTS:
+            "{{ 'true' if lookup('ansible.builtin.env', 'KC_VERIFY_CERTS') ==
+            'enabled' else 'false'}}"
+        ports:
+          - "{{ backend_port }}:8080"
+        labels:
+          traefik.enable: "true"
+          traefik.docker.network: proxy_{{ stack_name }}
+          # http redirect router
+          traefik.http.routers.mkdi-backend.rule: "Host(`{{ backend_domain }}`)"
+          traefik.http.routers.mkdi-backend.entrypoints: web
+          traefik.http.routers.mkdi-backend.middlewares: mkdi-backend-https-redirect
+          traefik.http.middlewares.mkdi-backend-https-redirect.redirectscheme.scheme: https
+          traefik.http.routers.mkdi-backend.priority: "1"
+          # https router
+          traefik.http.routers.mkdi-backend-secure.tls: "true"
+          traefik.http.routers.mkdi-backend-secure.entrypoints: websecure
+          traefik.http.routers.mkdi-backend-secure.rule:
+            "Host(`{{ backend_domain }}`)"
+          traefik.http.routers.mkdi-backend-secure.tls.certresolver: cloudflare
+          traefik.http.routers.mkdi-backend-secure.tls.domains[0].main:
+            "{{ domain }}"
+          traefik.http.routers.mkdi-backend-secure.tls.domains[0].sans:
+            "*.{{ domain }}"
 
-    #       traefik.http.services.mkdi-backend-https.loadbalancer.server.port: "8080"
-    #       traefik.http.routers.mkdi-backend-secure.service: mkdi-backend-https
+          traefik.http.services.mkdi-backend-https.loadbalancer.server.port: "8080"
+          traefik.http.routers.mkdi-backend-secure.service: mkdi-backend-https
 
     - name: Run the minkadi mkdi-web frontend
       community.docker.docker_container:
@@ -182,16 +183,14 @@
           POSTGRES_USER: "{{ postgres_user }}"
           POSTGRES_DB: "{{ postgres_db }}"
           REDIS_HOST: "mkdi-{{ stack_name }}-redis"
-          NEXTAUTH_SECRET:
-            "{{ lookup('ansible.builtin.env', 'NEXTAUTH_SECRET') }}"
+          AUTH_SECRET: "{{ lookup('ansible.builtin.env', 'AUTH_SECRET') }}"
           AUTH_KEYCLOAK_ID:
-            "{{ lookup('ansible.builtin.env', 'KEYCLOAK_CLIENT_ID') }}"
+            "{{ lookup('ansible.builtin.env', 'AUTH_KEYCLOAK_ID') }}"
           AUTH_KEYCLOAK_SECRET:
-            "{{ lookup('ansible.builtin.env', 'KEYCLOAK_CLIENT_SECRET') }}"
+            "{{ lookup('ansible.builtin.env', 'AUTH_KEYCLOAK_SECRET') }}"
           AUTH_KEYCLOAK_ISSUER:
-            "{{ lookup('ansible.builtin.env', 'KEYCLOAK_ISSUER') }}"
-          NEXTAUTH_URL:
-            "{{ lookup('ansible.builtin.env', 'KEYCLOAK_REDIRECT_URI') }}"
+            "{{ lookup('ansible.builtin.env', 'AUTH_KEYCLOAK_ISSUER') }}"
+          NEXT_PUBLIC_API_BASE_URL: "https://{{ backend_domain }}"
           NODE_ENV: production
           DATABASE_URL:
             "postgres://{{ postgres_user }}:{{ postgres_password }}@mkdi-{{

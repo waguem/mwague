@@ -43,7 +43,6 @@ class Settings(BaseSettings):
 
     DATABASE_POOL_SIZE = 75
     DATABASE_MAX_OVERFLOW = 20
-    MWGUE_PUBLIC_API_URL = "http://localhost:8000/api/v1/"
     RATE_LIMIT: bool = True
     MESSAGE_SIZE_LIMIT: int = 2000
     REDIS_HOST: str = "localhost"
