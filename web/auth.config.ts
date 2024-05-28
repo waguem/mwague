@@ -51,7 +51,7 @@ const config: NextAuthConfig = {
       return token;
     },
   },
-  debug: true,
+  debug: process.env.NODE_ENV === "development",
   secret: process.env.AUTH_SECRET,
 };
 
