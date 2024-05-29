@@ -1,3 +1,4 @@
+"use client";
 import { loginAction } from "@/lib/action";
 import IconLock from "../icon/icon-lock";
 

@@ -1,4 +1,27 @@
-export { auth as middleware } from "./auth";
+import { withAuth } from "next-auth/middleware";
+import logger from "@/lib/logger";
+const unAuthExtentions = ["jpg", "jpeg", "png", "svg"];
+export default withAuth({
+  callbacks: {
+    authorized: async ({ req, token }) => {
+      logger.log(req.nextUrl.pathname);
+      if (!token) {
+        const fileExtension = req.nextUrl.pathname.split(".").pop();
+        logger.log("fileExtension : ", fileExtension);
+        const basePath = req.nextUrl.pathname.split("/")[0];
+        const isOk =
+          fileExtension &&
+          (req.nextUrl.pathname.startsWith("/assets/images") || basePath === "") &&
+          unAuthExtentions.includes(fileExtension);
+        return isOk == true;
+      }
+      return true;
+    },
+  },
+  pages: {
+    signIn: "/auth/login",
+  },
+});
 
 export const config = {
   matcher: [
@@ -9,6 +32,6 @@ export const config = {
      * - _rsc
      * - favicon.ico (favicon file)
      */
-    "/((?!_next/static|_rsc|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|auth/login|favicon.ico).*)",
   ],
 };

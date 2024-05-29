@@ -199,7 +199,6 @@ async def get_payload(token: str = Security(oauth2_scheme)) -> dict:
             detail="Invalid authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
     try:
         # introspect user token
         return keycloak_openid.decode_token(token)

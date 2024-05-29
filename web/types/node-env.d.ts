@@ -1,3 +1,4 @@
+// eslint-disable-next-line
 declare namespace NodeJS {
   export interface ProcessEnv {
     AUTH_KEYCLOAK_ID: string;

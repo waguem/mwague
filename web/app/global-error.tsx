@@ -1,5 +1,10 @@
 "use client";
 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Error Page",
+};
 export default function GlobalError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
     <html>

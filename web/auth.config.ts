@@ -1,11 +1,17 @@
-import type { NextAuthConfig } from "next-auth";
+import type { AuthOptions } from "next-auth";
 import Keycloak from "next-auth/providers/keycloak";
 import { refreshTokenRequest } from "@/lib/oidc";
 import { JWT } from "next-auth/jwt";
 import logger from "@/lib/logger";
 
-const config: NextAuthConfig = {
-  providers: [Keycloak],
+export const authOptions: AuthOptions = {
+  providers: [
+    Keycloak({
+      clientId: process.env.AUTH_KEYCLOAK_ID ?? "",
+      clientSecret: process.env.AUTH_KEYCLOAK_SECRET || "", // Add default value of an empty string
+      issuer: process.env.AUTH_KEYCLOAK_ISSUER,
+    }),
+  ],
   callbacks: {
     async session({ session, token }) {
       if (token?.accessToken) {
@@ -54,6 +60,9 @@ const config: NextAuthConfig = {
   debug: true,
   // debug: process.env.NODE_ENV === "development",
   secret: process.env.AUTH_SECRET,
+  pages: {
+    signIn: "/auth/login",
+  },
 };
 
-export default config;
+export default authOptions;
