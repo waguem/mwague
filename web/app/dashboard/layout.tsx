@@ -1,4 +1,5 @@
-import { auth } from "@/auth";
+// import { auth } from "@/auth";
+import authOptions from "@/auth.config";
 import ContentAnimation from "@/components/layouts/content-animation";
 import Footer from "@/components/layouts/footer";
 import Header from "@/components/layouts/header";
@@ -8,9 +9,13 @@ import ScrollToTop from "@/components/layouts/scroll-to-top";
 import Setting from "@/components/layouts/setting";
 import Sidebar from "@/components/layouts/sidebar";
 import Portals from "@/components/portals";
+import logger from "@/lib/logger";
+import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+// import { redirect } from "next/navigation";
 export default async function DefaultLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth();
+  const session = await getServerSession(authOptions);
+  logger.log("Server session", session);
   if (!session || !session?.user) {
     redirect("/auth/login");
   }

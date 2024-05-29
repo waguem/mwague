@@ -183,9 +183,8 @@
           POSTGRES_USER: "{{ postgres_user }}"
           POSTGRES_DB: "{{ postgres_db }}"
           REDIS_HOST: "mkdi-{{ stack_name }}-redis"
-          AUTH_TRUST_HOST: "true"
-          NEXTAUTH_URL_INTERNAL: "https://{{ web_domain }}"
-          AUTH_SECRET: "{{ lookup('ansible.builtin.env', 'AUTH_SECRET') }}"
+          NEXTAUTH_URL: "https://{{ web_domain }}"
+          NEXTAUTH_SECRET: "{{ lookup('ansible.builtin.env', 'AUTH_SECRET') }}"
           AUTH_KEYCLOAK_ID:
             "{{ lookup('ansible.builtin.env', 'AUTH_KEYCLOAK_ID') }}"
           AUTH_KEYCLOAK_SECRET:
@@ -193,8 +192,6 @@
           AUTH_KEYCLOAK_ISSUER:
             "{{ lookup('ansible.builtin.env', 'AUTH_KEYCLOAK_ISSUER') }}"
           NEXT_PUBLIC_API_BASE_URL: "https://{{ backend_domain }}"
-          WEB_DOMAIN: "https://{{ web_domain }}"
-          HOSTNAME: "0.0.0.0"
           NODE_ENV: production
           DATABASE_URL:
             "postgres://{{ postgres_user }}:{{ postgres_password }}@mkdi-{{

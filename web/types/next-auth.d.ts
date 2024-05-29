@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 import { DefaultJWT } from "next-auth/jwt";
 import { DefaultSession } from "next-auth";
 // Declare custom types for NextAuth modules
