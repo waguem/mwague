@@ -21,6 +21,7 @@ class MkdiErrorCode(IntEnum):
     # for creating a new user, returned if the username is already taken
     USER_EXISTS = 4
     ORGANIZATION_EXISTS = 5
+    OFFICE_EXISTS = 6
     SERVER_ERROR0 = 500
     SERVER_ERROR1 = 501
 

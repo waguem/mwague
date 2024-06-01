@@ -11,9 +11,21 @@ class CreateOrganizationRequest(BaseModel):
     org_name: str = Field(max_length=64, min_length=3)
 
 
+class CreateOfficeRequest(BaseModel):
+    initials: str = Field(max_length=6, min_length=3)
+    name: str = Field(max_length=64, min_length=3)
+    country: str = Field(max_length=64, min_length=3)
+
+
 class OrganizationResponse(BaseModel):
     initials: str
     org_name: str
+
+
+class OfficeResponse(BaseModel):
+    initials: str
+    name: str
+    country: str
 
 
 class User(BaseModel):

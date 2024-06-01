@@ -6,8 +6,8 @@ import sqlalchemy.dialects.postgresql as pg
 from sqlmodel import Field, SQLModel
 
 
-class Organization(SQLModel, table=True):
-    __tablename__ = "organizations"
+class Office(SQLModel, table=True):
+    __tablename__ = "offices"
 
     id: Optional[UUID] = Field(
         sa_column=sa.Column(
@@ -17,6 +17,12 @@ class Organization(SQLModel, table=True):
             server_default=sa.text("gen_random_uuid()"),
         ),
     )
-    # this is the initials of the organization
+    country: str = Field(nullable=False, max_length=64)
     initials: str = Field(nullable=False, max_length=8, unique=True)
-    org_name: str = Field(nullable=False, max_length=64)
+    name: str = Field(nullable=False, max_length=64)
+
+    # an office is part of an organization
+    # organization_id: UUID = Field(foreign_key="organizations.id")
+
+    class Config:
+        arbitrary_types_allowed = True

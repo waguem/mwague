@@ -242,8 +242,8 @@ const Header = (props: HeaderProps) => {
                 button={
                   i18n.language && (
                     <Image
-                      height={5}
-                      width={5}
+                      height={21}
+                      width={21}
                       className="h-5 w-5 rounded-full object-cover"
                       src={`/assets/images/flags/${i18n.language.toUpperCase()}.svg`}
                       alt="flag"
@@ -266,8 +266,8 @@ const Header = (props: HeaderProps) => {
                           }}
                         >
                           <Image
-                            height={5}
-                            width={5}
+                            height={21}
+                            width={21}
                             src={`/assets/images/flags/${item.code.toUpperCase()}.svg`}
                             alt="flag"
                             className="rounded-full object-cover"

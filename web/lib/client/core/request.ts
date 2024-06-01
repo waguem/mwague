@@ -108,7 +108,6 @@ export const getFormData = (options: ApiRequestOptions): FormData | undefined =>
   return undefined;
 };
 
-// eslint-disable-next-line
 type Resolver<T> = (options: ApiRequestOptions) => Promise<T>;
 
 export const resolve = async <T>(options: ApiRequestOptions, resolver?: T | Resolver<T>): Promise<T | undefined> => {

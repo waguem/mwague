@@ -2,7 +2,6 @@ import type { AuthOptions } from "next-auth";
 import Keycloak from "next-auth/providers/keycloak";
 import { refreshTokenRequest } from "@/lib/oidc";
 import { JWT } from "next-auth/jwt";
-import logger from "@/lib/logger";
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -24,7 +23,7 @@ export const authOptions: AuthOptions = {
         if (account?.provider === "keycloak") {
           return {
             ...token,
-            accessToken: token.accessToken,
+            accessToken: account?.access_token || token?.accessToken,
             refreshToken: account?.refresh_token || token?.refreshToken,
           };
         }
@@ -35,8 +34,7 @@ export const authOptions: AuthOptions = {
         // if the token has expired then refresh it
         try {
           // refresh token
-          if (!token?.refreshToken) return token;
-
+          if (!token?.refreshToken) return {} as JWT;
           const repsonse = await refreshTokenRequest(token.refreshToken);
           const tokens = await repsonse.data;
           if (repsonse.status !== 200) throw tokens;
@@ -50,8 +48,8 @@ export const authOptions: AuthOptions = {
             error: null,
           };
         } catch (e) {
-          logger.error(e);
-          return null as unknown as JWT;
+          // logger.error(e);
+          return {} as unknown as JWT;
         }
       }
       return token;

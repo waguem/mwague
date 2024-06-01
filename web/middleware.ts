@@ -1,21 +1,36 @@
-import { withAuth } from "next-auth/middleware";
-import logger from "@/lib/logger";
+import { NextMiddlewareWithAuth, NextRequestWithAuth, withAuth } from "next-auth/middleware";
+import { NextResponse } from "next/server";
+import { JWT } from "next-auth/jwt";
+
 const unAuthExtentions = ["jpg", "jpeg", "png", "svg"];
-export default withAuth({
+const checkAuth: NextMiddlewareWithAuth = async (request: NextRequestWithAuth) => {
+  if (!request.nextauth.token) {
+    if (!isAuthorized(request.nextauth.token, request.nextUrl.pathname)) {
+      return NextResponse.redirect("/auth/login");
+    }
+  }
+  return NextResponse.next();
+};
+
+function isAuthorized(token: JWT | null, pathname: string) {
+  if (token) {
+    return true;
+  }
+
+  const fileExtension = pathname.split(".").pop();
+  const basePath = pathname.split("/")[0];
+  const isOk =
+    fileExtension &&
+    (pathname.startsWith("/assets/images") || basePath === "") &&
+    unAuthExtentions.includes(fileExtension)
+      ? true
+      : false;
+  return isOk;
+}
+export default withAuth(checkAuth, {
   callbacks: {
-    authorized: async ({ req, token }) => {
-      logger.log(req.nextUrl.pathname);
-      if (!token) {
-        const fileExtension = req.nextUrl.pathname.split(".").pop();
-        logger.log("fileExtension : ", fileExtension);
-        const basePath = req.nextUrl.pathname.split("/")[0];
-        const isOk =
-          fileExtension &&
-          (req.nextUrl.pathname.startsWith("/assets/images") || basePath === "") &&
-          unAuthExtentions.includes(fileExtension);
-        return isOk == true;
-      }
-      return true;
+    authorized: ({ token, req }) => {
+      return isAuthorized(token, req.nextUrl.pathname);
     },
   },
   pages: {
@@ -25,6 +40,7 @@ export default withAuth({
 
 export const config = {
   matcher: [
+    "/dashboard/:path*",
     /*
      * Match all request paths except for the ones starting with:
      * - _next/static (static files)

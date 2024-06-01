@@ -26,7 +26,7 @@ declare module "next-auth" {
 // Declare custom JWT properties
 declare module "next-auth/jwt" {
   interface JWT {
-    accessToken: string & DefaultJWT;
+    accessToken: string;
     refreshToken: string;
     refresh_expires_in: number;
     expires_in: number;
