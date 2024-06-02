@@ -146,6 +146,7 @@ def async_managed_tx_method(
                         self.db.rollback()
                 return result
             except Exception as e:
+                logger.info("Something went wrong")
                 logger.info(str(e))
                 raise e
 

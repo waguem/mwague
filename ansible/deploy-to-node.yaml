@@ -121,6 +121,8 @@
           REDIS_HOST: "mkdi-{{ stack_name }}-redis"
           DEBUG_USE_SEED_DATA:
             "{{ 'true' if stack_name == 'staging' else 'false' }}"
+          DEBUG_USE_SEED_DATA_PATH:
+            "{{ lookup('ansible.builtin.env', 'DEBUG_USE_SEED_DATA_PATH') }}"
           DEBUG_ALLOW_SELF_LABELING:
             "{{ 'true' if stack_name == 'staging' else 'false' }}"
           MAX_WORKERS: "1"
@@ -140,6 +142,11 @@
           KC_VERIFY_CERTS:
             "{{ 'true' if lookup('ansible.builtin.env', 'KC_VERIFY_CERTS') ==
             'enabled' else 'false'}}"
+          KC_ADMIN_USER: "{{lookup('ansible.builtin.env', 'KC_ADMIN_USER') }}"
+          KC_ADMIN_PASSWORD:
+            "{{lookup('ansible.builtin.env', 'KC_ADMIN_PASSWORD') }}"
+          KC_ADMIN_CLIENT_ID:
+            "{{lookup('ansible.builtin.env', 'KC_ADMIN_CLIENT_ID') }}"
         ports:
           - "{{ backend_port }}:8080"
         labels:

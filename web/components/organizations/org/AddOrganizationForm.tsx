@@ -115,7 +115,7 @@ export function AddOrganizationForm() {
             />
             <ErrorMessage errors={errors} name="initials" />
           </div>
-          <div>
+          <div className="nice-select">
             <label htmlFor="country">{t("country")}</label>
             <Controller
               name="country"
@@ -134,6 +134,7 @@ export function AddOrganizationForm() {
                   className={clsx({
                     "has-error": errors?.country,
                     "has-success": !errors?.country,
+                    dark: true,
                   })}
                 />
               )}

@@ -1,5 +1,5 @@
 from mkdi_backend.models.office import Office
-from mkdi_backend.utils.database import CommitMode, async_managed_tx_method
+from mkdi_backend.utils.database import CommitMode, managed_tx_method
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol
 from sqlmodel import Session
@@ -15,9 +15,16 @@ class OfficeRepository:
     def get_by_id(self, id):
         return self.db.get_by_id(id)
 
-    @async_managed_tx_method(auto_commit=CommitMode.COMMIT)
-    async def create(self, input: protocol.CreateOfficeRequest):
-        office: Office = self.db.query(Office).filter(Office.initials == input.initials).first()
+    def get_by_initials(self, initials: str):
+        return self.db.query(Office).filter(Office.initials == initials).first()
+
+    @managed_tx_method(auto_commit=CommitMode.COMMIT)
+    def create(self, input: protocol.CreateOfficeRequest, office_id: str):
+        office: Office = (
+            self.db.query(Office)
+            .filter(Office.initials == input.initials and Office.organization_id == office_id)
+            .first()
+        )
         if office:
             raise MkdiError(
                 f"Office {input.initials} already exists",
@@ -28,7 +35,7 @@ class OfficeRepository:
             initials=input.initials,
             name=input.name,
             country=input.country,
-            organization_id="from token",
+            organization_id=office_id,
         )
         self.db.add(office)
         return office

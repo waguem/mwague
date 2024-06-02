@@ -15,7 +15,6 @@ import UserHeader from "@/components/layouts/UserHeader";
 // import { redirect } from "next/navigation";
 export default async function DefaultLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
-
   if (!session || !session?.accessToken) {
     redirect("/auth/login");
   }

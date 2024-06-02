@@ -1,54 +1,42 @@
-from datetime import datetime
-from typing import Literal, Optional
-from uuid import UUID
-
 from mkdi_shared.exceptions.mkdi_api_error import MkdiErrorCode
 from pydantic import BaseModel, Field
+from sqlmodel import SQLModel
 
 
-class CreateOrganizationRequest(BaseModel):
-    initials: str = Field(max_length=6, min_length=3)
-    org_name: str = Field(max_length=64, min_length=3)
+class OrganizationBase(SQLModel):
+    initials: str = Field(nullable=False, max_length=8, unique=True)
+    org_name: str = Field(nullable=False, max_length=64)
 
 
-class CreateOfficeRequest(BaseModel):
-    initials: str = Field(max_length=6, min_length=3)
-    name: str = Field(max_length=64, min_length=3)
-    country: str = Field(max_length=64, min_length=3)
-
-
-class OrganizationResponse(BaseModel):
-    initials: str
-    org_name: str
-
-
-class OfficeResponse(BaseModel):
-    initials: str
-    name: str
-    country: str
-
-
-class User(BaseModel):
+class OrganizationResponse(OrganizationBase):
     id: str
-    display_name: str
-    username: str
-    email: str
-    auth_method: Literal["local", "google", "system"]
-    user_type: Literal["normal", "admin", "cashier"]
 
 
-class CreateFrontendUserRequest(User):
-    enabled: bool = True
-    notes: Optional[str] = None
-    password: Optional[str] = None
+class CreateOrganizationRequest(OrganizationBase):
+    pass
 
 
-class FrontEndUser(User):
-    user_id: UUID
-    enabled: bool
-    deleted: bool
-    notes: str
-    created_date: Optional[datetime] = None
+class OfficeBase(SQLModel):
+    country: str = Field(nullable=False, max_length=64)
+    initials: str = Field(nullable=False, max_length=8, unique=True)
+    name: str = Field(nullable=False, max_length=64)
+
+
+class CreateOfficeRequest(OfficeBase):
+    pass
+
+
+class EmployeeBase(SQLModel):
+    email: str = Field(nullable=False, max_length=128, unique=True)
+    username: str = Field(nullable=False, max_length=128, unique=True)
+
+
+class CreateEmployeeRequest(EmployeeBase):
+    pass
+
+
+class OfficeResponse(SQLModel):
+    pass
 
 
 class MkdiErrorResponse(BaseModel):
