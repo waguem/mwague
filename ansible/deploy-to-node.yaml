@@ -111,6 +111,9 @@
         pull: true
         restart_policy: always
         network_mode: "proxy_{{ stack_name }}"
+        volumes:
+          - "{{ lookup('ansible.builtin.env', 'DEBUG_USE_SEED_DATA_PATH')
+            }}:/data/seeds.json"
         env:
           POSTGRES_HOST: "mkdi-{{ stack_name }}-postgres-backend"
           POSTGRES_PASSWORD: "{{ postgres_password }}"
@@ -119,10 +122,8 @@
           ENV: "production"
           PYTHONPATH: /backend
           REDIS_HOST: "mkdi-{{ stack_name }}-redis"
-          DEBUG_USE_SEED_DATA:
-            "{{ 'true' if stack_name == 'staging' else 'false' }}"
-          DEBUG_USE_SEED_DATA_PATH:
-            "{{ lookup('ansible.builtin.env', 'DEBUG_USE_SEED_DATA_PATH') }}"
+          DEBUG_USE_SEED_DATA: "true"
+          DEBUG_USE_SEED_DATA_PATH: "/data/seeds.json"
           DEBUG_ALLOW_SELF_LABELING:
             "{{ 'true' if stack_name == 'staging' else 'false' }}"
           MAX_WORKERS: "1"
