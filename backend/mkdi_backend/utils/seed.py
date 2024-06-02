@@ -105,9 +105,6 @@ def create_seed_data(db: Session):
     Raises:
         ValueError: Error
     """
-    if not settings.ENV != "production":
-        logger.critical("Cannot use seed data in production")
-        raise ValueError("Cannot use seed data in production")
 
     if not settings.OFFICIAL_WEB_API_KEY:
         raise ValueError("Cannot use seed data without OFFICIAL_WEB_API_KEY set")
