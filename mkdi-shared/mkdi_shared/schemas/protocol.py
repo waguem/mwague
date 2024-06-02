@@ -35,7 +35,7 @@ class CreateEmployeeRequest(EmployeeBase):
     pass
 
 
-class OfficeResponse(SQLModel):
+class OfficeResponse(OfficeBase):
     pass
 
 

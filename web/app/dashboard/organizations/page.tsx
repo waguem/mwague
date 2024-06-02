@@ -21,6 +21,7 @@ const getOffices = cache(async () => {
 
 const Page = async () => {
   const offices = await getOffices();
+  console.log("Offices : ",offices)
   return (
     <div>
       <ul className="flex space-x-2 rtl:space-x-reverse">
