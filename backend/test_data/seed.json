@@ -1,24 +1,120 @@
 {
-  "users": [
+  "organizations": [
     {
-      "id": "user_id",
-      "display_name": "Bob",
-      "username": "Bob",
-      "email": "bob@gmail.com",
-      "auth_method": "local",
-      "enabled": true,
-      "notes": "notes",
-      "password": "Bob"
+      "org_name": "Mwague",
+      "initials": "MW",
+      "offices": [
+        {
+          "name": "China Office",
+          "initials": "CHN",
+          "country": "China",
+          "users": [
+            {
+              "roles": ["software_admin", "office_admin", "org_admin"],
+              "username": "amadou",
+              "firstName": "Amadou",
+              "lastName": "Bah",
+              "email": "amadou@wague.com",
+              "enabled": true,
+              "emailVerified": true,
+              "credentials": [
+                {
+                  "value": "$2a$10$3Q6",
+                  "temporary": false,
+                  "type": "password"
+                }
+              ]
+            },
+            {
+              "email": "safeer@wague.com",
+              "username": "safeer",
+              "enabled": true,
+              "emailVerified": true,
+              "firstName": "Ahmed",
+              "lastName": "safeer",
+              "credentials": [
+                {
+                  "value": "$2a$10$3Q6",
+                  "temporary": false,
+                  "type": "password"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Dubai Office",
+          "initials": "DUB",
+          "country": "UAE",
+          "users": [
+            {
+              "email": "omar@wague.com",
+              "username": "omar",
+              "enabled": true,
+              "emailVerified": true,
+              "firstName": "Omar",
+              "lastName": "Diallo",
+              "credentials": [
+                {
+                  "value": "$2a$10$3Q6",
+                  "temporary": false,
+                  "type": "password"
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
-      "id": "test",
-      "display_name": "Alice",
-      "username": "Alice",
-      "email": "alice@gmail.com",
-      "auth_method": "local",
-      "enabled": true,
-      "notes": "notes",
-      "password": "Alice"
+      "org_name": "Botore Org",
+      "initials": "BTO",
+      "offices": [
+        {
+          "name": "Senegal Office",
+          "initials": "SEN",
+          "country": "Senegal",
+          "users": [
+            {
+              "username": "Mamadou",
+              "email": "mamadou@botore.com",
+              "enabled": true,
+              "emailVerified": true,
+              "firstName": "Mamadou",
+              "lastName": "Bah",
+              "credentials": [
+                {
+                  "value": "$2a$10$3Q6",
+                  "temporary": false,
+                  "type": "password"
+                }
+              ]
+            },
+            {
+              "username": "Khalil",
+              "email": "kalil@botore.com",
+              "enabled": true,
+              "emailVerified": true,
+              "firstName": "Khalil",
+              "lastName": "Bah",
+              "credentials": [
+                {
+                  "value": "$2a$10$3Q6",
+                  "temporary": false,
+                  "type": "password"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Turkey Office",
+          "initials": "TRK",
+          "country": "Turkey",
+          "users": []
+        }
+      ]
     }
-  ]
+  ],
+  "software_admin": []
 }

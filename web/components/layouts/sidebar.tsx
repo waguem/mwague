@@ -8,10 +8,12 @@ import { useState, useEffect } from "react";
 import IconCaretsDown from "@/components/icon/icon-carets-down";
 import IconMenuDashboard from "@/components/icon/menu/icon-menu-dashboard";
 import IconCaretDown from "@/components/icon/icon-caret-down";
+import AnimateHeight from "react-animate-height";
 import { usePathname } from "next/navigation";
 import { getTranslation } from "@/i18n";
 import Image from "next/image";
 import SignOutButton from "../auth/signOut";
+import IconWirehouse from "../icon/icon-wirehouse";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
@@ -112,6 +114,16 @@ const Sidebar = () => {
                     <IconCaretDown />
                   </div>
                 </button>
+                <AnimateHeight duration={300} height={currentMenu === "dashboard" ? "auto" : 0}>
+                  <ul className="sub-menu text-gray-500">
+                    <li>
+                      <Link href="/dashboard/organizations">
+                        <IconWirehouse className="shrink-0 h-4 w-4 mr-2" />
+                        {t("organization")}
+                      </Link>
+                    </li>
+                  </ul>
+                </AnimateHeight>
               </li>
               <li className="menu nav-item">
                 <SignOutButton />

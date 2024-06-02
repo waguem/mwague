@@ -40,7 +40,11 @@ class Settings(BaseSettings):
     )
     KC_TOKEN_URL = "http://localhost.auth.com:8443/auth/realms/mwague/protocol/openid-connect/token"
     KC_VERIFY_CERTS = False
-
+    KC_ADMIN_CLIENT_ID = "rns:mwague:admin"
+    KC_ADMIN_CLIENT_SECRET = "tXWIb5m4e764ydqhDGfvBjVWZlvhMKOZ"
+    KC_ADMIN_CLIENT_ID = "admin-cli"
+    KC_ADMIN_USER = "admin"
+    KC_ADMIN_PASSWORD = "wague"
     DATABASE_POOL_SIZE = 75
     DATABASE_MAX_OVERFLOW = 20
     RATE_LIMIT: bool = True

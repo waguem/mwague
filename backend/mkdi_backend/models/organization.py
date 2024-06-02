@@ -3,10 +3,11 @@ from uuid import UUID, uuid4
 
 import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as pg
-from sqlmodel import Field, SQLModel
+from mkdi_shared.schemas.protocol import OrganizationBase
+from sqlmodel import Field, Relationship
 
 
-class Organization(SQLModel, table=True):
+class Organization(OrganizationBase, table=True):
     __tablename__ = "organizations"
 
     id: Optional[UUID] = Field(
@@ -17,6 +18,4 @@ class Organization(SQLModel, table=True):
             server_default=sa.text("gen_random_uuid()"),
         ),
     )
-    # this is the initials of the organization
-    initials: str = Field(nullable=False, max_length=8, unique=True)
-    org_name: str = Field(nullable=False, max_length=64)
+    offices: list["Office"] = Relationship(back_populates="organization")  # type: ignore

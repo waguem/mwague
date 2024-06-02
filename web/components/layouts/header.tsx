@@ -18,7 +18,6 @@ import IconMailDot from "@/components/icon/icon-mail-dot";
 import IconArrowLeft from "@/components/icon/icon-arrow-left";
 import IconInfoCircle from "@/components/icon/icon-info-circle";
 import IconBellBing from "@/components/icon/icon-bell-bing";
-import IconUser from "@/components/icon/icon-user";
 import IconMenuDashboard from "@/components/icon/menu/icon-menu-dashboard";
 import IconCaretDown from "@/components/icon/icon-caret-down";
 import { usePathname, useRouter } from "next/navigation";
@@ -38,8 +37,10 @@ interface NotificationType {
   message: string;
   time: string;
 }
-
-const Header = () => {
+type HeaderProps = {
+  UserHeader: React.ReactNode;
+};
+const Header = (props: HeaderProps) => {
   const pathname = usePathname();
   const dispatch = useDispatch();
   const router = useRouter();
@@ -241,8 +242,8 @@ const Header = () => {
                 button={
                   i18n.language && (
                     <Image
-                      height={5}
-                      width={5}
+                      height={21}
+                      width={21}
                       className="h-5 w-5 rounded-full object-cover"
                       src={`/assets/images/flags/${i18n.language.toUpperCase()}.svg`}
                       alt="flag"
@@ -265,8 +266,8 @@ const Header = () => {
                           }}
                         >
                           <Image
-                            height={5}
-                            width={5}
+                            height={21}
+                            width={21}
                             src={`/assets/images/flags/${item.code.toUpperCase()}.svg`}
                             alt="flag"
                             className="rounded-full object-cover"
@@ -453,37 +454,7 @@ const Header = () => {
                 }
               >
                 <ul className="w-[230px] !py-0 font-semibold text-dark dark:text-white-dark dark:text-white-light/90">
-                  <li>
-                    <div className="flex items-center px-4 py-4">
-                      <Image
-                        height={10}
-                        width={10}
-                        className="rounded-md object-cover"
-                        src="/assets/images/user-profile.jpeg"
-                        alt="userProfile"
-                      />
-                      <div className="truncate ltr:pl-4 rtl:pr-4">
-                        <h4 className="text-base">
-                          John Doe
-                          <span className="rounded bg-success-light px-1 text-xs text-success ltr:ml-2 rtl:ml-2">
-                            Pro
-                          </span>
-                        </h4>
-                        <button
-                          type="button"
-                          className="text-black/60 hover:text-primary dark:text-dark-light/60 dark:hover:text-white"
-                        >
-                          johndoe@gmail.com
-                        </button>
-                      </div>
-                    </div>
-                  </li>
-                  <li>
-                    <Link href="/users/profile" className="dark:hover:text-white">
-                      <IconUser className="h-4.5 w-4.5 shrink-0 ltr:mr-2 rtl:ml-2" />
-                      Profile
-                    </Link>
-                  </li>
+                  <li>{props.UserHeader}</li>
                 </ul>
               </Dropdown>
             </div>

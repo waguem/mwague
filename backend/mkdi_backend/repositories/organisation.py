@@ -1,6 +1,7 @@
 from mkdi_backend.models import Organization
-from mkdi_backend.utils.database import CommitMode, async_managed_tx_method
+from mkdi_backend.utils.database import CommitMode, managed_tx_method
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
+from mkdi_shared.schemas import protocol
 from sqlmodel import Session
 
 
@@ -8,8 +9,11 @@ class OrganizationRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    @async_managed_tx_method(auto_commit=CommitMode.COMMIT)
-    async def create_organization(self, input):
+    def get_by_initials(self, initials: str):
+        return self.db.query(Organization).filter(Organization.initials == initials).first()
+
+    @managed_tx_method(auto_commit=CommitMode.COMMIT)
+    def create_organization(self, input: protocol.CreateOrganizationRequest):
         org: Organization = (
             self.db.query(Organization).filter(Organization.initials == input.initials).first()
         )

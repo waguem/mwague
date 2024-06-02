@@ -9,14 +9,13 @@ import ScrollToTop from "@/components/layouts/scroll-to-top";
 import Setting from "@/components/layouts/setting";
 import Sidebar from "@/components/layouts/sidebar";
 import Portals from "@/components/portals";
-import logger from "@/lib/logger";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import UserHeader from "@/components/layouts/UserHeader";
 // import { redirect } from "next/navigation";
 export default async function DefaultLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
-  logger.log("Server session", session);
-  if (!session || !session?.user) {
+  if (!session || !session?.accessToken) {
     redirect("/auth/login");
   }
   return (
@@ -36,7 +35,7 @@ export default async function DefaultLayout({ children }: { children: React.Reac
           {/* END SIDEBAR */}
           <div className="main-content flex min-h-screen flex-col">
             {/* BEGIN TOP NAVBAR */}
-            <Header />
+            <Header UserHeader={<UserHeader session={session} />} />
             {/* END TOP NAVBAR */}
 
             {/* BEGIN CONTENT AREA */}
