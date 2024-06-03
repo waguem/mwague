@@ -9,6 +9,9 @@ class OfficeRepository:
     def __init__(self, db):
         self.db: Session = db
 
+    def get_org_offices(self, organization_id: str):
+        return self.db.query(Office).filter(Office.organization_id == organization_id).all()
+
     def get_all(self):
         return self.db.query(Office).all()
 
@@ -19,10 +22,10 @@ class OfficeRepository:
         return self.db.query(Office).filter(Office.initials == initials).first()
 
     @managed_tx_method(auto_commit=CommitMode.COMMIT)
-    def create(self, input: protocol.CreateOfficeRequest, office_id: str):
+    def create(self, input: protocol.CreateOfficeRequest, organization_id: str):
         office: Office = (
             self.db.query(Office)
-            .filter(Office.initials == input.initials and Office.organization_id == office_id)
+            .filter(Office.initials == input.initials and Office.organization_id == organization_id)
             .first()
         )
         if office:
@@ -35,7 +38,7 @@ class OfficeRepository:
             initials=input.initials,
             name=input.name,
             country=input.country,
-            organization_id=office_id,
+            organization_id=organization_id,
         )
         self.db.add(office)
         return office

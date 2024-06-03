@@ -9,7 +9,6 @@ const checkAuth: NextMiddlewareWithAuth = async (request: NextRequestWithAuth) =
       return NextResponse.redirect("/auth/login");
     }
   }
-  // console.log("Next Auth token ", request.nextauth.token);
   return NextResponse.next();
 };
 

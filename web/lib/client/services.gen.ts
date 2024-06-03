@@ -10,9 +10,9 @@ import type {
   GetOrganizationsApiV1OrgOrganizationGetResponse,
   CreateOrganizationApiV1OrgOrganizationPostData,
   CreateOrganizationApiV1OrgOrganizationPostResponse,
-  GetOrgOfficesApiV1OfficeGetResponse,
-  CreateOfficeApiV1OfficePostData,
-  CreateOfficeApiV1OfficePostResponse,
+  GetOrgOfficesApiV1OrgOrganizationOfficeGetResponse,
+  CreateOfficeApiV1OrgOrganizationOfficePostData,
+  CreateOfficeApiV1OrgOrganizationOfficePostResponse,
 } from "./types.gen";
 
 /**
@@ -90,12 +90,13 @@ export const createOrganizationApiV1OrgOrganizationPost = (
  * @returns OfficeResponse Successful Response
  * @throws ApiError
  */
-export const getOrgOfficesApiV1OfficeGet = (): CancelablePromise<GetOrgOfficesApiV1OfficeGetResponse> => {
-  return __request(OpenAPI, {
-    method: "GET",
-    url: "/api/v1/office/",
-  });
-};
+export const getOrgOfficesApiV1OrgOrganizationOfficeGet =
+  (): CancelablePromise<GetOrgOfficesApiV1OrgOrganizationOfficeGetResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/org/organization/office",
+    });
+  };
 
 /**
  * Create Office
@@ -104,12 +105,12 @@ export const getOrgOfficesApiV1OfficeGet = (): CancelablePromise<GetOrgOfficesAp
  * @returns OfficeResponse Successful Response
  * @throws ApiError
  */
-export const createOfficeApiV1OfficePost = (
-  data: CreateOfficeApiV1OfficePostData
-): CancelablePromise<CreateOfficeApiV1OfficePostResponse> => {
+export const createOfficeApiV1OrgOrganizationOfficePost = (
+  data: CreateOfficeApiV1OrgOrganizationOfficePostData
+): CancelablePromise<CreateOfficeApiV1OrgOrganizationOfficePostResponse> => {
   return __request(OpenAPI, {
     method: "POST",
-    url: "/api/v1/office/",
+    url: "/api/v1/org/organization/office",
     body: data.requestBody,
     mediaType: "application/json",
     errors: {

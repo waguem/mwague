@@ -36,7 +36,7 @@ def seed_orgs(db: Session, orgs: list[dict]):
             office_db = None
             try:
                 office_db = of_repo.OfficeRepository(db).create(
-                    input=protocol.CreateOfficeRequest(**office), office_id=org_db.id
+                    input=protocol.CreateOfficeRequest(**office), organization_id=org_db.id
                 )
             except MkdiError as error:
                 office_db = of_repo.OfficeRepository(db).get_by_initials(office["initials"])

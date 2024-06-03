@@ -184,8 +184,9 @@ class KcUser(BaseModel):
     email: str
     first_name: str
     last_name: str
-    realm_roles: list
-    client_roles: list
+    roles: list = []
+    organization_id: str = None
+    office_id: str = None
 
 
 # Get the payload/token from keycloak
@@ -219,8 +220,9 @@ async def get_user_info(payload: dict = Depends(get_payload)) -> KcUser:
             email=payload.get("email"),
             first_name=payload.get("given_name"),
             last_name=payload.get("family_name"),
-            realm_roles=payload.get("realm_access", {}).get("roles", []),
-            client_roles=payload.get("realm_access", {}).get("roles", []),
+            roles=payload.get("realm_access", {}).get("roles", []),
+            office_id=payload.get("officeId"),
+            organization_id=payload.get("organizationId"),
         )
     except Exception as e:
         raise HTTPException(

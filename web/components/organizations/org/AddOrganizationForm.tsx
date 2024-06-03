@@ -80,7 +80,7 @@ export function AddOrganizationForm() {
   const { t } = getTranslation();
   return (
     <form action={formAction} className="mb-5 mt-2 p-2">
-      <h6 className="mb-5 text-lg font-bold">{t("office_information")}</h6>
+      <h6 className="mb-5 text-lg font-bold">{t("add_office")}</h6>
       <div className="flex flex-col sm:flex-row">
         <div className="grid flex-1 grid-cols-1 gap-5 sm:grid-cols-2">
           <div

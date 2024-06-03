@@ -1,6 +1,6 @@
 "use server";
 import { setApiToken } from "@/app/hooks/useApi";
-import { ApiError, createOfficeApiV1OfficePost as createOffice } from "@/lib/client";
+import { ApiError, createOfficeApiV1OrgOrganizationOfficePost as createOffice } from "@/lib/client";
 import { FormSchema } from "@/lib/schemas/actions";
 import { revalidatePath } from "next/cache";
 import { ZodError } from "zod";
@@ -51,7 +51,7 @@ export async function addOffice(prevSate: State, data: FormData): Promise<State>
         message: e.message,
       };
     }
-
+    console.log(e);
     return { status: "error", message: "Something went wrong!. Please try again" };
   }
 }
