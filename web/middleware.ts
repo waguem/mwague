@@ -1,36 +1,24 @@
 import { NextMiddlewareWithAuth, NextRequestWithAuth, withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
-import { JWT } from "next-auth/jwt";
+import { checkAuthorization, isPublicURL } from "./lib/auth";
 
-const unAuthExtentions = ["jpg", "jpeg", "png", "svg"];
 const checkAuth: NextMiddlewareWithAuth = async (request: NextRequestWithAuth) => {
   if (!request.nextauth.token) {
-    if (!isAuthorized(request.nextauth.token, request.nextUrl.pathname)) {
+    if (!isPublicURL(request.nextUrl.pathname)) {
       return NextResponse.redirect("/auth/login");
     }
   }
-  return NextResponse.next();
+
+  return checkAuthorization(request.nextauth.token!, request.nextUrl.pathname);
 };
 
-function isAuthorized(token: JWT | null, pathname: string) {
-  if (token) {
-    return true;
-  }
-
-  const fileExtension = pathname.split(".").pop();
-  const basePath = pathname.split("/")[0];
-  const isOk =
-    fileExtension &&
-    (pathname.startsWith("/assets/images") || basePath === "") &&
-    unAuthExtentions.includes(fileExtension)
-      ? true
-      : false;
-  return isOk;
-}
 export default withAuth(checkAuth, {
   callbacks: {
-    authorized: ({ token, req }) => {
-      return isAuthorized(token, req.nextUrl.pathname);
+    authorized: async ({ token, req }) => {
+      if (token) {
+        return true;
+      }
+      return isPublicURL(req.nextUrl.pathname);
     },
   },
   pages: {
@@ -40,7 +28,6 @@ export default withAuth(checkAuth, {
 
 export const config = {
   matcher: [
-    "/dashboard/:path*",
     /*
      * Match all request paths except for the ones starting with:
      * - _next/static (static files)

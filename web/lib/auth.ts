@@ -1,0 +1,61 @@
+import { JWT } from "next-auth/jwt";
+import { NextResponse } from "next/server";
+import { DEFAULT_ROLE } from "@/lib/contants";
+
+const unAuthExtentions = ["jpg", "jpeg", "png", "svg"];
+
+class ProtectedURI {
+  uri: RegExp;
+  roles: string[] | string;
+
+  constructor(uri: RegExp, roles: string[] | string) {
+    this.uri = uri;
+    this.roles = roles;
+  }
+
+  isAccessibleByRole(role: string[]) {
+    // if this.roles is a string, then it is a public URI
+    if (typeof this.roles === "string" && this.roles === "basic") {
+      return role.includes(DEFAULT_ROLE);
+    }
+    if (Array.isArray(this.roles)) {
+      return this.roles.some((r) => role.includes(r));
+    }
+
+    return false;
+  }
+}
+
+// Define the protection roles for each URI
+export const protectedURIs = [
+  new ProtectedURI(/^\/dashboard$/, "basic"),
+  new ProtectedURI(/^\/dashboard\/organization(\/.*)?$/, ["org_admin"]),
+  // Add more URIs and their roles here
+];
+
+export function isPublicURL(pathname: string) {
+  const fileExtension = pathname.split(".").pop();
+  const basePath = pathname.split("/")[0];
+  const isOk =
+    fileExtension &&
+    (pathname.startsWith("/assets/images") || basePath === "") &&
+    unAuthExtentions.includes(fileExtension)
+      ? true
+      : false;
+  return isOk;
+}
+
+export async function checkAuthorization(token: JWT, pathname: string) {
+  if (isPublicURL(pathname)) {
+    return NextResponse.next();
+  }
+
+  const roles = token.user.roles;
+  const protectedUri = protectedURIs.find((uri) => uri.uri.test(pathname));
+
+  if (protectedUri && protectedUri.isAccessibleByRole(roles)) {
+    return NextResponse.next();
+  }
+
+  return NextResponse.json({ error: "Unauthorized", status: 401 });
+}

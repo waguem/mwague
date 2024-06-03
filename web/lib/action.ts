@@ -30,7 +30,7 @@ export async function addOffice(prevSate: State, data: FormData): Promise<State>
       },
     });
 
-    revalidatePath("/dashboard/organizations");
+    revalidatePath("/dashboard/organization");
 
     return { status: "success", message: `Office ${response.name} Added Successfully` };
   } catch (e) {
