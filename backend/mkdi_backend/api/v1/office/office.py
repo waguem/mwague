@@ -1,12 +1,10 @@
 from typing import Annotated, List
 
 from fastapi import APIRouter, Body, Depends, Security
-from mkdi_backend.api.deps import KcUser, get_db, get_user_info
+from mkdi_backend.api.deps import KcUser, check_authorization, get_db
 from mkdi_backend.repositories.office import OfficeRepository
 from mkdi_shared.schemas import protocol
 from sqlmodel import Session
-
-from .deps import check_authorization
 
 router = APIRouter()
 

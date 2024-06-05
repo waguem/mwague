@@ -105,6 +105,8 @@ def create_seed_data(db: Session):
     Raises:
         ValueError: Error
     """
+    if not settings.DEBUG_USE_SEED_DATA:
+        return
 
     if not settings.OFFICIAL_WEB_API_KEY:
         raise ValueError("Cannot use seed data without OFFICIAL_WEB_API_KEY set")

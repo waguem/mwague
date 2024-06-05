@@ -47,3 +47,25 @@ class KeycloakAdminHelper:
         if self._kc_admin is None:
             self._init_kc_conn()
         return self._kc_admin
+
+
+class RoleProvider:
+    filter_roles = ["offline_access", "uma_authorization", "default-roles-mwague"]
+
+    def __init__(self):
+        self.keycloak_helper = KeycloakAdminHelper()
+
+    def get_realm_roles(self):
+        roles_representation = self.keycloak_helper.get_kc_admin().get_realm_roles()
+        return [role["name"] for role in roles_representation]
+
+    def get_roles(self):
+        realm_roles = self.get_realm_roles()
+        # ["sofware_admin_0","office_admin_2","org_admin_1"]
+        # sort filter realm_roles by filter_roles and then sort by the number at the end
+        # the sort order is descending
+        # ["sofware_admin_0","org_admin_1","office_admin_2"]
+        return sorted(
+            filter(lambda role: role not in self.filter_roles, realm_roles),
+            key=lambda role: int(role.split("_")[-1]),
+        )

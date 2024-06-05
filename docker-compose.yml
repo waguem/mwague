@@ -64,7 +64,7 @@ services:
       - POSTGRES_HOST=mkdi-db
       - ENV=developement
       - REDIS_HOST=redis
-      - DEBUG_USE_SEED_DATA=True
+      - DEBUG_USE_SEED_DATA=False
       - DEBUG_ALLOW_SELF_LABELING=True
       - MAX_WORKERS=1
       - CELERY_BROKER_URL=redis://redis:6379/0

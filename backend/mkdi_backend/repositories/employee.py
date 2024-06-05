@@ -13,6 +13,20 @@ class EmployeeRepository:
     def __init__(self, db: Session):
         self.db = db
 
+    def get_office_employees(self, office_id: str):
+        return self.db.query(Employee).filter(Employee.office_id == office_id).all()
+
+    def get_org_employees(self, organization_id: str):
+        return self.db.query(Employee).filter(Employee.organization_id == organization_id).all()
+
+    def get_employee(self, username, email, organization_id):
+        return (
+            self.db.query(Employee)
+            .filter((Employee.username == username) | (Employee.email == email))
+            .filter(Employee.organization_id == organization_id)
+            .first()
+        )
+
     @managed_tx_method(auto_commit=CommitMode.COMMIT)
     def create(self, *, input: CreateEmployeeRequest, office_id: str, organization_id: str):
         user: Employee = (

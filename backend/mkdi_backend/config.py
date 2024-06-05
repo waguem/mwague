@@ -21,7 +21,6 @@ class Settings(BaseSettings):
     AUTH_SECRET: bytes = b"tyqABZo4LDtM27Y4j5x1XFmgcyHdmsNQlJ2IhXM+XsI="
     AUTH_COOKIE_NAME: str = "next-auth.session-token"
     AUTH_ALGORITHM: str = "HS256"
-    AUTH_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     POSTGRES_HOST: str = "localhost"
     POSTGRES_PORT: str = "5432"
@@ -31,14 +30,14 @@ class Settings(BaseSettings):
     DATABASE_URI: Optional[PostgresDsn] = None
     DATABASE_MAX_TX_RETRY_COUNT: int = 3
     # KEYCLOAK configuration
-    KC_SERVER_URL = "http://localhost.auth.com:8443/auth/"
     KC_REALM = "mwague"
-    KC_CLIENT_ID = "rns:mwague:portal"
-    KC_CLIENT_SECRET = "bmdsVvDMsh1CJ91SDaXGXTZc0DFp1Ufi"
+    KC_TOKEN_URL = "http://localhost.auth.com:8443/auth/realms/mwague/protocol/openid-connect/token"
+    KC_SERVER_URL = "http://localhost.auth.com:8443/auth/"
     KC_AUTHORIZATION_URL = (
         f"http://localhost.auth.com:8443/auth/realms/mwague/protocol/openid-connect/auth"
     )
-    KC_TOKEN_URL = "http://localhost.auth.com:8443/auth/realms/mwague/protocol/openid-connect/token"
+    KC_CLIENT_ID = "rns:mwague:portal"
+    KC_CLIENT_SECRET = "bmdsVvDMsh1CJ91SDaXGXTZc0DFp1Ufi"
     KC_VERIFY_CERTS = False
     KC_ADMIN_CLIENT_ID = "rns:mwague:admin"
     KC_ADMIN_CLIENT_SECRET = "tXWIb5m4e764ydqhDGfvBjVWZlvhMKOZ"
@@ -57,9 +56,6 @@ class Settings(BaseSettings):
         Path(__file__).parent.parent / "test_data/seed.json"
     )
     DEBUG_DATABASE_ECHO: bool = False
-    DEBUG_IGNORE_TOS_ACCEPTANCE: bool = (  # ignore whether users accepted the ToS
-        True  # TODO: set False after ToS acceptance UI was added to web-frontend
-    )
 
     ROOT_TOKENS: List[str] = ["1234"]  # supply a string that can be parsed to a json list
 

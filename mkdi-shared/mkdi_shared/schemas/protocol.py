@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from mkdi_shared.exceptions.mkdi_api_error import MkdiErrorCode
 from pydantic import BaseModel, Field
 from sqlmodel import SQLModel
@@ -33,6 +35,12 @@ class EmployeeBase(SQLModel):
 
 class CreateEmployeeRequest(EmployeeBase):
     pass
+
+
+class EmployeeResponse(EmployeeBase):
+    id: UUID
+    office_id: UUID
+    organization_id: UUID
 
 
 class OfficeResponse(OfficeBase):

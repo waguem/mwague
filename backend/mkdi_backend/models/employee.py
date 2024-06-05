@@ -21,8 +21,7 @@ class Employee(EmployeeBase, table=True):
             server_default=sa.text("gen_random_uuid()"),
         )
     )
-
     office_id: UUID = Field(foreign_key="offices.id")
-    office: "Office" = Relationship(back_populates="employees")  # type: ignore
-
     organization_id: UUID = Field(foreign_key="organizations.id")
+
+    office: "Office" = Relationship(back_populates="employees")  # type: ignore
