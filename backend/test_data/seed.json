@@ -28,6 +28,7 @@
             {
               "email": "safeer@wague.com",
               "username": "safeer",
+              "roles": ["office_admin_2"],
               "enabled": true,
               "emailVerified": true,
               "firstName": "Ahmed",
@@ -54,6 +55,7 @@
               "emailVerified": true,
               "firstName": "Omar",
               "lastName": "Diallo",
+              "roles": ["office_admin_2"],
               "credentials": [
                 {
                   "value": "$2a$10$3Q6",
@@ -81,6 +83,7 @@
               "enabled": true,
               "emailVerified": true,
               "firstName": "Mamadou",
+              "roles": ["office_admin_2"],
               "lastName": "Bah",
               "credentials": [
                 {
@@ -96,6 +99,7 @@
               "enabled": true,
               "emailVerified": true,
               "firstName": "Khalil",
+              "roles": ["office_admin_2"],
               "lastName": "Bah",
               "credentials": [
                 {

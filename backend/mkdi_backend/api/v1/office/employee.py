@@ -1,10 +1,9 @@
 from typing import Annotated, List
 
-from fastapi import APIRouter, Depends, Path, Query, Security
+from fastapi import APIRouter, Depends, Security
 from mkdi_backend.api.deps import KcUser, check_authorization, get_db
 from mkdi_backend.repositories.employee import EmployeeRepository
 from mkdi_shared.schemas import protocol
-from pydantic import EmailStr
 from sqlmodel import Session
 
 router = APIRouter()
@@ -38,7 +37,19 @@ def get_employees(
     db: Session = Depends(get_db),
     user: Annotated[KcUser, Security(check_authorization, scopes=["office_admin"])],
 ):
-    return EmployeeRepository(db).get_office_employees(user.office_id)
+    return EmployeeRepository(db).get_office_employees(user.office_id, user.organization_id)
+
+
+@router.get(
+    "/office/{office_id}/employee", status_code=200, response_model=List[protocol.EmployeeResponse]
+)
+def get_office_employees(
+    *,
+    db: Session = Depends(get_db),
+    user: Annotated[KcUser, Security(check_authorization, scopes=["office_admin"])],
+    office_id: str,
+):
+    return EmployeeRepository(db).get_office_employees(office_id, user.organization_id)
 
 
 @router.get("/office/employee/me", status_code=200, response_model=protocol.EmployeeResponse)

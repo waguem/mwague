@@ -1,6 +1,6 @@
-import { JWT } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 import { DEFAULT_ROLE } from "@/lib/contants";
+import { NextMiddlewareWithAuth, NextRequestWithAuth } from "next-auth/middleware";
 
 const unAuthExtentions = ["jpg", "jpeg", "png", "svg"];
 
@@ -30,6 +30,7 @@ class ProtectedURI {
 export const protectedURIs = [
   new ProtectedURI(/^\/dashboard$/, "basic"),
   new ProtectedURI(/^\/dashboard\/organization(\/.*)?$/, ["org_admin"]),
+  new ProtectedURI(/^\/dashboard\/office(\/.*)?$/, ["office_admin"]),
   // Add more URIs and their roles here
 ];
 
@@ -45,17 +46,19 @@ export function isPublicURL(pathname: string) {
   return isOk;
 }
 
-export async function checkAuthorization(token: JWT, pathname: string) {
+export const checkAuthorization: NextMiddlewareWithAuth = (request: NextRequestWithAuth) => {
+  const token = request.nextauth.token!;
+  const pathname = request.nextUrl.pathname;
   if (isPublicURL(pathname)) {
     return NextResponse.next();
   }
-
   const roles = token.user.roles;
   const protectedUri = protectedURIs.find((uri) => uri.uri.test(pathname));
 
   if (protectedUri && protectedUri.isAccessibleByRole(roles)) {
     return NextResponse.next();
   }
+  // return NextResponse.next();
 
-  return NextResponse.json({ error: "Unauthorized", status: 401 });
-}
+  return NextResponse.json({ error: "Unauthorized", status: 403 });
+};

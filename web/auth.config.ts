@@ -2,7 +2,7 @@ import type { AuthOptions } from "next-auth";
 import Keycloak from "next-auth/providers/keycloak";
 import { refreshTokenRequest, logoutRequest } from "@/lib/oidc";
 import { JWT } from "next-auth/jwt";
-import { decodeToken } from "./lib/utils";
+import { decodeToken } from "./lib/utils/index";
 
 export const authOptions: AuthOptions = {
   providers: [

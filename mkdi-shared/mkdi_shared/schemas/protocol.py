@@ -1,7 +1,8 @@
+from typing import Dict, List
 from uuid import UUID
 
 from mkdi_shared.exceptions.mkdi_api_error import MkdiErrorCode
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, root_validator
 from sqlmodel import SQLModel
 
 
@@ -41,10 +42,25 @@ class EmployeeResponse(EmployeeBase):
     id: UUID
     office_id: UUID
     organization_id: UUID
+    roles: List[str]
+
+    @root_validator(pre=True)
+    def transform_roles(cls, values) -> Dict:
+        """
+            str format {role_admin,role_user}
+        transform to list format [software_admin_0,org_admin_1]
+        """
+        roles = values.get("roles")
+        transformed = dict(values)
+        if isinstance(roles, str):
+            transformed["roles"] = roles[1 : len(roles) - 1].split(",")
+            # remove curly braces remote _1 at the end
+            transformed["roles"] = [r.rsplit("_", 1)[0] for r in transformed["roles"]]
+        return transformed
 
 
 class OfficeResponse(OfficeBase):
-    pass
+    id: UUID
 
 
 class MkdiErrorResponse(BaseModel):

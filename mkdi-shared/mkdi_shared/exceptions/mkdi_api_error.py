@@ -22,6 +22,7 @@ class MkdiErrorCode(IntEnum):
     USER_EXISTS = 4
     ORGANIZATION_EXISTS = 5
     OFFICE_EXISTS = 6
+    USER_NOT_FOUND = 7
     SERVER_ERROR0 = 500
     SERVER_ERROR1 = 501
 

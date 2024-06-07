@@ -1,5 +1,9 @@
 /* Animate css */
 @import "./animate.css";
+/* Data tables css */
+@import "./datatables.css";
+
+@import "./select2.css";
 
 @tailwind base;
 @tailwind components;

@@ -3,26 +3,20 @@ import clsx from "clsx";
 import { FieldPath, useForm, Controller } from "react-hook-form";
 import { useFormState } from "react-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { addOffice, State } from "@/lib/action";
+import { addOffice, State } from "@/lib/actions";
 import { ErrorMessage } from "@hookform/error-message";
 import { FormSchema } from "@/lib/schemas/actions";
 import Swal from "sweetalert2";
 import { useEffect } from "react";
 import { getTranslation } from "@/i18n";
 import ReactSelect from "react-select";
+import { getFlagEmoji } from "@/lib/utils/index";
+
 type Inputs = {
   name: string;
   initials: string;
   country: string;
 };
-
-function getFlagEmoji(countryCode: string) {
-  const codePoints = countryCode
-    .toUpperCase()
-    .split("")
-    .map((char: any) => 127397 + char.charCodeAt());
-  return String.fromCodePoint(...codePoints);
-}
 
 const countryOptions = [
   { value: "Mali", label: "Mali", code: "ML" },

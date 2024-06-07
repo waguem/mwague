@@ -1,15 +1,15 @@
 import { NextMiddlewareWithAuth, NextRequestWithAuth, withAuth } from "next-auth/middleware";
-import { NextResponse } from "next/server";
+import { NextFetchEvent, NextResponse } from "next/server";
 import { checkAuthorization, isPublicURL } from "./lib/auth";
 
-const checkAuth: NextMiddlewareWithAuth = async (request: NextRequestWithAuth) => {
+const checkAuth: NextMiddlewareWithAuth = (request: NextRequestWithAuth, event: NextFetchEvent) => {
   if (!request.nextauth.token) {
     if (!isPublicURL(request.nextUrl.pathname)) {
       return NextResponse.redirect("/auth/login");
     }
   }
 
-  return checkAuthorization(request.nextauth.token!, request.nextUrl.pathname);
+  return checkAuthorization(request, event);
 };
 
 export default withAuth(checkAuth, {
@@ -25,6 +25,10 @@ export default withAuth(checkAuth, {
     signIn: "/auth/login",
   },
 });
+
+// export async function middleware(req:NextRequest){
+
+// }
 
 export const config = {
   matcher: [

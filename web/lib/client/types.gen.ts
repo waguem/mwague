@@ -19,6 +19,15 @@ export type CreateOrganizationRequest = {
   org_name: string;
 };
 
+export type EmployeeResponse = {
+  email: string;
+  username: string;
+  id: string;
+  office_id: string;
+  organization_id: string;
+  roles: Array<string>;
+};
+
 export type HTTPValidationError = {
   detail?: Array<ValidationError>;
 };
@@ -27,6 +36,7 @@ export type OfficeResponse = {
   country: string;
   initials: string;
   name: string;
+  id: string;
 };
 
 export type OrganizationResponse = {
@@ -62,6 +72,24 @@ export type CreateOfficeApiV1OrgOrganizationOfficePostData = {
 };
 
 export type CreateOfficeApiV1OrgOrganizationOfficePostResponse = OfficeResponse;
+
+export type GetOfficeApiV1OrgOrganizationOfficeOfficeIdGetData = {
+  officeId: string;
+};
+
+export type GetOfficeApiV1OrgOrganizationOfficeOfficeIdGetResponse = OfficeResponse;
+
+export type GetEmployeesApiV1OrgOfficeEmployeeGetResponse = Array<EmployeeResponse>;
+
+export type CreateEmployeeApiV1OrgOfficeEmployeePostResponse = EmployeeResponse;
+
+export type GetOfficeEmployeesApiV1OrgOfficeOfficeIdEmployeeGetData = {
+  officeId: string;
+};
+
+export type GetOfficeEmployeesApiV1OrgOfficeOfficeIdEmployeeGetResponse = Array<EmployeeResponse>;
+
+export type GetEmployeeApiV1OrgOfficeEmployeeMeGetResponse = EmployeeResponse;
 
 export type $OpenApiTs = {
   "/api/v1/ping": {
@@ -137,6 +165,64 @@ export type $OpenApiTs = {
          * Validation Error
          */
         422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/org/organization/office/{office_id}": {
+    get: {
+      req: GetOfficeApiV1OrgOrganizationOfficeOfficeIdGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: OfficeResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/org/office/employee": {
+    get: {
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<EmployeeResponse>;
+      };
+    };
+    post: {
+      res: {
+        /**
+         * Successful Response
+         */
+        201: EmployeeResponse;
+      };
+    };
+  };
+  "/api/v1/org/office/{office_id}/employee": {
+    get: {
+      req: GetOfficeEmployeesApiV1OrgOfficeOfficeIdEmployeeGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<EmployeeResponse>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/org/office/employee/me": {
+    get: {
+      res: {
+        /**
+         * Successful Response
+         */
+        200: EmployeeResponse;
       };
     };
   };

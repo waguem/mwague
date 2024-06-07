@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID, uuid4
 
 import sqlalchemy as sa
@@ -21,6 +21,8 @@ class Employee(EmployeeBase, table=True):
             server_default=sa.text("gen_random_uuid()"),
         )
     )
+
+    roles: Optional[List[str]] = []
     office_id: UUID = Field(foreign_key="offices.id")
     organization_id: UUID = Field(foreign_key="organizations.id")
 

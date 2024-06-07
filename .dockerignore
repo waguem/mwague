@@ -1,7 +1,9 @@
 **/node_modules
-frontend/.next
+web/.next
 **/__pycache__
 **/pytest_cache
 frontend/.env
 web/.env
 **/.env
+web/.vscode
+web/node_modules

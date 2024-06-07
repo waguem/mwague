@@ -34,8 +34,8 @@ export const $CreateOfficeRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     name: {
       type: "string",
@@ -55,8 +55,8 @@ export const $CreateOrganizationRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     org_name: {
       type: "string",
@@ -68,6 +68,50 @@ export const $CreateOrganizationRequest = {
   type: "object",
   required: ["initials", "org_name"],
   title: "CreateOrganizationRequest",
+} as const;
+
+export const $EmployeeResponse = {
+  properties: {
+    email: {
+      type: "string",
+      maxLength: 128,
+      title: "Email",
+      unique: true,
+      nullable: false,
+    },
+    username: {
+      type: "string",
+      maxLength: 128,
+      title: "Username",
+      unique: true,
+      nullable: false,
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    office_id: {
+      type: "string",
+      format: "uuid",
+      title: "Office Id",
+    },
+    organization_id: {
+      type: "string",
+      format: "uuid",
+      title: "Organization Id",
+    },
+    roles: {
+      items: {
+        type: "string",
+      },
+      type: "array",
+      title: "Roles",
+    },
+  },
+  type: "object",
+  required: ["email", "username", "id", "office_id", "organization_id", "roles"],
+  title: "EmployeeResponse",
 } as const;
 
 export const $HTTPValidationError = {
@@ -96,8 +140,8 @@ export const $OfficeResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     name: {
       type: "string",
@@ -105,9 +149,14 @@ export const $OfficeResponse = {
       title: "Name",
       nullable: false,
     },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
   },
   type: "object",
-  required: ["country", "initials", "name"],
+  required: ["country", "initials", "name", "id"],
   title: "OfficeResponse",
 } as const;
 
@@ -117,8 +166,8 @@ export const $OrganizationResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     org_name: {
       type: "string",

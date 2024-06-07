@@ -83,14 +83,17 @@ def seed_orgs(db: Session, orgs: list[dict]):
 
                 if "roles" in user:
                     user_roles = []
-                    user_assinged_roles = kc_admin.get_kc_admin().get_all_roles_of_user(user_id)
-                    user_roles = list(
+                    user_roles: list[str] = list(
                         filter(lambda role: role["name"] in user["roles"], realm_roles)
                     )
-                    logger.info(f"User Assinged roles {user_assinged_roles}")
+
                     # assing user roles
                     try:
                         kc_admin.get_kc_admin().assign_realm_roles(user_id, user_roles)
+                        # update user roles in db
+                        employee.EmployeeRepository(db).update_user_roles(
+                            org_id=org_db.id, username=user["username"], roles=user["roles"]
+                        )
                     except Exception as error:
                         logger.error(f"Failed to assign role {error}")
         # create software admin
@@ -105,8 +108,6 @@ def create_seed_data(db: Session):
     Raises:
         ValueError: Error
     """
-    if not settings.DEBUG_USE_SEED_DATA:
-        return
 
     if not settings.OFFICIAL_WEB_API_KEY:
         raise ValueError("Cannot use seed data without OFFICIAL_WEB_API_KEY set")

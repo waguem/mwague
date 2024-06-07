@@ -1,5 +1,5 @@
 {
-  "name": "vristo-next",
+  "name": "mwague-next",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -51,6 +51,7 @@
     "@tailwindcss/typography": "^0.5.8",
     "@types/lodash": "^4.14.191",
     "@types/react-redux": "^7.1.32",
+    "apexcharts": "^3.49.1",
     "autoprefixer": "^10.4.17",
     "clsx": "^2.1.1",
     "postcss": "^8.4.35",

@@ -48,3 +48,10 @@ class OfficeRepository:
 
     def delete(self, id):
         return self.db.delete(id)
+
+    def get_office(self, office_id: str, organization_id: str):
+        return (
+            self.db.query(Office)
+            .filter(Office.id == office_id and Office.organization_id == organization_id)
+            .first()
+        )

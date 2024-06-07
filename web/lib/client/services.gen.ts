@@ -13,6 +13,13 @@ import type {
   GetOrgOfficesApiV1OrgOrganizationOfficeGetResponse,
   CreateOfficeApiV1OrgOrganizationOfficePostData,
   CreateOfficeApiV1OrgOrganizationOfficePostResponse,
+  GetOfficeApiV1OrgOrganizationOfficeOfficeIdGetData,
+  GetOfficeApiV1OrgOrganizationOfficeOfficeIdGetResponse,
+  GetEmployeesApiV1OrgOfficeEmployeeGetResponse,
+  CreateEmployeeApiV1OrgOfficeEmployeePostResponse,
+  GetOfficeEmployeesApiV1OrgOfficeOfficeIdEmployeeGetData,
+  GetOfficeEmployeesApiV1OrgOfficeOfficeIdEmployeeGetResponse,
+  GetEmployeeApiV1OrgOfficeEmployeeMeGetResponse,
 } from "./types.gen";
 
 /**
@@ -87,6 +94,14 @@ export const createOrganizationApiV1OrgOrganizationPost = (
 
 /**
  * Get Org Offices
+ * Retrieve a list of offices for the organization.
+ *
+ * Args:
+ * user (KcUser): The authenticated user object.
+ * db (Session, optional): The database session. Defaults to Depends(get_db).
+ *
+ * Returns:
+ * List[protocol.OfficeResponse]: A list of office responses.
  * @returns OfficeResponse Successful Response
  * @throws ApiError
  */
@@ -100,6 +115,15 @@ export const getOrgOfficesApiV1OrgOrganizationOfficeGet =
 
 /**
  * Create Office
+ * Create a new office.
+ *
+ * Args:
+ * user: The authenticated user making the request.
+ * create_office: The request payload containing the details of the office to be created.
+ * db: The database session.
+ *
+ * Returns:
+ * The response containing the created office details.
  * @param data The data for the request.
  * @param data.requestBody
  * @returns OfficeResponse Successful Response
@@ -118,3 +142,103 @@ export const createOfficeApiV1OrgOrganizationOfficePost = (
     },
   });
 };
+
+/**
+ * Get Office
+ * Retrieve an office by ID.
+ *
+ * Args:
+ * user (KcUser): The authenticated user object.
+ * office_id (int): The ID of the office to retrieve.
+ * db (Session, optional): The database session. Defaults to Depends(get_db).
+ *
+ * Returns:
+ * protocol.OfficeResponse: The office response.
+ * @param data The data for the request.
+ * @param data.officeId
+ * @returns OfficeResponse Successful Response
+ * @throws ApiError
+ */
+export const getOfficeApiV1OrgOrganizationOfficeOfficeIdGet = (
+  data: GetOfficeApiV1OrgOrganizationOfficeOfficeIdGetData
+): CancelablePromise<GetOfficeApiV1OrgOrganizationOfficeOfficeIdGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/org/organization/office/{office_id}",
+    path: {
+      office_id: data.officeId,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Get Employees
+ * @returns EmployeeResponse Successful Response
+ * @throws ApiError
+ */
+export const getEmployeesApiV1OrgOfficeEmployeeGet =
+  (): CancelablePromise<GetEmployeesApiV1OrgOfficeEmployeeGetResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/org/office/employee",
+    });
+  };
+
+/**
+ * Create Employee
+ * Create a new employee.
+ *
+ * Args:
+ * user (KcUser): The authenticated user making the request.
+ * db (Session, optional): The database session. Defaults to Depends(get_db).
+ *
+ * Returns:
+ * Employee: The created employee.
+ * @returns EmployeeResponse Successful Response
+ * @throws ApiError
+ */
+export const createEmployeeApiV1OrgOfficeEmployeePost =
+  (): CancelablePromise<CreateEmployeeApiV1OrgOfficeEmployeePostResponse> => {
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/api/v1/org/office/employee",
+    });
+  };
+
+/**
+ * Get Office Employees
+ * @param data The data for the request.
+ * @param data.officeId
+ * @returns EmployeeResponse Successful Response
+ * @throws ApiError
+ */
+export const getOfficeEmployeesApiV1OrgOfficeOfficeIdEmployeeGet = (
+  data: GetOfficeEmployeesApiV1OrgOfficeOfficeIdEmployeeGetData
+): CancelablePromise<GetOfficeEmployeesApiV1OrgOfficeOfficeIdEmployeeGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/org/office/{office_id}/employee",
+    path: {
+      office_id: data.officeId,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Get Employee
+ * @returns EmployeeResponse Successful Response
+ * @throws ApiError
+ */
+export const getEmployeeApiV1OrgOfficeEmployeeMeGet =
+  (): CancelablePromise<GetEmployeeApiV1OrgOfficeEmployeeMeGetResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/org/office/employee/me",
+    });
+  };

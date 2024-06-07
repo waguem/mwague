@@ -143,7 +143,7 @@ services:
 
   web:
     build:
-      dockerfile: docker/Dockerfile.website
+      dockerfile: docker/Dockerfile.websitedev
       context: .
       args:
         - HOSTNAME=localhost
