@@ -54,10 +54,13 @@ class RoleProvider:
 
     def __init__(self):
         self.keycloak_helper = KeycloakAdminHelper()
+        self.roles = []
 
     def get_realm_roles(self):
-        roles_representation = self.keycloak_helper.get_kc_admin().get_realm_roles()
-        return [role["name"] for role in roles_representation]
+        if len(self.roles) == 0:
+            self.roles = self.keycloak_helper.get_kc_admin().get_realm_roles()
+
+        return [role["name"] for role in self.roles]
 
     def get_roles(self):
         realm_roles = self.get_realm_roles()
@@ -69,3 +72,25 @@ class RoleProvider:
             filter(lambda role: role not in self.filter_roles, realm_roles),
             key=lambda role: int(role.split("_")[-1]),
         )
+
+    def update_user_roles(self, account_id, roles) -> list[str]:
+        kc_admin = self.keycloak_helper.get_kc_admin()
+        # filter self.roles by roles
+
+        assinged_roles = list(
+            filter(lambda role: any([r for r in roles if role["name"].startswith(r)]), self.roles)
+        )  # remove roles that are not in roles
+        roles_to_remove = list()
+        for role in self.roles:
+            for r in roles:
+                if not role["name"].startswith(r) and role["name"] in self.get_roles():
+                    roles_to_remove.append(role)
+
+        list(
+            filter(
+                lambda role: any([r for r in roles if not role["name"].startswith(r)]), self.roles
+            )
+        )
+        kc_admin.delete_realm_roles_of_user(account_id, roles_to_remove)
+        kc_admin.assign_realm_roles(account_id, assinged_roles)
+        return [role["name"] for role in assinged_roles]

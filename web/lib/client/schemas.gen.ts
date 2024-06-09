@@ -34,8 +34,8 @@ export const $CreateOfficeRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     name: {
       type: "string",
@@ -55,8 +55,8 @@ export const $CreateOrganizationRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     org_name: {
       type: "string",
@@ -76,15 +76,15 @@ export const $EmployeeResponse = {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     username: {
       type: "string",
       maxLength: 128,
       title: "Username",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     id: {
       type: "string",
@@ -140,8 +140,8 @@ export const $OfficeResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     name: {
       type: "string",
@@ -166,8 +166,8 @@ export const $OrganizationResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     org_name: {
       type: "string",

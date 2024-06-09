@@ -55,8 +55,6 @@ export type PingApiV1PingGetResponse = unknown;
 
 export type GetVersionApiV1VersionGetResponse = unknown;
 
-export type RootApiV1AuthSecureGetResponse = unknown;
-
 export type GetOrganizationsApiV1OrgOrganizationGetResponse = Array<OrganizationResponse>;
 
 export type CreateOrganizationApiV1OrgOrganizationPostData = {
@@ -91,6 +89,13 @@ export type GetOfficeEmployeesApiV1OrgOfficeOfficeIdEmployeeGetResponse = Array<
 
 export type GetEmployeeApiV1OrgOfficeEmployeeMeGetResponse = EmployeeResponse;
 
+export type UpdateEmployeeApiV1OrgOfficeEmployeeEmployeeIdAssignPutData = {
+  employeeId: string;
+  requestBody: EmployeeResponse;
+};
+
+export type UpdateEmployeeApiV1OrgOfficeEmployeeEmployeeIdAssignPutResponse = EmployeeResponse;
+
 export type $OpenApiTs = {
   "/api/v1/ping": {
     get: {
@@ -103,16 +108,6 @@ export type $OpenApiTs = {
     };
   };
   "/api/v1/version": {
-    get: {
-      res: {
-        /**
-         * Successful Response
-         */
-        200: unknown;
-      };
-    };
-  };
-  "/api/v1/auth/secure": {
     get: {
       res: {
         /**
@@ -223,6 +218,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: EmployeeResponse;
+      };
+    };
+  };
+  "/api/v1/org/office/employee/{employee_id}/assign": {
+    put: {
+      req: UpdateEmployeeApiV1OrgOfficeEmployeeEmployeeIdAssignPutData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: EmployeeResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
       };
     };
   };

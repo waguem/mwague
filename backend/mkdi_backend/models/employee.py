@@ -25,5 +25,6 @@ class Employee(EmployeeBase, table=True):
     roles: Optional[List[str]] = []
     office_id: UUID = Field(foreign_key="offices.id")
     organization_id: UUID = Field(foreign_key="organizations.id")
+    provider_account_id: Optional[str]
 
     office: "Office" = Relationship(back_populates="employees")  # type: ignore

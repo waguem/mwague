@@ -19,7 +19,8 @@ class ProtectedURI {
       return role.includes(DEFAULT_ROLE);
     }
     if (Array.isArray(this.roles)) {
-      return this.roles.some((r) => role.includes(r));
+      console.log("Roles: ", role, " this.roles: ", this.roles);
+      return this.roles.some((r) => role.some((item) => item.includes(r)));
     }
 
     return false;
@@ -56,8 +57,11 @@ export const checkAuthorization: NextMiddlewareWithAuth = (request: NextRequestW
   const protectedUri = protectedURIs.find((uri) => uri.uri.test(pathname));
 
   if (protectedUri && protectedUri.isAccessibleByRole(roles)) {
+    console.log("Authorized");
     return NextResponse.next();
   }
+  console.log("Uri ? ", protectedUri);
+  console.log("Unauthorized ", pathname, " roles: ", roles);
   // return NextResponse.next();
 
   return NextResponse.json({ error: "Unauthorized", status: 403 });

@@ -9,7 +9,8 @@ export const metadata: Metadata = {
 };
 
 export const revalidate = 60 * 60 * 3;
-
+// make this page dynamic
+export const dynamic = "force-dynamic";
 const getOffices = cache(async () => {
   let response: Awaited<ReturnType<typeof getOfficesApi>> = [];
   try {

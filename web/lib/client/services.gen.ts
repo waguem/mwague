@@ -6,7 +6,6 @@ import { request as __request } from "./core/request";
 import type {
   PingApiV1PingGetResponse,
   GetVersionApiV1VersionGetResponse,
-  RootApiV1AuthSecureGetResponse,
   GetOrganizationsApiV1OrgOrganizationGetResponse,
   CreateOrganizationApiV1OrgOrganizationPostData,
   CreateOrganizationApiV1OrgOrganizationPostResponse,
@@ -20,6 +19,8 @@ import type {
   GetOfficeEmployeesApiV1OrgOfficeOfficeIdEmployeeGetData,
   GetOfficeEmployeesApiV1OrgOfficeOfficeIdEmployeeGetResponse,
   GetEmployeeApiV1OrgOfficeEmployeeMeGetResponse,
+  UpdateEmployeeApiV1OrgOfficeEmployeeEmployeeIdAssignPutData,
+  UpdateEmployeeApiV1OrgOfficeEmployeeEmployeeIdAssignPutResponse,
 } from "./types.gen";
 
 /**
@@ -43,18 +44,6 @@ export const getVersionApiV1VersionGet = (): CancelablePromise<GetVersionApiV1Ve
   return __request(OpenAPI, {
     method: "GET",
     url: "/api/v1/version",
-  });
-};
-
-/**
- * Root
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const rootApiV1AuthSecureGet = (): CancelablePromise<RootApiV1AuthSecureGetResponse> => {
-  return __request(OpenAPI, {
-    method: "GET",
-    url: "/api/v1/auth/secure",
   });
 };
 
@@ -242,3 +231,28 @@ export const getEmployeeApiV1OrgOfficeEmployeeMeGet =
       url: "/api/v1/org/office/employee/me",
     });
   };
+
+/**
+ * Update Employee
+ * @param data The data for the request.
+ * @param data.employeeId
+ * @param data.requestBody
+ * @returns EmployeeResponse Successful Response
+ * @throws ApiError
+ */
+export const updateEmployeeApiV1OrgOfficeEmployeeEmployeeIdAssignPut = (
+  data: UpdateEmployeeApiV1OrgOfficeEmployeeEmployeeIdAssignPutData
+): CancelablePromise<UpdateEmployeeApiV1OrgOfficeEmployeeEmployeeIdAssignPutResponse> => {
+  return __request(OpenAPI, {
+    method: "PUT",
+    url: "/api/v1/org/office/employee/{employee_id}/assign",
+    path: {
+      employee_id: data.employeeId,
+    },
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};

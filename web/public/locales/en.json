@@ -10,6 +10,7 @@
   "actions": "Actions",
   "initials": "Initials",
   "country": "Country",
+  "user_details": "User Details",
   "all_countries": "All Countries",
   "save": "Save",
   "authenticate": "Authenticate",

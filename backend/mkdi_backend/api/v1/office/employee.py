@@ -59,3 +59,14 @@ def get_employee(
     user: Annotated[KcUser, Security(check_authorization, scopes=[])],
 ) -> protocol.EmployeeResponse:
     return EmployeeRepository(db).get_employee(user.username, user.email, user.organization_id)
+
+
+@router.put("/office/employee/{employee_id}/assign", status_code=200)
+def update_employee(
+    *,
+    user: Annotated[KcUser, Security(check_authorization, scopes=["office_admin"])],
+    employee_id: str,
+    data: protocol.EmployeeResponse,
+    db: Session = Depends(get_db),
+) -> protocol.EmployeeResponse:
+    return EmployeeRepository(db).update_employee(employee_id, user.organization_id, data)

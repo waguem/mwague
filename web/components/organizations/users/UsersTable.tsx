@@ -1,17 +1,24 @@
 "use client";
 import IconPencil from "@/components/icon/icon-pencil";
 import IconSettings from "@/components/icon/icon-settings";
+import Slider from "@/components/layouts/slider/Slider";
 import { getTranslation } from "@/i18n";
 import { EmployeeResponse } from "@/lib/client";
 import clsx from "clsx";
-import React from "react";
+import React, { useState } from "react";
 
 interface Props {
   users: EmployeeResponse[];
 }
 const UsersTable = ({ users }: Props) => {
   const { t } = getTranslation();
+  const [activeIndex, setActiveIndex] = useState<number>(-1);
+  const [open, setOpen] = useState(false);
 
+  const handleOpen = (index: number) => {
+    setActiveIndex(index);
+    setOpen(true);
+  };
   const getRoleBadge = (role: string) => {
     if (role.includes("software")) {
       return "bg-danger";
@@ -60,12 +67,12 @@ const UsersTable = ({ users }: Props) => {
                 <td className="text-center">
                   <ul className="flex items-center justify-center gap-2">
                     <li>
-                      <button type="button">
+                      <button type="button" onClick={() => null}>
                         <IconSettings className="h-5 w-5 text-primary" />
                       </button>
                     </li>
                     <li>
-                      <button type="button">
+                      <button type="button" onClick={() => handleOpen(index)}>
                         <IconPencil className="text-success" />
                       </button>
                     </li>
@@ -76,6 +83,16 @@ const UsersTable = ({ users }: Props) => {
           })}
         </tbody>
       </table>
+
+      <div className="w-1/2"></div>
+      <Slider
+        onClose={() => {
+          setActiveIndex(-1);
+          setOpen(false);
+        }}
+        user={users.at(activeIndex)}
+        isOpen={open}
+      />
     </div>
   );
 };

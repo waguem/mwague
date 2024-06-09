@@ -42,13 +42,18 @@ def seed_orgs(db: Session, orgs: list[dict]):
                 office_db = of_repo.OfficeRepository(db).get_by_initials(office["initials"])
 
             for user in office["users"]:
+                user_db = None
                 try:
-                    employee.EmployeeRepository(db).create(
+                    user_db = employee.EmployeeRepository(db).create(
                         input=protocol.CreateEmployeeRequest(**user),
                         office_id=office_db.id,
                         organization_id=org_db.id,
                     )
                 except Exception as error:
+                    # get user from db
+                    user_db = employee.EmployeeRepository(db).get_employee(
+                        username=user["username"], email=user["email"], organization_id=org_db.id
+                    )
                     pass
                 # try to see if the user already exists in keycloak
                 user_id: str = None
@@ -62,6 +67,11 @@ def seed_orgs(db: Session, orgs: list[dict]):
                         raise Exception("User not found in keycloak")
                     logger.info(f"User Already exist in auth Provider")
                     user_id = response[0]["id"]
+                    user_db.provider_account_id = user_id
+                    # save changes to db
+                    db.add(user_db)
+                    # commit changes
+                    db.commit()
                 except Exception as error:
                     # try to create user in keycloak
                     try:
