@@ -37,13 +37,13 @@ class Settings(BaseSettings):
         f"http://localhost.auth.com:8443/auth/realms/mwague/protocol/openid-connect/auth"
     )
     KC_CLIENT_ID = "rns:mwague:portal"
-    KC_CLIENT_SECRET = "bmdsVvDMsh1CJ91SDaXGXTZc0DFp1Ufi"
+    KC_CLIENT_SECRET = "nZmLx40sO6x14lQ1vSCe1e9gH8VfEZAY"
     KC_VERIFY_CERTS = False
     KC_ADMIN_CLIENT_ID = "rns:mwague:admin"
     KC_ADMIN_CLIENT_SECRET = "tXWIb5m4e764ydqhDGfvBjVWZlvhMKOZ"
     KC_ADMIN_CLIENT_ID = "admin-cli"
-    KC_ADMIN_USER = "admin"
-    KC_ADMIN_PASSWORD = "wague"
+    KC_ADMIN_USER = "kcadmincli"
+    KC_ADMIN_PASSWORD = "mwague"
     DATABASE_POOL_SIZE = 75
     DATABASE_MAX_OVERFLOW = 20
     RATE_LIMIT: bool = True

@@ -67,13 +67,9 @@ def seed_orgs(db: Session, orgs: list[dict]):
                         raise Exception("User not found in keycloak")
                     logger.info(f"User Already exist in auth Provider")
                     user_id = response[0]["id"]
-                    user_db.provider_account_id = user_id
-                    # save changes to db
-                    db.add(user_db)
-                    # commit changes
-                    db.commit()
                 except Exception as error:
                     # try to create user in keycloak
+                    logger.info(f"error {error}")
                     try:
                         data = dict(user)
 
@@ -89,6 +85,13 @@ def seed_orgs(db: Session, orgs: list[dict]):
                     except Exception as error:
                         logger.error(f"Failed to create user {error}")
                 # assign realm role to user
+                if user_db and user_id:
+                    user_db.provider_account_id = user_id
+                    # save changes to db
+                    db.add(user_db)
+                    # commit changes
+                    db.commit()
+
                 # get realm role
 
                 if "roles" in user:

@@ -1,9 +1,11 @@
 FROM tiangolo/uvicorn-gunicorn:python3.10
-WORKDIR /backend
 
-COPY ./backend/requirements.txt /backend/requirements.txt
 
-RUN pip install --no-cache-dir --upgrade -r /backend/requirements.txt
+WORKDIR /app
+
+COPY ./backend/requirements.txt /app/requirements.txt
+
+RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 
 ENV PORT 8080
 EXPOSE 8080
@@ -12,10 +14,10 @@ COPY ./mkdi-shared /mkdi-shared
 COPY ./functional-tests /functional-tests
 RUN pip install -e /mkdi-shared[dev] && pip install -e /functional-tests[dev]
 
-COPY ./backend/alembic /backend/alembic
-COPY ./backend/alembic.ini /backend/alembic.ini
-COPY ./backend/main.py /backend/main.py
-COPY ./backend/__init__.py /backend/__init__.py
-COPY ./backend/mkdi_backend /backend/mkdi_backend
-COPY ./backend/tests /backend/tests
-COPY ./backend/test_data /backend/test_data
+COPY ./backend/alembic /app/alembic
+COPY ./backend/alembic.ini /app/alembic.ini
+COPY ./backend/main.py /app/main.py
+COPY ./backend/__init__.py /app/__init__.py
+COPY ./backend/mkdi_backend /app/mkdi_backend
+COPY ./backend/tests /app/tests
+COPY ./backend/test_data /app/test_data

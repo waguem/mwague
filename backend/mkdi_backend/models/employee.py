@@ -22,7 +22,7 @@ class Employee(EmployeeBase, table=True):
         )
     )
 
-    roles: Optional[List[str]] = []
+    roles: Optional[str] = Field(default="", nullable=True)
     office_id: UUID = Field(foreign_key="offices.id")
     organization_id: UUID = Field(foreign_key="organizations.id")
     provider_account_id: Optional[str]

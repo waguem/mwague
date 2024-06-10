@@ -73,7 +73,7 @@ services:
     networks:
       - private
     extra_hosts:
-      - "localhost.auth.com: 172.30.0.7"
+      - "localhost.auth.com: 172.30.0.9"
     depends_on:
       db:
         condition: service_healthy
