@@ -2,9 +2,8 @@ import functools
 
 from keycloak import KeycloakAdmin, KeycloakOpenID
 from keycloak.exceptions import KeycloakAuthenticationError
-from loguru import logger
-from mkdi_backend.api.deps import KcUser
 from mkdi_backend.config import settings
+from mkdi_backend.models.models import KcUser
 from mkdi_shared.schemas import protocol
 
 # This actually does the auth checks
