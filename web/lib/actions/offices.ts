@@ -51,7 +51,6 @@ export async function addOffice(prevSate: State, data: FormData): Promise<State>
         message: e.message,
       };
     }
-    console.log(e);
     return { status: "error", message: "Something went wrong!. Please try again" };
   }
 }

@@ -2,7 +2,10 @@ import functools
 
 from keycloak import KeycloakAdmin, KeycloakOpenID
 from keycloak.exceptions import KeycloakAuthenticationError
+from loguru import logger
+from mkdi_backend.api.deps import KcUser
 from mkdi_backend.config import settings
+from mkdi_shared.schemas import protocol
 
 # This actually does the auth checks
 # client_secret_key is not mandatory if the client is public on keycloak
@@ -43,6 +46,22 @@ class KeycloakAdminHelper:
             verify=settings.ENV == "production" and settings.KC_VERIFY_CERTS,
         )
 
+    def create_user(self, *, auth_user: KcUser, input: protocol.CreateEmployeeRequest):
+        data = {
+            "username": input.username,
+            "email": input.email,
+            "enabled": True,
+            "emailVerified": True,
+            "credentials": [{"type": "password", "value": input.password, "temporary": True}],
+            "attributes": {
+                "organizationId": auth_user.organization_id,
+                "officeId": str(input.office_id),
+            },
+        }
+        user_id = None
+        user_id = self.get_kc_admin().create_user(data)
+        return user_id
+
     def get_kc_admin(self):
         if self._kc_admin is None:
             self._init_kc_conn()
@@ -52,8 +71,8 @@ class KeycloakAdminHelper:
 class RoleProvider:
     filter_roles = ["offline_access", "uma_authorization", "default-roles-mwague"]
 
-    def __init__(self):
-        self.keycloak_helper = KeycloakAdminHelper()
+    def __init__(self, helper=None):
+        self.keycloak_helper = KeycloakAdminHelper() if not helper else helper
         self.roles = []
 
     def get_realm_roles(self):
@@ -76,6 +95,7 @@ class RoleProvider:
     def update_user_roles(self, account_id, roles) -> list[str]:
         kc_admin = self.keycloak_helper.get_kc_admin()
         # filter self.roles by roles
+        self.get_realm_roles()
 
         assinged_roles = list(
             filter(lambda role: any([r for r in roles if role["name"].startswith(r)]), self.roles)
@@ -91,6 +111,9 @@ class RoleProvider:
                 lambda role: any([r for r in roles if not role["name"].startswith(r)]), self.roles
             )
         )
+
+        if len(assinged_roles) == 0:
+            return []
         kc_admin.delete_realm_roles_of_user(account_id, roles_to_remove)
         kc_admin.assign_realm_roles(account_id, assinged_roles)
         return [role["name"] for role in assinged_roles]

@@ -1,7 +1,8 @@
 from typing import Annotated, List
 
 from fastapi import APIRouter, Body, Depends
-from mkdi_backend.api.deps import KcUser, get_db, get_user_info
+from mkdi_backend.api.deps import get_db, get_user_info
+from mkdi_backend.models.models import KcUser
 from mkdi_backend.repositories.organisation import OrganizationRepository
 from mkdi_shared.schemas import protocol
 from sqlmodel import Session

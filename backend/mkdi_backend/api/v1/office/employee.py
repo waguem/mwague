@@ -1,7 +1,8 @@
 from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, Security
-from mkdi_backend.api.deps import KcUser, check_authorization, get_db
+from mkdi_backend.api.deps import check_authorization, get_db
+from mkdi_backend.models.models import KcUser
 from mkdi_backend.repositories.employee import EmployeeRepository
 from mkdi_shared.schemas import protocol
 from sqlmodel import Session
@@ -12,9 +13,10 @@ from loguru import logger
 
 
 @router.post("/office/employee", response_model=protocol.EmployeeResponse, status_code=201)
-def create_employee(
+async def create_employee(
     *,
     user: Annotated[KcUser, Security(check_authorization, scopes=["office_admin"])],
+    input: protocol.CreateEmployeeRequest,
     db: Session = Depends(get_db),
 ):
     """
@@ -22,13 +24,14 @@ def create_employee(
 
     Args:
         user (KcUser): The authenticated user making the request.
-        db (Session, optional): The database session. Defaults to Depends(get_db).
-
+        input (protocol.CreateEmployeeRequest): The input data for creating the employee.
     Returns:
         Employee: The created employee.
 
     """
-    return EmployeeRepository(db).create(create_employee, organization_id=user.organization_id)
+    return await EmployeeRepository(db).create(
+        auth_user=user, input=input, office_id=input.office_id, organization_id=user.organization_id
+    )
 
 
 @router.get("/office/employee", status_code=200, response_model=List[protocol.EmployeeResponse])

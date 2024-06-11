@@ -29,6 +29,7 @@ const ScrollToTop = () => {
       {showTopButton && (
         <button
           type="button"
+          title="Go to top"
           className="btn btn-outline-primary animate-pulse rounded-full bg-[#fafafa] p-2 dark:bg-[#060818] dark:hover:bg-primary"
           onClick={goToTop}
         >

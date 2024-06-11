@@ -58,7 +58,6 @@ export function AddOrganizationForm() {
     }).fire({
       title: state.message,
       icon: state.status === "error" ? "error" : "success",
-      padding: "10px 20px",
     });
 
     if (state.status === "error") {

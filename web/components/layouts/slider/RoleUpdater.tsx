@@ -10,6 +10,7 @@ interface Props {
   className?: string;
   control: any;
 }
+
 export const UserRoleSelector = (props: Props) => {
   const getLabel = (role: string) => {
     // remove _ and capitalize the first letter of each word

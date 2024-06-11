@@ -33,10 +33,6 @@ async def lifespan(app: FastAPI):
     # run alembic upgrade
     await alembic_upgrade()
     # seed database
-    try:
-        create_seed_data(app.state.db)
-    except Exception as e:
-        logger.error(f"Failed to seed database {e}")
     yield
 
     logger.info("Closing database connection")

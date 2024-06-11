@@ -8,6 +8,14 @@ export type Body_create_organization_api_v1_org_organization_post = {
   create_org: CreateOrganizationRequest;
 };
 
+export type CreateEmployeeRequest = {
+  email: string;
+  username: string;
+  office_id: string;
+  roles: Array<string>;
+  password: string;
+};
+
 export type CreateOfficeRequest = {
   country: string;
   initials: string;
@@ -78,6 +86,10 @@ export type GetOfficeApiV1OrgOrganizationOfficeOfficeIdGetData = {
 export type GetOfficeApiV1OrgOrganizationOfficeOfficeIdGetResponse = OfficeResponse;
 
 export type GetEmployeesApiV1OrgOfficeEmployeeGetResponse = Array<EmployeeResponse>;
+
+export type CreateEmployeeApiV1OrgOfficeEmployeePostData = {
+  requestBody: CreateEmployeeRequest;
+};
 
 export type CreateEmployeeApiV1OrgOfficeEmployeePostResponse = EmployeeResponse;
 
@@ -188,11 +200,16 @@ export type $OpenApiTs = {
       };
     };
     post: {
+      req: CreateEmployeeApiV1OrgOfficeEmployeePostData;
       res: {
         /**
          * Successful Response
          */
         201: EmployeeResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
       };
     };
   };

@@ -43,6 +43,8 @@ def seed_orgs(db: Session, orgs: list[dict]):
 
             for user in office["users"]:
                 user_db = None
+                user["org_id"] = org_db.id
+                user["office_id"] = office_db.id
                 try:
                     user_db = employee.EmployeeRepository(db).create(
                         input=protocol.CreateEmployeeRequest(**user),
@@ -50,11 +52,12 @@ def seed_orgs(db: Session, orgs: list[dict]):
                         organization_id=org_db.id,
                     )
                 except Exception as error:
+                    logger.info(f"Failed to create user {error}")
                     # get user from db
                     user_db = employee.EmployeeRepository(db).get_employee(
                         username=user["username"], email=user["email"], organization_id=org_db.id
                     )
-                    pass
+
                 # try to see if the user already exists in keycloak
                 user_id: str = None
                 try:
@@ -73,9 +76,12 @@ def seed_orgs(db: Session, orgs: list[dict]):
                     try:
                         data = dict(user)
 
+                        logger.info(f"creating user {data}")
+
                         if "roles" in data:
                             del data["roles"]
-
+                        del data["office_id"]
+                        del data["org_id"]
                         data["attributes"] = {
                             "organizationId": str(org_db.id),
                             "officeId": str(office_db.id),
@@ -99,7 +105,9 @@ def seed_orgs(db: Session, orgs: list[dict]):
                     user_roles: list[str] = list(
                         filter(lambda role: role["name"] in user["roles"], realm_roles)
                     )
-
+                    logger.info(
+                        f"Assigning roles for {user['username']}to user with user_id {user_id} "
+                    )
                     # assing user roles
                     try:
                         kc_admin.get_kc_admin().assign_realm_roles(user_id, user_roles)
@@ -121,6 +129,8 @@ def create_seed_data(db: Session):
     Raises:
         ValueError: Error
     """
+    if not settings.DEBUG_USE_SEED_DATA:
+        return
 
     if not settings.OFFICIAL_WEB_API_KEY:
         raise ValueError("Cannot use seed data without OFFICIAL_WEB_API_KEY set")

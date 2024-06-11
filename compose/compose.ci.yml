@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres
+    container_name: ci-db
+    networks:
+      - private
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      BACKUP_DIR: /backup
+    volumes:
+      - backend_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+
+  backend:
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile.backend
+    container_name: backend
+    networks:
+      - private
+    environment:
+      - PYTHONPATH=/backend
+    extra_hosts:
+      - "localhost.auth.com: ${AUTH_IP}"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env.backend
+
+    volumes:
+      - ../backend/test_data/seed.json:/data/seeds.json
+
+networks:
+  private:
+    external: true
+
+volumes:
+  backend_data:

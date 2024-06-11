@@ -35,7 +35,9 @@ class EmployeeBase(SQLModel):
 
 
 class CreateEmployeeRequest(EmployeeBase):
-    pass
+    office_id: UUID
+    roles: List[str]
+    password: str
 
 
 class EmployeeResponse(EmployeeBase):
@@ -47,7 +49,7 @@ class EmployeeResponse(EmployeeBase):
     @root_validator(pre=True)
     def transform_roles(cls, values) -> Dict:
         """
-            str format {role_admin,role_user}
+        str format {role_admin,role_user}
         transform to list format [software_admin_0,org_admin_1]
         """
         roles = values.get("roles")

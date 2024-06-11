@@ -24,6 +24,7 @@ class MkdiErrorCode(IntEnum):
     OFFICE_EXISTS = 6
     USER_NOT_FOUND = 7
     ROLE_NOT_FOUND = 8
+    INVALID_ROLE = 9
     SERVER_ERROR0 = 500
     SERVER_ERROR1 = 501
 

@@ -7,22 +7,11 @@ from loguru import logger
 from mkdi_backend.authproviders import RoleProvider, keycloak_openid
 from mkdi_backend.config import settings
 from mkdi_backend.database import engine
+from mkdi_backend.models.models import KcUser
 
 # from mkdi_backend.models import ApiClient
 from pydantic import BaseModel
 from sqlmodel import Session
-
-
-class KcUser(BaseModel):
-    id: str
-    username: str
-    email: str
-    first_name: str
-    last_name: str
-    roles: list = []
-    organization_id: str = None
-    office_id: str = None
-
 
 # This is used for fastapi docs authentification
 oauth2_scheme = OAuth2AuthorizationCodeBearer(

@@ -1,7 +1,8 @@
 from loguru import logger
-from mkdi_backend.authproviders import RoleProvider
+from mkdi_backend.api.deps import KcUser
+from mkdi_backend.authproviders import KeycloakAdminHelper, RoleProvider
 from mkdi_backend.models.employee import Employee
-from mkdi_backend.utils.database import CommitMode, managed_tx_method
+from mkdi_backend.utils.database import CommitMode, async_managed_tx_method, managed_tx_method
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas.protocol import CreateEmployeeRequest
 from sqlmodel import Session
@@ -44,13 +45,21 @@ class EmployeeRepository:
         self.db.add(user)
         return user
 
-    @managed_tx_method(auto_commit=CommitMode.COMMIT)
-    def create(self, *, input: CreateEmployeeRequest, office_id: str, organization_id: str):
+    @async_managed_tx_method(auto_commit=CommitMode.COMMIT)
+    async def create(
+        self,
+        *,
+        auth_user: KcUser,
+        input: CreateEmployeeRequest,
+        office_id: str,
+        organization_id: str,
+    ):
         user: Employee = (
             self.db.query(Employee)
             .filter(Employee.username == input.username and Employee.office_id == office_id)
             .first()
         )
+
         if user:
             raise MkdiError(
                 f"Username {input.username} already exists", error_code=MkdiErrorCode.USER_EXISTS
@@ -62,7 +71,22 @@ class EmployeeRepository:
             office_id=office_id,
             organization_id=organization_id,
         )
+
+        kcAdmin = KeycloakAdminHelper()
+        userId = kcAdmin.create_user(auth_user=auth_user, input=input)
+        user.provider_account_id = userId
+
+        # assing user roles
+        assinged_roles = RoleProvider(kcAdmin).update_user_roles(userId, input.roles)
+        # update the user with the provider account id
+        if len(assinged_roles) != len(input.roles):
+            raise MkdiError(
+                f"Roles {input.roles} are not valid roles", error_code=MkdiErrorCode.INVALID_ROLE
+            )
+        user.roles = assinged_roles
+
         self.db.add(user)
+
         return user
 
     def get_by_username_with_id(self, org_id: str, username: str) -> Employee:

@@ -51,3 +51,42 @@ export const UpdateUserSchema = zfd.formData({
   organization_id: zfd.text(zod.string()),
   roles: zfd.repeatableOfType(zod.string()),
 });
+
+/**
+ * Add User Schema Input
+ */
+
+export const AddUserSchema = zfd.formData({
+  username: zfd.text(
+    zod
+      .string()
+      .min(3, "Too Short!")
+      .max(20, "Too Long!")
+      .regex(/^[a-zA-Z\s]*$/, "Only Alphanumeric Characters are allowed!")
+      .refine((value) => value.trim() !== "")
+  ),
+  password: zfd.text(
+    zod
+      .string()
+      .min(6, "Too Short!")
+      .max(20, "Too Long!")
+      .regex(/^[a-zA-Z0-9]*$/, "Only Alphanumeric Characters are allowed!")
+      .refine((value) => value.trim() !== "")
+  ),
+  confirmPassword: zfd.text(
+    zod
+      .string()
+      .min(6, "Too Short!")
+      .max(20, "Too Long!")
+      .regex(/^[a-zA-Z0-9]*$/, "Only Alphanumeric Characters are allowed!")
+      .refine((value) => value.trim() !== "")
+  ), // should be equal to password
+  email: zfd.text(
+    zod
+      .string()
+      .email("Invalid Email")
+      .refine((value) => value.trim() !== "")
+  ),
+  roles: zfd.repeatableOfType(zod.string()),
+  office_id: zfd.text(zod.string()),
+});

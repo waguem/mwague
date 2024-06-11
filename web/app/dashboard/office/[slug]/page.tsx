@@ -98,16 +98,13 @@ export default async function Page({
                 <p className="text-info">$25 / month</p>
               </div>
               <div className="mb-5 h-2.5 overflow-hidden rounded-full bg-dark-light p-0.5 dark:bg-dark-light/10">
-                <div
-                  className="relative h-full w-full rounded-full bg-gradient-to-r from-[#f67062] to-[#fc5296]"
-                  style={{ width: "65%" }}
-                ></div>
+                <div className="relative h-full w-full rounded-full bg-gradient-to-r from-[#f67062] to-[#fc5296]"></div>
               </div>
             </div>
           </div>
         </div>
         <div className="panel mt-5">
-          <UsersTable users={employees} />
+          <UsersTable officeId={office.id} users={employees} />
         </div>
       </div>
     </div>

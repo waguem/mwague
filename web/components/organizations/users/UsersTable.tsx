@@ -6,11 +6,13 @@ import { getTranslation } from "@/i18n";
 import { EmployeeResponse } from "@/lib/client";
 import clsx from "clsx";
 import React, { useState } from "react";
+import { AddUser } from "./AddUser";
 
 interface Props {
   users: EmployeeResponse[];
+  officeId: string;
 }
-const UsersTable = ({ users }: Props) => {
+const UsersTable = ({ users, officeId }: Props) => {
   const { t } = getTranslation();
   const [activeIndex, setActiveIndex] = useState<number>(-1);
   const [open, setOpen] = useState(false);
@@ -31,6 +33,7 @@ const UsersTable = ({ users }: Props) => {
   };
   return (
     <div className="table-responsive mb-5">
+      <AddUser officeId={officeId} />
       <table>
         <thead>
           <tr>
@@ -67,12 +70,12 @@ const UsersTable = ({ users }: Props) => {
                 <td className="text-center">
                   <ul className="flex items-center justify-center gap-2">
                     <li>
-                      <button type="button" onClick={() => null}>
+                      <button title="settings" type="button" onClick={() => null}>
                         <IconSettings className="h-5 w-5 text-primary" />
                       </button>
                     </li>
                     <li>
-                      <button type="button" onClick={() => handleOpen(index)}>
+                      <button title="edit" type="button" onClick={() => handleOpen(index)}>
                         <IconPencil className="text-success" />
                       </button>
                     </li>

@@ -15,6 +15,7 @@ import type {
   GetOfficeApiV1OrgOrganizationOfficeOfficeIdGetData,
   GetOfficeApiV1OrgOrganizationOfficeOfficeIdGetResponse,
   GetEmployeesApiV1OrgOfficeEmployeeGetResponse,
+  CreateEmployeeApiV1OrgOfficeEmployeePostData,
   CreateEmployeeApiV1OrgOfficeEmployeePostResponse,
   GetOfficeEmployeesApiV1OrgOfficeOfficeIdEmployeeGetData,
   GetOfficeEmployeesApiV1OrgOfficeOfficeIdEmployeeGetResponse,
@@ -186,16 +187,24 @@ export const getEmployeesApiV1OrgOfficeEmployeeGet =
  *
  * Returns:
  * Employee: The created employee.
+ * @param data The data for the request.
+ * @param data.requestBody
  * @returns EmployeeResponse Successful Response
  * @throws ApiError
  */
-export const createEmployeeApiV1OrgOfficeEmployeePost =
-  (): CancelablePromise<CreateEmployeeApiV1OrgOfficeEmployeePostResponse> => {
-    return __request(OpenAPI, {
-      method: "POST",
-      url: "/api/v1/org/office/employee",
-    });
-  };
+export const createEmployeeApiV1OrgOfficeEmployeePost = (
+  data: CreateEmployeeApiV1OrgOfficeEmployeePostData
+): CancelablePromise<CreateEmployeeApiV1OrgOfficeEmployeePostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/org/office/employee",
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
 
 /**
  * Get Office Employees

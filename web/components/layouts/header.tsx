@@ -125,6 +125,7 @@ const Header = (props: HeaderProps) => {
             </Link>
             <button
               type="button"
+              title="Toggle Sidebar"
               className="collapse-icon flex flex-none rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary ltr:ml-2 rtl:mr-2 dark:bg-dark/40 dark:text-[#d0d2d6] dark:hover:bg-dark/60 dark:hover:text-primary lg:hidden"
               onClick={() => dispatch(toggleSidebar())}
             >
@@ -175,6 +176,7 @@ const Header = (props: HeaderProps) => {
                     placeholder="Search..."
                   />
                   <button
+                    title="Search"
                     type="button"
                     className="absolute inset-0 h-9 w-9 appearance-none peer-focus:text-primary ltr:right-auto rtl:left-auto"
                   >
@@ -182,6 +184,7 @@ const Header = (props: HeaderProps) => {
                   </button>
                   <button
                     type="button"
+                    title="Close"
                     className="absolute top-1/2 block -translate-y-1/2 hover:opacity-80 ltr:right-2 rtl:left-2 sm:hidden"
                     onClick={() => setSearch(false)}
                   >
@@ -191,6 +194,7 @@ const Header = (props: HeaderProps) => {
               </form>
               <button
                 type="button"
+                title="Search"
                 onClick={() => setSearch(!search)}
                 className="search_btn rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 dark:bg-dark/40 dark:hover:bg-dark/60 sm:hidden"
               >
@@ -204,6 +208,7 @@ const Header = (props: HeaderProps) => {
                     themeConfig.theme === "light" &&
                     "flex items-center rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60"
                   }`}
+                  title="Dark Mode"
                   onClick={() => dispatch(toggleTheme("dark"))}
                 >
                   <IconSun />
@@ -217,6 +222,7 @@ const Header = (props: HeaderProps) => {
                     themeConfig.theme === "dark" &&
                     "flex items-center rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60"
                   }`}
+                  title="Light Mode"
                   onClick={() => dispatch(toggleTheme("system"))}
                 >
                   <IconMoon />
@@ -228,6 +234,7 @@ const Header = (props: HeaderProps) => {
                     themeConfig.theme === "system" &&
                     "flex items-center rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60"
                   }`}
+                  title="Light Mode"
                   onClick={() => dispatch(toggleTheme("light"))}
                 >
                   <IconLaptop />
@@ -310,6 +317,7 @@ const Header = (props: HeaderProps) => {
                               </span>
                               <button
                                 type="button"
+                                title="Close"
                                 className="text-neutral-300 hover:text-danger"
                                 onClick={() => removeMessage(message.id)}
                               >
@@ -406,6 +414,7 @@ const Header = (props: HeaderProps) => {
                                 </div>
                                 <button
                                   type="button"
+                                  title="Close"
                                   className="text-neutral-300 opacity-0 hover:text-danger group-hover:opacity-100 ltr:ml-auto rtl:mr-auto"
                                   onClick={() => removeNotification(notification.id)}
                                 >

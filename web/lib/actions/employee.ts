@@ -1,7 +1,10 @@
 "use server";
-import { updateEmployeeApiV1OrgOfficeEmployeeEmployeeIdAssignPut as updateEmployeeApi } from "@/lib/client";
+import {
+  updateEmployeeApiV1OrgOfficeEmployeeEmployeeIdAssignPut as updateEmployeeApi,
+  createEmployeeApiV1OrgOfficeEmployeePost as createEmployeeApi,
+} from "@/lib/client";
 import { withToken } from "./withToken";
-import { UpdateUserSchema } from "../schemas/actions";
+import { AddUserSchema, UpdateUserSchema } from "../schemas/actions";
 import { State } from "./state";
 import { revalidatePath } from "next/cache";
 
@@ -26,6 +29,51 @@ export const updateEmployee = async (prevState: State, data: FormData): Promise<
     });
     // revalidate path to update the form
     revalidatePath(`/dashboard/office/${updatedFields.data.office_id}`);
+    return { status: "success", message: `Employee ${response.username} Updated Successfully` };
+  });
+};
+
+export const addEmployee = async (prevState: State, data: FormData): Promise<State> => {
+  return await withToken(async () => {
+    const userInput = AddUserSchema.safeParse(data);
+    if (!userInput.success) {
+      return {
+        status: "error",
+        message: "Invalid data",
+        errors: userInput.error.issues.map((issue) => ({
+          path: issue.path.join("."),
+          message: `${issue.message}`,
+        })),
+      };
+    }
+
+    // check that password and confirmPassowr match
+    if (userInput.data.password !== userInput.data.confirmPassword) {
+      return {
+        status: "error",
+        message: "Invalid data",
+        errors: [
+          {
+            path: "confirmPassword",
+            message: "Passwords do not match",
+          },
+        ],
+      };
+    }
+
+    // update employee object with updated fields
+    const response = await createEmployeeApi({
+      requestBody: {
+        email: userInput.data.email,
+        username: userInput.data.username,
+        password: userInput.data.password,
+        office_id: userInput.data.office_id,
+        roles: userInput.data.roles,
+      },
+    });
+
+    // revalidate path to update the form
+    revalidatePath(`/dashboard/office/${userInput.data.office_id}`);
     return { status: "success", message: `Employee ${response.username} Updated Successfully` };
   });
 };
