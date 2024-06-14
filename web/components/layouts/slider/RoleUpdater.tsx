@@ -2,7 +2,7 @@
 import { Controller } from "react-hook-form";
 import ReactSelect from "react-select";
 
-const sysRoles = ["office_admin", "org_admin", "software_admin"];
+const sysRoles = ["office_admin", "org_admin", "soft_admin"];
 
 interface Props {
   register: any;

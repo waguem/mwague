@@ -8,6 +8,7 @@ from mkdi_backend.authproviders import RoleProvider, keycloak_openid
 from mkdi_backend.config import settings
 from mkdi_backend.database import engine
 from mkdi_backend.models.models import KcUser
+from mkdi_backend.models.roles import Role
 
 # from mkdi_backend.models import ApiClient
 from pydantic import BaseModel
@@ -105,11 +106,11 @@ def hasSufficientPermissions(user_roles, required_roles: list = []) -> bool:
     assert len(required_roles) <= 1
     if len(required_roles) == 0:
         return True
-    required_role = required_roles[0]  # "org_admin_1"
-    accepted_roles = get_roles_deps(required_role)  # ["soft_admin"]
-    for role in user_roles:
-        if role in accepted_roles:
+
+    for r in user_roles:
+        if Role.from_str(r).canAccess(Role.from_str(required_roles[0])):
             return True
+
     return False
 
 

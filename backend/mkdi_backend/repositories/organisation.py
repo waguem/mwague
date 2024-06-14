@@ -22,6 +22,7 @@ class OrganizationRepository:
                 f"Organization {input.initials} already exists",
                 error_code=MkdiErrorCode.ORGANIZATION_EXISTS,
             )
+
         org = Organization(
             initials=input.initials,
             org_name=input.org_name,

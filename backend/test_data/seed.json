@@ -10,7 +10,7 @@
           "country": "China",
           "users": [
             {
-              "roles": ["software_admin_0", "office_admin_2", "org_admin_1"],
+              "roles": ["soft_admin_0", "office_admin_2", "org_admin_1"],
               "username": "amadou",
               "firstName": "Amadou",
               "lastName": "Bah",
@@ -120,5 +120,5 @@
       ]
     }
   ],
-  "software_admin_0": []
+  "soft_admin_0": []
 }

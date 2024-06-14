@@ -50,14 +50,13 @@ class EmployeeResponse(EmployeeBase):
     def transform_roles(cls, values) -> Dict:
         """
         str format {role_admin,role_user}
-        transform to list format [software_admin_0,org_admin_1]
+        transform to list format [soft_admin_0,org_admin_1]
         """
         roles = values.get("roles")
         transformed = dict(values)
         if isinstance(roles, str):
             transformed["roles"] = roles[1 : len(roles) - 1].split(",")
             # remove curly braces remote _1 at the end
-            transformed["roles"] = [r.rsplit("_", 1)[0] for r in transformed["roles"]]
         return transformed
 
 

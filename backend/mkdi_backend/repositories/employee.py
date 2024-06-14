@@ -117,20 +117,9 @@ class EmployeeRepository:
                 f"User {employee_id} not found", error_code=MkdiErrorCode.USER_NOT_FOUND
             )
         # make sure the roles are correct with the one from keycloak
-        role_provider = RoleProvider()
-        sys_roles = role_provider.get_roles()
-
-        def hasMatch(role):
-            return any([sys_role for sys_role in sys_roles if sys_role.startswith(role)])
-
-        for role in data.roles:
-            # check if the role is in the system roles by checking if there's a system role that starts with the role
-            if not hasMatch(role):
-                raise MkdiError(
-                    f"Role {role} is not a valid role", error_code=MkdiErrorCode.INVALID_ROLE
-                )
+        rprovider = RoleProvider()
         # update the user on keycloak
-        assinged_roles = role_provider.update_user_roles(user.provider_account_id, data.roles)
+        assinged_roles = rprovider.update_user_roles(user.provider_account_id, data.roles)
         user.roles = assinged_roles
         user.email = data.email
         user.username = data.username

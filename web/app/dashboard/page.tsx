@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import React from "react";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Admin",
@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 const Organization = async () => {
   // set session token to OpenAPI header
-  return <div>Your oganizations</div>;
+  redirect("/dashboard/organization");
 };
 
 export default Organization;

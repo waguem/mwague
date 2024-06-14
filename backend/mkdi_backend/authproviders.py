@@ -2,8 +2,10 @@ import functools
 
 from keycloak import KeycloakAdmin, KeycloakOpenID
 from keycloak.exceptions import KeycloakAuthenticationError
+from loguru import logger
 from mkdi_backend.config import settings
 from mkdi_backend.models.models import KcUser
+from mkdi_backend.models.roles import Role
 from mkdi_shared.schemas import protocol
 
 # This actually does the auth checks
@@ -72,47 +74,46 @@ class RoleProvider:
 
     def __init__(self, helper=None):
         self.keycloak_helper = KeycloakAdminHelper() if not helper else helper
+        self.realm_roles = []
         self.roles = []
 
-    def get_realm_roles(self):
-        if len(self.roles) == 0:
-            self.roles = self.keycloak_helper.get_kc_admin().get_realm_roles()
+        self.get_roles()
 
-        return [role["name"] for role in self.roles]
+    def get_roles(self) -> list[Role]:
+        if len(self.realm_roles) == 0:
+            self.roles = list()
+            self.realm_roles = self.keycloak_helper.get_kc_admin().get_realm_roles()
 
-    def get_roles(self):
-        realm_roles = self.get_realm_roles()
-        # ["sofware_admin_0","office_admin_2","org_admin_1"]
-        # sort filter realm_roles by filter_roles and then sort by the number at the end
-        # the sort order is descending
-        # ["sofware_admin_0","org_admin_1","office_admin_2"]
-        return sorted(
-            filter(lambda role: role not in self.filter_roles, realm_roles),
-            key=lambda role: int(role.split("_")[-1]),
-        )
+            for r in self.realm_roles:
+                r_with_attr = self._get_role(role_name=r["name"])
 
-    def update_user_roles(self, account_id, roles) -> list[str]:
+                if (
+                    "weight" in r_with_attr["attributes"]
+                    and len(r_with_attr["attributes"]["weight"]) == 1
+                ):
+                    self.roles.append(Role.from_number(int(r_with_attr["attributes"]["weight"][0])))
+
+        return self.roles
+
+    def _get_role(self, role_name):
+        return self.keycloak_helper.get_kc_admin().get_realm_role(role_name=role_name)
+
+    def update_user_roles(self, account_id: str, roles: list[str]) -> list[str]:
         kc_admin = self.keycloak_helper.get_kc_admin()
         # filter self.roles by roles
-        self.get_realm_roles()
 
-        assinged_roles = list(
-            filter(lambda role: any([r for r in roles if role["name"].startswith(r)]), self.roles)
-        )  # remove roles that are not in roles
         roles_to_remove = list()
-        for role in self.roles:
-            for r in roles:
-                if not role["name"].startswith(r) and role["name"] in self.get_roles():
-                    roles_to_remove.append(role)
+        assigned_roles = list()
 
-        list(
-            filter(
-                lambda role: any([r for r in roles if not role["name"].startswith(r)]), self.roles
-            )
-        )
+        for r in self.realm_roles:
+            if not r["name"] in roles:
+                roles_to_remove.append(r)
+            elif Role.is_valid(r["name"]):
+                assigned_roles.append(r)
 
-        if len(assinged_roles) == 0:
+        if len(assigned_roles) == 0:
             return []
+
         kc_admin.delete_realm_roles_of_user(account_id, roles_to_remove)
-        kc_admin.assign_realm_roles(account_id, assinged_roles)
-        return [role["name"] for role in assinged_roles]
+        kc_admin.assign_realm_roles(account_id, assigned_roles)
+        return [role["name"] for role in assigned_roles]

@@ -72,6 +72,7 @@ export function AddUser({ officeId }: { officeId: string }) {
       }, 300);
     }
   }, [state, setError, reset]);
+
   const hidenInputs = (
     <div>
       <input type="hidden" {...register("office_id", { required: true })} value={officeId} />
@@ -139,7 +140,14 @@ export function AddUser({ officeId }: { officeId: string }) {
                             placeholder="user login"
                             className="form-input"
                           />
-                          <ErrorMessage errors={errors} name="username" />
+                          <span
+                            className={clsx("text-sm", {
+                              "text-success": !errors?.username && touchedFields?.username,
+                              "text-error": errors?.username && touchedFields?.username,
+                            })}
+                          >
+                            <ErrorMessage errors={errors} name="username" />
+                          </span>
                         </div>
                         <div
                           className={clsx({
@@ -155,7 +163,9 @@ export function AddUser({ officeId }: { officeId: string }) {
                             type="text"
                             placeholder="Valid Email"
                           />
-                          <ErrorMessage errors={errors} name="email" />
+                          <span className="text-sm">
+                            <ErrorMessage errors={errors} name="email" />
+                          </span>
                         </div>
                       </div>
                       <div className="mb-5 flex justify-between gap-4">
@@ -173,7 +183,9 @@ export function AddUser({ officeId }: { officeId: string }) {
                             placeholder="Default password"
                             className="form-input"
                           />
-                          <ErrorMessage errors={errors} name="password" />
+                          <span className="text-sm">
+                            <ErrorMessage errors={errors} name="password" />
+                          </span>
                         </div>
                         <div
                           className={clsx("flex-1", {
@@ -189,7 +201,9 @@ export function AddUser({ officeId }: { officeId: string }) {
                             placeholder="Password Confirmation"
                             className="form-input"
                           />
-                          <ErrorMessage errors={errors} name="confirmPassword" />
+                          <span className="text-sm">
+                            <ErrorMessage errors={errors} name="confirmPassword" />
+                          </span>
                         </div>
                       </div>
                       <div className="mt-5 flex justify-between gap-4">
