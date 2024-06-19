@@ -6,22 +6,31 @@ import { request as __request } from "./core/request";
 import type {
   PingApiV1PingGetResponse,
   GetVersionApiV1VersionGetResponse,
-  GetOrganizationsApiV1OrgOrganizationGetResponse,
-  CreateOrganizationApiV1OrgOrganizationPostData,
-  CreateOrganizationApiV1OrgOrganizationPostResponse,
-  GetOrgOfficesApiV1OrgOrganizationOfficeGetResponse,
-  CreateOfficeApiV1OrgOrganizationOfficePostData,
-  CreateOfficeApiV1OrgOrganizationOfficePostResponse,
-  GetOfficeApiV1OrgOrganizationOfficeOfficeIdGetData,
-  GetOfficeApiV1OrgOrganizationOfficeOfficeIdGetResponse,
-  GetEmployeesApiV1OrgOfficeEmployeeGetResponse,
-  CreateEmployeeApiV1OrgOfficeEmployeePostData,
-  CreateEmployeeApiV1OrgOfficeEmployeePostResponse,
-  GetOfficeEmployeesApiV1OrgOfficeOfficeIdEmployeeGetData,
-  GetOfficeEmployeesApiV1OrgOfficeOfficeIdEmployeeGetResponse,
-  GetEmployeeApiV1OrgOfficeEmployeeMeGetResponse,
-  UpdateEmployeeApiV1OrgOfficeEmployeeEmployeeIdAssignPutData,
-  UpdateEmployeeApiV1OrgOfficeEmployeeEmployeeIdAssignPutResponse,
+  GetOrganizationsApiV1OrganizationGetResponse,
+  CreateOrganizationApiV1OrganizationPostData,
+  CreateOrganizationApiV1OrganizationPostResponse,
+  GetOrgOfficesApiV1OrganizationOfficeGetResponse,
+  CreateOfficeApiV1OrganizationOfficePostData,
+  CreateOfficeApiV1OrganizationOfficePostResponse,
+  GetOfficeApiV1OrganizationOfficeOfficeIdGetData,
+  GetOfficeApiV1OrganizationOfficeOfficeIdGetResponse,
+  GetEmployeesApiV1OfficeEmployeeGetResponse,
+  CreateEmployeeApiV1OfficeEmployeePostData,
+  CreateEmployeeApiV1OfficeEmployeePostResponse,
+  GetOfficeEmployeesApiV1OfficeOfficeIdEmployeeGetData,
+  GetOfficeEmployeesApiV1OfficeOfficeIdEmployeeGetResponse,
+  GetEmployeeApiV1OfficeEmployeeMeGetResponse,
+  UpdateEmployeeApiV1OfficeEmployeeEmployeeIdAssignPutData,
+  UpdateEmployeeApiV1OfficeEmployeeEmployeeIdAssignPutResponse,
+  GetAgentsApiV1OfficeAgentGetResponse,
+  CreateAgentApiV1OfficeAgentPostData,
+  CreateAgentApiV1OfficeAgentPostResponse,
+  GetOfficeAgentsApiV1OfficeOfficeIdAgentGetData,
+  GetOfficeAgentsApiV1OfficeOfficeIdAgentGetResponse,
+  GetOfficeAccountsApiV1AccountGetResponse,
+  OpenAccountApiV1AccountPostData,
+  OpenAccountApiV1AccountPostResponse,
+  GetAgentAccountsApiV1AgentAgentIdAccountGetResponse,
 } from "./types.gen";
 
 /**
@@ -53,11 +62,11 @@ export const getVersionApiV1VersionGet = (): CancelablePromise<GetVersionApiV1Ve
  * @returns OrganizationResponse Successful Response
  * @throws ApiError
  */
-export const getOrganizationsApiV1OrgOrganizationGet =
-  (): CancelablePromise<GetOrganizationsApiV1OrgOrganizationGetResponse> => {
+export const getOrganizationsApiV1OrganizationGet =
+  (): CancelablePromise<GetOrganizationsApiV1OrganizationGetResponse> => {
     return __request(OpenAPI, {
       method: "GET",
-      url: "/api/v1/org/organization",
+      url: "/api/v1/organization",
     });
   };
 
@@ -68,12 +77,12 @@ export const getOrganizationsApiV1OrgOrganizationGet =
  * @returns OrganizationResponse Successful Response
  * @throws ApiError
  */
-export const createOrganizationApiV1OrgOrganizationPost = (
-  data: CreateOrganizationApiV1OrgOrganizationPostData
-): CancelablePromise<CreateOrganizationApiV1OrgOrganizationPostResponse> => {
+export const createOrganizationApiV1OrganizationPost = (
+  data: CreateOrganizationApiV1OrganizationPostData
+): CancelablePromise<CreateOrganizationApiV1OrganizationPostResponse> => {
   return __request(OpenAPI, {
     method: "POST",
-    url: "/api/v1/org/organization",
+    url: "/api/v1/organization",
     body: data.requestBody,
     mediaType: "application/json",
     errors: {
@@ -95,11 +104,11 @@ export const createOrganizationApiV1OrgOrganizationPost = (
  * @returns OfficeResponse Successful Response
  * @throws ApiError
  */
-export const getOrgOfficesApiV1OrgOrganizationOfficeGet =
-  (): CancelablePromise<GetOrgOfficesApiV1OrgOrganizationOfficeGetResponse> => {
+export const getOrgOfficesApiV1OrganizationOfficeGet =
+  (): CancelablePromise<GetOrgOfficesApiV1OrganizationOfficeGetResponse> => {
     return __request(OpenAPI, {
       method: "GET",
-      url: "/api/v1/org/organization/office",
+      url: "/api/v1/organization/office",
     });
   };
 
@@ -119,12 +128,12 @@ export const getOrgOfficesApiV1OrgOrganizationOfficeGet =
  * @returns OfficeResponse Successful Response
  * @throws ApiError
  */
-export const createOfficeApiV1OrgOrganizationOfficePost = (
-  data: CreateOfficeApiV1OrgOrganizationOfficePostData
-): CancelablePromise<CreateOfficeApiV1OrgOrganizationOfficePostResponse> => {
+export const createOfficeApiV1OrganizationOfficePost = (
+  data: CreateOfficeApiV1OrganizationOfficePostData
+): CancelablePromise<CreateOfficeApiV1OrganizationOfficePostResponse> => {
   return __request(OpenAPI, {
     method: "POST",
-    url: "/api/v1/org/organization/office",
+    url: "/api/v1/organization/office",
     body: data.requestBody,
     mediaType: "application/json",
     errors: {
@@ -149,12 +158,12 @@ export const createOfficeApiV1OrgOrganizationOfficePost = (
  * @returns OfficeResponse Successful Response
  * @throws ApiError
  */
-export const getOfficeApiV1OrgOrganizationOfficeOfficeIdGet = (
-  data: GetOfficeApiV1OrgOrganizationOfficeOfficeIdGetData
-): CancelablePromise<GetOfficeApiV1OrgOrganizationOfficeOfficeIdGetResponse> => {
+export const getOfficeApiV1OrganizationOfficeOfficeIdGet = (
+  data: GetOfficeApiV1OrganizationOfficeOfficeIdGetData
+): CancelablePromise<GetOfficeApiV1OrganizationOfficeOfficeIdGetResponse> => {
   return __request(OpenAPI, {
     method: "GET",
-    url: "/api/v1/org/organization/office/{office_id}",
+    url: "/api/v1/organization/office/{office_id}",
     path: {
       office_id: data.officeId,
     },
@@ -169,13 +178,12 @@ export const getOfficeApiV1OrgOrganizationOfficeOfficeIdGet = (
  * @returns EmployeeResponse Successful Response
  * @throws ApiError
  */
-export const getEmployeesApiV1OrgOfficeEmployeeGet =
-  (): CancelablePromise<GetEmployeesApiV1OrgOfficeEmployeeGetResponse> => {
-    return __request(OpenAPI, {
-      method: "GET",
-      url: "/api/v1/org/office/employee",
-    });
-  };
+export const getEmployeesApiV1OfficeEmployeeGet = (): CancelablePromise<GetEmployeesApiV1OfficeEmployeeGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/office/employee",
+  });
+};
 
 /**
  * Create Employee
@@ -183,8 +191,7 @@ export const getEmployeesApiV1OrgOfficeEmployeeGet =
  *
  * Args:
  * user (KcUser): The authenticated user making the request.
- * db (Session, optional): The database session. Defaults to Depends(get_db).
- *
+ * input (protocol.CreateEmployeeRequest): The input data for creating the employee.
  * Returns:
  * Employee: The created employee.
  * @param data The data for the request.
@@ -192,12 +199,12 @@ export const getEmployeesApiV1OrgOfficeEmployeeGet =
  * @returns EmployeeResponse Successful Response
  * @throws ApiError
  */
-export const createEmployeeApiV1OrgOfficeEmployeePost = (
-  data: CreateEmployeeApiV1OrgOfficeEmployeePostData
-): CancelablePromise<CreateEmployeeApiV1OrgOfficeEmployeePostResponse> => {
+export const createEmployeeApiV1OfficeEmployeePost = (
+  data: CreateEmployeeApiV1OfficeEmployeePostData
+): CancelablePromise<CreateEmployeeApiV1OfficeEmployeePostResponse> => {
   return __request(OpenAPI, {
     method: "POST",
-    url: "/api/v1/org/office/employee",
+    url: "/api/v1/office/employee",
     body: data.requestBody,
     mediaType: "application/json",
     errors: {
@@ -213,12 +220,12 @@ export const createEmployeeApiV1OrgOfficeEmployeePost = (
  * @returns EmployeeResponse Successful Response
  * @throws ApiError
  */
-export const getOfficeEmployeesApiV1OrgOfficeOfficeIdEmployeeGet = (
-  data: GetOfficeEmployeesApiV1OrgOfficeOfficeIdEmployeeGetData
-): CancelablePromise<GetOfficeEmployeesApiV1OrgOfficeOfficeIdEmployeeGetResponse> => {
+export const getOfficeEmployeesApiV1OfficeOfficeIdEmployeeGet = (
+  data: GetOfficeEmployeesApiV1OfficeOfficeIdEmployeeGetData
+): CancelablePromise<GetOfficeEmployeesApiV1OfficeOfficeIdEmployeeGetResponse> => {
   return __request(OpenAPI, {
     method: "GET",
-    url: "/api/v1/org/office/{office_id}/employee",
+    url: "/api/v1/office/{office_id}/employee",
     path: {
       office_id: data.officeId,
     },
@@ -233,11 +240,11 @@ export const getOfficeEmployeesApiV1OrgOfficeOfficeIdEmployeeGet = (
  * @returns EmployeeResponse Successful Response
  * @throws ApiError
  */
-export const getEmployeeApiV1OrgOfficeEmployeeMeGet =
-  (): CancelablePromise<GetEmployeeApiV1OrgOfficeEmployeeMeGetResponse> => {
+export const getEmployeeApiV1OfficeEmployeeMeGet =
+  (): CancelablePromise<GetEmployeeApiV1OfficeEmployeeMeGetResponse> => {
     return __request(OpenAPI, {
       method: "GET",
-      url: "/api/v1/org/office/employee/me",
+      url: "/api/v1/office/employee/me",
     });
   };
 
@@ -249,12 +256,12 @@ export const getEmployeeApiV1OrgOfficeEmployeeMeGet =
  * @returns EmployeeResponse Successful Response
  * @throws ApiError
  */
-export const updateEmployeeApiV1OrgOfficeEmployeeEmployeeIdAssignPut = (
-  data: UpdateEmployeeApiV1OrgOfficeEmployeeEmployeeIdAssignPutData
-): CancelablePromise<UpdateEmployeeApiV1OrgOfficeEmployeeEmployeeIdAssignPutResponse> => {
+export const updateEmployeeApiV1OfficeEmployeeEmployeeIdAssignPut = (
+  data: UpdateEmployeeApiV1OfficeEmployeeEmployeeIdAssignPutData
+): CancelablePromise<UpdateEmployeeApiV1OfficeEmployeeEmployeeIdAssignPutResponse> => {
   return __request(OpenAPI, {
     method: "PUT",
-    url: "/api/v1/org/office/employee/{employee_id}/assign",
+    url: "/api/v1/office/employee/{employee_id}/assign",
     path: {
       employee_id: data.employeeId,
     },
@@ -265,3 +272,104 @@ export const updateEmployeeApiV1OrgOfficeEmployeeEmployeeIdAssignPut = (
     },
   });
 };
+
+/**
+ * Get Agents
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const getAgentsApiV1OfficeAgentGet = (): CancelablePromise<GetAgentsApiV1OfficeAgentGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/office/agent",
+  });
+};
+
+/**
+ * Create Agent
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns AgentResponse Successful Response
+ * @throws ApiError
+ */
+export const createAgentApiV1OfficeAgentPost = (
+  data: CreateAgentApiV1OfficeAgentPostData
+): CancelablePromise<CreateAgentApiV1OfficeAgentPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/office/agent",
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Get Office Agents
+ * @param data The data for the request.
+ * @param data.officeId
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const getOfficeAgentsApiV1OfficeOfficeIdAgentGet = (
+  data: GetOfficeAgentsApiV1OfficeOfficeIdAgentGetData
+): CancelablePromise<GetOfficeAgentsApiV1OfficeOfficeIdAgentGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/office/{office_id}/agent",
+    path: {
+      office_id: data.officeId,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Get Office Accounts
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const getOfficeAccountsApiV1AccountGet = (): CancelablePromise<GetOfficeAccountsApiV1AccountGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/account",
+  });
+};
+
+/**
+ * Open Account
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const openAccountApiV1AccountPost = (
+  data: OpenAccountApiV1AccountPostData
+): CancelablePromise<OpenAccountApiV1AccountPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/account",
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Get Agent Accounts
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const getAgentAccountsApiV1AgentAgentIdAccountGet =
+  (): CancelablePromise<GetAgentAccountsApiV1AgentAgentIdAccountGetResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/agent/{agent_id}/account",
+    });
+  };

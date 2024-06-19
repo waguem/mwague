@@ -1,5 +1,5 @@
 import IconAirplay from "@/components/icon/icon-airplay";
-import NavLinkHeader from "@/components/layouts/nav-header-link";
+import NavLinkHeader, { NavItem } from "@/components/layouts/nav-header-link";
 import OfficeInfo from "@/components/organizations/office/OfficeInfo";
 import OfficePerformance from "@/components/organizations/office/OfficePerformance";
 import UsersTable from "@/components/organizations/users/UsersTable";
@@ -8,20 +8,27 @@ import { setApiToken } from "@/app/hooks/useApi";
 import { OfficeSummary } from "@/components/organizations/office/OfficeSummary";
 import {
   EmployeeResponse,
-  getOfficeApiV1OrgOrganizationOfficeOfficeIdGet as getOfficeById,
+  getOfficeApiV1OrganizationOfficeOfficeIdGet as getOfficeById,
   OfficeResponse,
-  getOfficeEmployeesApiV1OrgOfficeOfficeIdEmployeeGet as getEmployeesByOfficeId,
+  getOfficeEmployeesApiV1OfficeOfficeIdEmployeeGet as getEmployeesByOfficeId,
 } from "@/lib/client";
 import { redirect } from "next/navigation";
+import IconHome from "@/components/icon/icon-home";
+import IconUsersGroup from "@/components/icon/icon-users-group";
 
-const getHeaderNavItems = (office: OfficeResponse) => {
+const getHeaderNavItems = (office: OfficeResponse): NavItem[] => {
   return [
     {
       href: `/dashboard/office/${office.id}`,
       text: "Office",
+      icon: <IconHome />,
+      tippy: "Office",
     },
     {
-      text: office.name,
+      text: "Agents",
+      icon: <IconUsersGroup />,
+      href: `/dashboard/office/${office.id}/agents`,
+      tippy: "Agents",
     },
   ];
 };
@@ -57,7 +64,12 @@ export default async function Page({
     slug: string;
   };
 }) {
-  const [office, employees] = await Promise.all([await getOffice(params.slug), await getEmployees(params.slug)]);
+  // Initiate both requests in parallel
+  const officePromise = getOffice(params.slug);
+  const employeesPromise = getEmployees(params.slug);
+
+  // Wait for both requests to resolve
+  const [office, employees] = await Promise.all([officePromise, employeesPromise]);
 
   if (!office) {
     // redirect to not found page
@@ -67,7 +79,7 @@ export default async function Page({
   return (
     <div className="gap-5">
       <NavLinkHeader items={getHeaderNavItems(office)} />
-      <div className="pt-5">
+      <div>
         <div className="mb-5 grid grid-cols-1 gap-5 lg:grid-cols-3 xl:grid-cols-4">
           <div className="panel">
             <div className="mb-5 flex items-center justify-between">

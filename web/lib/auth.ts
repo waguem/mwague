@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { DEFAULT_ROLE } from "@/lib/contants";
 import { NextMiddlewareWithAuth, NextRequestWithAuth } from "next-auth/middleware";
 
 const unAuthExtentions = ["jpg", "jpeg", "png", "svg"];
@@ -16,7 +15,7 @@ class ProtectedURI {
   isAccessibleByRole(role: string[]) {
     // if this.roles is a string, then it is a public URI
     if (typeof this.roles === "string" && this.roles === "basic") {
-      return role.includes(DEFAULT_ROLE);
+      return role.length > 0;
     }
     if (Array.isArray(this.roles)) {
       console.log("Roles: ", role, " this.roles: ", this.roles);

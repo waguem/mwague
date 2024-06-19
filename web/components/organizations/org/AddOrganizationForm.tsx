@@ -10,26 +10,13 @@ import Swal from "sweetalert2";
 import { useEffect } from "react";
 import { getTranslation } from "@/i18n";
 import ReactSelect from "react-select";
-import { getFlagEmoji } from "@/lib/utils/index";
+import { countryOptions } from "@/lib/utils/index";
 
 type Inputs = {
   name: string;
   initials: string;
   country: string;
 };
-
-const countryOptions = [
-  { value: "Mali", label: "Mali", code: "ML" },
-  { value: "China", label: "China", code: "CN" },
-  { value: "Turkey", label: "Turkey", code: "TR" },
-  { value: "USA", label: "United States", code: "US" },
-  { value: "France", label: "France", code: "FR" },
-  { value: "Ivory Cost", label: "Ivory Cost", code: "CI" },
-  { value: "Guinea", label: "Guinea", code: "GN" },
-  { value: "Burkina Faso", label: "Burkina Faso", code: "BF" },
-  { value: "United Arab Emirates", label: "United Arab Emirates", code: "AE" },
-  { value: "Mozambique", label: "Mozambique", code: "MZ" },
-];
 
 export function AddOrganizationForm() {
   const {
@@ -43,10 +30,7 @@ export function AddOrganizationForm() {
     resolver: zodResolver(FormSchema),
   });
   const [state, formAction] = useFormState<State, FormData>(addOffice, null);
-  const options = countryOptions.map((option) => ({
-    value: option.value,
-    label: `${getFlagEmoji(option.code)} ${option.label}`,
-  }));
+
   useEffect(() => {
     if (!state) return;
 
@@ -118,7 +102,7 @@ export function AddOrganizationForm() {
                 <ReactSelect
                   id="country"
                   placeholder="Select a option"
-                  options={options}
+                  options={countryOptions}
                   {...register("country")}
                   onChange={(option) => {
                     onChange(option!.value);

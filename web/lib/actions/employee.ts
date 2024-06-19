@@ -1,7 +1,7 @@
 "use server";
 import {
-  updateEmployeeApiV1OrgOfficeEmployeeEmployeeIdAssignPut as updateEmployeeApi,
-  createEmployeeApiV1OrgOfficeEmployeePost as createEmployeeApi,
+  updateEmployeeApiV1OfficeEmployeeEmployeeIdAssignPut as updateEmployeeApi,
+  createEmployeeApiV1OfficeEmployeePost as createEmployeeApi,
 } from "@/lib/client";
 import { withToken } from "./withToken";
 import { AddUserSchema, UpdateUserSchema } from "../schemas/actions";

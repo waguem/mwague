@@ -88,6 +88,9 @@ importers:
       sweetalert2:
         specifier: ^11.11.0
         version: 11.11.0
+      tippy.js:
+        specifier: ^6.3.7
+        version: 6.3.7
       typescript:
         specifier: 5.4.5
         version: 5.4.5

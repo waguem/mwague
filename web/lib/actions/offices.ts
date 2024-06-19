@@ -1,6 +1,6 @@
 "use server";
 import { setApiToken } from "@/app/hooks/useApi";
-import { ApiError, createOfficeApiV1OrgOrganizationOfficePost as createOffice } from "@/lib/client";
+import { ApiError, createOfficeApiV1OrganizationOfficePost as createOffice } from "@/lib/client";
 import { FormSchema } from "@/lib/schemas/actions";
 import { revalidatePath } from "next/cache";
 import { ZodError } from "zod";

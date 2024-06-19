@@ -3,7 +3,7 @@ import OrganizationTabs from "@/components/organizations/org/OrganizationTab";
 import { Metadata } from "next";
 import Link from "next/link";
 import React, { cache } from "react";
-import { getOrgOfficesApiV1OrgOrganizationOfficeGet as getOfficesApi } from "@/lib/client";
+import { getOrgOfficesApiV1OrganizationOfficeGet as getOfficesApi } from "@/lib/client";
 export const metadata: Metadata = {
   title: "Account Setting",
 };
