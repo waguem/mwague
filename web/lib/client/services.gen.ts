@@ -27,10 +27,13 @@ import type {
   CreateAgentApiV1OfficeAgentPostResponse,
   GetOfficeAgentsApiV1OfficeOfficeIdAgentGetData,
   GetOfficeAgentsApiV1OfficeOfficeIdAgentGetResponse,
+  GetAgentApiV1OfficeAgentAgentInitialsGetData,
+  GetAgentApiV1OfficeAgentAgentInitialsGetResponse,
   GetOfficeAccountsApiV1AccountGetResponse,
   OpenAccountApiV1AccountPostData,
   OpenAccountApiV1AccountPostResponse,
-  GetAgentAccountsApiV1AgentAgentIdAccountGetResponse,
+  GetAgentAccountsApiV1AgentAgentInitialAccountGetData,
+  GetAgentAccountsApiV1AgentAgentInitialAccountGetResponse,
 } from "./types.gen";
 
 /**
@@ -329,6 +332,28 @@ export const getOfficeAgentsApiV1OfficeOfficeIdAgentGet = (
 };
 
 /**
+ * Get Agent
+ * @param data The data for the request.
+ * @param data.agentInitials
+ * @returns AgentResponse Successful Response
+ * @throws ApiError
+ */
+export const getAgentApiV1OfficeAgentAgentInitialsGet = (
+  data: GetAgentApiV1OfficeAgentAgentInitialsGetData
+): CancelablePromise<GetAgentApiV1OfficeAgentAgentInitialsGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/office/agent/{agent_initials}",
+    path: {
+      agent_initials: data.agentInitials,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
  * Get Office Accounts
  * @returns unknown Successful Response
  * @throws ApiError
@@ -344,7 +369,7 @@ export const getOfficeAccountsApiV1AccountGet = (): CancelablePromise<GetOfficeA
  * Open Account
  * @param data The data for the request.
  * @param data.requestBody
- * @returns unknown Successful Response
+ * @returns AccountResponse Successful Response
  * @throws ApiError
  */
 export const openAccountApiV1AccountPost = (
@@ -363,13 +388,22 @@ export const openAccountApiV1AccountPost = (
 
 /**
  * Get Agent Accounts
- * @returns unknown Successful Response
+ * @param data The data for the request.
+ * @param data.agentInitial
+ * @returns AccountResponse Successful Response
  * @throws ApiError
  */
-export const getAgentAccountsApiV1AgentAgentIdAccountGet =
-  (): CancelablePromise<GetAgentAccountsApiV1AgentAgentIdAccountGetResponse> => {
-    return __request(OpenAPI, {
-      method: "GET",
-      url: "/api/v1/agent/{agent_id}/account",
-    });
-  };
+export const getAgentAccountsApiV1AgentAgentInitialAccountGet = (
+  data: GetAgentAccountsApiV1AgentAgentInitialAccountGetData
+): CancelablePromise<GetAgentAccountsApiV1AgentAgentInitialAccountGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/agent/{agent_initial}/account",
+    path: {
+      agent_initial: data.agentInitial,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};

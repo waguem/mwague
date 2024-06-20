@@ -13,6 +13,8 @@
   "country": "Country",
   "last_name": "Last Name",
   "add_user": "Add User",
+  "add_agent": "Add Agent",
+  "add_account": "Add Account",
   "password": "Password",
   "password_confirmation": "Password Confirmation",
   "user_details": "User Details",

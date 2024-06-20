@@ -23,9 +23,10 @@ type Inputs = {
   country: string;
   initials: string;
   type: string;
+  office_id?: string | undefined;
 };
 
-export default function AddAgent() {
+export default function AddAgent({ officeId }: { officeId: string }) {
   const {
     register,
     setError,
@@ -70,7 +71,7 @@ export default function AddAgent() {
     }
   }, [state, setError, reset]);
   const { t } = getTranslation();
-  console.log(errors);
+
   return (
     <div>
       <button type="button" className="btn btn-primary" onClick={() => setAddContactModal(true)}>
@@ -223,6 +224,15 @@ export default function AddAgent() {
                                 })}
                               />
                             )}
+                          />
+                        </div>
+                        <div>
+                          <input
+                            id="office_id"
+                            type="hidden"
+                            className="form-input"
+                            {...register("office_id", { required: false })}
+                            value={officeId}
                           />
                         </div>
                       </div>

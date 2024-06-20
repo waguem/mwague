@@ -14,6 +14,22 @@ class AgentRepository:
     def __init__(self, db: Session):
         self.db = db
 
+    def get_agent(self, agent_initials: str, office_id: str) -> Agent:
+        """
+        Retrieves an agent by initials.
+
+        Args:
+            agent_initials (str): The initials of the agent.
+
+        Returns:
+            Agent: The agent.
+        """
+        return (
+            self.db.query(Agent)
+            .filter(Agent.initials == agent_initials and Agent.office_id == office_id)
+            .first()
+        )
+
     def paginate(self, page: int, limit: int):
         """
         Paginates agents.
@@ -71,11 +87,7 @@ class AgentRepository:
                 error_code=MkdiErrorCode.USER_EXISTS,
             )
 
-        agent: Agent = Agent(
-            **input.dict(),
-            org_id=auth_user.organization_id,
-            office_id=auth_user.office_id,
-        )
+        agent: Agent = Agent(**input.dict(), org_id=auth_user.organization_id)
 
         self.db.add(agent)
 

@@ -32,3 +32,24 @@ export const agentTypeOptions = [
   { value: "AGENT", label: "Agent" },
   { value: "SUPPLIER", label: "Supplier" },
 ];
+
+export const currencyOptions = [
+  { value: "USD", label: "USD" },
+  { value: "EUR", label: "EUR" },
+  { value: "CFA", label: "CFA" },
+  { value: "GNF", label: "GNF" },
+  { value: "AED", label: "AED" },
+];
+
+/**
+ * AGENT = "AGENT"
+    SUPPLIER = "SUPPLIER"
+    OFFICE = "OFFICE"
+    FUND = "FUND"
+ */
+export const accountTypeOptions = [
+  { value: "AGENT", label: "Agent" },
+  { value: "SUPPLIER", label: "Supplier" },
+  { value: "OFFICE", label: "Office" },
+  { value: "FUND", label: "Fund" },
+];

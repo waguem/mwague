@@ -1,17 +1,16 @@
 from typing import Annotated, Generator
 
-from fastapi import Depends, HTTPException, Request, Security, status
-from fastapi.security import HTTPBearer, OAuth2AuthorizationCodeBearer, SecurityScopes
-from fastapi.security.api_key import APIKeyHeader, APIKeyQuery
+from fastapi import Depends, HTTPException, Security, status
+from fastapi.security import OAuth2AuthorizationCodeBearer, SecurityScopes
 from loguru import logger
 from mkdi_backend.authproviders import RoleProvider, keycloak_openid
 from mkdi_backend.config import settings
 from mkdi_backend.database import engine
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.models.roles import Role
+from mkdi_backend.repositories.employee import EmployeeRepository
 
 # from mkdi_backend.models import ApiClient
-from pydantic import BaseModel
 from sqlmodel import Session
 
 # This is used for fastapi docs authentification
@@ -49,8 +48,22 @@ async def get_payload(token: str = Security(oauth2_scheme)) -> dict:
 
 
 # Get user infos from the payload
-async def get_user_info(payload: dict = Depends(get_payload)) -> KcUser:
+async def get_user_info(
+    payload: dict = Depends(get_payload), db: Session = Depends(get_db)
+) -> KcUser:
     try:
+        userdb = EmployeeRepository(db).get_employee(
+            username=payload.get("preferred_username"),
+            email=payload.get("email"),
+            organization_id=payload.get("organizationId"),
+        )
+        if not userdb:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
         return KcUser(
             id=payload.get("sub"),
             username=payload.get("preferred_username"),
@@ -60,6 +73,7 @@ async def get_user_info(payload: dict = Depends(get_payload)) -> KcUser:
             roles=payload.get("realm_access", {}).get("roles", []),
             office_id=payload.get("officeId"),
             organization_id=payload.get("organizationId"),
+            user_db_id=str(userdb.id),
         )
     except Exception as e:
         raise HTTPException(

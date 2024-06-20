@@ -127,4 +127,21 @@ export const AddAgentSchema = zfd.formData({
       .email("Invalid Email")
       .refine((value) => value.trim() !== "")
   ),
+  // office_id is optional string
+  office_id: zfd.text(zod.string().optional()),
+});
+
+export const AddAgentAccountSchema = zfd.formData({
+  initials: zfd.text(
+    zod
+      .string()
+      .min(4, "Too Short!")
+      .max(4, "Too Long!")
+      .regex(/^[a-zA-Z\s]*$/, "Only Alphanumeric Characters are allowed!")
+      .refine((value) => value.trim() !== "")
+  ),
+  type: zod.enum(["AGENT", "SUPPLIER", "OFFICE", "FUND"]),
+
+  currency: zod.enum(["USD", "EUR", "CFA", "GNF", "AED", "RMB"]),
+  owner_initials: zfd.text(zod.string()),
 });

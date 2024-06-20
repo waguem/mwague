@@ -11,6 +11,8 @@
   "first_name": "Prénom",
   "username": "Nom d'utilisateur",
   "add_user": "Nouvel Utilisateur",
+  "add_agent": "Nouvel Agent",
+  "add_account": "Nouveau Compte",
   "last_name": "Nom",
   "full_name": "Nom & Prénom",
   "email": "Email",

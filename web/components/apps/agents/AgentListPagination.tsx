@@ -11,8 +11,9 @@ import { AgentResponse } from "@/lib/client";
 
 interface PaginationProps {
   agents: AgentResponse[];
+  officeSlug: string;
 }
-export default function AgentListPagination({ agents }: PaginationProps) {
+export default function AgentListPagination({ agents, officeSlug }: PaginationProps) {
   const [value, setValue] = useState<any>("list");
   const [search, setSearch] = useState<string>("");
 
@@ -36,7 +37,7 @@ export default function AgentListPagination({ agents }: PaginationProps) {
         <h2 className="text-xl">{t("agents")}</h2>
         <div className="flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
           <div className="flex gap-3">
-            <AddAgent />
+            <AddAgent officeId={officeSlug} />
             <div>
               <button
                 type="button"

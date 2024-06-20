@@ -4,10 +4,8 @@ import { ApiError, createOfficeApiV1OrganizationOfficePost as createOffice } fro
 import { FormSchema } from "@/lib/schemas/actions";
 import { revalidatePath } from "next/cache";
 import { ZodError } from "zod";
-export type State =
-  | { status: "success"; message: string }
-  | { status: "error"; message: string; errors?: Array<{ path: string; message: string }> }
-  | null;
+import { State } from "./state";
+
 export async function addOffice(prevSate: State, data: FormData): Promise<State> {
   try {
     await setApiToken();

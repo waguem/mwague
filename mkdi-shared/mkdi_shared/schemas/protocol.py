@@ -1,11 +1,12 @@
 from datetime import date
 from decimal import Decimal
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Dict, List
 from uuid import UUID
 
 from mkdi_shared.exceptions.mkdi_api_error import MkdiErrorCode
 from pydantic import BaseModel, Field, root_validator
+from sqlmodel import Field as SQLModelField
 from sqlmodel import SQLModel
 
 
@@ -69,8 +70,8 @@ class AgentType(Enum):
 
 
 class Currency(Enum):
-    DOLLAR = "USD"
-    EURO = "EUR"
+    USD = "USD"
+    EUR = "EUR"
     AED = "AED"
     CFA = "CFA"
     GNF = "GNF"
@@ -94,7 +95,8 @@ class AgentBase(SQLModel):
 
 
 class CreateAgentRequest(AgentBase):
-    pass
+    # office_id can be passed or not, if set the user must be an org_admin
+    office_id: UUID | None = None
 
 
 class AgentResponse(AgentBase):
@@ -102,16 +104,22 @@ class AgentResponse(AgentBase):
 
 
 class AccountBase(SQLModel):
-    balance: Decimal = Field(default=0, max_digits=5, decimal_places=3)
-    version: int = Field(default=1)
     type: AccountType
-    is_open: bool = Field(default=True)
+    currency: Currency
+    initials: str = SQLModelField(nullable=False, max_length=4, unique=True)
+    balance: Decimal = Field(default=0, max_digits=5, decimal_places=3, nullable=True)
 
 
 class CreateAccountRequest(AccountBase):
-    type: AccountType
-    owner_id: UUID
-    currency: Currency
+    owner_initials: str
+
+
+class AccountResponse(AccountBase):
+    balance: Decimal
+    is_open: bool
+    version: int
+    created_by: UUID | None = None
+    office_id: UUID | None = None
 
 
 class ActivityState(Enum):
@@ -124,10 +132,6 @@ class ActivityBase(SQLModel):
     office_id: Decimal
     started_at: date
     state: ActivityState
-
-
-class CreateAgentRequest(AgentBase):
-    pass
 
 
 class OfficeResponse(OfficeBase):

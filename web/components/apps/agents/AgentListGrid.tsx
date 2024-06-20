@@ -18,6 +18,8 @@ export default function AgentListGrid({ filteredItems }: AgentListGridProps) {
                 <Image
                   className="mx-auto max-h-40 w-4/5 object-contain"
                   src={`/assets/images/user-profile.jpeg`}
+                  width={200}
+                  height={200}
                   alt="contact_image"
                 />
               </div>

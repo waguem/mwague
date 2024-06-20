@@ -1,6 +1,11 @@
+from decimal import Decimal
+
+from loguru import logger
 from mkdi_backend.models.Account import Account
+from mkdi_backend.models.Agent import Agent
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.utils.database import CommitMode, managed_tx_method
+from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol
 from sqlmodel import Session
 
@@ -25,15 +30,38 @@ class AccountRepository:
         Returns:
             Account: The created account.
         """
+        # the owner account
+        owner = None
+        match input.type:
+            case [
+                protocol.AccountType.FUND,
+                protocol.AccountType.OFFICE,
+                protocol.AccountType.SUPPLIER,
+            ]:
+                logger.debug("Creating account for office or fund")
+                # raise Http not implemented
+                raise NotImplementedError("Creating account for office or fund is not implemented")
+            case protocol.AccountType.AGENT:
+                owner = self.db.query(Agent).filter(Agent.initials == input.owner_initials).first()
+
+        if not owner:
+            raise MkdiError(
+                f"Owner with initials {input.owner_initials} not found",
+                error_code=MkdiErrorCode.USER_NOT_FOUND,
+            )
 
         account = Account(
-            owner_id=input.owner_id,
-            created_by=auth_user.id,
+            initials=input.initials,
+            version=1,
+            is_open=True,
+            owner_id=owner.id,
+            created_by=auth_user.user_db_id,
             type=input.type,
             currency=input.currency,
-            balance=input.balance,
+            balance=Decimal(0),
+            office_id=owner.office_id,
         )
-
+        logger.debug(f"Creating account {account}")
         self.db.add(account)
         return account
 
@@ -49,7 +77,7 @@ class AccountRepository:
         """
         return self.db.query(Account).filter(Account.office_id == office_id).all()
 
-    def get_agent_accounts(self, owner_id: str) -> list[Account]:
+    def get_owner_accounts(self, owner_id: str) -> list[Account]:
         """
         Retrieves all accounts associated with a specific owner.
 

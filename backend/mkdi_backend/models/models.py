@@ -10,3 +10,4 @@ class KcUser(BaseModel):
     roles: list = []
     organization_id: str = None
     office_id: str = None
+    user_db_id: str = None

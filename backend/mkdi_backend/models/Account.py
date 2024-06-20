@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Optional
 from uuid import UUID, uuid4
 
@@ -20,6 +21,9 @@ class Account(AccountBase, table=True):
     )
 
     owner_id: UUID
+    is_open: bool = Field(default=True)
+    version: int = Field(default=1)
+
     created_by: UUID = Field(foreign_key="employees.id")
 
     office_id: UUID = Field(foreign_key="offices.id")

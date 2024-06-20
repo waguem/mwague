@@ -23,7 +23,7 @@ export default async function AgentPage({
 
   return (
     <Fragment>
-      <AgentListPagination agents={agents} />
+      <AgentListPagination officeSlug={params.slug} agents={agents} />
     </Fragment>
   );
 }
