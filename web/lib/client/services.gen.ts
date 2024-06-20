@@ -9,6 +9,7 @@ import type {
   GetOrganizationsApiV1OrganizationGetResponse,
   CreateOrganizationApiV1OrganizationPostData,
   CreateOrganizationApiV1OrganizationPostResponse,
+  GetMyOrganizationApiV1OrganizationMeGetResponse,
   GetOrgOfficesApiV1OrganizationOfficeGetResponse,
   CreateOfficeApiV1OrganizationOfficePostData,
   CreateOfficeApiV1OrganizationOfficePostResponse,
@@ -93,6 +94,19 @@ export const createOrganizationApiV1OrganizationPost = (
     },
   });
 };
+
+/**
+ * Get My Organization
+ * @returns OrganizationResponse Successful Response
+ * @throws ApiError
+ */
+export const getMyOrganizationApiV1OrganizationMeGet =
+  (): CancelablePromise<GetMyOrganizationApiV1OrganizationMeGetResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/organization/me",
+    });
+  };
 
 /**
  * Get Org Offices

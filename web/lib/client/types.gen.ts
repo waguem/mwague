@@ -124,6 +124,8 @@ export type CreateOrganizationApiV1OrganizationPostData = {
 
 export type CreateOrganizationApiV1OrganizationPostResponse = OrganizationResponse;
 
+export type GetMyOrganizationApiV1OrganizationMeGetResponse = OrganizationResponse;
+
 export type GetOrgOfficesApiV1OrganizationOfficeGetResponse = Array<OfficeResponse>;
 
 export type CreateOfficeApiV1OrganizationOfficePostData = {
@@ -236,6 +238,16 @@ export type $OpenApiTs = {
          * Validation Error
          */
         422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/organization/me": {
+    get: {
+      res: {
+        /**
+         * Successful Response
+         */
+        200: OrganizationResponse;
       };
     };
   };

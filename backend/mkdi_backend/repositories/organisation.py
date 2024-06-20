@@ -33,3 +33,6 @@ class OrganizationRepository:
     async def get_organizations(self):
         orgs = self.db.query(Organization).all()
         return orgs
+
+    def get_my_organization(self, org_id: str):
+        return self.db.query(Organization).filter(Organization.id == org_id).first()

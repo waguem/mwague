@@ -1,7 +1,7 @@
 import zod from "zod";
 import { zfd } from "zod-form-data";
 
-export const FormSchema = zfd.formData({
+export const AddOfficeSchema = zfd.formData({
   name: zfd.text(
     zod
       .string()

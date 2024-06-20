@@ -1,7 +1,7 @@
 "use server";
 import { setApiToken } from "@/app/hooks/useApi";
 import { ApiError, createOfficeApiV1OrganizationOfficePost as createOffice } from "@/lib/client";
-import { FormSchema } from "@/lib/schemas/actions";
+import { AddOfficeSchema } from "@/lib/schemas/actions";
 import { revalidatePath } from "next/cache";
 import { ZodError } from "zod";
 import { State } from "./state";
@@ -9,7 +9,7 @@ import { State } from "./state";
 export async function addOffice(prevSate: State, data: FormData): Promise<State> {
   try {
     await setApiToken();
-    const validationsFields = FormSchema.safeParse(data);
+    const validationsFields = AddOfficeSchema.safeParse(data);
 
     if (!validationsFields.success) {
       return {

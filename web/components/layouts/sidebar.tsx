@@ -12,7 +12,24 @@ import { usePathname } from "next/navigation";
 import { getTranslation } from "@/i18n";
 import Image from "next/image";
 import SignOutButton from "../auth/signOut";
+import IconWirehouse from "../icon/icon-wirehouse";
+import IconSettings from "../icon/icon-settings";
 
+const CollapsibleLogo = ({ menu }: { menu: string }) => {
+  return (
+    <Link href="/" className="main-logo flex shrink-0 items-center">
+      {menu !== "collapsible-vertical" && (
+        <span className="hidden hover:block align-middle text-2xl font-semibold ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light lg:inline">
+          W
+        </span>
+      )}
+      <Image height={49} width={56} className="ml-[5px] w-8 flex-none" src="/assets/images/logo.svg" alt="logo" />
+      <span className="align-middle text-2xl font-semibold ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light lg:inline">
+        {menu === "collapsible-vertical" ? "WA" : ""}GUE
+      </span>
+    </Link>
+  );
+};
 const Sidebar = () => {
   const dispatch = useDispatch();
   const { t } = getTranslation();
@@ -20,6 +37,7 @@ const Sidebar = () => {
   const [currentMenu, setCurrentMenu] = useState<string>("");
   const themeConfig = useSelector((state: IRootState) => state.themeConfig);
   const semidark = useSelector((state: IRootState) => state.themeConfig.semidark);
+  const menu = useSelector((state: IRootState) => state.themeConfig.menu);
   const toggleMenu = (value: string) => {
     setCurrentMenu((oldValue) => {
       return oldValue === value ? "" : value;
@@ -63,28 +81,13 @@ const Sidebar = () => {
   return (
     <div className={semidark ? "dark" : ""}>
       <nav
-        className={`sidebar fixed bottom-0 top-0 z-50 h-full min-h-screen w-[260px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] transition-all duration-300 ${
+        className={`sidebar fixed bottom-0 top-0 z-50 h-full min-h-screen w-[180px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] transition-all duration-300 ${
           semidark ? "text-white-dark" : ""
         }`}
       >
         <div className="h-full bg-white dark:bg-black">
           <div className="flex items-center justify-between px-4 py-3">
-            <Link href="/" className="main-logo flex shrink-0 items-center">
-              <span className="align-middle text-2xl font-semibold ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light lg:inline">
-                W
-              </span>
-              <Image
-                height={49}
-                width={56}
-                className="ml-[5px] w-8 flex-none"
-                src="/assets/images/logo.svg"
-                alt="logo"
-              />
-              <span className="align-middle text-2xl font-semibold ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light lg:inline">
-                GUE
-              </span>
-            </Link>
-
+            <CollapsibleLogo menu={menu} />
             <button
               type="button"
               title="Collapse Sidebar"
@@ -114,6 +117,27 @@ const Sidebar = () => {
                   </div>
                 </button>
               </li>
+              <li className="nav-item">
+                <Link href={`/dashboard/organization`} className="group">
+                  <div className="flex items-center">
+                    <IconWirehouse className="shrink-0 h-5 w-4 group-hover:!text-primary" />
+                    <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">
+                      {t("My Organization")}
+                    </span>
+                  </div>
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link href={`/dashboard/organization`} className="group">
+                  <div className="flex items-center">
+                    <IconSettings className="shrink-0 h-5 w-4 group-hover:!text-primary" />
+                    <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">
+                      {t("settings")}
+                    </span>
+                  </div>
+                </Link>
+              </li>
+
               <li className="menu nav-item">
                 <SignOutButton />
               </li>

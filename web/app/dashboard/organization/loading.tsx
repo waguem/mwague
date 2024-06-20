@@ -1,8 +1,8 @@
-import Loading from "@/components/layouts/loading";
+import LoaderSkeleton from "@/components/layouts/LoaderSkelleton";
 import React from "react";
 
 const loading = () => {
-  return <Loading />;
+  return <LoaderSkeleton />;
 };
 
 export default loading;

@@ -79,7 +79,7 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
     }
 
     .main-container .main-content {
-        @apply transition-all duration-300 lg:ltr:ml-[260px] lg:rtl:mr-[260px];
+        @apply transition-all duration-300 lg:ltr:ml-[280px] lg:rtl:mr-[280px];
     }
 
     /* Horizontal layouts */
@@ -167,7 +167,7 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
         @apply w-auto;
     }
     .collapsible-vertical.toggle-sidebar .main-content {
-        @apply lg:w-[calc(100%-260px)] lg:ltr:ml-[260px] lg:rtl:mr-[260px];
+        @apply lg:w-[calc(100%-180)] lg:ltr:ml-[180px] lg:rtl:mr-[180px];
     }
 
     .collapsible-vertical .sidebar .sub-menu {

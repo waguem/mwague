@@ -1,44 +1,7 @@
-import { setApiToken } from "@/app/hooks/useApi";
-import OrganizationTabs from "@/components/organizations/org/OrganizationTab";
-import { Metadata } from "next";
-import Link from "next/link";
-import React, { cache } from "react";
-import { getOrgOfficesApiV1OrganizationOfficeGet as getOfficesApi } from "@/lib/client";
-export const metadata: Metadata = {
-  title: "Account Setting",
-};
-
-export const revalidate = 60 * 60 * 3;
-// make this page dynamic
-export const dynamic = "force-dynamic";
-const getOffices = cache(async () => {
-  let response: Awaited<ReturnType<typeof getOfficesApi>> = [];
-  try {
-    await setApiToken();
-    return await getOfficesApi();
-  } catch (e) {
-    console.error(e);
-  }
-  return response;
-});
-
-const Page = async () => {
-  const offices = await getOffices();
+export default async function OrganizationPage() {
   return (
     <div>
-      <ul className="flex space-x-2 rtl:space-x-reverse">
-        <li>
-          <Link href="#" className="text-primary hover:underline">
-            Org
-          </Link>
-        </li>
-        <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-          <span>MWAGUE</span>
-        </li>
-      </ul>
-      <OrganizationTabs offices={offices} />
+      <h1>Organization Page</h1>
     </div>
   );
-};
-
-export default Page;
+}

@@ -16,7 +16,7 @@ class OrganizationBase(SQLModel):
 
 
 class OrganizationResponse(OrganizationBase):
-    id: str
+    id: UUID
 
 
 class CreateOrganizationRequest(OrganizationBase):

@@ -31,3 +31,12 @@ async def get_organizations(
     org_repo = OrganizationRepository(db)
     repo = await org_repo.get_organizations()
     return repo
+
+
+@router.get("/organization/me", response_model=protocol.OrganizationResponse, status_code=200)
+def get_my_organization(
+    *,
+    user: KcUser = Depends(get_user_info),
+    db: Session = Depends(get_db),
+):
+    return OrganizationRepository(db).get_my_organization(user.organization_id)

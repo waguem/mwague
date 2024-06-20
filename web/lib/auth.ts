@@ -29,6 +29,7 @@ class ProtectedURI {
 // Define the protection roles for each URI
 export const protectedURIs = [
   new ProtectedURI(/^\/dashboard$/, "basic"),
+  new ProtectedURI(/^\/dashboard\/org(\/.*)?$/, ["org_admin"]),
   new ProtectedURI(/^\/dashboard\/organization(\/.*)?$/, ["org_admin"]),
   new ProtectedURI(/^\/dashboard\/office(\/.*)?$/, ["office_admin"]),
   new ProtectedURI(/^\/dashboard\/agent(\/.*)?$/, "basic"),
