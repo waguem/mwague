@@ -4,6 +4,7 @@ from loguru import logger
 from mkdi_backend.models.Account import Account
 from mkdi_backend.models.Agent import Agent
 from mkdi_backend.models.models import KcUser
+from mkdi_backend.models.office import Office
 from mkdi_backend.utils.database import CommitMode, managed_tx_method
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol
@@ -17,6 +18,14 @@ class AccountRepository:
 
     def __init__(self, db: Session):
         self.db = db
+
+    def hasOpennedAccount(self, owner_id: str, type: protocol.AccountType) -> bool:
+        return (
+            self.db.query(Account)
+            .filter(Account.owner_id == owner_id, Account.type == type)
+            .first()
+            is not None
+        )
 
     @managed_tx_method(auto_commit=CommitMode.COMMIT)
     def open_account(self, *, auth_user: KcUser, input: protocol.CreateAccountRequest) -> Account:
@@ -32,12 +41,20 @@ class AccountRepository:
         """
         # the owner account
         owner = None
+        logger.debug(f"Creating account for {input.type} for initials {input.initials}")
         match input.type:
-            case [
-                protocol.AccountType.FUND,
-                protocol.AccountType.OFFICE,
-                protocol.AccountType.SUPPLIER,
-            ]:
+            case protocol.AccountType.FUND | protocol.AccountType.OFFICE:
+                owner = (
+                    self.db.query(Office).filter(Office.initials == input.owner_initials).first()
+                )
+
+                if self.hasOpennedAccount(owner.id, input.type):
+                    raise MkdiError(
+                        f"Account with initials {input.initials} and type {input.type} already exists",
+                        error_code=MkdiErrorCode.DUPLICATE_ERROR,
+                    )
+
+            case protocol.AccountType.SUPPLIER:
                 logger.debug("Creating account for office or fund")
                 # raise Http not implemented
                 raise NotImplementedError("Creating account for office or fund is not implemented")
@@ -59,7 +76,7 @@ class AccountRepository:
             type=input.type,
             currency=input.currency,
             balance=Decimal(0),
-            office_id=owner.office_id,
+            office_id=owner.office_id if isinstance(owner, Agent) else owner.id,
         )
         logger.debug(f"Creating account {account}")
         self.db.add(account)

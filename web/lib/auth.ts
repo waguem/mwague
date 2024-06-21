@@ -15,7 +15,7 @@ class ProtectedURI {
   isAccessibleByRole(role: string[]) {
     // if this.roles is a string, then it is a public URI
     if (typeof this.roles === "string" && this.roles === "basic") {
-      return role.length > 0;
+      return role.length >= 0;
     }
     if (Array.isArray(this.roles)) {
       console.log("Roles: ", role, " this.roles: ", this.roles);
@@ -33,7 +33,7 @@ export const protectedURIs = [
   new ProtectedURI(/^\/dashboard\/organization(\/.*)?$/, ["org_admin"]),
   new ProtectedURI(/^\/dashboard\/office(\/.*)?$/, ["office_admin"]),
   new ProtectedURI(/^\/dashboard\/agent(\/.*)?$/, "basic"),
-  new ProtectedURI(/^\$/, "basic"),
+  new ProtectedURI(/^\/$/, "basic"),
   // Add more URIs and their roles here
 ];
 
@@ -57,7 +57,7 @@ export const checkAuthorization: NextMiddlewareWithAuth = (request: NextRequestW
   }
   const roles = token.user.roles;
   const protectedUri = protectedURIs.find((uri) => uri.uri.test(pathname));
-
+  console.log("ProtectedURI: ", protectedUri);
   if (protectedUri && protectedUri.isAccessibleByRole(roles)) {
     return NextResponse.next();
   }

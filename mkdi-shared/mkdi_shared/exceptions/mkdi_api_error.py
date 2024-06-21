@@ -26,6 +26,8 @@ class MkdiErrorCode(IntEnum):
     ROLE_NOT_FOUND = 8
     INVALID_ROLE = 9
     USER_NOT_IN_SAME_ENTITTY = 10
+    DUPLICATE_ERROR = 11
+
     SERVER_ERROR0 = 500
     SERVER_ERROR1 = 501
 

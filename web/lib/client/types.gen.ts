@@ -89,8 +89,24 @@ export type EmployeeResponse = {
   roles: Array<string>;
 };
 
+export type EmployeeResponseComplete = {
+  email: string;
+  username: string;
+  id: string;
+  office_id: string;
+  organization_id: string;
+  roles: Array<string>;
+  office: OfficeBase;
+};
+
 export type HTTPValidationError = {
   detail?: Array<ValidationError>;
+};
+
+export type OfficeBase = {
+  country: string;
+  initials: string;
+  name: string;
 };
 
 export type OfficeResponse = {
@@ -154,7 +170,7 @@ export type GetOfficeEmployeesApiV1OfficeOfficeIdEmployeeGetData = {
 
 export type GetOfficeEmployeesApiV1OfficeOfficeIdEmployeeGetResponse = Array<EmployeeResponse>;
 
-export type GetEmployeeApiV1OfficeEmployeeMeGetResponse = EmployeeResponse;
+export type GetEmployeeApiV1OfficeEmployeeMeGetResponse = EmployeeResponseComplete;
 
 export type UpdateEmployeeApiV1OfficeEmployeeEmployeeIdAssignPutData = {
   employeeId: string;
@@ -183,13 +199,17 @@ export type GetAgentApiV1OfficeAgentAgentInitialsGetData = {
 
 export type GetAgentApiV1OfficeAgentAgentInitialsGetResponse = AgentResponse;
 
-export type GetOfficeAccountsApiV1AccountGetResponse = unknown;
-
 export type OpenAccountApiV1AccountPostData = {
   requestBody: CreateAccountRequest;
 };
 
 export type OpenAccountApiV1AccountPostResponse = AccountResponse;
+
+export type GetOfficeAccountsApiV1OfficeOfficeIdAccountGetData = {
+  officeId: string;
+};
+
+export type GetOfficeAccountsApiV1OfficeOfficeIdAccountGetResponse = Array<AccountResponse>;
 
 export type GetAgentAccountsApiV1AgentAgentInitialAccountGetData = {
   agentInitial: string;
@@ -333,7 +353,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: EmployeeResponse;
+        200: EmployeeResponseComplete;
       };
     };
   };
@@ -406,14 +426,6 @@ export type $OpenApiTs = {
     };
   };
   "/api/v1/account": {
-    get: {
-      res: {
-        /**
-         * Successful Response
-         */
-        200: unknown;
-      };
-    };
     post: {
       req: OpenAccountApiV1AccountPostData;
       res: {
@@ -421,6 +433,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         201: AccountResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/office/{office_id}account": {
+    get: {
+      req: GetOfficeAccountsApiV1OfficeOfficeIdAccountGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<AccountResponse>;
         /**
          * Validation Error
          */

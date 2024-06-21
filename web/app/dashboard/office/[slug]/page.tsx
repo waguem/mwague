@@ -5,24 +5,10 @@ import UsersTable from "@/components/organizations/users/UsersTable";
 import { setApiToken } from "@/app/hooks/useApi";
 import {
   EmployeeResponse,
-  getOfficeApiV1OrganizationOfficeOfficeIdGet as getOfficeById,
-  OfficeResponse,
   getOfficeEmployeesApiV1OfficeOfficeIdEmployeeGet as getEmployeesByOfficeId,
 } from "@/lib/client";
 import { redirect } from "next/navigation";
-
-async function getOffice(slug: string): Promise<OfficeResponse | null> {
-  try {
-    await setApiToken();
-    const office = await getOfficeById({
-      officeId: slug,
-    });
-    return office;
-  } catch (e) {
-    console.error(e);
-  }
-  return null;
-}
+import { getOfficeCached } from "@/lib/actions";
 
 async function getEmployees(officeId: string): Promise<EmployeeResponse[]> {
   try {
@@ -44,7 +30,7 @@ export default async function Page({
   };
 }) {
   // Initiate both requests in parallel
-  const officePromise = getOffice(params.slug);
+  const officePromise = getOfficeCached(params.slug);
   const employeesPromise = getEmployees(params.slug);
   // get current router path
 

@@ -30,9 +30,10 @@ import type {
   GetOfficeAgentsApiV1OfficeOfficeIdAgentGetResponse,
   GetAgentApiV1OfficeAgentAgentInitialsGetData,
   GetAgentApiV1OfficeAgentAgentInitialsGetResponse,
-  GetOfficeAccountsApiV1AccountGetResponse,
   OpenAccountApiV1AccountPostData,
   OpenAccountApiV1AccountPostResponse,
+  GetOfficeAccountsApiV1OfficeOfficeIdAccountGetData,
+  GetOfficeAccountsApiV1OfficeOfficeIdAccountGetResponse,
   GetAgentAccountsApiV1AgentAgentInitialAccountGetData,
   GetAgentAccountsApiV1AgentAgentInitialAccountGetResponse,
 } from "./types.gen";
@@ -254,7 +255,7 @@ export const getOfficeEmployeesApiV1OfficeOfficeIdEmployeeGet = (
 
 /**
  * Get Employee
- * @returns EmployeeResponse Successful Response
+ * @returns EmployeeResponseComplete Successful Response
  * @throws ApiError
  */
 export const getEmployeeApiV1OfficeEmployeeMeGet =
@@ -368,18 +369,6 @@ export const getAgentApiV1OfficeAgentAgentInitialsGet = (
 };
 
 /**
- * Get Office Accounts
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const getOfficeAccountsApiV1AccountGet = (): CancelablePromise<GetOfficeAccountsApiV1AccountGetResponse> => {
-  return __request(OpenAPI, {
-    method: "GET",
-    url: "/api/v1/account",
-  });
-};
-
-/**
  * Open Account
  * @param data The data for the request.
  * @param data.requestBody
@@ -394,6 +383,28 @@ export const openAccountApiV1AccountPost = (
     url: "/api/v1/account",
     body: data.requestBody,
     mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Get Office Accounts
+ * @param data The data for the request.
+ * @param data.officeId
+ * @returns AccountResponse Successful Response
+ * @throws ApiError
+ */
+export const getOfficeAccountsApiV1OfficeOfficeIdAccountGet = (
+  data: GetOfficeAccountsApiV1OfficeOfficeIdAccountGetData
+): CancelablePromise<GetOfficeAccountsApiV1OfficeOfficeIdAccountGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/office/{office_id}account",
+    path: {
+      office_id: data.officeId,
+    },
     errors: {
       422: "Validation Error",
     },

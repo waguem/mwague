@@ -52,7 +52,7 @@ export default async function AgentLayout({
       },
     ];
   };
-  console.log("Agent :", agent);
+
   if (!agent) {
     redirect("/not-found");
   }

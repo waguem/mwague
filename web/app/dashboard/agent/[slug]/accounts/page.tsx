@@ -1,16 +1,17 @@
-import AgentAccountsList from "@/components/apps/accounts/AccountList";
-import AddAgentAccountForm from "@/components/apps/accounts/AddAgentAccountForm";
+import AccountList from "@/components/apps/accounts/AccountList";
+import AddAccountForm from "@/components/apps/accounts/AddAccountForm";
 import { Fragment } from "react";
+import { getAgentAccounts } from "@/lib/actions";
 
 export default async function AgentAccountPage({ params }: { params: { slug: string } }) {
-  const accounts: any[] = [];
+  const accounts = await getAgentAccounts(params.slug);
   return (
     <Fragment>
       <div className="gap-4 p-2">
         <div className="m-2">
-          <AddAgentAccountForm agentInitials={params.slug} />
+          <AddAccountForm initials={params.slug} />
         </div>
-        <AgentAccountsList agentInitials={params.slug} accounts={accounts} />
+        <AccountList accounts={accounts} />
       </div>
     </Fragment>
   );

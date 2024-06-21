@@ -64,6 +64,10 @@ class EmployeeResponse(EmployeeBase):
         return transformed
 
 
+class EmployeeResponseComplete(EmployeeResponse):
+    office: OfficeBase
+
+
 class AgentType(Enum):
     AGENT = "AGENT"
     SUPPLIER = "SUPPLIER"

@@ -1,19 +1,22 @@
 "use server";
 
+import { cache } from "react";
 import {
   ApiError,
-  openAccountApiV1AccountPost as openAccount,
+  openAccountApiV1AccountPost as openAccountApi,
   getAgentAccountsApiV1AgentAgentInitialAccountGet as getAgentAccountsApi,
+  getOfficeAccountsApiV1OfficeOfficeIdAccountGet as getOfficeAccountsApi,
 } from "../client";
-import { AddAgentAccountSchema } from "../schemas/actions";
+import { AddAccountSchema } from "../schemas/actions";
 import { State } from "./state";
 import { withToken } from "./withToken";
 import { revalidatePath } from "next/cache";
 import { ZodError } from "zod";
 
-export async function openAgentAccount(prevState: State, data: FormData): Promise<State> {
+export async function openAccount(prevState: State, data: FormData): Promise<State> {
   return withToken(async () => {
-    const userInput = AddAgentAccountSchema.safeParse(data);
+    const userInput = AddAccountSchema.safeParse(data);
+    console.log(data);
     if (!userInput.success) {
       return {
         status: "error",
@@ -26,11 +29,12 @@ export async function openAgentAccount(prevState: State, data: FormData): Promis
     }
 
     try {
-      const response = await openAccount({
+      const response = await openAccountApi({
         requestBody: userInput.data,
       });
 
-      revalidatePath(`/dashboard/agent/${userInput.data.owner_initials}/accounts`);
+      const source = userInput.data.type === "FUND" ? "office" : "agent";
+      revalidatePath(`/dashboard/${source}/${userInput.data.owner_initials}/accounts`);
       return { status: "success", message: `Account ${response.initials} created Successfully` };
     } catch (e) {
       console.log(e);
@@ -67,3 +71,11 @@ export async function getAgentAccounts(initial: string) {
     }
   });
 }
+
+export const getOfficeAccountsCached = cache(async (officeId: string) => {
+  return withToken(async () => {
+    return await getOfficeAccountsApi({
+      officeId,
+    });
+  });
+});

@@ -55,13 +55,17 @@ def get_office_employees(
     return EmployeeRepository(db).get_office_employees(office_id, user.organization_id)
 
 
-@router.get("/office/employee/me", status_code=200, response_model=protocol.EmployeeResponse)
+@router.get(
+    "/office/employee/me", status_code=200, response_model=protocol.EmployeeResponseComplete
+)
 def get_employee(
     *,
     db: Session = Depends(get_db),
     user: Annotated[KcUser, Security(check_authorization, scopes=[])],
-) -> protocol.EmployeeResponse:
-    return EmployeeRepository(db).get_employee(user.username, user.email, user.organization_id)
+) -> protocol.EmployeeResponseComplete:
+    emp = EmployeeRepository(db).get_employee(user.username, user.email, user.organization_id)
+    logger.debug(f"Employee: {emp.office}")
+    return emp
 
 
 @router.put("/office/employee/{employee_id}/assign", status_code=200)

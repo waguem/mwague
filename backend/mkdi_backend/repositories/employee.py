@@ -26,7 +26,7 @@ class EmployeeRepository:
     def get_org_employees(self, organization_id: str):
         return self.db.query(Employee).filter(Employee.organization_id == organization_id).all()
 
-    def get_employee(self, username, email, organization_id):
+    def get_employee(self, username, email, organization_id) -> Employee:
         return (
             self.db.query(Employee)
             .filter((Employee.username == username) | (Employee.email == email))

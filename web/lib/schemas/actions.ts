@@ -131,7 +131,7 @@ export const AddAgentSchema = zfd.formData({
   office_id: zfd.text(zod.string().optional()),
 });
 
-export const AddAgentAccountSchema = zfd.formData({
+export const AddAccountSchema = zfd.formData({
   initials: zfd.text(
     zod
       .string()

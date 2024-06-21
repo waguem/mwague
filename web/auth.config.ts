@@ -43,7 +43,7 @@ export const authOptions: AuthOptions = {
               family_name: decoded.family_name,
               officeId: decoded.officeId,
               organizationId: decoded.organizationId,
-              roles: decoded.realm_access.roles,
+              roles: decoded.realm_access?.roles ?? [],
             },
           };
         }
@@ -75,7 +75,7 @@ export const authOptions: AuthOptions = {
               preferred_username: decoded.preferred_username,
               given_name: decoded.given_name,
               family_name: decoded.family_name,
-              roles: decoded.realm_access.roles,
+              roles: decoded.realm_access?.roles ?? [],
             },
           };
         } catch (e) {

@@ -10,6 +10,9 @@ import IconFile from "@/components/icon/icon-file";
 import IconRefresh from "@/components/icon/icon-refresh";
 
 import IconMoon from "@/components/icon/icon-moon";
+import { getServerSession } from "next-auth";
+import authOptions from "@/auth.config";
+import IconOpenBook from "@/components/icon/icon-open-book";
 
 async function getOffice(slug: string): Promise<OfficeResponse | null> {
   try {
@@ -31,6 +34,7 @@ export default async function OfficeLayout({
   children: React.ReactNode;
   params: { slug: string };
 }) {
+  const session = await getServerSession(authOptions);
   const office = await getOffice(params.slug);
 
   if (!office) {
@@ -39,7 +43,7 @@ export default async function OfficeLayout({
   }
 
   const getNavigationItems = (office: OfficeResponse) => {
-    return [
+    let items = [
       {
         name: "Home",
         url: `/dashboard/office/${office.id}`,
@@ -66,6 +70,16 @@ export default async function OfficeLayout({
         icon: <IconMoon />,
       },
     ];
+
+    if (session?.user?.roles.includes("office_admin")) {
+      items.push({
+        name: "Accounts",
+        url: `/dashboard/office/${office.id}/accounts`,
+        icon: <IconOpenBook className="h-5 w-5" />,
+      });
+    }
+
+    return items;
   };
 
   return (

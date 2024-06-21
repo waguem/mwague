@@ -57,15 +57,15 @@ export const $AgentResponse = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -155,15 +155,15 @@ export const $CreateAgentRequest = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -197,15 +197,15 @@ export const $CreateEmployeeRequest = {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     username: {
       type: "string",
       maxLength: 128,
       title: "Username",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     office_id: {
       type: "string",
@@ -241,8 +241,8 @@ export const $CreateOfficeRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     name: {
       type: "string",
@@ -262,8 +262,8 @@ export const $CreateOrganizationRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     org_name: {
       type: "string",
@@ -289,15 +289,15 @@ export const $EmployeeResponse = {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     username: {
       type: "string",
       maxLength: 128,
       title: "Username",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     id: {
       type: "string",
@@ -327,6 +327,53 @@ export const $EmployeeResponse = {
   title: "EmployeeResponse",
 } as const;
 
+export const $EmployeeResponseComplete = {
+  properties: {
+    email: {
+      type: "string",
+      maxLength: 128,
+      title: "Email",
+      nullable: false,
+      unique: true,
+    },
+    username: {
+      type: "string",
+      maxLength: 128,
+      title: "Username",
+      nullable: false,
+      unique: true,
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    office_id: {
+      type: "string",
+      format: "uuid",
+      title: "Office Id",
+    },
+    organization_id: {
+      type: "string",
+      format: "uuid",
+      title: "Organization Id",
+    },
+    roles: {
+      items: {
+        type: "string",
+      },
+      type: "array",
+      title: "Roles",
+    },
+    office: {
+      $ref: "#/components/schemas/OfficeBase",
+    },
+  },
+  type: "object",
+  required: ["email", "username", "id", "office_id", "organization_id", "roles", "office"],
+  title: "EmployeeResponseComplete",
+} as const;
+
 export const $HTTPValidationError = {
   properties: {
     detail: {
@@ -341,6 +388,33 @@ export const $HTTPValidationError = {
   title: "HTTPValidationError",
 } as const;
 
+export const $OfficeBase = {
+  properties: {
+    country: {
+      type: "string",
+      maxLength: 64,
+      title: "Country",
+      nullable: false,
+    },
+    initials: {
+      type: "string",
+      maxLength: 8,
+      title: "Initials",
+      nullable: false,
+      unique: true,
+    },
+    name: {
+      type: "string",
+      maxLength: 64,
+      title: "Name",
+      nullable: false,
+    },
+  },
+  type: "object",
+  required: ["country", "initials", "name"],
+  title: "OfficeBase",
+} as const;
+
 export const $OfficeResponse = {
   properties: {
     country: {
@@ -353,8 +427,8 @@ export const $OfficeResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     name: {
       type: "string",
@@ -379,8 +453,8 @@ export const $OrganizationResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     org_name: {
       type: "string",
@@ -390,6 +464,7 @@ export const $OrganizationResponse = {
     },
     id: {
       type: "string",
+      format: "uuid",
       title: "Id",
     },
   },

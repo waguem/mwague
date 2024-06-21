@@ -10,7 +10,7 @@ from sqlmodel import Field, Index
 
 class Account(AccountBase, table=True):
     __tablename__ = "accounts"
-
+    # create an constraint that and office should have only one account of type FUND
     id: Optional[UUID] = Field(
         sa_column=sa.Column(
             pg.UUID(as_uuid=True),
