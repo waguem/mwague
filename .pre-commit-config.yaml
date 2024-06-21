@@ -30,7 +30,7 @@ exclude: build|stubs|^bot/templates/$|openassistant/templates|docs/docs/api/open
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.6.0
     hooks:
       - id: trailing-whitespace
       - id: check-ast
@@ -57,12 +57,12 @@ repos:
         args: [--maxkb=1024]
       - id: end-of-file-fixer
 
-  - repo: https://github.com/psf/black
-    rev: 23.3.0
-    hooks:
-      - id: black-jupyter
-        args: [--line-length=100]
-        exclude: ^backend/mkdi_backend/utils/database.py
+  # - repo: https://github.com/psf/black
+  #   rev: 24.4.2
+  #   hooks:
+  #     - id: black-jupyter
+  #       args: [--line-length=100]
+  #       exclude: ^backend/mkdi_backend/utils/database.py
 
   # - repo: https://github.com/pycqa/flake8
   #   rev: 6.0.0

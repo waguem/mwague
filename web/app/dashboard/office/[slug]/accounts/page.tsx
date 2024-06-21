@@ -13,8 +13,8 @@ export default async function OfficeAccountsPage({
   const accountsPromise = getOfficeAccountsCached(params.slug);
 
   const [office, accounts] = await Promise.all([officePromise, accountsPromise]);
-  const hasFund = accounts.some((account) => account.type === "FUND");
-  const hasOffice = accounts.some((account) => account.type === "OFFICE");
+  const hasFund = accounts.some((account: any) => account.type === "FUND");
+  const hasOffice = accounts.some((account: any) => account.type === "OFFICE");
   return (
     <div className="gap-2 p-2">
       <div className="m-2">
