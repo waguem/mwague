@@ -16,7 +16,6 @@ import { ZodError } from "zod";
 export async function openAccount(prevState: State, data: FormData): Promise<State> {
   return withToken(async () => {
     const userInput = AddAccountSchema.safeParse(data);
-    console.log(data);
     if (!userInput.success) {
       return {
         status: "error",
@@ -37,7 +36,6 @@ export async function openAccount(prevState: State, data: FormData): Promise<Sta
       revalidatePath(`/dashboard/${source}/${userInput.data.owner_initials}/accounts`);
       return { status: "success", message: `Account ${response.initials} created Successfully` };
     } catch (e) {
-      console.log(e);
       if (e instanceof ZodError) {
         return {
           status: "error",

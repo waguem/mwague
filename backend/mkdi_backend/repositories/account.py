@@ -19,6 +19,23 @@ class AccountRepository:
     def __init__(self, db: Session):
         self.db = db
 
+
+    def get_office_fund_account(self, office_id: str) -> Account:
+        """
+        Retrieves the fund account associated with a specific office.
+
+        Args:
+            office_id (str): The ID of the office.
+
+        Returns:
+            Account: The fund account associated with the office.
+        """
+        return (
+            self.db.query(Account)
+            .filter(Account.owner_id == office_id, Account.type == protocol.AccountType.FUND)
+            .first()
+        )
+
     def hasOpennedAccount(self, owner_id: str, type: protocol.AccountType) -> bool:
         return (
             self.db.query(Account)
@@ -41,7 +58,6 @@ class AccountRepository:
         """
         # the owner account
         owner = None
-        logger.debug(f"Creating account for {input.type} for initials {input.initials}")
         match input.type:
             case protocol.AccountType.FUND | protocol.AccountType.OFFICE:
                 owner = (
@@ -55,7 +71,6 @@ class AccountRepository:
                     )
 
             case protocol.AccountType.SUPPLIER:
-                logger.debug("Creating account for office or fund")
                 # raise Http not implemented
                 raise NotImplementedError("Creating account for office or fund is not implemented")
             case protocol.AccountType.AGENT:
@@ -78,7 +93,6 @@ class AccountRepository:
             balance=Decimal(0),
             office_id=owner.office_id if isinstance(owner, Agent) else owner.id,
         )
-        logger.debug(f"Creating account {account}")
         self.db.add(account)
         return account
 
@@ -92,7 +106,7 @@ class AccountRepository:
         Returns:
             list[Account]: A list of accounts associated with the office.
         """
-        return self.db.query(Account).filter(Account.office_id == office_id).all()
+        return self.db.query(Account).filter(Account.owner_id == office_id).all()
 
     def get_owner_accounts(self, owner_id: str) -> list[Account]:
         """

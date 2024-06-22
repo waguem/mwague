@@ -23,3 +23,20 @@ class Office(OfficeBase, table=True):
     organization: "Organization" = Relationship(back_populates="offices")  # type: ignore
 
     employees: list["Employee"] = Relationship(back_populates="office")  # type: ignore
+    """
+     [
+        {
+            "name":"USD",
+            "main":true,
+            "default_rate":1.0,
+            "enabled":true
+        },
+        {
+            "name":"EUR",
+            "main":false,
+            "default_rate":1.2,
+            "enabled":false
+        }
+     ]
+    """
+    currencies: list[dict]  | None = Field(default={},nullable=True,sa_column=sa.Column(pg.JSONB))

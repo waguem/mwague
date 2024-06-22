@@ -57,6 +57,7 @@ async def get_user_info(
             email=payload.get("email"),
             organization_id=payload.get("organizationId"),
         )
+
         if not userdb:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -117,7 +118,6 @@ def hasSufficientPermissions(user_roles, required_roles: list = []) -> bool:
     """
 
     # check tha the required_role has all user_roles has children from roles_deps
-    assert len(required_roles) <= 1
     if len(required_roles) == 0:
         return True
 

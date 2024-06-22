@@ -34,7 +34,7 @@ def get_office_accounts(
     user: Annotated[KcUser, Security(check_authorization, scopes=[])],
     office_id: str,
 ) -> list[protocol.AccountResponse]:
-    if user.office_id != office_id and not hasSufficientPermissions(user.roles, "org_admin"):
+    if user.office_id != office_id and not hasSufficientPermissions(user.roles, ["org_admin"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User does not have enough permissions to access this resource.",

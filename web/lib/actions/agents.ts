@@ -4,11 +4,13 @@ import { State } from "./state";
 import { withToken } from "./withToken";
 import {
   createAgentApiV1OfficeAgentPost as createAgentApi,
+  getAgentsApiV1OfficeAgentGet as getMyAgentsApi,
   getOfficeAgentsApiV1OfficeOfficeIdAgentGet as getOfficeAgentsApi,
 } from "@/lib/client";
 import { ZodError } from "zod";
 import { ApiError } from "../client";
 import { revalidatePath } from "next/cache";
+import { cache } from "react";
 
 /**
  * Add an agent to the office
@@ -71,3 +73,9 @@ export async function getOfficeAgents(officeId: string) {
     }
   });
 }
+
+export const getMyAgents = cache(async () => {
+  return withToken(async () => {
+    return await getMyAgentsApi();
+  });
+});

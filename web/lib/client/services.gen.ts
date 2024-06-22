@@ -36,6 +36,9 @@ import type {
   GetOfficeAccountsApiV1OfficeOfficeIdAccountGetResponse,
   GetAgentAccountsApiV1AgentAgentInitialAccountGetData,
   GetAgentAccountsApiV1AgentAgentInitialAccountGetResponse,
+  GetActivityApiV1OfficeActivityGetResponse,
+  StartActivityApiV1OfficeActivityPostData,
+  StartActivityApiV1OfficeActivityPostResponse,
 } from "./types.gen";
 
 /**
@@ -427,6 +430,39 @@ export const getAgentAccountsApiV1AgentAgentInitialAccountGet = (
     path: {
       agent_initial: data.agentInitial,
     },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Get Activity
+ * @returns ActivityResponse Successful Response
+ * @throws ApiError
+ */
+export const getActivityApiV1OfficeActivityGet = (): CancelablePromise<GetActivityApiV1OfficeActivityGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/office/activity",
+  });
+};
+
+/**
+ * Start Activity
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns ActivityResponse Successful Response
+ * @throws ApiError
+ */
+export const startActivityApiV1OfficeActivityPost = (
+  data: StartActivityApiV1OfficeActivityPostData
+): CancelablePromise<StartActivityApiV1OfficeActivityPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/office/activity",
+    body: data.requestBody,
+    mediaType: "application/json",
     errors: {
       422: "Validation Error",
     },

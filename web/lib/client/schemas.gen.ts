@@ -47,6 +47,44 @@ export const $AccountType = {
   description: "An enumeration.",
 } as const;
 
+export const $ActivityResponse = {
+  properties: {
+    started_at: {
+      type: "string",
+      format: "date",
+      title: "Started At",
+    },
+    state: {
+      $ref: "#/components/schemas/ActivityState",
+    },
+    openning_fund: {
+      type: "number",
+      title: "Openning Fund",
+    },
+    closing_fund: {
+      type: "number",
+      title: "Closing Fund",
+    },
+    openning_rate: {
+      type: "object",
+      title: "Openning Rate",
+    },
+    closing_rate: {
+      type: "object",
+      title: "Closing Rate",
+    },
+  },
+  type: "object",
+  required: ["started_at", "state", "openning_fund"],
+  title: "ActivityResponse",
+} as const;
+
+export const $ActivityState = {
+  enum: ["OPEN", "CLOSED", "PAUSED"],
+  title: "ActivityState",
+  description: "An enumeration.",
+} as const;
+
 export const $AgentResponse = {
   properties: {
     name: {
@@ -143,6 +181,21 @@ export const $CreateAccountRequest = {
   type: "object",
   required: ["type", "currency", "initials", "owner_initials"],
   title: "CreateAccountRequest",
+} as const;
+
+export const $CreateActivityRequest = {
+  properties: {
+    rates: {
+      items: {
+        $ref: "#/components/schemas/Rate",
+      },
+      type: "array",
+      title: "Rates",
+    },
+  },
+  type: "object",
+  required: ["rates"],
+  title: "CreateActivityRequest",
 } as const;
 
 export const $CreateAgentRequest = {
@@ -366,7 +419,7 @@ export const $EmployeeResponseComplete = {
       title: "Roles",
     },
     office: {
-      $ref: "#/components/schemas/OfficeBase",
+      $ref: "#/components/schemas/OfficeResponse",
     },
   },
   type: "object",
@@ -386,33 +439,6 @@ export const $HTTPValidationError = {
   },
   type: "object",
   title: "HTTPValidationError",
-} as const;
-
-export const $OfficeBase = {
-  properties: {
-    country: {
-      type: "string",
-      maxLength: 64,
-      title: "Country",
-      nullable: false,
-    },
-    initials: {
-      type: "string",
-      maxLength: 8,
-      title: "Initials",
-      nullable: false,
-      unique: true,
-    },
-    name: {
-      type: "string",
-      maxLength: 64,
-      title: "Name",
-      nullable: false,
-    },
-  },
-  type: "object",
-  required: ["country", "initials", "name"],
-  title: "OfficeBase",
 } as const;
 
 export const $OfficeResponse = {
@@ -441,9 +467,23 @@ export const $OfficeResponse = {
       format: "uuid",
       title: "Id",
     },
+    currencies: {
+      anyOf: [
+        {
+          type: "object",
+        },
+        {
+          items: {
+            type: "object",
+          },
+          type: "array",
+        },
+      ],
+      title: "Currencies",
+    },
   },
   type: "object",
-  required: ["country", "initials", "name", "id"],
+  required: ["country", "initials", "name", "id", "currencies"],
   title: "OfficeResponse",
 } as const;
 
@@ -471,6 +511,24 @@ export const $OrganizationResponse = {
   type: "object",
   required: ["initials", "org_name", "id"],
   title: "OrganizationResponse",
+} as const;
+
+export const $Rate = {
+  properties: {
+    currency: {
+      type: "string",
+      title: "Currency",
+    },
+    rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Rate",
+      strict: true,
+    },
+  },
+  type: "object",
+  required: ["currency", "rate"],
+  title: "Rate",
 } as const;
 
 export const $ValidationError = {

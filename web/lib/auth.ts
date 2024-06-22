@@ -18,7 +18,6 @@ class ProtectedURI {
       return role.length >= 0;
     }
     if (Array.isArray(this.roles)) {
-      console.log("Roles: ", role, " this.roles: ", this.roles);
       return this.roles.some((r) => role.some((item) => item.includes(r)));
     }
 
@@ -35,6 +34,7 @@ export const protectedURIs = [
   new ProtectedURI(/^\/dashboard\/agent(\/.*)?$/, "basic"),
   new ProtectedURI(/^\/$/, "basic"),
   // Add more URIs and their roles here
+  new ProtectedURI(/^\/dashboard\/activity$/, "basic"),
 ];
 
 export function isPublicURL(pathname: string) {
@@ -57,7 +57,6 @@ export const checkAuthorization: NextMiddlewareWithAuth = (request: NextRequestW
   }
   const roles = token.user.roles;
   const protectedUri = protectedURIs.find((uri) => uri.uri.test(pathname));
-  console.log("ProtectedURI: ", protectedUri);
   if (protectedUri && protectedUri.isAccessibleByRole(roles)) {
     return NextResponse.next();
   }

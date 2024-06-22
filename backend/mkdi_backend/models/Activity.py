@@ -7,7 +7,7 @@ import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as pg
 from mkdi_shared.schemas.protocol import ActivityBase
 from pydantic import Field as PydanticField
-from sqlmodel import Date, Field, Relationship, SQLModel
+from sqlmodel import JSON, Field, Relationship, SQLModel
 
 
 class FundCommit(SQLModel, table=True):
@@ -45,8 +45,8 @@ class Activity(ActivityBase, table=True):
     started_by: UUID = Field(foreign_key="employees.id", nullable=True)
     closed_by: UUID = Field(foreign_key="employees.id", nullable=True)
     office_id: UUID = Field(foreign_key="offices.id")
-    openning_rate: Decimal
-    closing_rate: Decimal
+    openning_rate: dict | list[dict] = Field(default={},nullable=True,sa_column=sa.Column(pg.JSONB))
+    closing_rate: dict | list[dict]  = Field(default={},nullable=True,sa_column=sa.Column(pg.JSONB))
 
     openning_fund: Decimal
     closing_fund: Decimal

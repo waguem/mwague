@@ -36,7 +36,6 @@ class MkdiApiClient:
         client_id: str = "",
         client_secret: str = "",
     ):
-        logger.debug("authenticate api client")
         credentials = {
             "username": username,
             "password": password,
@@ -46,7 +45,6 @@ class MkdiApiClient:
             "client_secret": client_secret,
         }
         # data=urlencode(credentials,encoding="utf-8")
-        logger.debug(f"credentials: {credentials}")
         async with aiohttp.ClientSession() as session:
             # Set the Content-Type header to application/x-www-form-urlencoded
             headers = {"Content-Type": "application/x-www-form-urlencoded"}
@@ -57,10 +55,8 @@ class MkdiApiClient:
                 f"{self.backend_url}/api/v1/auth/token", data=data_str, headers=headers
             ) as response:
                 # Check the response
-                logger.debug(f"authentication response: {response}")
                 if response.status >= 300:
                     text = await response.text()
-                    logger.debug(f"resp text: {text}")
                     data = await response.json()
                     try:
                         mkdi_error = protocol_schema.MkdiErrorResponse(**(data or {}))
@@ -69,9 +65,7 @@ class MkdiApiClient:
                             message=mkdi_error.message,
                         )
                     except ValidationError as e:
-                        logger.debug(f"Got error from API but could not parse: {e}")
                         raw_response = await response.text()
-                        logger.debug(f"Raw response: {raw_response}")
                         raise MkdiError(
                             raw_response,
                             MkdiErrorCode.GENERIC_ERROR,
@@ -83,17 +77,13 @@ class MkdiApiClient:
                 # save token
                 self.bearer_token = response["access_token"]
                 #
-                logger.info(f"bearer token: {self.bearer_token}")
                 return response
 
     async def ping(self):
-        logger.debug("PING the backend server")
         async with aiohttp.ClientSession() as session:
             response = await session.get(f"{self.backend_url}/api/v1/ping")
-            logger.debug(f"response: {response}")
             if response.status >= 300:
                 text = await response.text()
-                logger.debug(f"resp text: {text}")
                 data = await response.json()
                 try:
                     mkdi_error = protocol_schema.MkdiErrorResponse()
@@ -102,10 +92,8 @@ class MkdiApiClient:
                         message=mkdi_error.message,
                     )
                 except ValidationError as e:
-                    logger.debug(f"Got error from API but could not parse: {e}")
 
                     raw_response = await response.text()
-                    logger.debug(f"Raw response: {raw_response}")
 
                     raise MkdiError(
                         raw_response,
@@ -118,19 +106,16 @@ class MkdiApiClient:
 
     async def post(self, path: str, data: dict[str, Any]) -> Optional[dict[str, Any]]:
         """Make a POST request to the backend."""
-        logger.debug(f"POST {self.backend_url}{path} DATA: {data}")
         async with aiohttp.ClientSession() as session:
             response = await session.post(
                 f"{self.backend_url}{path}", json=data, headers={"x-api-key": self.api_key}
             )
-            logger.debug(f"response: {response}")
 
             # If the response is not a 2XX, check to see
             # if the json has the fields to create an
             # MkdiError.
             if response.status >= 300:
                 text = await response.text()
-                logger.debug(f"resp text: {text}")
                 data = await response.json()
                 try:
                     mkdi_error = protocol_schema.MkdiErrorResponse(**(data or {}))
@@ -139,10 +124,8 @@ class MkdiApiClient:
                         message=mkdi_error.message,
                     )
                 except ValidationError as e:
-                    logger.debug(f"Got error from API but could not parse: {e}")
 
                     raw_response = await response.text()
-                    logger.debug(f"Raw response: {raw_response}")
 
                     raise MkdiError(
                         raw_response,

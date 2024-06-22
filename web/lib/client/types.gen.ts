@@ -16,6 +16,24 @@ export type AccountResponse = {
  */
 export type AccountType = "AGENT" | "SUPPLIER" | "OFFICE" | "FUND";
 
+export type ActivityResponse = {
+  started_at: string;
+  state: ActivityState;
+  openning_fund: number;
+  closing_fund?: number;
+  openning_rate?: {
+    [key: string]: unknown;
+  };
+  closing_rate?: {
+    [key: string]: unknown;
+  };
+};
+
+/**
+ * An enumeration.
+ */
+export type ActivityState = "OPEN" | "CLOSED" | "PAUSED";
+
 export type AgentResponse = {
   name: string;
   initials: string;
@@ -44,6 +62,10 @@ export type CreateAccountRequest = {
   initials: string;
   balance?: number | null;
   owner_initials: string;
+};
+
+export type CreateActivityRequest = {
+  rates: Array<Rate>;
 };
 
 export type CreateAgentRequest = {
@@ -96,17 +118,11 @@ export type EmployeeResponseComplete = {
   office_id: string;
   organization_id: string;
   roles: Array<string>;
-  office: OfficeBase;
+  office: OfficeResponse;
 };
 
 export type HTTPValidationError = {
   detail?: Array<ValidationError>;
-};
-
-export type OfficeBase = {
-  country: string;
-  initials: string;
-  name: string;
 };
 
 export type OfficeResponse = {
@@ -114,12 +130,24 @@ export type OfficeResponse = {
   initials: string;
   name: string;
   id: string;
+  currencies:
+    | {
+        [key: string]: unknown;
+      }
+    | Array<{
+        [key: string]: unknown;
+      }>;
 };
 
 export type OrganizationResponse = {
   initials: string;
   org_name: string;
   id: string;
+};
+
+export type Rate = {
+  currency: string;
+  rate: number;
 };
 
 export type ValidationError = {
@@ -216,6 +244,14 @@ export type GetAgentAccountsApiV1AgentAgentInitialAccountGetData = {
 };
 
 export type GetAgentAccountsApiV1AgentAgentInitialAccountGetResponse = Array<AccountResponse>;
+
+export type GetActivityApiV1OfficeActivityGetResponse = ActivityResponse;
+
+export type StartActivityApiV1OfficeActivityPostData = {
+  requestBody: CreateActivityRequest;
+};
+
+export type StartActivityApiV1OfficeActivityPostResponse = ActivityResponse;
 
 export type $OpenApiTs = {
   "/api/v1/ping": {
@@ -463,6 +499,29 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: Array<AccountResponse>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/office/activity": {
+    get: {
+      res: {
+        /**
+         * Successful Response
+         */
+        200: ActivityResponse;
+      };
+    };
+    post: {
+      req: StartActivityApiV1OfficeActivityPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: ActivityResponse;
         /**
          * Validation Error
          */

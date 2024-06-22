@@ -50,6 +50,16 @@ export default async function OfficeLayout({
         icon: <IconHome className="h-5 w-5" />,
       },
       {
+        name: "Activities",
+        url: "#",
+        icon: <IconMoon />,
+      },
+      {
+        name: "Transactions",
+        url: "#",
+        icon: <IconRefresh />,
+      },
+      {
         name: "Agents",
         url: `/dashboard/office/${office.id}/agents`,
         icon: <IconUsersGroup className="h-5 w-5" />,
@@ -58,16 +68,6 @@ export default async function OfficeLayout({
         name: "Reports",
         url: `/dashboard/office/${office.id}/reports`,
         icon: <IconFile className="h-5 w-5" />,
-      },
-      {
-        name: "Transactions",
-        url: "#",
-        icon: <IconRefresh />,
-      },
-      {
-        name: "Activities",
-        url: "#",
-        icon: <IconMoon />,
       },
     ];
 

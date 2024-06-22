@@ -20,7 +20,6 @@ export default async function OrganizationLayout({
   params: { slug: string };
 }) {
   const myOrg = await getMyOrganization();
-  console.log("My Org ", myOrg);
   const getNavigationItems = () => {
     return [
       {

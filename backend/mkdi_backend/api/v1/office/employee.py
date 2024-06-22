@@ -64,7 +64,6 @@ def get_employee(
     user: Annotated[KcUser, Security(check_authorization, scopes=[])],
 ) -> protocol.EmployeeResponseComplete:
     emp = EmployeeRepository(db).get_employee(user.username, user.email, user.organization_id)
-    logger.debug(f"Employee: {emp.office}")
     return emp
 
 

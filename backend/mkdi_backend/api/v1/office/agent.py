@@ -22,7 +22,6 @@ def create_agent(
 
     if hasattr(input, "office_id"):
         if not "org_admin" in user.roles and user.office_id != input.office_id:
-            logger.debug("trying to add agent for an other office")
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You are not authorized to create an agent for this office",

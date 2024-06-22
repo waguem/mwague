@@ -1,11 +1,11 @@
 from datetime import date
 from decimal import Decimal
 from enum import Enum
-from typing import Dict, List
+from typing import Annotated, Dict, List
 from uuid import UUID
 
 from mkdi_shared.exceptions.mkdi_api_error import MkdiErrorCode
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, condecimal, root_validator
 from sqlmodel import Field as SQLModelField
 from sqlmodel import SQLModel
 
@@ -28,6 +28,9 @@ class OfficeBase(SQLModel):
     initials: str = Field(nullable=False, max_length=8, unique=True)
     name: str = Field(nullable=False, max_length=64)
 
+class OfficeResponse(OfficeBase):
+    id: UUID
+    currencies: dict | list[dict] | None = None
 
 class CreateOfficeRequest(OfficeBase):
     pass
@@ -65,7 +68,7 @@ class EmployeeResponse(EmployeeBase):
 
 
 class EmployeeResponseComplete(EmployeeResponse):
-    office: OfficeBase
+    office: OfficeResponse
 
 
 class AgentType(Enum):
@@ -133,13 +136,23 @@ class ActivityState(Enum):
 
 
 class ActivityBase(SQLModel):
-    office_id: Decimal
     started_at: date
     state: ActivityState
 
+class ActivityResponse(ActivityBase):
 
-class OfficeResponse(OfficeBase):
-    id: UUID
+    openning_fund: Decimal
+    closing_fund: Decimal | None
+    openning_rate: dict | None
+    closing_rate: dict | None
+
+class Rate(BaseModel):
+    currency: str
+    rate: Annotated[Decimal,Field(strict=True,gt=0)]
+
+class CreateActivityRequest(BaseModel):
+    rates: List[Rate]
+
 
 
 class MkdiErrorResponse(BaseModel):

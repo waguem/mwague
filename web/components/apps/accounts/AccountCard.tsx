@@ -2,9 +2,9 @@ import IconCaretDown from "@/components/icon/icon-caret-down";
 import { AccountResponse } from "@/lib/client";
 import Image from "next/image";
 
-const AccountCard = ({ account, key }: { account: AccountResponse; key: string }) => {
+const AccountCard = ({ account }: { account: AccountResponse }) => {
   return (
-    <div key={key} className="panel flex-1 h-full overflow-hidden border-0 p-0">
+    <div key={account.initials} className="panel flex-1 h-full overflow-hidden border-0 p-0">
       <div className="min-h-[190px] bg-gradient-to-r from-[#5269ce] to-[#160f6b] p-6">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center rounded-full bg-black/50 p-1 font-semibold text-white ltr:pr-3 rtl:pl-3">

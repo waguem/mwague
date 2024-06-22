@@ -42,6 +42,7 @@ def upgrade() -> None:
             ["created_by"],
             ["employees.id"],
         ),
+        sa.Column("currency", sa.Enum("USD", "EUR", "AED", "CFA", "GNF", "RMB", name="currency"), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
     # ### end Alembic commands ###

@@ -28,7 +28,7 @@ def upgrade() -> None:
             server_default=sa.text("gen_random_uuid()"),
             nullable=False,
         ),
-        sa.Column("office_id", sa.Numeric(), nullable=False),
+        sa.Column("office_id", sqlmodel.sql.sqltypes.GUID(), nullable=False),
         sa.Column("started_at", sa.Date(), nullable=False),
         sa.Column(
             "state", sa.Enum("OPEN", "CLOSED", "PAUSED", name="activitystate"), nullable=False

@@ -40,7 +40,6 @@ export default function AddAccountForm({ initials, type }: Props) {
 
   const [state, formAction] = useFormState<State, FormData>(openAccount, null);
   const isCorrect = getValues("type")?.length > 0 && getValues("currency")?.length > 0;
-  console.log(getValues("type"));
   return (
     <FormModal
       title={t(`add_${type ? type.toLowerCase() : ""}_account`)}

@@ -8,7 +8,6 @@ const checkAuth: NextMiddlewareWithAuth = (request: NextRequestWithAuth, event: 
       return NextResponse.redirect("/auth/login");
     }
   }
-  console.log("Checking authorization ", request.nextUrl.pathname);
   return checkAuthorization(request, event);
 };
 

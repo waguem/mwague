@@ -2,11 +2,13 @@
 import {
   updateEmployeeApiV1OfficeEmployeeEmployeeIdAssignPut as updateEmployeeApi,
   createEmployeeApiV1OfficeEmployeePost as createEmployeeApi,
+  getEmployeeApiV1OfficeEmployeeMeGet as getMeApiV1MeGet,
 } from "@/lib/client";
 import { withToken } from "./withToken";
 import { AddUserSchema, UpdateUserSchema } from "../schemas/actions";
 import { State } from "./state";
 import { revalidatePath } from "next/cache";
+import { cache } from "react";
 
 export const updateEmployee = async (prevState: State, data: FormData): Promise<State> => {
   return await withToken(async () => {
@@ -77,3 +79,9 @@ export const addEmployee = async (prevState: State, data: FormData): Promise<Sta
     return { status: "success", message: `Employee ${response.username} Updated Successfully` };
   });
 };
+
+export const me = cache(async () => {
+  return withToken(async () => {
+    return await getMeApiV1MeGet();
+  });
+});
