@@ -39,4 +39,4 @@ class Office(OfficeBase, table=True):
         }
      ]
     """
-    currencies: list[dict]  | None = Field(default={},nullable=True,sa_column=sa.Column(pg.JSONB))
+    currencies: list[dict]  | None = Field(default={},sa_column=sa.Column(pg.JSONB))
