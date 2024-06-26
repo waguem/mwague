@@ -51,6 +51,8 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_PORT: str = "6379"
 
+    INVARIANT_TOLERANCE=0.001
+
     DEBUG_USE_SEED_DATA: bool = False
     DEBUG_USE_SEED_DATA_PATH: Optional[FilePath] = (
         Path(__file__).parent.parent / "test_data/seed.json"

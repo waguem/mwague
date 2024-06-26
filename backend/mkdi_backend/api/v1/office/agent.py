@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException, Security, status
 from loguru import logger
@@ -32,12 +32,12 @@ def create_agent(
     return AgentRepository(db).create(auth_user=user, input=input)
 
 
-@router.get("/office/agent")
+@router.get("/office/agent",response_model=List[protocol.AgentReponseWithAccounts])
 def get_agents(
     *,
     db: Session = Depends(get_db),
     user: Annotated[KcUser, Security(check_authorization, scopes=[])],
-):
+)-> List[protocol.AgentReponseWithAccounts]:
     return AgentRepository(db).get_office_agents(user.office_id, user.organization_id)
 
 

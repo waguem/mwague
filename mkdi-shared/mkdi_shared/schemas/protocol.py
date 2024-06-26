@@ -1,13 +1,15 @@
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
-from typing import Annotated, Dict, List
-from uuid import UUID
+from typing import Annotated, Dict, List, Literal, Optional, Union
+from uuid import UUID, uuid4
 
+import sqlalchemy as sa
+import sqlalchemy.dialects.postgresql as pg
 from mkdi_shared.exceptions.mkdi_api_error import MkdiErrorCode
-from pydantic import BaseModel, Field, condecimal, root_validator
+from pydantic import BaseModel, Field, root_validator
 from sqlmodel import Field as SQLModelField
-from sqlmodel import SQLModel
+from sqlmodel import Index, SQLModel
 
 
 class OrganizationBase(SQLModel):
@@ -128,6 +130,8 @@ class AccountResponse(AccountBase):
     created_by: UUID | None = None
     office_id: UUID | None = None
 
+class AgentReponseWithAccounts(AgentBase):
+    accounts: List[AccountResponse] | None = []
 
 class ActivityState(Enum):
     OPEN = "OPEN"
@@ -155,6 +159,74 @@ class CreateActivityRequest(BaseModel):
 
 
 
+class TransactionState(Enum):
+    REVIEW = "REVIEW"
+    PENDING = "PENDING"
+    PAID = "PAID"
+    CANCELLED = "CANCELLED"
+
+class TransactionType(Enum):
+    DEPOSIT="DEPOSIT"
+    INTERNAL="INTERNAL"
+
+class PaymentMethod(Enum):
+    CASH="CASH"
+    BANK="BANK"
+    MOBILE="MOBILE"
+
+class TransactionBase(SQLModel):
+    amount: Decimal
+    rate: Decimal
+    code: Annotated[str,SQLModelField(max_length=16,nullable=False,unique=True)]
+    state: TransactionState
+    type: TransactionType
+    created_at: Annotated[datetime,Field(default_factory=datetime.now)]
+
+
+class TransactionDB(TransactionBase):
+
+    id: Optional[UUID] = SQLModelField(
+        sa_column=sa.Column(
+            pg.UUID(as_uuid=True),
+            primary_key=True,
+            default=uuid4,
+            server_default=sa.text("gen_random_uuid()"),
+        )
+    )
+
+    office_id: UUID =SQLModelField(foreign_key="offices.id")
+    org_id: UUID = SQLModelField(foreign_key="organizations.id")
+    created_by: UUID = SQLModelField(foreign_key="employees.id")
+
+class Amount(BaseModel):
+    amount: Annotated[Decimal,Field(strict=True,ge=0)]
+    rate: Annotated[Decimal,Field(strict=True,ge=0)]
+
+class InternalRequest(BaseModel):
+    type: Literal["INTERNAL"]
+    sender: str
+    receiver: str
+class DepositRequest(BaseModel):
+    type: Literal["DEPOSIT"]
+    method: PaymentMethod
+    receiver: str
+    account: str
+
+class TransactionRequest(BaseModel):
+    currency: Currency
+    amount: Amount
+    charges: Amount
+
+    data : Union[
+        InternalRequest,
+        DepositRequest
+    ] = Field(...,discriminator="type")
+
+class CancelRequest(BaseModel):
+    code:str
+    reason:str
+class TransactionResponse(TransactionBase):
+    pass
 class MkdiErrorResponse(BaseModel):
     """The format of an error response from the OASST API."""
 

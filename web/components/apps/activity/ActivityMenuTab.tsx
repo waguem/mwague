@@ -10,6 +10,8 @@ import IconUsersGroup from "@/components/icon/icon-users-group";
 import StartActivityForm from "./StartActivityForm";
 import { ActivityResponse, AgentResponse, OfficeResponse } from "@/lib/client";
 import StartedActivity from "./StartedActivity";
+import { usePathname } from "next/navigation";
+import clsx from "clsx";
 
 interface Props {
   agents: AgentResponse[];
@@ -17,6 +19,8 @@ interface Props {
   activity: ActivityResponse;
 }
 export default function ActivityMenuTab({ agents, office, activity }: Props) {
+  const pathname = usePathname();
+  console.log(pathname);
   return (
     <div>
       <TabGroup>
@@ -53,19 +57,25 @@ export default function ActivityMenuTab({ agents, office, activity }: Props) {
         <TabPanels>
           <TabPanel>
             <div className="relative">
-              <input type="text" className="peer form-input ltr:pr-9 rtl:pl-9" placeholder="Searching..." value={""} />
+              <input type="text" className="peer form-input ltr:pr-9 rtl:pl-9" placeholder="Searching..." />
               <div className="absolute top-1/2 -translate-y-1/2 peer-focus:text-primary ltr:right-2 rtl:left-2">
                 <IconSearch />
               </div>
             </div>
-            <div className="h-px w-full border-b border-white-light dark:border-[#1b2e4b]"></div>
-            <div className="!mt-0">
+            <div className="h-px w-full m-2 border-b border-white-light dark:border-[#1b2e4b]"></div>
+            <div className="!mt-1">
               <PerfectScrollbar>
                 {agents.map((agent: any, index: number) => (
                   <Link
                     key={index}
-                    href={"#"}
-                    className={`flex w-full items-center justify-between rounded-md p-2 hover:bg-gray-100 hover:text-primary dark:hover:bg-[#050b14] dark:hover:text-primary ${""}`}
+                    href={`/dashboard/activity/${agent.initials}`}
+                    className={clsx(
+                      "flex w-full items-center justify-between rounded-md p-1 hover:bg-gray-100 hover:text-primary dark:hover:bg-[#050b14] dark:hover:text-primary",
+                      {
+                        "border-l-4 border-primary mb-1 bg-gray-100 text-primary dark:bg-[#050b14] dark:text-primary":
+                          pathname === `/dashboard/activity/${agent.initials}`,
+                      }
+                    )}
                   >
                     <div className="flex-1">
                       <div className="flex items-center">

@@ -6,6 +6,14 @@ export function getFlagEmoji(countryCode: string) {
   return String.fromCodePoint(...codePoints);
 }
 
+export const currencySymbols: { [key: string]: string } = {
+  USD: "$",
+  EUR: "€",
+  GNF: "FG",
+  CFA: "CFA",
+  AED: "AED",
+};
+
 export function decodeToken(token: string) {
   return JSON.parse(Buffer.from(token!.split(".")[1], "base64").toString());
 }

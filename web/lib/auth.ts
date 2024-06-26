@@ -35,6 +35,7 @@ export const protectedURIs = [
   new ProtectedURI(/^\/$/, "basic"),
   // Add more URIs and their roles here
   new ProtectedURI(/^\/dashboard\/activity$/, "basic"),
+  new ProtectedURI(/^\/dashboard\/activity\/[a-zA-Z]+$/, "basic"),
 ];
 
 export function isPublicURL(pathname: string) {

@@ -34,6 +34,16 @@ export type ActivityResponse = {
  */
 export type ActivityState = "OPEN" | "CLOSED" | "PAUSED";
 
+export type AgentReponseWithAccounts = {
+  name: string;
+  initials: string;
+  email: string;
+  phone: string;
+  country: string;
+  type: AgentType;
+  accounts?: Array<AccountResponse>;
+};
+
 export type AgentResponse = {
   name: string;
   initials: string;
@@ -47,6 +57,11 @@ export type AgentResponse = {
  * An enumeration.
  */
 export type AgentType = "AGENT" | "SUPPLIER";
+
+export type Amount = {
+  amount: number;
+  rate: number;
+};
 
 export type Body_create_office_api_v1_organization_office_post = {
   create_office: CreateOfficeRequest;
@@ -102,6 +117,15 @@ export type CreateOrganizationRequest = {
  */
 export type Currency = "USD" | "EUR" | "AED" | "CFA" | "GNF" | "RMB";
 
+export type DepositRequest = {
+  type: "DEPOSIT";
+  method: PaymentMethod;
+  receiver: string;
+  account: string;
+};
+
+export type type = "DEPOSIT";
+
 export type EmployeeResponse = {
   email: string;
   username: string;
@@ -125,12 +149,20 @@ export type HTTPValidationError = {
   detail?: Array<ValidationError>;
 };
 
+export type InternalRequest = {
+  type: "INTERNAL";
+  sender: string;
+  receiver: string;
+};
+
+export type type2 = "INTERNAL";
+
 export type OfficeResponse = {
   country: string;
   initials: string;
   name: string;
   id: string;
-  currencies:
+  currencies?:
     | {
         [key: string]: unknown;
       }
@@ -145,10 +177,41 @@ export type OrganizationResponse = {
   id: string;
 };
 
+/**
+ * An enumeration.
+ */
+export type PaymentMethod = "CASH" | "BANK" | "MOBILE";
+
 export type Rate = {
   currency: string;
   rate: number;
 };
+
+export type TransactionRequest = {
+  currency: Currency;
+  amount: Amount;
+  charges: Amount;
+  data: InternalRequest | DepositRequest;
+};
+
+export type TransactionResponse = {
+  amount: number;
+  rate: number;
+  code: string;
+  state: TransactionState;
+  type: TransactionType;
+  created_at?: string;
+};
+
+/**
+ * An enumeration.
+ */
+export type TransactionState = "REVIEW" | "PENDING" | "PAID" | "CANCELLED";
+
+/**
+ * An enumeration.
+ */
+export type TransactionType = "DEPOSIT" | "INTERNAL";
 
 export type ValidationError = {
   loc: Array<string | number>;
@@ -207,7 +270,7 @@ export type UpdateEmployeeApiV1OfficeEmployeeEmployeeIdAssignPutData = {
 
 export type UpdateEmployeeApiV1OfficeEmployeeEmployeeIdAssignPutResponse = EmployeeResponse;
 
-export type GetAgentsApiV1OfficeAgentGetResponse = unknown;
+export type GetAgentsApiV1OfficeAgentGetResponse = Array<AgentReponseWithAccounts>;
 
 export type CreateAgentApiV1OfficeAgentPostData = {
   requestBody: CreateAgentRequest;
@@ -252,6 +315,30 @@ export type StartActivityApiV1OfficeActivityPostData = {
 };
 
 export type StartActivityApiV1OfficeActivityPostResponse = ActivityResponse;
+
+export type CreateInternalApiV1TransactionsInternalPostData = {
+  requestBody: TransactionRequest;
+};
+
+export type CreateInternalApiV1TransactionsInternalPostResponse = TransactionResponse;
+
+export type CreateDepositApiV1TransactionsDepositPostData = {
+  requestBody: TransactionRequest;
+};
+
+export type CreateDepositApiV1TransactionsDepositPostResponse = TransactionResponse;
+
+export type GetAgentTransactionsApiV1AgentInitialsTransactionsGetData = {
+  initials: string;
+};
+
+export type GetAgentTransactionsApiV1AgentInitialsTransactionsGetResponse = Array<TransactionResponse>;
+
+export type RequestTransactionApiV1TransactionPostData = {
+  requestBody: TransactionRequest;
+};
+
+export type RequestTransactionApiV1TransactionPostResponse = TransactionResponse;
 
 export type $OpenApiTs = {
   "/api/v1/ping": {
@@ -414,7 +501,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: unknown;
+        200: Array<AgentReponseWithAccounts>;
       };
     };
     post: {
@@ -522,6 +609,66 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: ActivityResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/transactions/internal": {
+    post: {
+      req: CreateInternalApiV1TransactionsInternalPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        201: TransactionResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/transactions/deposit": {
+    post: {
+      req: CreateDepositApiV1TransactionsDepositPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        201: TransactionResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/agent/{initials}/transactions": {
+    get: {
+      req: GetAgentTransactionsApiV1AgentInitialsTransactionsGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<TransactionResponse>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/transaction": {
+    post: {
+      req: RequestTransactionApiV1TransactionPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        201: TransactionResponse;
         /**
          * Validation Error
          */

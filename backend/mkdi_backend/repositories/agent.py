@@ -1,9 +1,10 @@
 from mkdi_backend.api.deps import KcUser
+from mkdi_backend.models.Account import Account
 from mkdi_backend.models.Agent import Agent
 from mkdi_backend.utils.database import CommitMode, managed_tx_method
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol
-from sqlmodel import Session
+from sqlmodel import Session, and_
 
 
 class AgentRepository:
@@ -43,22 +44,36 @@ class AgentRepository:
         """
         return self.db.query(Agent).offset((page - 1) * limit).limit(limit).all()
 
-    def get_office_agents(self, office_id: str, org_id: str):
+    def get_office_agents(self, office_id: str, org_id: str)-> list[protocol.AgentReponseWithAccounts]:
         """
-        Retrieves all agents belonging to a specific office and organization.
+        Retrieves all agents belonging to a specific office and organization, along with their accounts.
 
         Args:
             office_id (str): The ID of the office.
             org_id (str): The ID of the organization.
 
         Returns:
-            List[Agent]: A list of agents.
+            list[protocol.AgentReponseWithAccounts]: A list of agents with their accounts.
         """
-        return (
-            self.db.query(Agent)
-            .filter(Agent.office_id == office_id and Agent.organization_id == org_id)
+        # Query to fetch agents and their accounts
+        response = (
+            self.db.query(Agent, Account)
+            .outerjoin(Account, and_(Agent.id == Account.owner_id, Account.type == protocol.AccountType.AGENT))
+            .filter(Agent.office_id == office_id, Agent.org_id == org_id)
             .all()
         )
+
+        # Aggregate accounts for each agent
+        agents_accounts_map = {}
+        for agent, account in response:
+            if agent.id not in agents_accounts_map:
+                agents_accounts_map[agent.id] = protocol.AgentReponseWithAccounts(**agent.dict(), accounts=[])
+            if account:
+                agents_accounts_map[agent.id].accounts.append(account)
+
+        # Convert the map to a list
+        agents_with_accounts = list(agents_accounts_map.values())
+        return agents_with_accounts
 
     @managed_tx_method(auto_commit=CommitMode.COMMIT)
     def create(

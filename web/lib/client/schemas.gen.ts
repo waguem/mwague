@@ -85,6 +85,55 @@ export const $ActivityState = {
   description: "An enumeration.",
 } as const;
 
+export const $AgentReponseWithAccounts = {
+  properties: {
+    name: {
+      type: "string",
+      title: "Name",
+    },
+    initials: {
+      type: "string",
+      maxLength: 4,
+      title: "Initials",
+      unique: true,
+      nullable: false,
+    },
+    email: {
+      type: "string",
+      maxLength: 128,
+      title: "Email",
+      unique: true,
+      nullable: false,
+    },
+    phone: {
+      type: "string",
+      maxLength: 16,
+      title: "Phone",
+      nullable: false,
+    },
+    country: {
+      type: "string",
+      maxLength: 64,
+      title: "Country",
+      nullable: false,
+    },
+    type: {
+      $ref: "#/components/schemas/AgentType",
+    },
+    accounts: {
+      items: {
+        $ref: "#/components/schemas/AccountResponse",
+      },
+      type: "array",
+      title: "Accounts",
+      default: [],
+    },
+  },
+  type: "object",
+  required: ["name", "initials", "email", "phone", "country", "type"],
+  title: "AgentReponseWithAccounts",
+} as const;
+
 export const $AgentResponse = {
   properties: {
     name: {
@@ -95,15 +144,15 @@ export const $AgentResponse = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     phone: {
       type: "string",
@@ -130,6 +179,26 @@ export const $AgentType = {
   enum: ["AGENT", "SUPPLIER"],
   title: "AgentType",
   description: "An enumeration.",
+} as const;
+
+export const $Amount = {
+  properties: {
+    amount: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Amount",
+      strict: true,
+    },
+    rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Rate",
+      strict: true,
+    },
+  },
+  type: "object",
+  required: ["amount", "rate"],
+  title: "Amount",
 } as const;
 
 export const $Body_create_office_api_v1_organization_office_post = {
@@ -208,15 +277,15 @@ export const $CreateAgentRequest = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     phone: {
       type: "string",
@@ -250,15 +319,15 @@ export const $CreateEmployeeRequest = {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     username: {
       type: "string",
       maxLength: 128,
       title: "Username",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     office_id: {
       type: "string",
@@ -294,8 +363,8 @@ export const $CreateOfficeRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     name: {
       type: "string",
@@ -315,8 +384,8 @@ export const $CreateOrganizationRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     org_name: {
       type: "string",
@@ -336,21 +405,45 @@ export const $Currency = {
   description: "An enumeration.",
 } as const;
 
+export const $DepositRequest = {
+  properties: {
+    type: {
+      type: "string",
+      enum: ["DEPOSIT"],
+      title: "Type",
+    },
+    method: {
+      $ref: "#/components/schemas/PaymentMethod",
+    },
+    receiver: {
+      type: "string",
+      title: "Receiver",
+    },
+    account: {
+      type: "string",
+      title: "Account",
+    },
+  },
+  type: "object",
+  required: ["type", "method", "receiver", "account"],
+  title: "DepositRequest",
+} as const;
+
 export const $EmployeeResponse = {
   properties: {
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     username: {
       type: "string",
       maxLength: 128,
       title: "Username",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     id: {
       type: "string",
@@ -386,15 +479,15 @@ export const $EmployeeResponseComplete = {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     username: {
       type: "string",
       maxLength: 128,
       title: "Username",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     id: {
       type: "string",
@@ -441,6 +534,27 @@ export const $HTTPValidationError = {
   title: "HTTPValidationError",
 } as const;
 
+export const $InternalRequest = {
+  properties: {
+    type: {
+      type: "string",
+      enum: ["INTERNAL"],
+      title: "Type",
+    },
+    sender: {
+      type: "string",
+      title: "Sender",
+    },
+    receiver: {
+      type: "string",
+      title: "Receiver",
+    },
+  },
+  type: "object",
+  required: ["type", "sender", "receiver"],
+  title: "InternalRequest",
+} as const;
+
 export const $OfficeResponse = {
   properties: {
     country: {
@@ -453,8 +567,8 @@ export const $OfficeResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     name: {
       type: "string",
@@ -483,7 +597,7 @@ export const $OfficeResponse = {
     },
   },
   type: "object",
-  required: ["country", "initials", "name", "id", "currencies"],
+  required: ["country", "initials", "name", "id"],
   title: "OfficeResponse",
 } as const;
 
@@ -493,8 +607,8 @@ export const $OrganizationResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     org_name: {
       type: "string",
@@ -513,6 +627,12 @@ export const $OrganizationResponse = {
   title: "OrganizationResponse",
 } as const;
 
+export const $PaymentMethod = {
+  enum: ["CASH", "BANK", "MOBILE"],
+  title: "PaymentMethod",
+  description: "An enumeration.",
+} as const;
+
 export const $Rate = {
   properties: {
     currency: {
@@ -529,6 +649,85 @@ export const $Rate = {
   type: "object",
   required: ["currency", "rate"],
   title: "Rate",
+} as const;
+
+export const $TransactionRequest = {
+  properties: {
+    currency: {
+      $ref: "#/components/schemas/Currency",
+    },
+    amount: {
+      $ref: "#/components/schemas/Amount",
+    },
+    charges: {
+      $ref: "#/components/schemas/Amount",
+    },
+    data: {
+      oneOf: [
+        {
+          $ref: "#/components/schemas/InternalRequest",
+        },
+        {
+          $ref: "#/components/schemas/DepositRequest",
+        },
+      ],
+      title: "Data",
+      discriminator: {
+        propertyName: "type",
+        mapping: {
+          INTERNAL: "#/components/schemas/InternalRequest",
+          DEPOSIT: "#/components/schemas/DepositRequest",
+        },
+      },
+    },
+  },
+  type: "object",
+  required: ["currency", "amount", "charges", "data"],
+  title: "TransactionRequest",
+} as const;
+
+export const $TransactionResponse = {
+  properties: {
+    amount: {
+      type: "number",
+      title: "Amount",
+    },
+    rate: {
+      type: "number",
+      title: "Rate",
+    },
+    code: {
+      type: "string",
+      maxLength: 16,
+      title: "Code",
+    },
+    state: {
+      $ref: "#/components/schemas/TransactionState",
+    },
+    type: {
+      $ref: "#/components/schemas/TransactionType",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+  },
+  type: "object",
+  required: ["amount", "rate", "code", "state", "type"],
+  title: "TransactionResponse",
+} as const;
+
+export const $TransactionState = {
+  enum: ["REVIEW", "PENDING", "PAID", "CANCELLED"],
+  title: "TransactionState",
+  description: "An enumeration.",
+} as const;
+
+export const $TransactionType = {
+  enum: ["DEPOSIT", "INTERNAL"],
+  title: "TransactionType",
+  description: "An enumeration.",
 } as const;
 
 export const $ValidationError = {
