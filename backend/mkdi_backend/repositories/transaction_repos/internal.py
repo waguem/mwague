@@ -4,6 +4,7 @@ from typing import List
 from mkdi_backend.models.Account import Account
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.models.transactions.transactions import Internal
+from mkdi_backend.utils.database import CommitMode, managed_tx_method
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas.protocol import InternalRequest, TransactionRequest, TransactionState, TransactionType
 
@@ -67,12 +68,11 @@ class InternalTransaction(AbstractTransaction):
         assert input.sender is not None
         assert input.sender != input.receiver
 
-        sender,receiver,office = self.enter()
-        self.db.add(sender)
-        self.db.add(receiver)
+        accounts = self.accounts()
+        if len(accounts) == 3:
+            office = accounts.pop()
 
-        if office:
-            self.db.add(office)
+        receiver,sender = accounts.pop(),accounts.pop()
 
         internal= Internal(
             amount=self.get_amount(),
@@ -80,15 +80,20 @@ class InternalTransaction(AbstractTransaction):
             office_id=user.office_id,
             org_id=user.organization_id,
             type=TransactionType.INTERNAL,
-            state=TransactionState.PENDING,
+            state=TransactionState.REVIEW,
+            charges=self.get_charges(),
             rate=self.get_rate(),
             sender_account_id=sender.id,
             receiver_account_id=receiver.id,
             created_by=user.user_db_id
         )
 
+        self.db.add(internal)
+
         return internal
 
+    def commit_transaction(self) -> None:
+        pass
     def cancel_transaction(self, user: KcUser, input: TransactionRequest) -> None:
         return Internal(
             amount=0,

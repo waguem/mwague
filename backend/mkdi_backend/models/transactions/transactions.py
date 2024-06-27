@@ -1,6 +1,6 @@
 from datetime import date
 from decimal import Decimal
-from typing import Optional
+from typing import Annotated, Optional
 from uuid import UUID, uuid4
 
 import sqlalchemy as sa
@@ -21,6 +21,8 @@ class Internal(TransactionDB,table=True):
 
     sender_account_id: UUID = Field(foreign_key="accounts.id")
     receiver_account_id: UUID = Field(foreign_key="accounts.id")
+
+    charges:Annotated[Decimal,Field(ge=0)]
 
     def to_response(self)->TransactionResponse:
         return TransactionResponse(

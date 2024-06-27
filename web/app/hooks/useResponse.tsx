@@ -6,9 +6,9 @@ import { FieldPath } from "react-hook-form";
 interface Props {
   response: State;
   setError: any;
-  reset: any;
+  onSuccess: any;
 }
-export default function useResponse({ response, setError, reset }: Props) {
+export default function useResponse({ response, setError, onSuccess }: Props) {
   useEffect(() => {
     if (!response) return;
     Swal.mixin({
@@ -27,7 +27,8 @@ export default function useResponse({ response, setError, reset }: Props) {
         });
       });
     } else {
-      reset();
+      onSuccess();
     }
-  }, [response, setError, reset]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [response, setError]);
 }

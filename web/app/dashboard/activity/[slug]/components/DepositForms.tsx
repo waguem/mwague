@@ -4,9 +4,9 @@ import ReactSelect from "react-select";
 
 import { Controller, useForm } from "react-hook-form";
 import { AccountResponse, AgentReponseWithAccounts } from "@/lib/client";
-import { currencySymbols } from "@/lib/utils";
+import { currencyOptions, currencySymbols } from "@/lib/utils";
 import clsx from "clsx";
-import { useMemo, useTransition } from "react";
+import { useCallback, useMemo, useTransition } from "react";
 import IconSend from "@/components/icon/icon-send";
 import { useFormState } from "react-dom";
 import { State } from "@/lib/actions";
@@ -16,9 +16,12 @@ import useResponse from "@/app/hooks/useResponse";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getResolver } from "@/lib/schemas/transactionsResolvers";
 import { ErrorMessage } from "@hookform/error-message";
+import { DEPOSIT_RESOLVER } from "@/lib/contants";
+import { fetchRevalidatePath } from "@/lib/actions/revalidate";
 
 interface Props {
-  agentWithAccounts: AgentReponseWithAccounts[];
+  agentWithAccounts: AgentReponseWithAccounts | undefined;
+  revalidatePath?: string;
 }
 
 interface TransactionBase {
@@ -28,35 +31,12 @@ interface TransactionBase {
   message?: string;
 }
 
-interface InternalRequestForm extends TransactionBase {
-  sender: string;
+interface DepositRequestForm extends TransactionBase {
   receiver: string;
   type: string;
-  charges: number;
 }
 
-// interface DepositForm extends TransactionBase{
-//     receiver:string;
-// }
-
-// interface Customer{
-//     name:string;
-//     email:string;
-//     phone:string;
-//     address:string;
-//     id:string
-// }
-
-// interface SendingForm extends TransactionBase{
-//     receiver:string;
-//     bid:number;
-//     offer:number;
-//     paymentcurrency:string;
-//     paymentmethod:string;
-//     customer:Customer
-// }
-
-export default function TransactionForms({ agentWithAccounts }: Props) {
+export default function DepositForms({ agentWithAccounts, revalidatePath }: Props) {
   const {
     register,
     control,
@@ -64,27 +44,25 @@ export default function TransactionForms({ agentWithAccounts }: Props) {
     reset,
     getValues,
     formState: { errors, isValid, touchedFields },
-  } = useForm<InternalRequestForm>({
+  } = useForm<DepositRequestForm>({
     mode: "all",
-    resolver: zodResolver(getResolver("INTERNAL")!.resolver),
+    resolver: zodResolver(getResolver(DEPOSIT_RESOLVER)!.resolver),
     defaultValues: {
-      sender: "",
       receiver: "",
-      type: "INTERNAL",
+      type: "DEPOSIT",
       currency: "USD",
       amount: 0,
       rate: 0,
-      charges: 0,
     },
   });
 
-  const accountsOptions = agentWithAccounts
-    .map((agent) => agent.accounts!)
-    .flat()
+  const accountsOptions = agentWithAccounts?.accounts
+    ?.filter((acc) => acc !== undefined)
     .map((account: AccountResponse) => ({
       label: `${account.initials} ${currencySymbols[account.currency]}`,
       value: account.initials,
     }));
+
   const [pending, startTransition] = useTransition();
   const [response, formAction] = useFormState<State, FormData>(addTransaction, null);
 
@@ -94,56 +72,28 @@ export default function TransactionForms({ agentWithAccounts }: Props) {
     });
   }, [register]);
 
+  const onSuccess = useCallback(async () => {
+    if (revalidatePath) {
+      fetchRevalidatePath(revalidatePath);
+    }
+    reset();
+  }, [reset, revalidatePath]);
   // revalidate currentPath
   // register for response notification swal
   useResponse({
     response,
     setError,
-    reset,
+    onSuccess,
   });
 
-  console.log(errors);
+  if (!accountsOptions) return null;
+
   return (
     <section className="bg-white dark:bg-gray-900">
-      <div className="py-8 px-4 mx-auto max-w-2xl lg:py-16">
-        <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">Add a internal</h2>
+      <div className="p-1 mx-auto max-w-2xl lg:py-4">
+        <h2 className="mb-4 text-sm font-bold text-gray-900 dark:text-white">Add a Deposit Transaction</h2>
         <form action={(formData) => startTransition(() => formAction(formData))}>
           <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
-            <div className="sm:col-span-1">
-              <label htmlFor="sender" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                Sender
-              </label>
-              <Controller
-                name="sender"
-                control={control}
-                render={({ field: { onChange, onBlur } }) => (
-                  <ReactSelect
-                    id="sender"
-                    placeholder="Select a option"
-                    options={accountsOptions}
-                    {...register("sender")}
-                    onChange={(option) => {
-                      onChange(option!.value);
-                    }}
-                    onBlur={onBlur}
-                    value={accountsOptions.find((option) => option.value === getValues("sender")) ?? null}
-                    className={clsx({
-                      "has-error": errors?.sender,
-                      "has-success": !errors?.sender,
-                    })}
-                  />
-                )}
-              />
-              <ErrorMessage
-                errors={errors}
-                name="sender"
-                render={({ message }) => (
-                  <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                    <span className="font-medium">Oops!</span> {message}
-                  </p>
-                )}
-              />
-            </div>
             <div className="sm:col-span-1">
               <label htmlFor="receiver" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                 Receiver
@@ -199,21 +149,48 @@ export default function TransactionForms({ agentWithAccounts }: Props) {
                 )}
               />
             </div>
+            <div className="sm:col-span-1">
+              <label htmlFor="currency" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                Currency
+              </label>
+              <Controller
+                name="currency"
+                control={control}
+                render={({ field: { onChange, onBlur } }) => (
+                  <ReactSelect
+                    id="currency"
+                    placeholder="Select a option"
+                    options={currencyOptions}
+                    isDisabled
+                    onChange={(option) => {
+                      onChange(option!.value);
+                    }}
+                    value={currencyOptions.find((option) => option.value === getValues("currency")) ?? null}
+                    onBlur={onBlur}
+                    className={clsx({
+                      "has-error": errors?.receiver,
+                      "has-success": !errors?.receiver,
+                      dark: true,
+                    })}
+                  />
+                )}
+              />
+            </div>
             <div className="w-full">
-              <label htmlFor="price" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                Rate
+              <label htmlFor="rate" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                Rate 1$ = {getValues("rate")} AED
               </label>
               <input
                 id="rate"
                 type="number"
                 {...register("rate", { required: true, valueAsNumber: true })}
-                placeholder="$1=3.67"
+                placeholder="1$=3.67AED"
                 step={"any"}
                 className={clsx(
                   "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500",
                   {
                     "bg-green-50 border-green-500 text-green-900": touchedFields.rate && !errors.rate,
-                    "bg-red-50 border-red-500 text-red-900": errors?.rate,
+                    "bg-red-50 border-red-500 text-red-900": errors.rate,
                   }
                 )}
               />
@@ -224,7 +201,7 @@ export default function TransactionForms({ agentWithAccounts }: Props) {
               </label>
               <textarea
                 id="message"
-                rows={4}
+                rows={1}
                 {...register("message")}
                 className={clsx(
                   "block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500",
@@ -234,6 +211,7 @@ export default function TransactionForms({ agentWithAccounts }: Props) {
               />
             </div>
             {hiddenInputs}
+            {/* <div className="w-full col-span-2 border-b border-gray-200 dark:border-gray-600" /> */}
             <div className="w-full col-span-2 flex justify-center">
               <button
                 disabled={!isValid}

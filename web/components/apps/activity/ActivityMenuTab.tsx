@@ -20,12 +20,11 @@ interface Props {
 }
 export default function ActivityMenuTab({ agents, office, activity }: Props) {
   const pathname = usePathname();
-  console.log(pathname);
   return (
     <div>
       <TabGroup>
         <div className="flex items-center justify-between text-xs mb-2">
-          <TabList className="mt-0 gap-2 space-x-0 flex flex-wrap border-b border-white-light dark:border-[#191e3a]">
+          <TabList className="w-full mt-0 gap-2 space-x-0 flex flex-wrap border-b border-white-light dark:border-[#191e3a]">
             <Tab as={Fragment}>
               {({ selected }) => (
                 <button
@@ -73,7 +72,7 @@ export default function ActivityMenuTab({ agents, office, activity }: Props) {
                       "flex w-full items-center justify-between rounded-md p-1 hover:bg-gray-100 hover:text-primary dark:hover:bg-[#050b14] dark:hover:text-primary",
                       {
                         "border-l-4 border-primary mb-1 bg-gray-100 text-primary dark:bg-[#050b14] dark:text-primary":
-                          pathname === `/dashboard/activity/${agent.initials}`,
+                          pathname.startsWith(`/dashboard/activity/${agent.initials}`),
                       }
                     )}
                   >

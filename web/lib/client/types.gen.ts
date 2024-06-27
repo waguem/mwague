@@ -119,9 +119,7 @@ export type Currency = "USD" | "EUR" | "AED" | "CFA" | "GNF" | "RMB";
 
 export type DepositRequest = {
   type: "DEPOSIT";
-  method: PaymentMethod;
   receiver: string;
-  account: string;
 };
 
 export type type = "DEPOSIT";
@@ -177,11 +175,6 @@ export type OrganizationResponse = {
   id: string;
 };
 
-/**
- * An enumeration.
- */
-export type PaymentMethod = "CASH" | "BANK" | "MOBILE";
-
 export type Rate = {
   currency: string;
   rate: number;
@@ -190,7 +183,7 @@ export type Rate = {
 export type TransactionRequest = {
   currency: Currency;
   amount: Amount;
-  charges: Amount;
+  charges?: Amount;
   data: InternalRequest | DepositRequest;
 };
 
@@ -315,18 +308,6 @@ export type StartActivityApiV1OfficeActivityPostData = {
 };
 
 export type StartActivityApiV1OfficeActivityPostResponse = ActivityResponse;
-
-export type CreateInternalApiV1TransactionsInternalPostData = {
-  requestBody: TransactionRequest;
-};
-
-export type CreateInternalApiV1TransactionsInternalPostResponse = TransactionResponse;
-
-export type CreateDepositApiV1TransactionsDepositPostData = {
-  requestBody: TransactionRequest;
-};
-
-export type CreateDepositApiV1TransactionsDepositPostResponse = TransactionResponse;
 
 export type GetAgentTransactionsApiV1AgentInitialsTransactionsGetData = {
   initials: string;
@@ -609,36 +590,6 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: ActivityResponse;
-        /**
-         * Validation Error
-         */
-        422: HTTPValidationError;
-      };
-    };
-  };
-  "/api/v1/transactions/internal": {
-    post: {
-      req: CreateInternalApiV1TransactionsInternalPostData;
-      res: {
-        /**
-         * Successful Response
-         */
-        201: TransactionResponse;
-        /**
-         * Validation Error
-         */
-        422: HTTPValidationError;
-      };
-    };
-  };
-  "/api/v1/transactions/deposit": {
-    post: {
-      req: CreateDepositApiV1TransactionsDepositPostData;
-      res: {
-        /**
-         * Successful Response
-         */
-        201: TransactionResponse;
         /**
          * Validation Error
          */

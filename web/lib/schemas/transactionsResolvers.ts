@@ -1,11 +1,32 @@
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { DepositRequest, InternalRequest, TransactionRequest } from "../client";
-import { revalidatePath } from "next/cache";
 // Step 1: Define the registry
 // Assuming you have Zod schemas defined somewhere
 
-const zNumber = z.preprocess(
+export const zNumber = z.preprocess(
+  (value) => {
+    // Attempt to convert string to number if it's a string that represents a number
+    if (typeof value === "string") {
+      const parsed = parseFloat(value);
+      // Check if the parsed value is a valid number and not NaN
+      if (!isNaN(parsed)) {
+        return parsed; // Return the parsed number for further validation
+      }
+    }
+    // Return the original value if it's not a string representing a number
+    return value;
+  },
+  z.union([
+    z.number({
+      message: "must be a number",
+    }),
+    z.literal("").refine(() => false, {
+      message: "This field is required",
+    }),
+  ])
+);
+export const zPNumber = z.preprocess(
   (value) => {
     // Attempt to convert string to number if it's a string that represents a number
     if (typeof value === "string") {
@@ -35,17 +56,17 @@ const zNumber = z.preprocess(
 export const Internal = zfd.formData({
   sender: zfd.text(z.string().max(20)).refine((value) => value.trim() !== ""),
   receiver: zfd.text(z.string().max(20)).refine((value) => value.trim() !== ""),
-  amount: zfd.text(zNumber),
-  rate: zfd.text(zNumber),
+  amount: zfd.text(zPNumber),
+  rate: zfd.text(zPNumber),
   message: zfd.text(z.string().max(255)),
 });
 
-// const Deposit = zfd.formData({
-//   receiver: zfd.text(z.string().max(20)).refine((value) => value.trim() !== ""),
-//   amount: zfd.text(z.number().positive()),
-//   rate: zfd.text(z.number().positive()),
-//   message: zfd.text(z.string().max(255)),
-// });
+const Deposit = zfd.formData({
+  receiver: zfd.text(z.string().max(20)).refine((value) => value.trim() !== ""),
+  amount: zfd.text(zPNumber),
+  rate: zfd.text(zPNumber),
+  message: zfd.text(z.string().max(255)),
+});
 
 export type Data = InternalRequest | DepositRequest;
 export interface FormResolver {
@@ -64,16 +85,11 @@ export interface FormResolver {
 
 const InternalFormResolver: FormResolver = {
   resolver: Internal,
-  revalidatePath: (data: FormData) => {
-    const sender = data.get("sender") as string;
-    const receiver = data.get("receiver") as string;
-    revalidatePath(`/dashboard/activity/${sender}`);
-    revalidatePath(`/dashboard/activity/${receiver}`);
-  },
   run: (data: FormData) => {
     // Do any processing here
     const parsed = Internal.safeParse(data);
-    if (!parsed.success) {
+    const charges = zNumber.safeParse(data.get("charges") as string);
+    if (!parsed.success || !charges.success) {
       return {
         error: "Invalid transaction data",
         status: "error",
@@ -101,8 +117,8 @@ const InternalFormResolver: FormResolver = {
         rate: +parsed.data.rate,
       },
       charges: {
-        amount: 0,
-        rate: 0,
+        amount: +charges.data,
+        rate: +parsed.data.rate,
       },
       currency: data.get("currency") as string,
       data: {
@@ -113,8 +129,38 @@ const InternalFormResolver: FormResolver = {
     };
   },
 };
+
+const DepositFormResolver: FormResolver = {
+  resolver: Deposit,
+  run: (data: FormData) => {
+    const parsed = Deposit.safeParse(data);
+    if (!parsed.success) {
+      return {
+        status: "error",
+        error: "Invalid transaction data",
+        errors: parsed.error.errors.map((error) => ({
+          path: error.path.join("."),
+          message: error.message,
+        })),
+      };
+    }
+
+    return {
+      amount: {
+        amount: +parsed.data.amount,
+        rate: +parsed.data.rate,
+      },
+      currency: data.get("currency") as string,
+      data: {
+        receiver: parsed.data.receiver,
+        type: "DEPOSIT",
+      },
+    };
+  },
+};
 const resolverRegistry: Record<string, FormResolver> = {
   INTERNAL: InternalFormResolver,
+  DEPOSIT: DepositFormResolver,
 };
 
 // Step 2: Create the function

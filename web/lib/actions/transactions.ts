@@ -17,7 +17,6 @@ export const getAgentTransactions = cache(async (initials: string) => {
 });
 
 export async function addTransaction(prevSate: State, data: FormData): Promise<State> {
-  console.log(data);
   const resolver = getResolver(data.get("type") as string);
   if (!resolver) {
     return { message: "Invalid transaction type", status: "error" };
@@ -36,10 +35,6 @@ export async function addTransaction(prevSate: State, data: FormData): Promise<S
     const response = await requestTransactionApi({
       requestBody: validation,
     });
-
-    if (resolver.revalidatePath) {
-      resolver.revalidatePath(data);
-    }
 
     return { message: `${response.type} Transaction ${response.code} added successfully`, status: "success" };
   } catch (e) {

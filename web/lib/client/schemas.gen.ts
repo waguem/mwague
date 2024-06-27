@@ -95,15 +95,15 @@ export const $AgentReponseWithAccounts = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -144,15 +144,15 @@ export const $AgentResponse = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -185,13 +185,13 @@ export const $Amount = {
   properties: {
     amount: {
       type: "number",
-      exclusiveMinimum: 0,
+      minimum: 0,
       title: "Amount",
       strict: true,
     },
     rate: {
       type: "number",
-      exclusiveMinimum: 0,
+      minimum: 0,
       title: "Rate",
       strict: true,
     },
@@ -277,15 +277,15 @@ export const $CreateAgentRequest = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -319,15 +319,15 @@ export const $CreateEmployeeRequest = {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     username: {
       type: "string",
       maxLength: 128,
       title: "Username",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     office_id: {
       type: "string",
@@ -363,8 +363,8 @@ export const $CreateOfficeRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     name: {
       type: "string",
@@ -384,8 +384,8 @@ export const $CreateOrganizationRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     org_name: {
       type: "string",
@@ -412,20 +412,13 @@ export const $DepositRequest = {
       enum: ["DEPOSIT"],
       title: "Type",
     },
-    method: {
-      $ref: "#/components/schemas/PaymentMethod",
-    },
     receiver: {
       type: "string",
       title: "Receiver",
     },
-    account: {
-      type: "string",
-      title: "Account",
-    },
   },
   type: "object",
-  required: ["type", "method", "receiver", "account"],
+  required: ["type", "receiver"],
   title: "DepositRequest",
 } as const;
 
@@ -435,15 +428,15 @@ export const $EmployeeResponse = {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     username: {
       type: "string",
       maxLength: 128,
       title: "Username",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     id: {
       type: "string",
@@ -479,15 +472,15 @@ export const $EmployeeResponseComplete = {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     username: {
       type: "string",
       maxLength: 128,
       title: "Username",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     id: {
       type: "string",
@@ -567,8 +560,8 @@ export const $OfficeResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     name: {
       type: "string",
@@ -607,8 +600,8 @@ export const $OrganizationResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     org_name: {
       type: "string",
@@ -625,12 +618,6 @@ export const $OrganizationResponse = {
   type: "object",
   required: ["initials", "org_name", "id"],
   title: "OrganizationResponse",
-} as const;
-
-export const $PaymentMethod = {
-  enum: ["CASH", "BANK", "MOBILE"],
-  title: "PaymentMethod",
-  description: "An enumeration.",
 } as const;
 
 export const $Rate = {
@@ -682,7 +669,7 @@ export const $TransactionRequest = {
     },
   },
   type: "object",
-  required: ["currency", "amount", "charges", "data"],
+  required: ["currency", "amount", "data"],
   title: "TransactionRequest",
 } as const;
 
@@ -690,11 +677,15 @@ export const $TransactionResponse = {
   properties: {
     amount: {
       type: "number",
+      minimum: 0,
       title: "Amount",
+      strict: true,
     },
     rate: {
       type: "number",
+      exclusiveMinimum: 0,
       title: "Rate",
+      strict: true,
     },
     code: {
       type: "string",

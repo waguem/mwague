@@ -36,6 +36,9 @@ export const protectedURIs = [
   // Add more URIs and their roles here
   new ProtectedURI(/^\/dashboard\/activity$/, "basic"),
   new ProtectedURI(/^\/dashboard\/activity\/[a-zA-Z]+$/, "basic"),
+  new ProtectedURI(/^\/dashboard\/activity\/[a-zA-Z]{1,9}\/.*$/, "basic"),
+  // next internal api urls
+  new ProtectedURI(/^\/api\/revalidate$/, "basic"),
 ];
 
 export function isPublicURL(pathname: string) {

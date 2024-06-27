@@ -49,6 +49,7 @@ export default function FormModal({ children, title, action, state, onSuccess, i
       }, 300);
     }
     // close the dialog after 300 milliseconds
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   return (

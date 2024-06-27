@@ -39,10 +39,6 @@ import type {
   GetActivityApiV1OfficeActivityGetResponse,
   StartActivityApiV1OfficeActivityPostData,
   StartActivityApiV1OfficeActivityPostResponse,
-  CreateInternalApiV1TransactionsInternalPostData,
-  CreateInternalApiV1TransactionsInternalPostResponse,
-  CreateDepositApiV1TransactionsDepositPostData,
-  CreateDepositApiV1TransactionsDepositPostResponse,
   GetAgentTransactionsApiV1AgentInitialsTransactionsGetData,
   GetAgentTransactionsApiV1AgentInitialsTransactionsGetResponse,
   RequestTransactionApiV1TransactionPostData,
@@ -469,48 +465,6 @@ export const startActivityApiV1OfficeActivityPost = (
   return __request(OpenAPI, {
     method: "POST",
     url: "/api/v1/office/activity",
-    body: data.requestBody,
-    mediaType: "application/json",
-    errors: {
-      422: "Validation Error",
-    },
-  });
-};
-
-/**
- * Create Internal
- * @param data The data for the request.
- * @param data.requestBody
- * @returns TransactionResponse Successful Response
- * @throws ApiError
- */
-export const createInternalApiV1TransactionsInternalPost = (
-  data: CreateInternalApiV1TransactionsInternalPostData
-): CancelablePromise<CreateInternalApiV1TransactionsInternalPostResponse> => {
-  return __request(OpenAPI, {
-    method: "POST",
-    url: "/api/v1/transactions/internal",
-    body: data.requestBody,
-    mediaType: "application/json",
-    errors: {
-      422: "Validation Error",
-    },
-  });
-};
-
-/**
- * Create Deposit
- * @param data The data for the request.
- * @param data.requestBody
- * @returns TransactionResponse Successful Response
- * @throws ApiError
- */
-export const createDepositApiV1TransactionsDepositPost = (
-  data: CreateDepositApiV1TransactionsDepositPostData
-): CancelablePromise<CreateDepositApiV1TransactionsDepositPostResponse> => {
-  return __request(OpenAPI, {
-    method: "POST",
-    url: "/api/v1/transactions/deposit",
     body: data.requestBody,
     mediaType: "application/json",
     errors: {

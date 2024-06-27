@@ -1,11 +1,4 @@
-export default async function AgentPage({
-  params,
-}: {
-  params: {
-    slug: string;
-  };
-}) {
-  console.log(params.slug);
+export default async function AgentPage() {
   return (
     <div>
       <div className="panel mt-5"></div>

@@ -20,34 +20,12 @@ class TransactionRepository:
     def __init__(self,db:Session):
         self.db = db
 
-    def add_transaction(self,user:KcUser,input:TransactionRequest):
+    def request_for_approval(self,user:KcUser,input:TransactionRequest):
         match input.data.type:
             case "INTERNAL":
-                return self.do_internal(user,input)
+                return internal.InternalTransaction(self.db,user,input).request()
             case "DEPOSIT":
-                return self.do_deposit(user,input)
-
-    def do_transaction(self,transaction:AbstractTransaction):
-        return transaction.commit()
-
-    def do_internal(self,user,input):
-        return self.do_transaction(internal.InternalTransaction(self.db,user,input))
-
-    def do_deposit(self,user,input):
-        return self.do_transaction(deposit.DepositTransaction(self.db,user,input))
-
-
-    def validate_input(self,user:KcUser,input:TransactionRequest):
-        from loguru import logger
-        try:
-            logger.info(f"Validating input {input.dict()}")
-            TransactionRequest(**input.dict())
-        except ValidationError as e:
-            logger.error(f"Validation error {e}")
-            raise MkdiError(
-                f"Invalid input",
-                error_code=MkdiErrorCode.INVALID_INPUT,
-            )
+                return deposit.DepositTransaction(self.db,user,input).request()
 
     def get_agent_transactions(self,user,initials:str)->List[TransactionResponse]:
 

@@ -175,9 +175,9 @@ class PaymentMethod(Enum):
     MOBILE="MOBILE"
 
 class TransactionBase(SQLModel):
-    amount: Decimal
-    rate: Decimal
-    code: Annotated[str,SQLModelField(max_length=16,nullable=False,unique=True)]
+    amount: Annotated[Decimal,Field(strict=True,ge=0)]
+    rate: Annotated[Decimal,Field(strict=True,gt=0)]
+    code: Annotated[str,SQLModelField(max_length=64,nullable=False,unique=True)]
     state: TransactionState
     type: TransactionType
     created_at: Annotated[datetime,Field(default_factory=datetime.now)]
@@ -208,14 +208,12 @@ class InternalRequest(BaseModel):
     receiver: str
 class DepositRequest(BaseModel):
     type: Literal["DEPOSIT"]
-    method: PaymentMethod
     receiver: str
-    account: str
 
 class TransactionRequest(BaseModel):
     currency: Currency
     amount: Amount
-    charges: Amount
+    charges: Amount | None
 
     data : Union[
         InternalRequest,

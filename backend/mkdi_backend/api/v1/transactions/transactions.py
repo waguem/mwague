@@ -27,4 +27,4 @@ def request_transaction(
 )-> protocol.TransactionResponse:
 
     repo = TransactionRepository(db)
-    return repo.add_transaction(user,input)
+    return repo.request_for_approval(user,input)

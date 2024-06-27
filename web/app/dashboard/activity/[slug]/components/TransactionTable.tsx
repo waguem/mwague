@@ -1,3 +1,7 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+
 type Transaction = {
   code: string;
   state: string;
@@ -8,16 +12,17 @@ type Transaction = {
 };
 interface Props {
   transactions: Transaction[];
+  slug: string;
 }
 
-export default function TransactionTable({ transactions }: Props) {
+export default function TransactionTable({ transactions, slug }: Props) {
+  const router = useRouter();
+  const visit = (code: string) => {
+    router.push(`/dashboard/activity/${slug}/view/${code}`);
+  };
   return (
     <>
-      <div className="flex items-end justify-between gap-4 mt-4 ml-4">
-        <h4 className="text-2xl/8 font-semibold text-zinc-950 sm:text-xl/8 dark:text-white">Transactions</h4>
-      </div>
-
-      <table className="table mt-8 [--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
+      <table className="table mt-1 [--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
         <thead className="text-zinc-500 dark:text-zinc-400">
           <tr className="text-xs/5 font-semibold text-zinc-500 dark:text-zinc-400">
             <th className="text-left">Code</th>
@@ -30,6 +35,7 @@ export default function TransactionTable({ transactions }: Props) {
           {transactions.map((transaction: Transaction) => (
             <tr
               key={transaction.code}
+              onClick={() => visit(transaction.code)}
               className="text-xs/5 text-zinc-500 dark:text-zinc-400 hover:cursor-pointer hover:bg-zinc-950/5"
             >
               <td className="py-4">{transaction.code}</td>

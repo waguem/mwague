@@ -85,8 +85,8 @@ export const getMyAgents = cache(async () => {
 // import "server-only"
 import { AgentReponseWithAccounts, getAgentsApiV1OfficeAgentGet as getMyOfficeAgentsApi } from "@/lib/client";
 
-export async function getMyOfficeAgents(): Promise<AgentReponseWithAccounts[]> {
+export const getMyOfficeAgents = cache((): Promise<AgentReponseWithAccounts[]> => {
   return withToken(async () => {
     return await getMyOfficeAgentsApi();
   });
-}
+});

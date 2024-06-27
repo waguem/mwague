@@ -5,7 +5,7 @@ from mkdi_backend.models.Account import Account
 from mkdi_backend.models.Activity import FundCommit
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.models.transactions.transactions import Deposit
-from mkdi_shared.schemas.protocol import CancelRequest, TransactionRequest, TransactionState, TransactionType
+from mkdi_shared.schemas.protocol import CancelRequest, DepositRequest, TransactionState, TransactionType
 
 from .AbstractTransaction import AbstractTransaction
 
@@ -13,8 +13,8 @@ from .AbstractTransaction import AbstractTransaction
 class DepositTransaction(AbstractTransaction):
     """
     """
-    def generate_code(self):
-        return f"{self.get_inputs().receiver}-DEP-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    def generate_code(self,initials):
+        return f"{initials}D{datetime.now().strftime('%m%d%H%M%S')}"
 
     def accounts(self)->List[Account]:
         """
@@ -49,27 +49,30 @@ class DepositTransaction(AbstractTransaction):
         self.db.add(fund)
         return receiver_account,fund
 
-    def do_transaction(self) -> None:
+    def do_transaction(self) -> Deposit:
         user: KcUser = self.user
-        input: TransactionRequest = self.get_inputs()
+        input: DepositRequest = self.get_inputs()
         assert input.receiver is not None
-        account,fund = self.enter()
-        history = self.create_history(fund)
+        account = self.use_account(input.receiver)
+        assert account is not None
+
         deposit = Deposit(
             account_id=account.id,
-            amount=input.amount.amount,
-            code=self.generate_code(),
+            amount=self.get_amount(),
+            code=self.generate_code(account.initials),
             created_at=datetime.now(),
             created_by=user.user_db_id,
             office_id=user.office_id,
             org_id=user.organization_id,
-            rate=input.amount.rate,
-            state=TransactionState.PAID,
+            rate=self.get_rate(),
+            state=TransactionState.REVIEW,
             type=TransactionType.DEPOSIT
         )
-        self.db.add(history)
+        self.db.add(deposit)
         return deposit
 
+    def commit_transaction(self) -> None:
+        pass
 
     def cancel_transaction(self) -> None:
 
