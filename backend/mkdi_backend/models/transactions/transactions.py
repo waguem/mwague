@@ -9,7 +9,7 @@ from mkdi_shared.schemas.protocol import PaymentMethod, TransactionDB, Transacti
 from sqlmodel import JSON, Field, Index
 
 
-class Internal(TransactionDB,table=True):
+class Internal(TransactionDB, table=True):
     __tablename__ = "internals"
 
     """
@@ -18,32 +18,28 @@ class Internal(TransactionDB,table=True):
       for the benefit of the office.
       It can be canceled by an administrator.
     """
+    sender_initials: str = Field(foreign_key="accounts.initials")
+    receiver_initials: str = Field(foreign_key="accounts.initials")
 
-    sender_account_id: UUID = Field(foreign_key="accounts.id")
-    receiver_account_id: UUID = Field(foreign_key="accounts.id")
+    charges: Annotated[Decimal, Field(ge=0)]
 
-    charges:Annotated[Decimal,Field(ge=0)]
-
-    def to_response(self)->TransactionResponse:
-        return TransactionResponse(
-            **self.dict()
-        )
+    def to_response(self) -> TransactionResponse:
+        return TransactionResponse(**self.dict())
 
 
-
-class Deposit(TransactionDB,table=True):
+class Deposit(TransactionDB, table=True):
     __tablename__ = "deposits"
     """
         A deposit transaction is made for an account domiciled in the office.
         It cannot be subject to fees.
     """
-    account_id: UUID = Field(foreign_key="accounts.id")
+    owner_initials: str = Field(foreign_key="accounts.initials")
 
-    def to_response(self)->TransactionResponse:
-        return TransactionResponse(
-            **self.dict()
-        )
-class Sending(TransactionDB,table=True):
+    def to_response(self) -> TransactionResponse:
+        return TransactionResponse(**self.dict())
+
+
+class Sending(TransactionDB, table=True):
     __tablename__ = "sendings"
     """
     A transfer transaction is made by a client of the office and the payment is made elsewhere by an office collaborator.
@@ -58,16 +54,19 @@ class Sending(TransactionDB,table=True):
     offer_rate: Decimal
     method: PaymentMethod
 
-class ForEx(TransactionDB,table=True):
+
+class ForEx(TransactionDB, table=True):
     """
     Une transaction de change est effectué
     """
+
     __tablename__ = "forex"
     bid_rate: Decimal
     offer_rate: Decimal
     method: PaymentMethod
 
-class External(TransactionDB,table=True):
+
+class External(TransactionDB, table=True):
     __tablename__ = "externals"
     """
        A Transaction is a transaction made to a third party's account for the office.

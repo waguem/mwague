@@ -1,7 +1,12 @@
 from typing import Annotated, List
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Security, status
-from mkdi_backend.api.deps import check_authorization, get_db, get_user_info, hasSufficientPermissions
+from mkdi_backend.api.deps import (
+    check_authorization,
+    get_db,
+    get_user_info,
+    hasSufficientPermissions,
+)
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.repositories.office import OfficeRepository
 from mkdi_shared.schemas import protocol

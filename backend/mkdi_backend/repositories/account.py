@@ -20,7 +20,6 @@ class AccountRepository:
     def __init__(self, db: Session):
         self.db = db
 
-
     def get_office_fund_account(self, office_id: str) -> Account:
         """
         Retrieves the fund account associated with a specific office.
@@ -121,7 +120,6 @@ class AccountRepository:
         """
         return self.db.query(Account).filter(Account.owner_id == owner_id).all()
 
-
     def check_invariant(self, org_id: str, office_id: str) -> bool:
         """
         Check the invariant for the given organization and office.
@@ -136,16 +134,22 @@ class AccountRepository:
         try:
 
             # Query to get the sum of balances for positive accounts and the fund account balance in one go
-            positive_balance_sum, fund_balance = self.db.query(
-                func.sum(Account.balance).filter(Account.type != protocol.AccountType.FUND),
-                func.sum(Account.balance).filter(Account.type == protocol.AccountType.FUND)
-            ).filter(Account.office_id == office_id).one()
+            positive_balance_sum, fund_balance = (
+                self.db.query(
+                    func.sum(Account.balance).filter(Account.type != protocol.AccountType.FUND),
+                    func.sum(Account.balance).filter(Account.type == protocol.AccountType.FUND),
+                )
+                .filter(Account.office_id == office_id)
+                .one()
+            )
 
             # Convert None to 0 if there are no positive accounts or no fund account
             positive_balance_sum = positive_balance_sum or 0
             fund_balance = fund_balance or 0
 
-            logger.info(f"Total positive balance: {positive_balance_sum}, Fund account balance: {fund_balance}")
+            logger.info(
+                f"Total positive balance: {positive_balance_sum}, Fund account balance: {fund_balance}"
+            )
 
             # Check the invariant
             invariant_check = Decimal(positive_balance_sum) - Decimal(fund_balance)

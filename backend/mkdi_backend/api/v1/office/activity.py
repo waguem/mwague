@@ -10,7 +10,7 @@ from sqlmodel import Session
 router = APIRouter()
 
 
-@router.get("/office/activity",response_model=protocol.ActivityResponse | None,status_code=200)
+@router.get("/office/activity", response_model=protocol.ActivityResponse | None, status_code=200)
 def get_activity(
     *,
     user: Annotated[KcUser, Security(check_authorization, scopes=["office_admin"])],
@@ -19,12 +19,11 @@ def get_activity(
     return ActivityRepo(db).get_current_activity(office_id=user.office_id)
 
 
-
-@router.post("/office/activity",response_model=protocol.ActivityResponse,status_code=200)
+@router.post("/office/activity", response_model=protocol.ActivityResponse, status_code=200)
 def start_activity(
     *,
     user: Annotated[KcUser, Security(check_authorization, scopes=["office_admin"])],
     input: protocol.CreateActivityRequest,
     db: Session = Depends(get_db),
-)->protocol.ActivityResponse:
+) -> protocol.ActivityResponse:
     return ActivityRepo(db).start_activity(auth_user=user, input=input)

@@ -45,8 +45,8 @@ class Activity(ActivityBase, table=True):
     started_by: UUID = Field(foreign_key="employees.id", nullable=True)
     closed_by: UUID = Field(foreign_key="employees.id", nullable=True)
     office_id: UUID = Field(foreign_key="offices.id")
-    openning_rate: dict | list[dict] = Field(default={},sa_column=sa.Column(pg.JSONB))
-    closing_rate: dict | list[dict]  = Field(default={},sa_column=sa.Column(pg.JSONB))
+    openning_rate: dict | list[dict] = Field(default={}, sa_column=sa.Column(pg.JSONB))
+    closing_rate: dict | list[dict] = Field(default={}, sa_column=sa.Column(pg.JSONB))
 
     openning_fund: Decimal
     closing_fund: Decimal

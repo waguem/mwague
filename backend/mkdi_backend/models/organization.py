@@ -1,3 +1,5 @@
+"""Organization model."""
+
 from typing import Optional
 from uuid import UUID, uuid4
 
@@ -8,6 +10,8 @@ from sqlmodel import Field, Relationship
 
 
 class Organization(OrganizationBase, table=True):
+    """Organization class."""
+
     __tablename__ = "organizations"
 
     id: Optional[UUID] = Field(

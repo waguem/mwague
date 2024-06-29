@@ -13,6 +13,7 @@ alembic upgrade head
 # pip install --upgrade pip
 # echo "installing requirements"
 pip install --no-cache-dir -r /backend/requirements.txt
+pip install debugpy
 pip install -e /mkdi-shared[dev]
 pip install -e /functional-tests[dev]
 echo "running migrations"

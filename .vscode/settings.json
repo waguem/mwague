@@ -1,11 +1,12 @@
 {
   "python.analysis.extraPaths": [
-    "${workspaceFolder}/oasst-shared",
+    "${workspaceFolder}/mkdi-shared",
     "./mkdi-shared"
   ],
   "prettier.singleQuote": false,
-  "eslint.workingDirectories": ["./website", "./docs"],
-  "python.testing.pytestArgs": ["backend/tests", "oasst-shared/tests"],
+  "eslint.workingDirectories": ["./web", "./docs"],
+  "python.testing.pytestArgs": ["backend/tests", "mkdi-shared/tests"],
   "python.testing.unittestEnabled": false,
-  "python.testing.pytestEnabled": true
+  "python.testing.pytestEnabled": true,
+  "pylint.cwd": "${workspaceFolder}/backend"
 }

@@ -59,6 +59,7 @@ services:
       - "./mkdi-shared:/mkdi-shared"
       - "./functional-tests:/functional-tests"
       - "./scripts/prestart.sh:/app/prestart.sh"
+      - "./scripts/start-debug.sh:/start-reload.sh"
     command: /start-reload.sh
     environment:
       - POSTGRES_HOST=mkdi-db
@@ -80,6 +81,7 @@ services:
     profiles: ["frontend-dev", "backend-dev"]
     ports:
       - "8080:8080"
+      - "9696:9696" # debug port
   # The mkdi backend celery worker service.
   backend-worker:
     build:

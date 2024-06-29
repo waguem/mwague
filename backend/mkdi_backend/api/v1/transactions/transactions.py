@@ -1,3 +1,5 @@
+"""Transaction API endpoints."""
+
 from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, Security
@@ -9,22 +11,45 @@ from sqlmodel import Session
 
 router = APIRouter()
 
-@router.get("/agent/{initials}/transactions",response_model=List[protocol.TransactionResponse], status_code=200)
+
+@router.get(
+    "/agent/{initials}/transactions",
+    response_model=List[protocol.TransactionResponse],
+    status_code=200,
+)
 def get_agent_transactions(
     *,
     user: Annotated[KcUser, Security(check_authorization, scopes=[])],
     initials: str,
     db: Session = Depends(get_db),
-)-> list[protocol.TransactionResponse]:
-    return TransactionRepository(db).get_agent_transactions(user,initials)
+) -> list[protocol.TransactionResponse]:
+    """get all transactions for an agent"""
+    return TransactionRepository(db).get_agent_transactions(user, initials)
 
-@router.post("/transaction",response_model=protocol.TransactionResponse, status_code=201)
+
+@router.post("/transaction", response_model=protocol.TransactionResponse, status_code=201)
 def request_transaction(
     *,
     user: Annotated[KcUser, Security(check_authorization, scopes=[])],
-    input: protocol.TransactionRequest,
+    usr_input: protocol.TransactionRequest,
     db: Session = Depends(get_db),
-)-> protocol.TransactionResponse:
-
+) -> protocol.TransactionResponse:
+    """request a transaction for approval, this will just created the transaction in the db"""
     repo = TransactionRepository(db)
-    return repo.request_for_approval(user,input)
+    return repo.request_for_approval(user, usr_input)
+
+
+@router.post(
+    "/transaction/{transaction_code}/review",
+    response_model=protocol.TransactionResponse,
+    status_code=200,
+)
+def review_transaction(
+    *,
+    user: Annotated[KcUser, Security(check_authorization, scopes=["office_admin"])],
+    transaction_code: str,
+    usr_input: protocol.TransactionReviewReq,
+    db: Session = Depends(get_db),
+) -> protocol.TransactionResponse:
+    """review a transaction request"""
+    return TransactionRepository(db).review_transaction(transaction_code, user, usr_input)

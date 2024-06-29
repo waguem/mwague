@@ -122,7 +122,7 @@ def hasSufficientPermissions(user_roles, required_roles: list = []) -> bool:
         return True
 
     for r in user_roles:
-        if Role.is_valid(r) and Role.from_str(r).canAccess(Role.from_str(required_roles[0])):
+        if Role.is_valid(r) and Role.from_str(r).can_access(Role.from_str(required_roles[0])):
             return True
 
     return False

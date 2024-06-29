@@ -9,7 +9,7 @@ import sqlalchemy.dialects.postgresql as pg
 from mkdi_shared.exceptions.mkdi_api_error import MkdiErrorCode
 from pydantic import BaseModel, Field, root_validator
 from sqlmodel import Field as SQLModelField
-from sqlmodel import Index, SQLModel
+from sqlmodel import SQLModel
 
 
 class OrganizationBase(SQLModel):
@@ -30,9 +30,11 @@ class OfficeBase(SQLModel):
     initials: str = Field(nullable=False, max_length=8, unique=True)
     name: str = Field(nullable=False, max_length=64)
 
+
 class OfficeResponse(OfficeBase):
     id: UUID
     currencies: dict | list[dict] | None = None
+
 
 class CreateOfficeRequest(OfficeBase):
     pass
@@ -108,6 +110,12 @@ class CreateAgentRequest(AgentBase):
     office_id: UUID | None = None
 
 
+class TransactionCommit(BaseModel):
+    balance: float
+    amount: float
+    initials: str
+
+
 class AgentResponse(AgentBase):
     pass
 
@@ -117,6 +125,19 @@ class AccountBase(SQLModel):
     currency: Currency
     initials: str = SQLModelField(nullable=False, max_length=4, unique=True)
     balance: Decimal = Field(default=0, max_digits=5, decimal_places=3, nullable=True)
+
+    def credit(self, amount: Decimal) -> TransactionCommit:
+        commit = self.get_commit(amount)
+        self.balance += amount
+        return commit
+
+    def debit(self, amount: Decimal) -> TransactionCommit:
+        commit = self.get_commit(amount)
+        self.balance -= amount
+        return commit
+
+    def get_commit(self, amount: Decimal) -> TransactionCommit:
+        return TransactionCommit(balance=self.balance, amount=amount, initials=self.initials)
 
 
 class CreateAccountRequest(AccountBase):
@@ -130,8 +151,10 @@ class AccountResponse(AccountBase):
     created_by: UUID | None = None
     office_id: UUID | None = None
 
+
 class AgentReponseWithAccounts(AgentBase):
     accounts: List[AccountResponse] | None = []
+
 
 class ActivityState(Enum):
     OPEN = "OPEN"
@@ -143,6 +166,7 @@ class ActivityBase(SQLModel):
     started_at: date
     state: ActivityState
 
+
 class ActivityResponse(ActivityBase):
 
     openning_fund: Decimal
@@ -150,13 +174,14 @@ class ActivityResponse(ActivityBase):
     openning_rate: dict | None
     closing_rate: dict | None
 
+
 class Rate(BaseModel):
     currency: str
-    rate: Annotated[Decimal,Field(strict=True,gt=0)]
+    rate: Annotated[Decimal, Field(strict=True, gt=0)]
+
 
 class CreateActivityRequest(BaseModel):
     rates: List[Rate]
-
 
 
 class TransactionState(Enum):
@@ -165,25 +190,29 @@ class TransactionState(Enum):
     PAID = "PAID"
     CANCELLED = "CANCELLED"
 
+
 class TransactionType(Enum):
-    DEPOSIT="DEPOSIT"
-    INTERNAL="INTERNAL"
+    DEPOSIT = "DEPOSIT"
+    INTERNAL = "INTERNAL"
+
 
 class PaymentMethod(Enum):
-    CASH="CASH"
-    BANK="BANK"
-    MOBILE="MOBILE"
+    CASH = "CASH"
+    BANK = "BANK"
+    MOBILE = "MOBILE"
+
 
 class TransactionBase(SQLModel):
-    amount: Annotated[Decimal,Field(strict=True,ge=0)]
-    rate: Annotated[Decimal,Field(strict=True,gt=0)]
-    code: Annotated[str,SQLModelField(max_length=64,nullable=False,unique=True)]
+    amount: Annotated[Decimal, Field(strict=True, ge=0)]
+    rate: Annotated[Decimal, Field(strict=True, gt=0)]
+    code: Annotated[str, SQLModelField(max_length=64, nullable=False, unique=True)]
     state: TransactionState
     type: TransactionType
-    created_at: Annotated[datetime,Field(default_factory=datetime.now)]
+    created_at: Annotated[datetime, Field(default_factory=datetime.now)]
 
 
 class TransactionDB(TransactionBase):
+    """Transaction database model"""
 
     id: Optional[UUID] = SQLModelField(
         sa_column=sa.Column(
@@ -194,37 +223,71 @@ class TransactionDB(TransactionBase):
         )
     )
 
-    office_id: UUID =SQLModelField(foreign_key="offices.id")
+    office_id: UUID = SQLModelField(foreign_key="offices.id")
     org_id: UUID = SQLModelField(foreign_key="organizations.id")
     created_by: UUID = SQLModelField(foreign_key="employees.id")
 
+    history: dict | None = SQLModelField(default={}, sa_column=sa.Column(pg.JSONB))
+
+    def save_commit(self, commits: List[TransactionCommit]) -> None:
+        """save the commits to the history"""
+        # load jsonb from self.history
+        if "history" not in self.history:
+            self.history["history"] = []
+        item = {}
+        item["commits"] = commits
+        self.history["history"].append(item)
+
+
 class Amount(BaseModel):
-    amount: Annotated[Decimal,Field(strict=True,ge=0)]
-    rate: Annotated[Decimal,Field(strict=True,ge=0)]
+    """Amount and rate of a transaction."""
+
+    amount: Annotated[Decimal, Field(strict=True, ge=0)]
+    rate: Annotated[Decimal, Field(strict=True, ge=0)]
+
 
 class InternalRequest(BaseModel):
+    """Internal transaction request."""
+
     type: Literal["INTERNAL"]
     sender: str
     receiver: str
+
+
 class DepositRequest(BaseModel):
     type: Literal["DEPOSIT"]
     receiver: str
+
+
+class ValidationState(Enum):
+    APPROVED = "APPROVED"
+    INVALID = "INVALID"
+    CANCELLED = "CANCELLED"
+
 
 class TransactionRequest(BaseModel):
     currency: Currency
     amount: Amount
     charges: Amount | None
 
-    data : Union[
-        InternalRequest,
-        DepositRequest
-    ] = Field(...,discriminator="type")
+    data: Union[InternalRequest, DepositRequest] = Field(..., discriminator="type")
+
+
+class TransactionReviewReq(TransactionRequest):
+    code: str
+    type: TransactionType
+    state: Annotated[ValidationState, Field(nullable=False)]
+
 
 class CancelRequest(BaseModel):
-    code:str
-    reason:str
+    code: str
+    reason: str
+
+
 class TransactionResponse(TransactionBase):
     pass
+
+
 class MkdiErrorResponse(BaseModel):
     """The format of an error response from the OASST API."""
 

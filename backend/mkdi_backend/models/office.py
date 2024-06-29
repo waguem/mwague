@@ -1,3 +1,5 @@
+"""Office model."""
+
 from typing import Optional
 from uuid import UUID, uuid4
 
@@ -8,6 +10,8 @@ from sqlmodel import Field, Relationship
 
 
 class Office(OfficeBase, table=True):
+    """Office class"""
+
     __tablename__ = "offices"
 
     id: Optional[UUID] = Field(
@@ -23,20 +27,4 @@ class Office(OfficeBase, table=True):
     organization: "Organization" = Relationship(back_populates="offices")  # type: ignore
 
     employees: list["Employee"] = Relationship(back_populates="office")  # type: ignore
-    """
-     [
-        {
-            "name":"USD",
-            "main":true,
-            "default_rate":1.0,
-            "enabled":true
-        },
-        {
-            "name":"EUR",
-            "main":false,
-            "default_rate":1.2,
-            "enabled":false
-        }
-     ]
-    """
-    currencies: list[dict]  | None = Field(default={},sa_column=sa.Column(pg.JSONB))
+    currencies: list[dict] | None = Field(default={}, sa_column=sa.Column(pg.JSONB))

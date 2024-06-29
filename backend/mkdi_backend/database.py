@@ -1,5 +1,6 @@
 from mkdi_backend.config import settings
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
+from psycopg2.extras import register_default_jsonb
 from sqlmodel import create_engine
 
 if settings.DATABASE_URI is None:

@@ -1,7 +1,11 @@
+"""Kc User model"""
+
 from pydantic import BaseModel
 
 
 class KcUser(BaseModel):
+    """Kc user model"""
+
     id: str
     username: str
     email: str

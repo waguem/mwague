@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends
+"""oauth2_scheme is used for fastapi authentification"""
+
 from fastapi.security import OAuth2AuthorizationCodeBearer
-from mkdi_backend.api.deps import KcUser, get_user_info
 from mkdi_backend.config import settings
 
 # This is used for fastapi docs authentification

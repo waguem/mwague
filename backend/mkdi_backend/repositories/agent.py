@@ -44,7 +44,9 @@ class AgentRepository:
         """
         return self.db.query(Agent).offset((page - 1) * limit).limit(limit).all()
 
-    def get_office_agents(self, office_id: str, org_id: str)-> list[protocol.AgentReponseWithAccounts]:
+    def get_office_agents(
+        self, office_id: str, org_id: str
+    ) -> list[protocol.AgentReponseWithAccounts]:
         """
         Retrieves all agents belonging to a specific office and organization, along with their accounts.
 
@@ -58,7 +60,10 @@ class AgentRepository:
         # Query to fetch agents and their accounts
         response = (
             self.db.query(Agent, Account)
-            .outerjoin(Account, and_(Agent.id == Account.owner_id, Account.type == protocol.AccountType.AGENT))
+            .outerjoin(
+                Account,
+                and_(Agent.id == Account.owner_id, Account.type == protocol.AccountType.AGENT),
+            )
             .filter(Agent.office_id == office_id, Agent.org_id == org_id)
             .all()
         )
@@ -67,7 +72,9 @@ class AgentRepository:
         agents_accounts_map = {}
         for agent, account in response:
             if agent.id not in agents_accounts_map:
-                agents_accounts_map[agent.id] = protocol.AgentReponseWithAccounts(**agent.dict(), accounts=[])
+                agents_accounts_map[agent.id] = protocol.AgentReponseWithAccounts(
+                    **agent.dict(), accounts=[]
+                )
             if account:
                 agents_accounts_map[agent.id].accounts.append(account)
 

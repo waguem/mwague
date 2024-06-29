@@ -1,9 +1,11 @@
-from enum import Enum
+"""Software Roles"""
 
-from loguru import logger
+from enum import Enum
 
 
 class Role(Enum):
+    """Role Enum"""
+
     SOFT_ADMIN = 0
     OFFICE_ADMIN = 1
     ORG_ADMIN = 2
@@ -21,21 +23,26 @@ class Role(Enum):
 
     @classmethod
     def from_number(cls, number: int):
+        """get role from a number"""
         return cls(number)
 
     @classmethod
     def from_str(cls, name: str):
+        """get role from a string"""
         return cls[name.upper()]
 
-    def canAccess(self, role):
+    def can_access(self, role) -> bool:
+        """check if this role can access another role"""
         return self.value <= role.value
 
     @classmethod
-    def is_valid(cls, role: str):
+    def is_valid(cls, role: str) -> bool:
+        """check if a role is valid"""
         try:
             # check role can be converted into Role
             Role.from_str(role)
             return True
-        except:
-            pass
+        except ValueError as e:
+            print(f"Role is invalid {e}")
+
         return False
