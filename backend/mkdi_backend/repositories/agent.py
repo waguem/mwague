@@ -84,7 +84,7 @@ class AgentRepository:
 
     @managed_tx_method(auto_commit=CommitMode.COMMIT)
     def create(
-        self, *, auth_user: KcUser, input: protocol.CreateAgentRequest
+        self, *, auth_user: KcUser, usr_input: protocol.CreateAgentRequest
     ) -> protocol.AgentResponse:
         """
         Creates a new agent.
@@ -101,15 +101,19 @@ class AgentRepository:
         """
         # the auth_user should be in the same organization as the agent
         # and the agent should be in the same office as the auth_user
-
-        duplicate = self.db.query(Agent).filter(Agent.initials == input.initials).first()
+        # get the office_id from the auth_user
+        duplicate = self.db.query(Agent).filter(Agent.initials == usr_input.initials).first()
         if duplicate:
             raise MkdiError(
-                f"Agent with initials {input.initials} already exists",
+                f"Agent with initials {usr_input.initials} already exists",
                 error_code=MkdiErrorCode.USER_EXISTS,
             )
 
-        agent: Agent = Agent(**input.dict(), org_id=auth_user.organization_id)
+        agent: Agent = Agent(
+            **usr_input.dict(),
+            org_id=auth_user.organization_id,
+            office_id=auth_user.office_id,
+        )
 
         self.db.add(agent)
 

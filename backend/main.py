@@ -23,6 +23,13 @@ def get_openapi_schema():
     return json.dumps(app.openapi())
 
 
+def save_schema():
+    """save the openapi schema to a file"""
+    with open("openapi.json", "w", encoding="utf-8") as f:
+        f.write(get_openapi_schema())
+        logger.info("Schema saved to openapi.json")
+
+
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 
@@ -70,6 +77,7 @@ def main():
 
     if not (args.print_openapi_schema):
         logger.info("Reruning again...")
+        save_schema()
         uvicorn.run(app, host=args.host, port=args.port)
 
 

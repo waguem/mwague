@@ -19,16 +19,7 @@ def create_agent(
 ) -> protocol.AgentResponse:
     # make sure when office_id is passed then the user must be org_admin
 
-    if hasattr(usr_input, "office_id"):
-        if not "org_admin" in user.roles and user.office_id != usr_input.office_id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You are not authorized to create an agent for this office",
-            )
-
-    usr_input.office_id = usr_input.office_id if hasattr(usr_input, "office_id") else user.office_id
-
-    return AgentRepository(db).create(auth_user=user, input=usr_input)
+    return AgentRepository(db).create(auth_user=user, usr_input=usr_input)
 
 
 @router.get("/office/agent", response_model=List[protocol.AgentReponseWithAccounts])

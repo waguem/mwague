@@ -46,7 +46,7 @@ class EmployeeBase(SQLModel):
 
 
 class CreateEmployeeRequest(EmployeeBase):
-    office_id: UUID
+    office_initials: str
     roles: List[str]
     password: str
 
@@ -107,7 +107,7 @@ class AgentBase(SQLModel):
 
 class CreateAgentRequest(AgentBase):
     # office_id can be passed or not, if set the user must be an org_admin
-    office_id: UUID | None = None
+    pass
 
 
 class TransactionCommit(BaseModel):

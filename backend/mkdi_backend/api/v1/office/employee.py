@@ -16,7 +16,7 @@ from loguru import logger
 async def create_employee(
     *,
     user: Annotated[KcUser, Security(check_authorization, scopes=["office_admin"])],
-    input: protocol.CreateEmployeeRequest,
+    user_input: protocol.CreateEmployeeRequest,
     db: Session = Depends(get_db),
 ):
     """
@@ -30,7 +30,10 @@ async def create_employee(
 
     """
     return await EmployeeRepository(db).create(
-        auth_user=user, input=input, office_id=input.office_id, organization_id=user.organization_id
+        auth_user=user,
+        usr_input=user_input,
+        office_initials=user_input.office_initials,
+        organization_id=user.organization_id,
     )
 
 

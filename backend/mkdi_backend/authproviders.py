@@ -47,16 +47,19 @@ class KeycloakAdminHelper:
             verify=settings.ENV == "production" and settings.KC_VERIFY_CERTS,
         )
 
-    def create_user(self, *, auth_user: KcUser, input: protocol.CreateEmployeeRequest):
+    def create_user(
+        self, *, auth_user: KcUser, usr_input: protocol.CreateEmployeeRequest, office_id: str
+    ):
         data = {
-            "username": input.username,
-            "email": input.email,
+            "username": usr_input.username,
+            "email": usr_input.email,
             "enabled": True,
             "emailVerified": True,
-            "credentials": [{"type": "password", "value": input.password, "temporary": True}],
+            "credentials": [{"type": "password", "value": usr_input.password, "temporary": True}],
             "attributes": {
                 "organizationId": auth_user.organization_id,
-                "officeId": str(input.office_id),
+                "officeId": office_id,
+                "email": usr_input.email,
             },
         }
         user_id = None

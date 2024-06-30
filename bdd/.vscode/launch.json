@@ -1,0 +1,18 @@
+{
+  "configurations": [
+    {
+      "name": "Behave",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/venv/bin/behave",
+      "cwd": "${workspaceFolder}/bdd",
+      "args": [
+        "${workspaceFolder}/bdd/features",
+        "--no-capture",
+        "--tags=@create_agent",
+        "-k"
+      ],
+      "console": "integratedTerminal"
+    }
+  ]
+}

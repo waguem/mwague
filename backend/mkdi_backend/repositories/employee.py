@@ -3,6 +3,7 @@ from mkdi_backend.api.deps import KcUser
 from mkdi_backend.authproviders import KeycloakAdminHelper, RoleProvider
 from mkdi_backend.models.employee import Employee
 from mkdi_backend.utils.database import CommitMode, async_managed_tx_method, managed_tx_method
+from mkdi_backend.repositories.office import OfficeRepository
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas.protocol import CreateEmployeeRequest
 from sqlmodel import Session
@@ -50,38 +51,46 @@ class EmployeeRepository:
         self,
         *,
         auth_user: KcUser,
-        input: CreateEmployeeRequest,
-        office_id: str,
+        usr_input: CreateEmployeeRequest,
+        office_initials: str,
         organization_id: str,
     ):
         user: Employee = (
-            self.db.query(Employee)
-            .filter(Employee.username == input.username and Employee.office_id == office_id)
-            .first()
+            self.db.query(Employee).filter(Employee.username == usr_input.username).first()
         )
 
         if user:
             raise MkdiError(
-                f"Username {input.username} already exists", error_code=MkdiErrorCode.USER_EXISTS
+                f"Username {usr_input.username} already exists",
+                error_code=MkdiErrorCode.USER_EXISTS,
+            )
+
+        office = OfficeRepository(self.db).get_by_initials(office_initials)
+        if not office:
+            raise MkdiError(
+                f"Office {office_initials} not found", error_code=MkdiErrorCode.NOT_FOUND
             )
 
         user = Employee(
-            username=input.username,
-            email=input.email,
-            office_id=office_id,
+            username=usr_input.username,
+            email=usr_input.email,
+            office_id=office.id,
             organization_id=organization_id,
         )
 
-        kcAdmin = KeycloakAdminHelper()
-        userId = kcAdmin.create_user(auth_user=auth_user, input=input)
-        user.provider_account_id = userId
+        kc_admin = KeycloakAdminHelper()
+        user_id = kc_admin.create_user(
+            auth_user=auth_user, usr_input=usr_input, office_id=str(office.id)
+        )
+        user.provider_account_id = user_id
 
         # assing user roles
-        assinged_roles = RoleProvider(kcAdmin).update_user_roles(userId, input.roles)
+        assinged_roles = RoleProvider(kc_admin).update_user_roles(user_id, usr_input.roles)
         # update the user with the provider account id
-        if len(assinged_roles) != len(input.roles):
+        if len(assinged_roles) != len(usr_input.roles):
             raise MkdiError(
-                f"Roles {input.roles} are not valid roles", error_code=MkdiErrorCode.INVALID_ROLE
+                f"Roles {usr_input.roles} are not valid roles",
+                error_code=MkdiErrorCode.INVALID_ROLE,
             )
         user.roles = assinged_roles
 

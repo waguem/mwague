@@ -22,22 +22,24 @@ class OfficeRepository:
         return self.db.query(Office).filter(Office.initials == initials).first()
 
     @managed_tx_method(auto_commit=CommitMode.COMMIT)
-    def create(self, input: protocol.CreateOfficeRequest, organization_id: str):
+    def create(self, usr_input: protocol.CreateOfficeRequest, organization_id: str):
         office: Office = (
             self.db.query(Office)
-            .filter(Office.initials == input.initials and Office.organization_id == organization_id)
+            .filter(
+                Office.initials == usr_input.initials and Office.organization_id == organization_id
+            )
             .first()
         )
         if office:
             raise MkdiError(
-                f"Office {input.initials} already exists",
+                f"Office {usr_input.initials} already exists",
                 error_code=MkdiErrorCode.OFFICE_EXISTS,
             )
 
         office = Office(
-            initials=input.initials,
-            name=input.name,
-            country=input.country,
+            initials=usr_input.initials,
+            name=usr_input.name,
+            country=usr_input.country,
             organization_id=organization_id,
         )
         self.db.add(office)

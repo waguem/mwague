@@ -57,7 +57,7 @@ services:
     volumes:
       - "./backend:/backend"
       - "./mkdi-shared:/mkdi-shared"
-      - "./functional-tests:/functional-tests"
+      - "./bdd:/bdd"
       - "./scripts/prestart.sh:/app/prestart.sh"
       - "./scripts/start-debug.sh:/start-reload.sh"
     command: /start-reload.sh

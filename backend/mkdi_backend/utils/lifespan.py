@@ -27,11 +27,19 @@ async def alembic_upgrade():
         logger.exception(e)
 
 
+def save_schema(app: FastAPI):
+    """save the openapi schema to a file"""
+    with open("openapi.json", "w", encoding="utf-8") as f:
+        f.write(json.dumps(app.openapi()))
+        logger.info("Schema saved to openapi.json")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.db = Session(engine)
     # run alembic upgrade
     await alembic_upgrade()
+    save_schema(app)
     # seed database
     yield
 

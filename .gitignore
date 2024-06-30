@@ -1,5 +1,5 @@
 .venv*
-venv
+*venv*
 .env
 *.pyc
 *.swp
@@ -25,3 +25,5 @@ website/.next
 website/node_modules
 .dont_push.env
 backend/venv/
+/gen/**
+/bdd/venv/

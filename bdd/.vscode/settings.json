@@ -1,0 +1,7 @@
+{
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/mkdi-shared",
+    "../mkdi-shared",
+    "../gen/python-client/"
+  ]
+}

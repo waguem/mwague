@@ -13,7 +13,7 @@ router = APIRouter()
 
 
 @router.post("/organization", response_model=protocol.OrganizationResponse, status_code=201)
-async def create_organization(
+def create_organization(
     *,
     _: KcUser = Depends(get_user_info),
     create_org: Annotated[protocol.CreateOrganizationRequest, Body(embed=True)],
@@ -21,8 +21,7 @@ async def create_organization(
 ):
     """create an organization"""
     org_repo = OrganizationRepository(db)
-    repo = await org_repo.create_organization(create_org)
-    return repo
+    return org_repo.create_organization(create_org)
 
 
 @router.get("/organization", response_model=List[protocol.OrganizationResponse], status_code=200)

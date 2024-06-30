@@ -15,8 +15,9 @@ alembic upgrade head
 pip install --no-cache-dir -r /backend/requirements.txt
 pip install debugpy
 pip install -e /mkdi-shared[dev]
-pip install -e /functional-tests[dev]
+pip install -e /bdd[dev]
 echo "running migrations"
+# if the /client directory exists, install the client
 cd /backend
 echo "waiting 3 seconds for db to start"
 sleep 3;
