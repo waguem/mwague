@@ -11,13 +11,10 @@ ENV PORT 8080
 EXPOSE 8080
 
 COPY ./mkdi-shared /mkdi-shared
-COPY ./functional-tests /functional-tests
-RUN pip install -e /mkdi-shared[dev] && pip install -e /functional-tests[dev]
+RUN pip install -e /mkdi-shared[dev]
 
 COPY ./backend/alembic /app/alembic
 COPY ./backend/alembic.ini /app/alembic.ini
 COPY ./backend/main.py /app/main.py
 COPY ./backend/__init__.py /app/__init__.py
 COPY ./backend/mkdi_backend /app/mkdi_backend
-COPY ./backend/tests /app/tests
-COPY ./backend/test_data /app/test_data
