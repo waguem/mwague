@@ -4,7 +4,8 @@ from behave import given, when, then  # pylint: disable=no-name-in-module
 import client as api_client
 from client.rest import ApiException
 from client.exceptions import BadRequestException
-from bdd.tools import oidc, types
+from tests.tools import oidc, types
+from loguru import logger
 
 
 @given('logged user has role "{user_role}"')
@@ -35,7 +36,9 @@ def create_organization_step(context, org_name, initials):
                 )
             )
             context.response = response
+            context.error = None
         except ApiException as e:
+            logger.error(f"{e}")
             context.response = e
 
 
@@ -87,6 +90,7 @@ def create_office_step(context, office_name, initials, country):
                 )
             )
             context.response = response
+            context.error = None
         except ApiException as e:
             context.response = e
 
@@ -147,6 +151,7 @@ def create_employee_step(ctx, data, office_initials):
                 )
             )
             ctx.response = response
+            ctx.error = None
         except ApiException as e:
             ctx.response = e
 
@@ -236,6 +241,7 @@ def create_office_account(ctx, data):
                 create_account_request=request
             )
             ctx.response = response
+            ctx.error = None
         except ApiException as e:
             ctx.response = e
 
@@ -291,6 +297,7 @@ def create_agent(ctx, data):
                 create_agent_request=request
             )
             ctx.response = response
+            ctx.error = None
         except ApiException as e:
             ctx.response = e
 

@@ -44,7 +44,7 @@ async def get_payload(token: str = Security(oauth2_scheme)) -> dict:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),  # "Invalid authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from e
 
 
 # Get user infos from the payload
@@ -81,7 +81,7 @@ async def get_user_info(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),  # "Invalid authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from e
 
 
 def get_roles_deps(role, roles_deps: list[str] = RoleProvider().get_roles()):

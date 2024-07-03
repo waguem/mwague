@@ -62,12 +62,12 @@ class ActivityRepo:
                 if item["name"] == currency:
                     return True
 
-        for rate in input.rates:
-            if not has_currency(office.currencies, rate.currency):
-                raise MkdiError(
-                    f"Currency {rate.currency} not allowed for your office",
-                    error_code=MkdiErrorCode.INVALID_CURRENCY,
-                )
+        # for rate in input.rates:
+        #     if not has_currency(office.currencies, rate.currency):
+        #         raise MkdiError(
+        #             f"Currency {rate.currency} not allowed for your office",
+        #             error_code=MkdiErrorCode.INVALID_CURRENCY,
+        #         )
 
         activity = Activity(
             office_id=auth_user.office_id,

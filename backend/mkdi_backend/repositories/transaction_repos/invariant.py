@@ -15,7 +15,7 @@ from psycopg2.errors import (
     SerializationFailure,
     UniqueViolation,
 )
-from sqlalchemy.exc import OperationalError, PendingRollbackError
+from sqlalchemy.exc import OperationalError, PendingRollbackError, NoResultFound
 from sqlmodel import SQLModel
 
 
@@ -151,3 +151,28 @@ def managed_invariant_tx_method(
         return wrapped_f
 
     return decorator
+
+
+# a decorator to check if there's an ongoing activity for the user
+def has_activity_started(f):
+    """decorator to verify that there's an ongoing activity for the user"""
+
+    @wraps(f)
+    def wrapped_f(self, *args, **kwargs):
+        try:
+            if not self.has_started_activity():
+                raise MkdiError(
+                    "NO_ACTIVITY",
+                    error_code=MkdiErrorCode.NO_ACTIVITY,
+                    http_status_code=HTTPStatus.NOT_ACCEPTABLE,
+                )
+        except NoResultFound as e:
+            logger.error(f"Error: {e}")
+            raise MkdiError(
+                error_code=MkdiErrorCode.NO_ACTIVITY,
+                http_status_code=HTTPStatus.NOT_ACCEPTABLE,
+                message="No activity found",
+            ) from e
+        return f(self, *args, **kwargs)
+
+    return wrapped_f

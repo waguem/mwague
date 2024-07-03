@@ -7,8 +7,8 @@ class Role(Enum):
     """Role Enum"""
 
     SOFT_ADMIN = 0
-    OFFICE_ADMIN = 1
-    ORG_ADMIN = 2
+    ORG_ADMIN = 1
+    OFFICE_ADMIN = 2
     # NORMAL        = 3
     # AGENT         = 4
 
@@ -42,7 +42,7 @@ class Role(Enum):
             # check role can be converted into Role
             Role.from_str(role)
             return True
-        except ValueError as e:
+        except Exception as e:
             print(f"Role is invalid {e}")
 
         return False

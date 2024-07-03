@@ -13,19 +13,19 @@ class OrganizationRepository:
         return self.db.query(Organization).filter(Organization.initials == initials).first()
 
     @managed_tx_method(auto_commit=CommitMode.COMMIT)
-    def create_organization(self, input: protocol.CreateOrganizationRequest):
+    def create_organization(self, usr_input: protocol.CreateOrganizationRequest):
         org: Organization = (
-            self.db.query(Organization).filter(Organization.initials == input.initials).first()
+            self.db.query(Organization).filter(Organization.initials == usr_input.initials).first()
         )
         if org:
             raise MkdiError(
-                f"Organization {input.initials} already exists",
+                f"Organization {usr_input.initials} already exists",
                 error_code=MkdiErrorCode.ORGANIZATION_EXISTS,
             )
 
         org = Organization(
-            initials=input.initials,
-            org_name=input.org_name,
+            initials=usr_input.initials,
+            org_name=usr_input.org_name,
         )
         self.db.add(org)
         return org

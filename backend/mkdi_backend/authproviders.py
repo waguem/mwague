@@ -38,6 +38,10 @@ class KeycloakAdminHelper:
         self._kc_admin = None
 
     def _init_kc_conn(self):
+        logger.info(f"{settings.KC_ADMIN_CLIENT_ID}")
+        logger.info(f"{settings.KC_ADMIN_USER}")
+
+        logger.info(f"{settings.KC_SERVER_URL}")
         self._kc_admin = KeycloakAdmin(
             server_url=settings.KC_SERVER_URL,
             username=settings.KC_ADMIN_USER,

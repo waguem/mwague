@@ -1,0 +1,60 @@
+include:
+  - path: compose.auth.yml
+
+services:
+  # tools
+  pgAdmin:
+    extends:
+      file: compose.common.yml
+      service: pgAdmin
+
+    container_name: pgadmin-dev
+    volumes:
+      - pgadmin_dev:/var/lib/pgadmin
+
+    ports:
+      - "8089:80"
+    networks:
+      - dev
+
+  # dev stack
+  backenddb:
+    extends:
+      file: compose.common.yml
+      service: db
+    container_name: backend-devdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - backend_data_dev:/var/lib/postgresql/data
+
+  backend:
+    extends:
+      file: compose.common.yml
+      service: backend
+
+    ports:
+      - "8080:8080"
+      - "9696:9696" # debug port
+
+  bdd:
+    extends:
+      file: compose.common.yml
+      service: bdd
+    container_name: bdd
+
+    networks:
+      - dev
+
+    environment:
+      PYTHONPATH: /app/gen/client/build/lib
+      API_URL: http://backend:8080
+      DATABASE_URL: postgresql://postgres:postgres@backenddb:5432/postgres
+
+volumes:
+  pgadmin_dev:
+  backend_data_dev:
+
+networks:
+  private:
+    external: true

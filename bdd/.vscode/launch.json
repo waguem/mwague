@@ -2,16 +2,17 @@
   "configurations": [
     {
       "name": "Behave",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/venv/bin/behave",
-      "cwd": "${workspaceFolder}/bdd",
+      "cwd": "${workspaceFolder}/tests",
       "args": [
-        "${workspaceFolder}/bdd/features",
+        "${workspaceFolder}/tests/features",
         "--no-capture",
-        "--tags=@create_agent",
+        "--tags=@deposit",
         "-k"
       ],
+      "envFile": "${workspaceFolder}/.env.local",
       "console": "integratedTerminal"
     }
   ]

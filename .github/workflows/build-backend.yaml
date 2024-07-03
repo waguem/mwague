@@ -11,36 +11,27 @@ jobs:
   pre-commit:
     uses: ./.github/workflows/pre-commit.yaml
 
-  # test-backend:
-  #   runs-on: self-hosted
-  #   needs: pre-commit
-  #   if: github.ref_name == 'main'
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v2
+  bdd-tests:
+    runs-on: self-hosted
+    needs: pre-commit
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
-  #     - name: Start backend env
-  #       run: |
-  #         docker compose --profile ci up --build -d
-  #         docker compose --profile ci logs
-  #         sleep 60
-  #     - name: Run unitests
-  #       run: |
-  #         docker exec mkdi-backend-test pytest /backend
-  #     - name: Run functinal tests
-  #       run: |
-  #         docker exec mkdi-backend-test pytest /mkdi-shared
-  #     - name: Run behave tests
-  #       run: |
-  #         docker exec  mkdi-backend-test behave /functional-tests/features
-  #     - name: Stop backend env
-  #       if : ${{ always() }}
-  #       run: |
-  #         docker compose --profile ci down
+      - name: Start services
+        run: |
+          cd compose && chmod +x ./start.sh && ./start.sh ci
+          sleep 60
+      - name: Run behave tests
+        run: |
+          cd compose &&  chmod +x ./runcitests.sh && ./runcitests.sh
+      - name: Stop backend env
+        if : ${{ always() }}
+        run: |
+          cd compose && docker compose -f compose.ci.yml down
 
   build-backend:
-    # needs: test-backend
-    needs: pre-commit
+    needs: bdd-tests
     uses: ./.github/workflows/docker-build.yaml
     secrets: inherit
     if: github.ref_name == 'main'
@@ -53,7 +44,7 @@ jobs:
   build-web:
     uses: ./.github/workflows/docker-build.yaml
     secrets: inherit
-    needs: pre-commit
+    needs: bdd-tests
     if: github.ref_name == 'main'
     with:
       image-name: mkdi-web

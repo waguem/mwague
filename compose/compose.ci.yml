@@ -1,51 +1,44 @@
-services:
-  db:
-    image: postgres
-    container_name: ci-db
-    networks:
-      - private
-    restart: always
-    ports:
-      - 5432:5432
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
-      BACKUP_DIR: /backup
-    volumes:
-      - backend_data:/var/lib/postgresql/data
+include:
+  - path: compose.auth.yml
 
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
-      interval: 2s
-      timeout: 2s
-      retries: 10
+services:
+  backenddb:
+    extends:
+      file: compose.common.yml
+      service: db
+    container_name: backend-cidb
+    volumes:
+      - backend_data_ci:/var/lib/postgresql/data
 
   backend:
-    build:
-      context: ../
-      dockerfile: ./docker/Dockerfile.backend
-    container_name: backend
-    networks:
-      - private
-    environment:
-      - PYTHONPATH=/backend
-    extra_hosts:
-      - "localhost.auth.com: ${AUTH_IP}"
-    depends_on:
-      db:
-        condition: service_healthy
-    ports:
-      - "8080:8080"
-    env_file:
-      - .env.backend
+    extends:
+      file: compose.common.yml
+      service: backend
+
+    container_name: backend-ci
 
     volumes:
-      - ../backend/test_data/seed.json:/data/seeds.json
+      - "../backend:/backend"
+      - "../mkdi-shared:/mkdi-shared"
+      - "../scripts/prestart.sh:/app/prestart.sh"
 
-networks:
-  private:
-    external: true
+  bdd:
+    build:
+      context: ../bdd
+      dockerfile: Dockerfile
+    container_name: bdd
+    entrypoint: tail -f /dev/null
+    networks:
+      - dev
+    volumes:
+      - "../bdd/tests:/app/tests"
+      - "../bdd/run.sh:/run.sh"
+
+    environment:
+      PYTHONPATH: /app/gen/client/build/lib
+      API_URL: http://backend:8080
+      DATABASE_URL: postgresql://postgres:postgres@backend-db:5432/postgres
 
 volumes:
-  backend_data:
+  backend_data_ci:
+    driver: local

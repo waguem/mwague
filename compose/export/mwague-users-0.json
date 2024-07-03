@@ -1,0 +1,56 @@
+{
+  "realm": "mwague",
+  "users": [
+    {
+      "id": "b1141a26-9495-4b52-ac50-0791c6d2110c",
+      "username": "kcadmincli",
+      "firstName": "Admin",
+      "lastName": "Admins",
+      "email": "kcadmincli@gmail.com",
+      "emailVerified": true,
+      "attributes": {
+        "organizationId": ["orgIdsdgsfgsfgsfgsfhsfh"],
+        "officeId": ["officeIdsfgsfghsfhsfhsfhs"]
+      },
+      "createdTimestamp": 1717990619854,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "9ca44703-d87c-47b5-85b4-dc67e96e1d8c",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1717991933760,
+          "secretData": "{\"value\":\"0LWhQMjI8Hrk6ljAEn1Svnuba2K9SkeX0Wo5nxNtNu6cdA+CWtjDrVuFtwNRT0GdnBvUsWcZq0OemYQbw+oeoA==\",\"salt\":\"MoB+IzmgtoOjMXKqF/pMkw==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-mwague"],
+      "clientRoles": {
+        "realm-management": ["realm-admin"]
+      },
+      "notBefore": 1719903060,
+      "groups": []
+    },
+    {
+      "id": "384ca8ac-5e0f-4ad5-b0e9-9792b9ee4c69",
+      "username": "service-account-rns:mwague:portal",
+      "emailVerified": false,
+      "createdTimestamp": 1717991093893,
+      "enabled": true,
+      "totp": false,
+      "serviceAccountClientId": "rns:mwague:portal",
+      "credentials": [],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-mwague"],
+      "clientRoles": {
+        "rns:mwague:portal": ["uma_protection"]
+      },
+      "notBefore": 0,
+      "groups": []
+    }
+  ]
+}

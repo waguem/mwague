@@ -10,6 +10,8 @@ from mkdi_backend.models.models import KcUser
 from mkdi_backend.utils.database import CommitMode, managed_tx_method
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol as pr
+from mkdi_backend.repositories.transaction_repos.invariant import has_activity_started
+
 from sqlmodel import Session
 
 
@@ -80,6 +82,7 @@ class AbstractTransaction(ABC):
             )
         return self.activity
 
+    @has_activity_started
     @managed_tx_method(auto_commit=CommitMode.COMMIT)
     def request(self):
         """Request review for a transaction , this is stage one of every transaction
@@ -136,15 +139,14 @@ class AbstractTransaction(ABC):
         """
         # select account from db
         logger.debug(f"Using account {initials}")
-        return (
+        account = (
             self.db.query(Account)
-            .filter(
-                Account.initials == initials
-                and Account.type == account_type
-                and Account.office_id == self.user.office_id
-            )
+            .where(Account.initials == initials, Account.type == account_type)
+            .filter(Account.office_id == self.user.office_id)
             .one()
         )
+
+        return account
 
     def get_rate(self):
         """
@@ -162,7 +164,9 @@ class AbstractTransaction(ABC):
         Returns:
             float: The amount of charges.
         """
-        return self.input.charges.amount
+        if self.input.charges:
+            return self.input.charges.amount
+        return 0
 
     def get_amount(self):
         """

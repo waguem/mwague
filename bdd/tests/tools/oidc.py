@@ -1,20 +1,22 @@
 """OIDC helper functions."""
 
 from keycloak import KeycloakOpenID, KeycloakAdmin
-from bdd.tools.types import KcUser
+from tests.tools.types import KcUser
+from loguru import logger
+from tests.tools.config import config
 
 oidc = KeycloakOpenID(
-    server_url="http://localhost.auth.com:8443/auth/",
-    client_id="rns:mwague:portal",
-    realm_name="mwague",
-    client_secret_key="nZmLx40sO6x14lQ1vSCe1e9gH8VfEZAY",
+    server_url=config.KC_URL,
+    client_id=config.KC_CLIENT_ID,
+    realm_name=config.KC_REALM,
+    client_secret_key=config.KC_SECRET_KEY,
 )
 
 oidc_admin = KeycloakAdmin(
-    server_url="http://localhost.auth.com:8443/auth/",
-    username="kcadmincli",
-    password="mwague",
-    realm_name="mwague",
+    server_url=config.KC_URL,
+    username=config.KC_CLI_USER,
+    password=config.KC_CLI_PASS,
+    realm_name=config.KC_REALM,
     verify=False,
 )
 
@@ -23,6 +25,14 @@ def disconnect():
     """disconnect the admin user."""
     admin_id = oidc_admin.get_user_id("kcadmincli")
     oidc_admin.user_logout(admin_id)
+
+
+def cleanup_users():
+    """should clean up all users except kcadmincli."""
+    users = oidc_admin.get_users()
+    for user in users:
+        if "username" in user and user.get("username") != "kcadmincli":
+            oidc_admin.delete_user(user.get("id"))
 
 
 def decode_access_token(access_token: str) -> KcUser:

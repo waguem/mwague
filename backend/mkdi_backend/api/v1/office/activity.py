@@ -1,10 +1,10 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Security, status
+from mkdi_shared.schemas import protocol
+from fastapi import APIRouter, Depends, Security
 from mkdi_backend.api.deps import check_authorization, get_db
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.repositories.activity import ActivityRepo
-from mkdi_shared.schemas import protocol
 from sqlmodel import Session
 
 router = APIRouter()

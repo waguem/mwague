@@ -59,7 +59,7 @@ class DepositTransaction(AbstractTransaction):
             raise MkdiError(error_code=MkdiErrorCode.INVALID_INPUT, message="Invalid amount")
 
         commits.append(receiver_account.credit(amount))
-        commits.append(fund.debit(amount))
+        commits.append(fund.credit(amount))
 
         self.db.add(receiver_account)
         self.db.add(fund)
@@ -103,13 +103,14 @@ class DepositTransaction(AbstractTransaction):
         self.validate_review()
         commits = self.commit(transaction)
         transaction.save_commit(commits)
+        transaction.state = pr.TransactionState.PAID
         return transaction
 
     def accounts(self) -> List[Account]:
         """
         Only the office fund and the receiver account are used in a deposit transaction
         """
-        receiver_account = self.use_account(self.get_inputs().receiver)
+        receiver_account = self.use_account(self.get_inputs().data.receiver)
         _, fund = self.use_office_accounts()
 
         return [receiver_account, fund]

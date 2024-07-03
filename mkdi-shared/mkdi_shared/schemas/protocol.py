@@ -285,7 +285,7 @@ class CancelRequest(BaseModel):
 
 
 class TransactionResponse(TransactionBase):
-    pass
+    charges: Annotated[Decimal, Field(strict=True, ge=0)] | None
 
 
 class MkdiErrorResponse(BaseModel):

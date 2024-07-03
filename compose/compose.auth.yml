@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres
+    container_name: keycloak-postgres
+    volumes:
+      - keycloak_data:/var/lib/postgresql/data
+    env_file:
+      - ./env/.postgres.env
+    networks:
+      - dev
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    env_file:
+      - ./env/.keycloak.env
+    command: start-dev
+    depends_on:
+      - postgres
+    networks:
+      - dev
+    ports:
+      - 8443:8443
+
+    volumes:
+      - "./HealthCheck.java:/tmp/HealthCheck.java"
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "java /tmp/HealthCheck.java http://0.0.0.0:8443/auth/health/live",
+        ]
+      interval: 5s
+      timeout: 10s
+      retries: 15
+
+volumes:
+  keycloak_data:
+    driver: local
+
+networks:
+  dev:
+    external: true

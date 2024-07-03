@@ -1,0 +1,1393 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "Mwague backend", "version": "0.1.0" },
+  "paths": {
+    "/api/v1/ping": {
+      "get": {
+        "tags": ["testing"],
+        "summary": "Ping",
+        "operationId": "ping_api_v1_ping_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/api/v1/organization": {
+      "get": {
+        "tags": ["organization"],
+        "summary": "Get Organizations",
+        "description": "get all organizations",
+        "operationId": "get_organizations_api_v1_organization_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OrganizationResponse"
+                  },
+                  "type": "array",
+                  "title": "Response Get Organizations Api V1 Organization Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": [] }]
+      },
+      "post": {
+        "tags": ["organization"],
+        "summary": "Create Organization",
+        "description": "create an organization",
+        "operationId": "create_organization_api_v1_organization_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_create_organization_api_v1_organization_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": [] }]
+      }
+    },
+    "/api/v1/organization/me": {
+      "get": {
+        "tags": ["organization"],
+        "summary": "Get My Organization",
+        "description": "get my organization",
+        "operationId": "get_my_organization_api_v1_organization_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": [] }]
+      }
+    },
+    "/api/v1/organization/office": {
+      "get": {
+        "tags": ["office"],
+        "summary": "Get Org Offices",
+        "description": "Retrieve a list of offices for the organization.\n\nArgs:\n    user (KcUser): The authenticated user object.\n    db (Session, optional): The database session. Defaults to Depends(get_db).\n\nReturns:\n    List[protocol.OfficeResponse]: A list of office responses.",
+        "operationId": "get_org_offices_api_v1_organization_office_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "$ref": "#/components/schemas/OfficeResponse" },
+                  "type": "array",
+                  "title": "Response Get Org Offices Api V1 Organization Office Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": ["org_admin"] }]
+      },
+      "post": {
+        "tags": ["office"],
+        "summary": "Create Office",
+        "description": "Create a new office.\n\nArgs:\n    user: The authenticated user making the request.\n    create_office: The request payload containing the details of the office to be created.\n    db: The database session.\n\nReturns:\n    The response containing the created office details.",
+        "operationId": "create_office_api_v1_organization_office_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_create_office_api_v1_organization_office_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/OfficeResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": ["org_admin"] }]
+      }
+    },
+    "/api/v1/organization/office/{office_id}": {
+      "get": {
+        "tags": ["office"],
+        "summary": "Get Office",
+        "description": "Retrieve an office by ID.\n\nArgs:\n    user (KcUser): The authenticated user object.\n    office_id (int): The ID of the office to retrieve.\n    db (Session, optional): The database session. Defaults to Depends(get_db).\n\nReturns:\n    protocol.OfficeResponse: The office response.",
+        "operationId": "get_office_api_v1_organization_office__office_id__get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": { "type": "string", "title": "Office Id" },
+            "name": "office_id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/OfficeResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": [] }]
+      }
+    },
+    "/api/v1/office/employee": {
+      "get": {
+        "tags": ["employee"],
+        "summary": "Get Employees",
+        "operationId": "get_employees_api_v1_office_employee_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "$ref": "#/components/schemas/EmployeeResponse" },
+                  "type": "array",
+                  "title": "Response Get Employees Api V1 Office Employee Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": ["office_admin"] }]
+      },
+      "post": {
+        "tags": ["employee"],
+        "summary": "Create Employee",
+        "description": "Create a new employee.\n\nArgs:\n    user (KcUser): The authenticated user making the request.\n    input (protocol.CreateEmployeeRequest): The input data for creating the employee.\nReturns:\n    Employee: The created employee.",
+        "operationId": "create_employee_api_v1_office_employee_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateEmployeeRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/EmployeeResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": ["office_admin"] }]
+      }
+    },
+    "/api/v1/office/{office_id}/employee": {
+      "get": {
+        "tags": ["employee"],
+        "summary": "Get Office Employees",
+        "operationId": "get_office_employees_api_v1_office__office_id__employee_get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": { "type": "string", "title": "Office Id" },
+            "name": "office_id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "$ref": "#/components/schemas/EmployeeResponse" },
+                  "type": "array",
+                  "title": "Response Get Office Employees Api V1 Office  Office Id  Employee Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": ["office_admin"] }]
+      }
+    },
+    "/api/v1/office/employee/me": {
+      "get": {
+        "tags": ["employee"],
+        "summary": "Get Employee",
+        "operationId": "get_employee_api_v1_office_employee_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeResponseComplete"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": [] }]
+      }
+    },
+    "/api/v1/office/employee/{employee_id}/assign": {
+      "put": {
+        "tags": ["employee"],
+        "summary": "Update Employee",
+        "operationId": "update_employee_api_v1_office_employee__employee_id__assign_put",
+        "parameters": [
+          {
+            "required": true,
+            "schema": { "type": "string", "title": "Employee Id" },
+            "name": "employee_id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/EmployeeResponse" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/EmployeeResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": ["office_admin"] }]
+      }
+    },
+    "/api/v1/office/agent": {
+      "get": {
+        "tags": ["agent"],
+        "summary": "Get Agents",
+        "operationId": "get_agents_api_v1_office_agent_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AgentReponseWithAccounts"
+                  },
+                  "type": "array",
+                  "title": "Response Get Agents Api V1 Office Agent Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": [] }]
+      },
+      "post": {
+        "tags": ["agent"],
+        "summary": "Create Agent",
+        "operationId": "create_agent_api_v1_office_agent_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateAgentRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AgentResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": ["office_admin"] }]
+      }
+    },
+    "/api/v1/office/{office_id}/agent": {
+      "get": {
+        "tags": ["agent"],
+        "summary": "Get Office Agents",
+        "operationId": "get_office_agents_api_v1_office__office_id__agent_get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": { "type": "string", "title": "Office Id" },
+            "name": "office_id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": ["org_admin"] }]
+      }
+    },
+    "/api/v1/office/agent/{agent_initials}": {
+      "get": {
+        "tags": ["agent"],
+        "summary": "Get Agent",
+        "operationId": "get_agent_api_v1_office_agent__agent_initials__get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": { "type": "string", "title": "Agent Initials" },
+            "name": "agent_initials",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AgentResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": [] }]
+      }
+    },
+    "/api/v1/account": {
+      "post": {
+        "tags": ["account"],
+        "summary": "Open Account",
+        "operationId": "open_account_api_v1_account_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateAccountRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AccountResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": ["office_admin"] }]
+      }
+    },
+    "/api/v1/office/{office_id}account": {
+      "get": {
+        "tags": ["account"],
+        "summary": "Get Office Accounts",
+        "operationId": "get_office_accounts_api_v1_office__office_id_account_get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": { "type": "string", "title": "Office Id" },
+            "name": "office_id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "$ref": "#/components/schemas/AccountResponse" },
+                  "type": "array",
+                  "title": "Response Get Office Accounts Api V1 Office  Office Id Account Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": [] }]
+      }
+    },
+    "/api/v1/agent/{agent_initial}/account": {
+      "get": {
+        "tags": ["account"],
+        "summary": "Get Agent Accounts",
+        "operationId": "get_agent_accounts_api_v1_agent__agent_initial__account_get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": { "type": "string", "title": "Agent Initial" },
+            "name": "agent_initial",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "$ref": "#/components/schemas/AccountResponse" },
+                  "type": "array",
+                  "title": "Response Get Agent Accounts Api V1 Agent  Agent Initial  Account Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": [] }]
+      }
+    },
+    "/api/v1/office/activity": {
+      "get": {
+        "tags": ["activity"],
+        "summary": "Get Activity",
+        "operationId": "get_activity_api_v1_office_activity_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ActivityResponse" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": ["office_admin"] }]
+      },
+      "post": {
+        "tags": ["activity"],
+        "summary": "Start Activity",
+        "operationId": "start_activity_api_v1_office_activity_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateActivityRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ActivityResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": ["office_admin"] }]
+      }
+    },
+    "/api/v1/agent/{initials}/transactions": {
+      "get": {
+        "tags": ["transactions"],
+        "summary": "Get Agent Transactions",
+        "description": "get all transactions for an agent",
+        "operationId": "get_agent_transactions_api_v1_agent__initials__transactions_get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": { "type": "string", "title": "Initials" },
+            "name": "initials",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TransactionResponse"
+                  },
+                  "type": "array",
+                  "title": "Response Get Agent Transactions Api V1 Agent  Initials  Transactions Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": [] }]
+      }
+    },
+    "/api/v1/transaction": {
+      "post": {
+        "tags": ["transactions"],
+        "summary": "Request Transaction",
+        "description": "request a transaction for approval, this will just created the transaction in the db",
+        "operationId": "request_transaction_api_v1_transaction_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/TransactionRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TransactionResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": [] }]
+      }
+    },
+    "/api/v1/transaction/{transaction_code}/review": {
+      "post": {
+        "tags": ["transactions"],
+        "summary": "Review Transaction",
+        "description": "review a transaction request",
+        "operationId": "review_transaction_api_v1_transaction__transaction_code__review_post",
+        "parameters": [
+          {
+            "required": true,
+            "schema": { "type": "string", "title": "Transaction Code" },
+            "name": "transaction_code",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/TransactionReviewReq" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TransactionResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": ["office_admin"] }]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccountResponse": {
+        "properties": {
+          "type": { "$ref": "#/components/schemas/AccountType" },
+          "currency": { "$ref": "#/components/schemas/Currency" },
+          "initials": { "type": "string", "maxLength": 4, "title": "Initials" },
+          "balance": { "type": "number", "title": "Balance" },
+          "is_open": { "type": "boolean", "title": "Is Open" },
+          "version": { "type": "integer", "title": "Version" },
+          "created_by": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Created By"
+          },
+          "office_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Office Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "currency",
+          "initials",
+          "balance",
+          "is_open",
+          "version"
+        ],
+        "title": "AccountResponse"
+      },
+      "AccountType": {
+        "enum": ["AGENT", "SUPPLIER", "OFFICE", "FUND"],
+        "title": "AccountType",
+        "description": "An enumeration."
+      },
+      "ActivityResponse": {
+        "properties": {
+          "started_at": {
+            "type": "string",
+            "format": "date",
+            "title": "Started At"
+          },
+          "state": { "$ref": "#/components/schemas/ActivityState" },
+          "openning_fund": { "type": "number", "title": "Openning Fund" },
+          "closing_fund": { "type": "number", "title": "Closing Fund" },
+          "openning_rate": { "type": "object", "title": "Openning Rate" },
+          "closing_rate": { "type": "object", "title": "Closing Rate" }
+        },
+        "type": "object",
+        "required": ["started_at", "state", "openning_fund"],
+        "title": "ActivityResponse"
+      },
+      "ActivityState": {
+        "enum": ["OPEN", "CLOSED", "PAUSED"],
+        "title": "ActivityState",
+        "description": "An enumeration."
+      },
+      "AgentReponseWithAccounts": {
+        "properties": {
+          "name": { "type": "string", "title": "Name" },
+          "initials": {
+            "type": "string",
+            "maxLength": 4,
+            "title": "Initials",
+            "unique": true,
+            "nullable": false
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "Email",
+            "unique": true,
+            "nullable": false
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 16,
+            "title": "Phone",
+            "nullable": false
+          },
+          "country": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Country",
+            "nullable": false
+          },
+          "type": { "$ref": "#/components/schemas/AgentType" },
+          "accounts": {
+            "items": { "$ref": "#/components/schemas/AccountResponse" },
+            "type": "array",
+            "title": "Accounts",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": ["name", "initials", "email", "phone", "country", "type"],
+        "title": "AgentReponseWithAccounts"
+      },
+      "AgentResponse": {
+        "properties": {
+          "name": { "type": "string", "title": "Name" },
+          "initials": {
+            "type": "string",
+            "maxLength": 4,
+            "title": "Initials",
+            "unique": true,
+            "nullable": false
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "Email",
+            "unique": true,
+            "nullable": false
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 16,
+            "title": "Phone",
+            "nullable": false
+          },
+          "country": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Country",
+            "nullable": false
+          },
+          "type": { "$ref": "#/components/schemas/AgentType" }
+        },
+        "type": "object",
+        "required": ["name", "initials", "email", "phone", "country", "type"],
+        "title": "AgentResponse"
+      },
+      "AgentType": {
+        "enum": ["AGENT", "SUPPLIER"],
+        "title": "AgentType",
+        "description": "An enumeration."
+      },
+      "Amount": {
+        "properties": {
+          "amount": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Amount",
+            "strict": true
+          },
+          "rate": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Rate",
+            "strict": true
+          }
+        },
+        "type": "object",
+        "required": ["amount", "rate"],
+        "title": "Amount",
+        "description": "Amount and rate of a transaction."
+      },
+      "Body_create_office_api_v1_organization_office_post": {
+        "properties": {
+          "create_office": {
+            "$ref": "#/components/schemas/CreateOfficeRequest"
+          }
+        },
+        "type": "object",
+        "required": ["create_office"],
+        "title": "Body_create_office_api_v1_organization_office_post"
+      },
+      "Body_create_organization_api_v1_organization_post": {
+        "properties": {
+          "create_org": {
+            "$ref": "#/components/schemas/CreateOrganizationRequest"
+          }
+        },
+        "type": "object",
+        "required": ["create_org"],
+        "title": "Body_create_organization_api_v1_organization_post"
+      },
+      "CreateAccountRequest": {
+        "properties": {
+          "type": { "$ref": "#/components/schemas/AccountType" },
+          "currency": { "$ref": "#/components/schemas/Currency" },
+          "initials": { "type": "string", "maxLength": 4, "title": "Initials" },
+          "balance": {
+            "type": "number",
+            "title": "Balance",
+            "default": 0,
+            "nullable": true
+          },
+          "owner_initials": { "type": "string", "title": "Owner Initials" }
+        },
+        "type": "object",
+        "required": ["type", "currency", "initials", "owner_initials"],
+        "title": "CreateAccountRequest"
+      },
+      "CreateActivityRequest": {
+        "properties": {
+          "rates": {
+            "items": { "$ref": "#/components/schemas/Rate" },
+            "type": "array",
+            "title": "Rates"
+          }
+        },
+        "type": "object",
+        "required": ["rates"],
+        "title": "CreateActivityRequest"
+      },
+      "CreateAgentRequest": {
+        "properties": {
+          "name": { "type": "string", "title": "Name" },
+          "initials": {
+            "type": "string",
+            "maxLength": 4,
+            "title": "Initials",
+            "unique": true,
+            "nullable": false
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "Email",
+            "unique": true,
+            "nullable": false
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 16,
+            "title": "Phone",
+            "nullable": false
+          },
+          "country": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Country",
+            "nullable": false
+          },
+          "type": { "$ref": "#/components/schemas/AgentType" }
+        },
+        "type": "object",
+        "required": ["name", "initials", "email", "phone", "country", "type"],
+        "title": "CreateAgentRequest"
+      },
+      "CreateEmployeeRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "Email",
+            "unique": true,
+            "nullable": false
+          },
+          "username": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "Username",
+            "unique": true,
+            "nullable": false
+          },
+          "office_initials": { "type": "string", "title": "Office Initials" },
+          "roles": {
+            "items": { "type": "string" },
+            "type": "array",
+            "title": "Roles"
+          },
+          "password": { "type": "string", "title": "Password" }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "username",
+          "office_initials",
+          "roles",
+          "password"
+        ],
+        "title": "CreateEmployeeRequest"
+      },
+      "CreateOfficeRequest": {
+        "properties": {
+          "country": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Country",
+            "nullable": false
+          },
+          "initials": {
+            "type": "string",
+            "maxLength": 8,
+            "title": "Initials",
+            "unique": true,
+            "nullable": false
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Name",
+            "nullable": false
+          }
+        },
+        "type": "object",
+        "required": ["country", "initials", "name"],
+        "title": "CreateOfficeRequest"
+      },
+      "CreateOrganizationRequest": {
+        "properties": {
+          "initials": {
+            "type": "string",
+            "maxLength": 8,
+            "title": "Initials",
+            "unique": true,
+            "nullable": false
+          },
+          "org_name": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Org Name",
+            "nullable": false
+          }
+        },
+        "type": "object",
+        "required": ["initials", "org_name"],
+        "title": "CreateOrganizationRequest"
+      },
+      "Currency": {
+        "enum": ["USD", "EUR", "AED", "CFA", "GNF", "RMB"],
+        "title": "Currency",
+        "description": "An enumeration."
+      },
+      "DepositRequest": {
+        "properties": {
+          "type": { "type": "string", "enum": ["DEPOSIT"], "title": "Type" },
+          "receiver": { "type": "string", "title": "Receiver" }
+        },
+        "type": "object",
+        "required": ["type", "receiver"],
+        "title": "DepositRequest"
+      },
+      "EmployeeResponse": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "Email",
+            "unique": true,
+            "nullable": false
+          },
+          "username": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "Username",
+            "unique": true,
+            "nullable": false
+          },
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "office_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Office Id"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Organization Id"
+          },
+          "roles": {
+            "items": { "type": "string" },
+            "type": "array",
+            "title": "Roles"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "username",
+          "id",
+          "office_id",
+          "organization_id",
+          "roles"
+        ],
+        "title": "EmployeeResponse"
+      },
+      "EmployeeResponseComplete": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "Email",
+            "unique": true,
+            "nullable": false
+          },
+          "username": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "Username",
+            "unique": true,
+            "nullable": false
+          },
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "office_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Office Id"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Organization Id"
+          },
+          "roles": {
+            "items": { "type": "string" },
+            "type": "array",
+            "title": "Roles"
+          },
+          "office": { "$ref": "#/components/schemas/OfficeResponse" }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "username",
+          "id",
+          "office_id",
+          "organization_id",
+          "roles",
+          "office"
+        ],
+        "title": "EmployeeResponseComplete"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": { "$ref": "#/components/schemas/ValidationError" },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "InternalRequest": {
+        "properties": {
+          "type": { "type": "string", "enum": ["INTERNAL"], "title": "Type" },
+          "sender": { "type": "string", "title": "Sender" },
+          "receiver": { "type": "string", "title": "Receiver" }
+        },
+        "type": "object",
+        "required": ["type", "sender", "receiver"],
+        "title": "InternalRequest",
+        "description": "Internal transaction request."
+      },
+      "OfficeResponse": {
+        "properties": {
+          "country": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Country",
+            "nullable": false
+          },
+          "initials": {
+            "type": "string",
+            "maxLength": 8,
+            "title": "Initials",
+            "unique": true,
+            "nullable": false
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Name",
+            "nullable": false
+          },
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "currencies": {
+            "anyOf": [
+              { "type": "object" },
+              { "items": { "type": "object" }, "type": "array" }
+            ],
+            "title": "Currencies"
+          }
+        },
+        "type": "object",
+        "required": ["country", "initials", "name", "id"],
+        "title": "OfficeResponse"
+      },
+      "OrganizationResponse": {
+        "properties": {
+          "initials": {
+            "type": "string",
+            "maxLength": 8,
+            "title": "Initials",
+            "unique": true,
+            "nullable": false
+          },
+          "org_name": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Org Name",
+            "nullable": false
+          },
+          "id": { "type": "string", "format": "uuid", "title": "Id" }
+        },
+        "type": "object",
+        "required": ["initials", "org_name", "id"],
+        "title": "OrganizationResponse"
+      },
+      "Rate": {
+        "properties": {
+          "currency": { "type": "string", "title": "Currency" },
+          "rate": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Rate",
+            "strict": true
+          }
+        },
+        "type": "object",
+        "required": ["currency", "rate"],
+        "title": "Rate"
+      },
+      "TransactionRequest": {
+        "properties": {
+          "currency": { "$ref": "#/components/schemas/Currency" },
+          "amount": { "$ref": "#/components/schemas/Amount" },
+          "charges": { "$ref": "#/components/schemas/Amount" },
+          "data": {
+            "oneOf": [
+              { "$ref": "#/components/schemas/InternalRequest" },
+              { "$ref": "#/components/schemas/DepositRequest" }
+            ],
+            "title": "Data",
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "INTERNAL": "#/components/schemas/InternalRequest",
+                "DEPOSIT": "#/components/schemas/DepositRequest"
+              }
+            }
+          }
+        },
+        "type": "object",
+        "required": ["currency", "amount", "data"],
+        "title": "TransactionRequest"
+      },
+      "TransactionResponse": {
+        "properties": {
+          "amount": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Amount",
+            "strict": true
+          },
+          "rate": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Rate",
+            "strict": true
+          },
+          "code": { "type": "string", "maxLength": 64, "title": "Code" },
+          "state": { "$ref": "#/components/schemas/TransactionState" },
+          "type": { "$ref": "#/components/schemas/TransactionType" },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "charges": { "type": "number", "title": "Charges" }
+        },
+        "type": "object",
+        "required": ["amount", "rate", "code", "state", "type"],
+        "title": "TransactionResponse"
+      },
+      "TransactionReviewReq": {
+        "properties": {
+          "currency": { "$ref": "#/components/schemas/Currency" },
+          "amount": { "$ref": "#/components/schemas/Amount" },
+          "charges": { "$ref": "#/components/schemas/Amount" },
+          "data": {
+            "oneOf": [
+              { "$ref": "#/components/schemas/InternalRequest" },
+              { "$ref": "#/components/schemas/DepositRequest" }
+            ],
+            "title": "Data",
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "INTERNAL": "#/components/schemas/InternalRequest",
+                "DEPOSIT": "#/components/schemas/DepositRequest"
+              }
+            }
+          },
+          "code": { "type": "string", "title": "Code" },
+          "type": { "$ref": "#/components/schemas/TransactionType" },
+          "state": {
+            "allOf": [{ "$ref": "#/components/schemas/ValidationState" }],
+            "nullable": false
+          }
+        },
+        "type": "object",
+        "required": ["currency", "amount", "data", "code", "type", "state"],
+        "title": "TransactionReviewReq"
+      },
+      "TransactionState": {
+        "enum": ["REVIEW", "PENDING", "PAID", "CANCELLED"],
+        "title": "TransactionState",
+        "description": "An enumeration."
+      },
+      "TransactionType": {
+        "enum": ["DEPOSIT", "INTERNAL"],
+        "title": "TransactionType",
+        "description": "An enumeration."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": { "anyOf": [{ "type": "string" }, { "type": "integer" }] },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": { "type": "string", "title": "Message" },
+          "type": { "type": "string", "title": "Error Type" }
+        },
+        "type": "object",
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError"
+      },
+      "ValidationState": {
+        "enum": ["APPROVED", "INVALID", "CANCELLED"],
+        "title": "ValidationState",
+        "description": "An enumeration."
+      }
+    },
+    "securitySchemes": {
+      "OAuth2AuthorizationCodeBearer": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "scopes": {},
+            "authorizationUrl": "http://keycloak:8443/auth/realms/mwague/protocol/openid-connect/auth",
+            "tokenUrl": "http://keycloak:8443/auth/realms/mwague/protocol/openid-connect/token"
+          }
+        }
+      }
+    }
+  }
+}

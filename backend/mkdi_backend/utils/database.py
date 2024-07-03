@@ -8,7 +8,7 @@ from mkdi_backend.config import settings
 from mkdi_backend.database import engine
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from psycopg2.errors import DeadlockDetected, ExclusionViolation, SerializationFailure, UniqueViolation
-from sqlalchemy.exc import OperationalError, PendingRollbackError
+from sqlalchemy.exc import OperationalError, PendingRollbackError,NoResultFound
 from sqlmodel import Session, SQLModel
 
 
@@ -83,6 +83,12 @@ def managed_tx_method(
                     elif auto_commit == CommitMode.ROLLBACK:
                         self.db.rollback()
                 return result
+            except NoResultFound as error:
+                raise MkdiError(
+                    error_code=MkdiErrorCode.NOT_FOUND,
+                    message="Resource not found",
+                    http_status_code=HTTPStatus.NOT_FOUND,
+                ) from error
             except Exception as error:
                 logger.info(str(error))
                 raise error

@@ -1,8 +1,9 @@
 Feature: Organization and Office Management
+    @initialize @create_organization
     Scenario Outline: Create an organization
         Background: Background name
             Given I have a backend server
-            When I login with username "amadou" and password "amadou"
+            When I login with username "softadmin" and password "ChangeMe#1"
             Then I should get an access token
 
 
@@ -17,10 +18,11 @@ Feature: Organization and Office Management
             | WAGUE_ORG    | WGR      |
             | BOTORE_ORG   | BRR      |
 
+    @initialize
     Scenario Outline: Create Offices
         Background: Background name
             Given I have a backend server
-            When I login with username "amadou" and password "amadou"
+            When I login with username "softadmin" and password "ChangeMe#1"
             Then I should get an access token
 
         Given logged user has role "org_admin"
@@ -35,11 +37,11 @@ Feature: Organization and Office Management
             | FRANCE OFFICE           | FRO      | France       |
             | Montpellier Site        | SAM      | GUINEA       |
 
-
+    @initialize
     Scenario Outline: Create employees
         Background: Background name
             Given I have a backend server
-            When I login with username "amadou" and password "amadou"
+            When I login with username "softadmin" and password "ChangeMe#1"
             Then I should get an access token
 
         Given logged user has role "org_admin"
@@ -57,6 +59,7 @@ Feature: Organization and Office Management
             | {"first_name":"Kante","last_name":"Golo","username":"franceAdmin","email":"franceadmin@gmail.com","password":"francepass","roles":["office_admin"]}                 | FRO                   |
 
     @create_office_accounts
+    @initialize
     Scenario Outline: Open an Account in an Office
         Background: Background name
             Given I have a backend server
@@ -83,6 +86,7 @@ Feature: Organization and Office Management
             # Agents accounts
 
 
+    @initialize
     @create_agent
     Scenario Outline: Create Office Agents
         Background: Background name
@@ -108,6 +112,7 @@ Feature: Organization and Office Management
 
 
     @create_agent
+    @initialize
     Scenario Outline: Open an Account in an Office
         Background: Background name
             Given I have a backend server
@@ -118,7 +123,16 @@ Feature: Organization and Office Management
         Then I should get a response with the created account
         Then I logout
 
-        Examples:
+        Examples: WGO agent accounts
             | username     | password  | role         | data                                                                             |
             | wagueAdmin   | waguepass | office_admin | {"type":"AGENT"  ,"currency":"USD","initials":"GZM","owner_initials":"GZ"}       |
             | wagueAdmin   | waguepass | office_admin | {"type":"AGENT"  ,"currency":"USD","initials":"MDM","owner_initials":"MD"}       |
+
+        Examples: BTO agent accounts
+            | username     | password  | role         | data                                                                             |
+            | botoreAdmin  | botorepass| office_admin | {"type":"AGENT"  ,"currency":"USD","initials":"ASTM","owner_initials":"AST"}     |
+            | botoreAdmin  | botorepass| office_admin | {"type":"AGENT"  ,"currency":"USD","initials":"OMM","owner_initials":"OM"}       |
+        Examples: SAM agent accounts
+            | username     | password  | role         | data                                                                             |
+            | samAdmin     | sampass   | office_admin | {"type":"AGENT"  ,"currency":"USD","initials":"ALM","owner_initials":"AL"}       |
+            | samAdmin     | sampass   | office_admin | {"type":"AGENT"  ,"currency":"USD","initials":"BOBM","owner_initials":"BOB"}     |

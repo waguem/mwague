@@ -48,6 +48,7 @@ async def mkdi_exception_handler(request: fastapi.Request, ex: MkdiError):
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: fastapi.Request, ex: Exception):
+    """unhandled exception handler"""
     logger.exception(f"{request.method} {request.url} failed [UNHANDLED]: {repr(ex)}")
     status = HTTPStatus.INTERNAL_SERVER_ERROR
     return fastapi.responses.JSONResponse(

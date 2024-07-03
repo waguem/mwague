@@ -32,6 +32,7 @@ class MkdiErrorCode(IntEnum):
     INVALID_CURRENCY = 14
     INVALID_INPUT = 15
     INVALID_STATE = 16
+    NO_ACTIVITY = 17
 
     SERVER_ERROR0 = 500
     SERVER_ERROR1 = 501

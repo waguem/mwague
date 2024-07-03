@@ -51,13 +51,16 @@ class InternalTransaction(AbstractTransaction):
             )
 
         # Assuming accounts are in a list where the last two are sender and receiver
+        office = None
+        if len(accounts) == 3:
+            office = (
+                accounts.pop()
+            )  # Use the last account as the office account without removing it
+
         receiver = accounts.pop()
         sender = accounts.pop()
-        office = None
 
         # Check if an office account should be used
-        if len(accounts) >= 1:
-            office = accounts[-1]  # Use the last account as the office account without removing it
 
         if not sender or not receiver:
             raise MkdiError(

@@ -29,7 +29,7 @@ class TransactionRepository:
 
         return response
 
-    def get_agent_transactions(self, _: KcUser, initials: str) -> List[pr.TransactionResponse]:
+    def get_agent_transactions(self, user: KcUser, initials: str) -> List[pr.TransactionResponse]:
         """get all transactions for an agent"""
 
         internals = (
@@ -42,7 +42,7 @@ class TransactionRepository:
                 ),
             )
             .join(Agent, Agent.id == Account.owner_id)
-            .filter(Agent.initials == initials)
+            .filter(Agent.initials == initials, Agent.office_id == user.office_id)
             .order_by(Internal.created_at.desc())
             .all()
         )
