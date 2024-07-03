@@ -43,10 +43,11 @@ services:
       context: ../bdd
       dockerfile: Dockerfile
     container_name: bdd
+
     entrypoint: tail -f /dev/null
     environment:
       PYTHONPATH: /app/gen/client/build/lib
-      API_URL: http://backend:8080
+      API_URL: http://backend:80
       DATABASE_URL: postgresql://postgres:postgres@backend-db:5432/postgres
     volumes:
       - "../bdd/run.sh:/run.sh"

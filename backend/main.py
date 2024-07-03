@@ -70,7 +70,7 @@ def main():
         action="store_true",
     )
     parser.add_argument("--host", help="The host to run the server", default="0.0.0.0")
-    parser.add_argument("--port", help="The port to run the server", default=8080)
+    parser.add_argument("--port", help="The port to run the server", default=80)
 
     args = parser.parse_args()
     if args.print_openapi_schema:

@@ -50,7 +50,7 @@ services:
     networks:
       - dev
     ports:
-      - "8080:8080"
+      - "8080:80"
       - "9696:9696" # debug port
 
   bdd:
@@ -66,7 +66,7 @@ services:
       - "../bdd/run.sh:/run.sh"
     environment:
       PYTHONPATH: /app/gen/client/build/lib
-      API_URL: http://backend:8080
+      API_URL: http://backend:80
       DATABASE_URL: postgresql://postgres:postgres@backenddb:5432/postgres
 
 volumes:
