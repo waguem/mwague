@@ -9,8 +9,6 @@ services:
     container_name: backend-cidb
     volumes:
       - backend_data_ci:/var/lib/postgresql/data
-    networks:
-      - ci
 
   backend:
     extends:
@@ -18,12 +16,12 @@ services:
       service: backend
 
     container_name: backend-ci
-    networks:
-      - ci
     volumes:
       - "../backend:/backend"
       - "../mkdi-shared:/mkdi-shared"
       - "../scripts/prestart.sh:/app/prestart.sh"
+    networks:
+      - dev
 
   bdd:
     build:
@@ -32,11 +30,10 @@ services:
     container_name: bdd
     entrypoint: tail -f /dev/null
     networks:
-      - ci
+      - dev
     volumes:
       - "../bdd/tests:/app/tests"
       - "../bdd/run.sh:/run.sh"
-
     environment:
       PYTHONPATH: /app/gen/client/build/lib
       API_URL: http://backend:8080
@@ -46,5 +43,5 @@ volumes:
   backend_data_ci:
     driver: local
 networks:
-  ci:
+  dev:
     driver: bridge

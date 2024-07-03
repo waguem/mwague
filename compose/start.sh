@@ -24,7 +24,6 @@ fi
 
 # create network if not exists
 docker network inspect dev > /dev/null 2>&1 || docker network create dev
-docker network inspect ci > /dev/null 2>&1 || docker network create ci
 
 docker compose -f "$compose_file" down
 docker compose -f "$compose_file" up -d --build
