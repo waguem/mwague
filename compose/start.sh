@@ -22,6 +22,6 @@ else
     exit 1
 fi
 
-docker-compose -f "$compose_file" down
-docker-compose -f "$compose_file" up -d --build
+docker compose -f "$compose_file" down
+docker compose -f "$compose_file" up -d --build
 ./export.sh keycloak import
