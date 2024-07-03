@@ -8,6 +8,7 @@ services:
       - ./env/.postgres.env
     networks:
       - dev
+      - ci
 
   keycloak:
     image: quay.io/keycloak/keycloak:latest
@@ -19,6 +20,7 @@ services:
       - postgres
     networks:
       - dev
+      - ci
     ports:
       - 8443:8443
 
@@ -40,5 +42,7 @@ volumes:
     driver: local
 
 networks:
+  ci:
+    external: true
   dev:
     external: true

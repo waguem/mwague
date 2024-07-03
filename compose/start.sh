@@ -22,6 +22,9 @@ else
     exit 1
 fi
 
+# create network if not exists
+docker network inspect $option > /dev/null 2>&1 || docker network create $option
+
 docker compose -f "$compose_file" down
 docker compose -f "$compose_file" up -d --build
 ./export.sh keycloak import

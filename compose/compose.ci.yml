@@ -9,6 +9,8 @@ services:
     container_name: backend-cidb
     volumes:
       - backend_data_ci:/var/lib/postgresql/data
+    networks:
+      - ci
 
   backend:
     extends:
@@ -16,7 +18,8 @@ services:
       service: backend
 
     container_name: backend-ci
-
+    networks:
+      - ci
     volumes:
       - "../backend:/backend"
       - "../mkdi-shared:/mkdi-shared"
@@ -29,7 +32,7 @@ services:
     container_name: bdd
     entrypoint: tail -f /dev/null
     networks:
-      - dev
+      - ci
     volumes:
       - "../bdd/tests:/app/tests"
       - "../bdd/run.sh:/run.sh"
@@ -42,3 +45,6 @@ services:
 volumes:
   backend_data_ci:
     driver: local
+networks:
+  ci:
+    driver: bridge

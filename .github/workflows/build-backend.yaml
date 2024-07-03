@@ -22,10 +22,13 @@ jobs:
         run: |
           cd compose && chmod +x ./start.sh && ./start.sh ci
           sleep 60
+
+
       - name: Run behave tests
         run: |
           cd compose &&  chmod +x ./runcitests.sh && ./runcitests.sh
-      - name: Stop backend env
+
+          - name: Stop backend env
         if : ${{ always() }}
         run: |
           cd compose && docker compose -f compose.ci.yml down
