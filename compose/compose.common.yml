@@ -1,4 +1,33 @@
 services:
+  # auth
+  keycloakdb:
+    image: postgres
+    container_name: keycloak-postgres
+    volumes:
+      - keycloak_data:/var/lib/postgresql/data
+    env_file:
+      - ./env/.postgres.env
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    env_file:
+      - ./env/.keycloak.env
+    command: start-dev
+    depends_on:
+      - keycloakdb
+    volumes:
+      - "./HealthCheck.java:/tmp/HealthCheck.java"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "java /tmp/HealthCheck.java http://0.0.0.0:8443/auth/health/live",
+        ]
+      interval: 5s
+      timeout: 10s
+      retries: 15
+
   db:
     image: postgres
     container_name: postgresdb

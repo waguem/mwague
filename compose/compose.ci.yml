@@ -1,7 +1,19 @@
-include:
-  - path: compose.auth.yml
-
 services:
+  # auth
+  keycloakdb:
+    extends:
+      file: compose.common.yml
+      service: keycloakdb
+    networks:
+      - ci
+
+  keycloak:
+    extends:
+      file: compose.common.yml
+      service: keycloak
+    networks:
+      - ci
+
   backenddb:
     extends:
       file: compose.common.yml
@@ -43,8 +55,10 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@backend-db:5432/postgres
 
 volumes:
+  keycloak_data:
   backend_data_ci:
     driver: local
+
 networks:
   ci:
     driver: bridge

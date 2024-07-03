@@ -1,7 +1,19 @@
-include:
-  - path: compose.auth.yml
-
 services:
+  # auth
+  keycloakdb:
+    extends:
+      file: compose.common.yml
+      service: keycloakdb
+    networks:
+      - dev
+
+  keycloak:
+    extends:
+      file: compose.common.yml
+      service: keycloak
+    networks:
+      - dev
+
   # tools
   pgAdmin:
     extends:
@@ -57,6 +69,7 @@ services:
 volumes:
   pgadmin_dev:
   backend_data_dev:
+  keycloak_data:
 
 networks:
   dev:

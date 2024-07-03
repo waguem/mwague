@@ -2,14 +2,14 @@
 
 export_keyclaok_settings(){
     container_name=$1
-    docker exec -it $container_name /opt/keycloak/bin/kc.sh export --realm mwague --dir /tmp/export
+    docker exec -i $container_name /opt/keycloak/bin/kc.sh export --realm mwague --dir /tmp/export
     docker cp $container_name:/tmp/export .
 }
 
 import_keyclaok_settings(){
     container_name=$1
     docker cp ./export $container_name:/tmp
-    docker exec -it $container_name /opt/keycloak/bin/kc.sh import --dir /tmp/export
+    docker exec -i $container_name /opt/keycloak/bin/kc.sh import --dir /tmp/export
     # restart the container to apply the changes
     docker restart $container_name
 }
