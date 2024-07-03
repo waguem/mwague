@@ -44,15 +44,14 @@ services:
       dockerfile: Dockerfile
     container_name: bdd
     entrypoint: tail -f /dev/null
-    networks:
-      - ci
-    volumes:
-      - "../bdd/tests:/app/tests"
-      - "../bdd/run.sh:/run.sh"
     environment:
       PYTHONPATH: /app/gen/client/build/lib
       API_URL: http://backend:8080
       DATABASE_URL: postgresql://postgres:postgres@backend-db:5432/postgres
+    volumes:
+      - "../bdd/run.sh:/run.sh"
+    networks:
+      - ci
 
 volumes:
   keycloak_data:
