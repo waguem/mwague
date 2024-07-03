@@ -16,9 +16,6 @@ services:
       timeout: 2s
       retries: 10
 
-    networks:
-      - dev
-
   pgAdmin:
     image: dpage/pgadmin4
     restart: always
@@ -36,8 +33,6 @@ services:
       timeout: 2s
       retries: 10
     command: redis-server /usr/local/etc/redis/redis.conf
-    networks:
-      - dev
 
   backend:
     image: tiangolo/uvicorn-gunicorn-fastapi:python3.10
@@ -53,9 +48,6 @@ services:
 
     env_file:
       - ./env/.backend.env
-
-    networks:
-      - dev
 
     depends_on:
       backenddb:
@@ -73,7 +65,3 @@ services:
     volumes:
       - "../bdd/tests:/app/tests"
       - "../bdd/run.sh:/run.sh"
-
-networks:
-  dev:
-    external: true

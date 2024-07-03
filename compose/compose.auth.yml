@@ -6,8 +6,6 @@ services:
       - keycloak_data:/var/lib/postgresql/data
     env_file:
       - ./env/.postgres.env
-    networks:
-      - dev
 
   keycloak:
     image: quay.io/keycloak/keycloak:latest
@@ -17,8 +15,7 @@ services:
     command: start-dev
     depends_on:
       - postgres
-    networks:
-      - dev
+
     ports:
       - 8443:8443
     volumes:
@@ -36,7 +33,3 @@ services:
 volumes:
   keycloak_data:
     driver: local
-
-networks:
-  dev:
-    external: true
