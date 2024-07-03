@@ -31,7 +31,6 @@ jobs:
         if : ${{ always() }}
         run: |
           cd compose && docker compose -f compose.ci.yml down
-          docker network rm dev ci
 
   build-backend:
     needs: bdd-tests
