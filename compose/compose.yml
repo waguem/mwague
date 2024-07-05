@@ -13,6 +13,8 @@ services:
       service: keycloak
     networks:
       - dev
+    ports:
+      - "8443:8443"
 
   # tools
   pgAdmin:

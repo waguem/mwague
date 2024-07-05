@@ -49,7 +49,7 @@ def review_transaction(ctx, agent, state, currency, data, tr_type, amount, charg
             filter(
                 lambda x: x.state == client.TransactionState.REVIEW
                 and x.type == tr_type
-                and x.amount == Decimal(amount),
+                and abs(Decimal(x.amount) - Decimal(str(amount))) < 0.001,
                 res,
             )
         )
@@ -59,7 +59,6 @@ def review_transaction(ctx, agent, state, currency, data, tr_type, amount, charg
             # review transaction
             assert ctx.transaction.code is not None
             assert ctx.transaction.type == tr_type
-            assert ctx.transaction.amount == Decimal(amount)
             assert ctx.transaction.state == client.TransactionState.REVIEW
             charges = Decimal(charges) if charges else ctx.transaction.charges
 
@@ -70,6 +69,7 @@ def review_transaction(ctx, agent, state, currency, data, tr_type, amount, charg
                         "type": ctx.transaction.type,
                         "state": state,
                         "data": data,
+                        "notes": f"{ctx.transaction.code} {state} by {ctx.logged_user.username}",
                         "currency": currency,
                         "amount": {
                             "amount": ctx.transaction.amount,

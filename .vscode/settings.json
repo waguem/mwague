@@ -14,5 +14,10 @@
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": true,
   "pylint.cwd": "${workspaceFolder}/backend",
-  "pylint.ignorePatterns": ["**gen/**", "**alembic/**"]
+  "pylint.ignorePatterns": ["**gen/**", "**alembic/**"],
+  "files.exclude": {
+    "**/.git": true,
+    "**/*.pyc": { "when": "$(basename).py" },
+    "**/__pycache__": true
+  }
 }

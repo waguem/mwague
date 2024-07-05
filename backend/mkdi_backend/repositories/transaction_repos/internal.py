@@ -115,6 +115,7 @@ class InternalTransaction(AbstractTransaction):
             receiver_initials=receiver.initials,
             created_by=user.user_db_id,
             history={"history": []},
+            notes={"notes": []},
         )
 
         self.db.add(internal)
@@ -128,12 +129,6 @@ class InternalTransaction(AbstractTransaction):
             user (KcUser): _description_
             input (pr.TransactionRequest): _description_
         """
-
-    def reject(self, transaction: Internal):
-        pass
-
-    def cancel(self, transaction: Internal):
-        pass
 
     @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
     def approve(self, transaction: Internal):

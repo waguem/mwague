@@ -9,10 +9,15 @@
         "host": "localhost",
         "port": 9696
       },
+      "justMyCode": false,
       "pathMappings": [
         {
           "localRoot": "${workspaceFolder}/backend",
           "remoteRoot": "/backend"
+        },
+        {
+          "localRoot": "${workspaceFolder}/mkdi-shared",
+          "remoteRoot": "/mkdi-shared"
         }
       ]
     }

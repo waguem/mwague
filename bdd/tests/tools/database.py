@@ -144,6 +144,8 @@ def get_agent_account(agent_initials: str):
             {"initials": agent_initials},
         ).fetchone()
 
+        if not agent:
+            return None
         # accounts
         account = session.execute(
             text("SELECT * FROM public.accounts WHERE owner_id = :owner_id AND type = 'AGENT'"),

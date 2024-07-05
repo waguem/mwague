@@ -120,3 +120,79 @@ def verify_office_credit(ctx, charges):
 
 
 ####################################################################################################
+# @internal @internal_reject
+# Scenario Outline: Reject Pending Internal Transaction
+#     Background: User is logged in
+#         When I login with username "<username>" and password "<password>"
+#         Then I should get an access token
+#     Given I reject a pending internal transaction from <sender> to <receiver> for <amount>
+#     Then I should get a response with the <state> transaction details
+#     And The sender <sender> account should not be debited
+#     And The receiver <receiver> account should not be credited
+#     And The office account should not be credited
+#     Then I logout
+####################################################################################################
+@when("I reject a pending internal transaction from {sender} to {receiver} for {amount}")
+def reject_pending_internal(ctx, sender, receiver, amount):
+    """reject pending internal transaction"""
+    ctx.sender_account = database.get_agent_account(sender)
+    ctx.receiver_account = database.get_agent_account(receiver)
+    ctx.office_account = database.get_office_account(ctx.logged_user.office_id)
+
+    utils.review_transaction(
+        ctx=ctx,
+        agent=sender,
+        amount=amount,
+        currency="USD",
+        state=client.ValidationState.REJECTED,
+        tr_type=client.TransactionType.INTERNAL,
+        data={
+            "sender": ctx.sender_account.initials,
+            "receiver": ctx.receiver_account.initials,
+            "type": client.TransactionType.INTERNAL,
+        },
+    )
+
+
+# When I cancel the pending internal from <sender> to receiver <receiver> fro <amount>
+@when("I cancel the pending internal from {sender} to receiver {receiver} for {amount}")
+def cancel_pending_internal(ctx, sender, receiver, amount):
+    """cancel pending internal transaction"""
+    ctx.sender_account = database.get_agent_account(sender)
+    ctx.receiver_account = database.get_agent_account(receiver)
+    ctx.office_account = database.get_office_account(ctx.logged_user.office_id)
+
+    utils.review_transaction(
+        ctx=ctx,
+        agent=sender,
+        amount=amount,
+        currency="USD",
+        state=client.ValidationState.CANCELLED,
+        tr_type=client.TransactionType.INTERNAL,
+        data={
+            "sender": ctx.sender_account.initials,
+            "receiver": ctx.receiver_account.initials,
+            "type": client.TransactionType.INTERNAL,
+        },
+    )
+
+
+@then("The sender {sender} account should not be debited")
+def verify_sender_not_debited(ctx, sender):
+    """verify sender not debited"""
+    sender_account = database.get_agent_account(sender)
+    assert sender_account.balance == ctx.sender_account.balance
+
+
+@then("The receiver {receiver} account should not be credited")
+def verify_receiver_not_credited(ctx, receiver):
+    """verify receiver not credited"""
+    receiver_account = database.get_agent_account(receiver)
+    assert receiver_account.balance == ctx.receiver_account.balance
+
+
+@then("The office account should not be credited")
+def verify_office_not_credited(ctx):
+    """verify office not credited"""
+    office_account = database.get_office_account(ctx.logged_user.office_id)
+    assert office_account.balance == ctx.office_account.balance

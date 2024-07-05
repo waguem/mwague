@@ -38,3 +38,61 @@ def review_deposit_tr(ctx, amount, receiver):
         tr_type=client.TransactionType.DEPOSIT,
         data={"receiver": ctx.receiver_account.initials, "type": client.TransactionType.DEPOSIT},
     )
+
+
+@when("I reject the pending deposit {amount} for {receiver}")
+def reject_pending_transaction(ctx, amount, receiver):
+    """reject pending transaction"""
+    ctx.receiver_account = database.get_agent_account(receiver)
+    ctx.fund_account = database.get_fund_account(ctx.logged_user.office_id)
+
+    utils.review_transaction(
+        ctx=ctx,
+        agent=receiver,
+        amount=amount,
+        currency="USD",
+        state=client.ValidationState.REJECTED,
+        tr_type=client.TransactionType.DEPOSIT,
+        data={"receiver": ctx.receiver_account.initials, "type": client.TransactionType.DEPOSIT},
+    )
+
+
+@then("I should get a response with the {state} transaction details")
+def reviewed_transaction(ctx, state):
+    """check rejected transaction"""
+    assert ctx.response is not None
+    res: client.TransactionResponse = ctx.response
+    assert res.state == client.TransactionState[state]
+    if state != client.TransactionState.PAID:
+        assert res.notes is not None
+
+
+@then("The receiver {receiver} account should not be debited")
+def receiver_not_debited(ctx, receiver):
+    """check receiver account"""
+    receiver_account = database.get_agent_account(receiver)
+    assert receiver_account.balance == ctx.receiver_account.balance
+
+
+@then("The fund account should not be debited")
+def fund_account_not_debited(ctx):
+    """check fund account"""
+    fund = database.get_fund_account(ctx.logged_user.office_id)
+    assert ctx.fund_account.balance == fund.balance
+
+
+@when("I cancel the pending deposit {amount} for {receiver}")
+def cancel_pending_deposit(ctx, amount, receiver):
+    """cancel pending deposit"""
+    ctx.receiver_account = database.get_agent_account(receiver)
+    ctx.fund_account = database.get_fund_account(ctx.logged_user.office_id)
+
+    utils.review_transaction(
+        ctx=ctx,
+        agent=receiver,
+        amount=amount,
+        currency="USD",
+        state=client.ValidationState.CANCELLED,
+        tr_type=client.TransactionType.DEPOSIT,
+        data={"receiver": ctx.receiver_account.initials, "type": client.TransactionType.DEPOSIT},
+    )

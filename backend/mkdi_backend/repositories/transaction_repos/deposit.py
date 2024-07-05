@@ -2,7 +2,8 @@
 
 from datetime import datetime
 from typing import List
-
+import secrets
+import string
 from mkdi_backend.models.Account import Account
 from mkdi_backend.models.Activity import FundCommit
 from mkdi_backend.models.models import KcUser
@@ -22,8 +23,17 @@ class DepositTransaction(AbstractTransaction):
     """
 
     def generate_code(self, initials):
-        """generate a unique code for the transaction"""
-        return f"{initials}D{datetime.now().strftime('%m%d%H%M%S')}"
+        # Define the length of the random string
+        random_string_length = 8  # You can adjust the length as needed
+
+        # Generate a secure random string using letters and digits
+        random_string = "".join(
+            secrets.choice(string.ascii_letters + string.digits)
+            for _ in range(random_string_length)
+        )
+
+        # Return the formatted unique code
+        return f"{initials}-{random_string}".upper()
 
     def validate_review(self):
         """validate the review inputs"""
@@ -68,12 +78,6 @@ class DepositTransaction(AbstractTransaction):
         self.db.add(fund_history)
         return commits
 
-    def reject(self, transaction: pr.TransactionDB) -> pr.TransactionResponse:
-        """Reject a transaction"""
-
-    def cancel(self, transaction: pr.TransactionDB) -> pr.TransactionResponse:
-        """cancel a transaction"""
-
     def do_transaction(self) -> Deposit:
         """create a deposit transaction"""
         user: KcUser = self.user
@@ -93,6 +97,7 @@ class DepositTransaction(AbstractTransaction):
             rate=self.get_rate(),
             state=pr.TransactionState.REVIEW,
             type=pr.TransactionType.DEPOSIT,
+            notes={"notes": []},
         )
         self.db.add(deposit)
         return deposit

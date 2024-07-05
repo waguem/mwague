@@ -1,15 +1,30 @@
+# pyling: disable-all
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
-from typing import Annotated, Dict, List, Literal, Optional, Union
+from typing import Annotated, Dict, List, Literal, Optional, Union, Mapping, Any
 from uuid import UUID, uuid4
-
+import json
 import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as pg
 from mkdi_shared.exceptions.mkdi_api_error import MkdiErrorCode
 from pydantic import BaseModel, Field, root_validator
 from sqlmodel import Field as SQLModelField
 from sqlmodel import SQLModel
+from sqlalchemy.ext.mutable import MutableDict
+from sqlalchemy import event
+
+
+def custom_serializer(obj):
+    """JSON serializer for objects not serializable by default json code"""
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    if isinstance(obj, Decimal):
+        return str(obj)
+    if isinstance(obj, UUID):
+        return str(obj)
+    # if string
+    return obj
 
 
 class OrganizationBase(SQLModel):
@@ -110,10 +125,19 @@ class CreateAgentRequest(AgentBase):
     pass
 
 
+class VariationType(Enum):
+    DEBIT = "DEBIT"
+    CREDIT = "CREDIT"
+
+
 class TransactionCommit(BaseModel):
     balance: float
     amount: float
     initials: str
+    variation: str
+
+    def to_json(self):
+        return json.dumps(self.dict(), ensure_ascii=False, default=custom_serializer)
 
 
 class AgentResponse(AgentBase):
@@ -127,17 +151,19 @@ class AccountBase(SQLModel):
     balance: Decimal = Field(default=0, max_digits=5, decimal_places=3, nullable=True)
 
     def credit(self, amount: Decimal) -> TransactionCommit:
-        commit = self.get_commit(amount)
+        commit = self.get_commit(amount, VariationType.CREDIT)
         self.balance += amount
         return commit
 
     def debit(self, amount: Decimal) -> TransactionCommit:
-        commit = self.get_commit(amount)
+        commit = self.get_commit(amount, VariationType.DEBIT)
         self.balance -= amount
         return commit
 
-    def get_commit(self, amount: Decimal) -> TransactionCommit:
-        return TransactionCommit(balance=self.balance, amount=amount, initials=self.initials)
+    def get_commit(self, amount: Decimal, variation: VariationType) -> TransactionCommit:
+        return TransactionCommit(
+            balance=self.balance, amount=amount, initials=self.initials, variation=variation.value
+        )
 
 
 class CreateAccountRequest(AccountBase):
@@ -189,6 +215,7 @@ class TransactionState(Enum):
     PENDING = "PENDING"
     PAID = "PAID"
     CANCELLED = "CANCELLED"
+    REJECTED = "REJECTED"
 
 
 class TransactionType(Enum):
@@ -202,6 +229,16 @@ class PaymentMethod(Enum):
     MOBILE = "MOBILE"
 
 
+class Note(BaseModel):
+    content: str
+    created_by: str
+    created_at: str
+
+
+class NoteList(BaseModel):
+    notes: List[Note] = []
+
+
 class TransactionBase(SQLModel):
     amount: Annotated[Decimal, Field(strict=True, ge=0)]
     rate: Annotated[Decimal, Field(strict=True, gt=0)]
@@ -209,6 +246,11 @@ class TransactionBase(SQLModel):
     state: TransactionState
     type: TransactionType
     created_at: Annotated[datetime, Field(default_factory=datetime.now)]
+
+
+class TransactionResponse(TransactionBase):
+    charges: Annotated[Decimal, Field(strict=True, ge=0)] | None
+    notes: NoteList
 
 
 class TransactionDB(TransactionBase):
@@ -227,16 +269,36 @@ class TransactionDB(TransactionBase):
     org_id: UUID = SQLModelField(foreign_key="organizations.id")
     created_by: UUID = SQLModelField(foreign_key="employees.id")
 
-    history: dict | None = SQLModelField(default={}, sa_column=sa.Column(pg.JSONB))
+    history: Mapping[Any, Mapping | Any] = SQLModelField(
+        default={}, sa_column=sa.Column(MutableDict.as_mutable(pg.JSONB))
+    )
+    notes: Mapping[Any, Mapping | Any] = SQLModelField(
+        default={}, sa_column=sa.Column(MutableDict.as_mutable(pg.JSONB))
+    )
+
+    def to_response(self) -> TransactionResponse:
+        return TransactionResponse(**self.dict())
 
     def save_commit(self, commits: List[TransactionCommit]) -> None:
         """save the commits to the history"""
         # load jsonb from self.history
-        if "history" not in self.history:
-            self.history["history"] = []
+        hist = self.history.copy()
+        if "history" not in hist:
+            hist["history"] = []
         item = {}
-        item["commits"] = commits
-        self.history["history"].append(item)
+        item["commits"] = [item.dict() for item in commits]
+        hist["history"].append(item)
+
+        self.history = hist
+
+    def add_note(self, note: Note) -> None:
+        notes = {"notes": []}
+        if "notes" not in self.notes:
+            notes["notes"] = [note for note in self.notes["notes"]]
+
+        notes["notes"].append(note.dict())
+        self.notes = notes
+        return self.notes
 
 
 class Amount(BaseModel):
@@ -261,7 +323,7 @@ class DepositRequest(BaseModel):
 
 class ValidationState(Enum):
     APPROVED = "APPROVED"
-    INVALID = "INVALID"
+    REJECTED = "REJECTED"
     CANCELLED = "CANCELLED"
 
 
@@ -277,6 +339,7 @@ class TransactionReviewReq(TransactionRequest):
     code: str
     type: TransactionType
     state: Annotated[ValidationState, Field(nullable=False)]
+    notes: str | None
 
 
 class CancelRequest(BaseModel):
@@ -284,12 +347,13 @@ class CancelRequest(BaseModel):
     reason: str
 
 
-class TransactionResponse(TransactionBase):
-    charges: Annotated[Decimal, Field(strict=True, ge=0)] | None
-
-
 class MkdiErrorResponse(BaseModel):
     """The format of an error response from the OASST API."""
 
     error_code: MkdiErrorCode
     message: str
+
+
+# @event.listens_for(TransactionDB.history, "modified")
+# def modified_json(instance, initiator):
+#     print("json value modified:", instance.data)

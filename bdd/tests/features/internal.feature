@@ -28,10 +28,21 @@ Feature: Internal Transaction
         Then I logout
 
         Examples: Valid Internal Transaction
-            | username     | password  | sender | receiver | amount |charges | state    | reason  |
-            | wagueAdmin   | waguepass | GZM    | MDM      | 100    | 3.45   | PENDING  | None    |
-            | botoreAdmin  | botorepass| ASTM   | OMM      | 200    | 0      | PENDING  | None    |
-            | samAdmin     | sampass   | ALM    | BOBM     | 300    | 10     | PENDING  | None    |
+            | username     | password  | sender | receiver | amount |charges | state    |
+            | wagueAdmin   | waguepass | GZM    | MDM      | 100    | 3.45   | PENDING  |
+            | botoreAdmin  | botorepass| ASTM   | OMM      | 200    | 0      | PENDING  |
+            | samAdmin     | sampass   | ALM    | BOBM     | 300    | 10     | PENDING  |
+
+        Examples: Transaction to be rejected
+            | username     | password  | sender | receiver | amount |charges | state   |
+            | wagueAdmin   | waguepass | GZM    | MDM      | 879    | 3.45   | PENDING |
+            | botoreAdmin  | botorepass| ASTM   | OMM      | 458.7  | 0      | PENDING |
+            | samAdmin     | sampass   | ALM    | BOBM     | 89777  | 10     | PENDING |
+        Examples: Transaction to be cancelled
+            | username     | password  | sender | receiver | amount |charges | state   |
+            | wagueAdmin   | waguepass | GZM    | MDM      | 789    | 3.45   | PENDING |
+            | botoreAdmin  | botorepass| ASTM   | OMM      | 756    | 0      | PENDING |
+            | samAdmin     | sampass   | ALM    | BOBM     | 245    | 10     | PENDING |
 
         Examples: Invalid Internal Transaction
             | username     | password  | sender | receiver | amount |charges |  state   |  reason               |
@@ -39,7 +50,7 @@ Feature: Internal Transaction
             | samAdmin     | sampass   | ASTM   | OMM      | 200    | 4.5    | REJECTED |  Resource not found   |
             | wagueAdmin   | waguepass | ALM    | BOBM     | 300    | 0      | REJECTED |  Resource not found   |
 
-    @internal @internal_review
+    @internal @internal_approve
     Scenario Outline: Approve pending transactions
         Background: User is logged in
             Given I have a backend server
@@ -72,6 +83,41 @@ Feature: Internal Transaction
 
         Examples: Valid Internal Review Transaction
             | username     | password  | sender | receiver | state     | amount  | charges |
-            | wagueAdmin   | waguepass | GZ     | MD       | APPROVED  |   100   | 3.45    |
-            | botoreAdmin  | botorepass| AST    | OM       | APPROVED  |   200   | 0       |
-            | samAdmin     | sampass   | AL     | BOB      | APPROVED  |   300   | 10      |
+            | wagueAdmin   | waguepass | GZ     | MD       | APPROVE  |   100   | 3.45    |
+            | botoreAdmin  | botorepass| AST    | OM       | APPROVE  |   200   | 0       |
+            | samAdmin     | sampass   | AL     | BOB      | APPROVE  |   300   | 10      |
+
+    @internal @internal_reject
+    Scenario Outline: Reject Pending Internal Transaction
+        Background: User is logged in
+            When I login with username "<username>" and password "<password>"
+            Then I should get an access token
+        When I reject a pending internal transaction from <sender> to <receiver> for <amount>
+        Then I should get a response with the <state> transaction details
+        And The sender <sender> account should not be debited
+        And The receiver <receiver> account should not be credited
+        And The office account should not be credited
+        Then I logout
+
+        Examples:
+            | username     | password  | sender | receiver | amount | state      |
+            | wagueAdmin   | waguepass | GZ     | MD       | 879    | REJECTED   |
+            | botoreAdmin  | botorepass| AST    | OM       | 458.7  | REJECTED   |
+            | samAdmin     | sampass   | AL     | BOB      | 89777  | REJECTED   |
+    @internal @internal_cancel
+        Scenario Outline: Cancel Pending Internal
+        Background: User is logged in
+            When I login with username "<username>" and password "<password>"
+            Then I should get an access token
+
+        When I cancel the pending internal from <sender> to receiver <receiver> for <amount>
+        Then I should get a response with the <state> transaction details
+        And The sender <sender> account should not be debited
+        And The receiver <receiver> account should not be credited
+        And The office account should not be credited
+        Then I logout
+        Examples:
+            | username     | password  | sender | receiver | amount | state      |
+            | wagueAdmin   | waguepass | GZ     | MD       | 789    | CANCELLED  |
+            | botoreAdmin  | botorepass| AST    | OM       | 756    | CANCELLED  |
+            | samAdmin     | sampass   | AL     | BOB      | 245    | CANCELLED  |

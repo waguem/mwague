@@ -52,4 +52,6 @@ def review_transaction(
     db: Session = Depends(get_db),
 ) -> protocol.TransactionResponse:
     """review a transaction request"""
-    return TransactionRepository(db).review_transaction(transaction_code, user, usr_input)
+    reviewed = TransactionRepository(db).review_transaction(transaction_code, user, usr_input)
+
+    return reviewed

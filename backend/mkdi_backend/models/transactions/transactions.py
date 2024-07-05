@@ -23,9 +23,6 @@ class Internal(TransactionDB, table=True):
 
     charges: Annotated[Decimal, Field(ge=0)]
 
-    def to_response(self) -> TransactionResponse:
-        return TransactionResponse(**self.dict())
-
 
 class Deposit(TransactionDB, table=True):
     __tablename__ = "deposits"
@@ -34,9 +31,6 @@ class Deposit(TransactionDB, table=True):
         It cannot be subject to fees.
     """
     owner_initials: str = Field(foreign_key="accounts.initials")
-
-    def to_response(self) -> TransactionResponse:
-        return TransactionResponse(**self.dict())
 
 
 class Sending(TransactionDB, table=True):

@@ -3,6 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 
+from datetime import datetime
 from loguru import logger
 from mkdi_backend.models.Account import Account, AccountType
 from mkdi_backend.models.Activity import Activity
@@ -211,7 +212,7 @@ class AbstractTransaction(ABC):
                 case pr.ValidationState.APPROVED:
 
                     review = self.approve
-                case pr.ValidationState.INVALID:
+                case pr.ValidationState.REJECTED:
                     review = self.reject
                 case pr.ValidationState.CANCELLED:
                     review = self.cancel
@@ -233,7 +234,7 @@ class AbstractTransaction(ABC):
             logger.error(f"Error reviewing transaction {e}")
             raise e
 
-        return transaction
+        return transaction.to_response()
 
     @abstractmethod
     def approve(self, transaction: pr.TransactionDB) -> pr.TransactionResponse:
@@ -246,7 +247,7 @@ class AbstractTransaction(ABC):
             pr.TransactionResponse: _description_
         """
 
-    @abstractmethod
+    @managed_tx_method(auto_commit=CommitMode.COMMIT)
     def reject(self, transaction: pr.TransactionDB) -> pr.TransactionResponse:
         """reject a transaction request
 
@@ -256,8 +257,21 @@ class AbstractTransaction(ABC):
         Returns:
             pr.TransactionResponse: _description_
         """
+        user_input: pr.TransactionReviewReq = self.get_inputs()
+        transaction.state = pr.TransactionState.REJECTED
+        if user_input.notes:
+            transaction.add_note(
+                pr.Note(
+                    content=user_input.notes,
+                    created_by=str(self.user.user_db_id),
+                    created_at=datetime.now().isoformat(),
+                )
+            )
 
-    @abstractmethod
+        self.db.add(transaction)
+        return transaction
+
+    @managed_tx_method(auto_commit=CommitMode.COMMIT)
     def cancel(self, transaction: pr.TransactionDB) -> pr.TransactionResponse:
         """cancel a transaction request
 
@@ -267,6 +281,19 @@ class AbstractTransaction(ABC):
         Returns:
             pr.TransactionResponse: _description_
         """
+        transaction.state = pr.TransactionState.CANCELLED
+        user_input: pr.TransactionReviewReq = self.get_inputs()
+        transaction.add_note(
+            pr.Note(
+                content=user_input.notes,
+                created_by=str(self.user.user_db_id),
+                created_at=datetime.now().isoformat(),
+            )
+        )
+
+        self.db.add(transaction)
+
+        return transaction
 
     @abstractmethod
     def do_transaction(self) -> None:
