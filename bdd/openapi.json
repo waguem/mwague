@@ -1196,6 +1196,28 @@
         "title": "InternalRequest",
         "description": "Internal transaction request."
       },
+      "Note": {
+        "properties": {
+          "content": { "type": "string", "title": "Content" },
+          "created_by": { "type": "string", "title": "Created By" },
+          "created_at": { "type": "string", "title": "Created At" }
+        },
+        "type": "object",
+        "required": ["content", "created_by", "created_at"],
+        "title": "Note"
+      },
+      "NoteList": {
+        "properties": {
+          "notes": {
+            "items": { "$ref": "#/components/schemas/Note" },
+            "type": "array",
+            "title": "Notes",
+            "default": []
+          }
+        },
+        "type": "object",
+        "title": "NoteList"
+      },
       "OfficeResponse": {
         "properties": {
           "country": {
@@ -1311,10 +1333,11 @@
             "format": "date-time",
             "title": "Created At"
           },
-          "charges": { "type": "number", "title": "Charges" }
+          "charges": { "type": "number", "title": "Charges" },
+          "notes": { "$ref": "#/components/schemas/NoteList" }
         },
         "type": "object",
-        "required": ["amount", "rate", "code", "state", "type"],
+        "required": ["amount", "rate", "code", "state", "type", "notes"],
         "title": "TransactionResponse"
       },
       "TransactionReviewReq": {
@@ -1341,14 +1364,15 @@
           "state": {
             "allOf": [{ "$ref": "#/components/schemas/ValidationState" }],
             "nullable": false
-          }
+          },
+          "notes": { "type": "string", "title": "Notes" }
         },
         "type": "object",
         "required": ["currency", "amount", "data", "code", "type", "state"],
         "title": "TransactionReviewReq"
       },
       "TransactionState": {
-        "enum": ["REVIEW", "PENDING", "PAID", "CANCELLED"],
+        "enum": ["REVIEW", "PENDING", "PAID", "CANCELLED", "REJECTED"],
         "title": "TransactionState",
         "description": "An enumeration."
       },
@@ -1372,7 +1396,7 @@
         "title": "ValidationError"
       },
       "ValidationState": {
-        "enum": ["APPROVED", "INVALID", "CANCELLED"],
+        "enum": ["APPROVED", "REJECTED", "CANCELLED"],
         "title": "ValidationState",
         "description": "An enumeration."
       }
