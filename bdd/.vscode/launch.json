@@ -9,7 +9,7 @@
       "args": [
         "${workspaceFolder}/tests/features",
         "--no-capture",
-        "--tags=@internal",
+        "--tags=@deposit",
         "-k"
       ],
       "envFile": "${workspaceFolder}/.env.local",
