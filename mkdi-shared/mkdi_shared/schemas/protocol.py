@@ -332,7 +332,9 @@ class TransactionRequest(BaseModel):
     amount: Amount
     charges: Amount | None
 
-    data: Union[InternalRequest, DepositRequest] = Field(..., discriminator="type")
+    data: Optional[Union[InternalRequest, DepositRequest]] = Field(
+        default=None, discriminator="type"
+    )
 
 
 class TransactionReviewReq(TransactionRequest):

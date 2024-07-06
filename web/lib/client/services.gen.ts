@@ -5,7 +5,6 @@ import { OpenAPI } from "./core/OpenAPI";
 import { request as __request } from "./core/request";
 import type {
   PingApiV1PingGetResponse,
-  GetVersionApiV1VersionGetResponse,
   GetOrganizationsApiV1OrganizationGetResponse,
   CreateOrganizationApiV1OrganizationPostData,
   CreateOrganizationApiV1OrganizationPostResponse,
@@ -43,6 +42,10 @@ import type {
   GetAgentTransactionsApiV1AgentInitialsTransactionsGetResponse,
   RequestTransactionApiV1TransactionPostData,
   RequestTransactionApiV1TransactionPostResponse,
+  ReviewTransactionApiV1TransactionTransactionCodeReviewPostData,
+  ReviewTransactionApiV1TransactionTransactionCodeReviewPostResponse,
+  GetTransactionApiV1TransactionCodeGetData,
+  GetTransactionApiV1TransactionCodeGetResponse,
 } from "./types.gen";
 
 /**
@@ -58,19 +61,8 @@ export const pingApiV1PingGet = (): CancelablePromise<PingApiV1PingGetResponse> 
 };
 
 /**
- * Get Version
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const getVersionApiV1VersionGet = (): CancelablePromise<GetVersionApiV1VersionGetResponse> => {
-  return __request(OpenAPI, {
-    method: "GET",
-    url: "/api/v1/version",
-  });
-};
-
-/**
  * Get Organizations
+ * get all organizations
  * @returns OrganizationResponse Successful Response
  * @throws ApiError
  */
@@ -84,6 +76,7 @@ export const getOrganizationsApiV1OrganizationGet =
 
 /**
  * Create Organization
+ * create an organization
  * @param data The data for the request.
  * @param data.requestBody
  * @returns OrganizationResponse Successful Response
@@ -105,6 +98,7 @@ export const createOrganizationApiV1OrganizationPost = (
 
 /**
  * Get My Organization
+ * get my organization
  * @returns OrganizationResponse Successful Response
  * @throws ApiError
  */
@@ -475,6 +469,7 @@ export const startActivityApiV1OfficeActivityPost = (
 
 /**
  * Get Agent Transactions
+ * get all transactions for an agent
  * @param data The data for the request.
  * @param data.initials
  * @returns TransactionResponse Successful Response
@@ -497,6 +492,7 @@ export const getAgentTransactionsApiV1AgentInitialsTransactionsGet = (
 
 /**
  * Request Transaction
+ * request a transaction for approval, this will just created the transaction in the db
  * @param data The data for the request.
  * @param data.requestBody
  * @returns TransactionResponse Successful Response
@@ -510,6 +506,55 @@ export const requestTransactionApiV1TransactionPost = (
     url: "/api/v1/transaction",
     body: data.requestBody,
     mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Review Transaction
+ * review a transaction request
+ * @param data The data for the request.
+ * @param data.transactionCode
+ * @param data.requestBody
+ * @returns TransactionResponse Successful Response
+ * @throws ApiError
+ */
+export const reviewTransactionApiV1TransactionTransactionCodeReviewPost = (
+  data: ReviewTransactionApiV1TransactionTransactionCodeReviewPostData
+): CancelablePromise<ReviewTransactionApiV1TransactionTransactionCodeReviewPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/transaction/{transaction_code}/review",
+    path: {
+      transaction_code: data.transactionCode,
+    },
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Get Transaction
+ * get a single transaction
+ * @param data The data for the request.
+ * @param data.code
+ * @returns TransactionResponse Successful Response
+ * @throws ApiError
+ */
+export const getTransactionApiV1TransactionCodeGet = (
+  data: GetTransactionApiV1TransactionCodeGetData
+): CancelablePromise<GetTransactionApiV1TransactionCodeGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/transaction/{code}",
+    path: {
+      code: data.code,
+    },
     errors: {
       422: "Validation Error",
     },

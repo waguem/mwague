@@ -20,7 +20,7 @@ def setup(context):
 def teardown(context):
     """tear down the tests."""
     oidc.disconnect()
-    clean_database(context)
+    # clean_database(context)
 
 
 def clean_database(_):
@@ -32,7 +32,8 @@ def clean_database(_):
 
 def after_scenario(__, _):
     """clean the database after each scenario."""
-    database.remove_activity()
+    # database.remove_activity()
+    pass
 
 
 def before_all(context):

@@ -63,7 +63,7 @@ export default function ActivityMenuTab({ agents, office, activity }: Props) {
             </div>
             <div className="h-px w-full m-2 border-b border-white-light dark:border-[#1b2e4b]"></div>
             <div className="!mt-1">
-              <PerfectScrollbar>
+              <PerfectScrollbar className="chat-users relative h-full min-h-[100px] space-y-0.5 ltr:-mr-3.5 ltr:pr-3.5 rtl:-ml-3.5 rtl:pl-3.5 sm:h-[calc(100vh_-_357px)]">
                 {agents.map((agent: any, index: number) => (
                   <Link
                     key={index}

@@ -55,3 +55,18 @@ def review_transaction(
     reviewed = TransactionRepository(db).review_transaction(transaction_code, user, usr_input)
 
     return reviewed
+
+
+@router.get(
+    "/transaction/{code}",
+    response_model=protocol.TransactionResponse,
+    status_code=200,
+)
+def get_transaction(
+    *,
+    user: Annotated[KcUser, Security(check_authorization, scopes=[])],
+    code: str,
+    db: Session = Depends(get_db),
+) -> protocol.TransactionResponse:
+    """get a single transaction"""
+    return TransactionRepository(db).get_transaction(user, code)

@@ -229,6 +229,9 @@ class AbstractTransaction(ABC):
                     error_code=MkdiErrorCode.INVALID_INPUT, message="Invalid transaction request"
                 )
             logger.debug(f"Reviewing transaction {transaction}")
+
+            self.set_transaction(transaction)
+
             transaction = review(transaction)
         except Exception as e:
             logger.error(f"Error reviewing transaction {e}")

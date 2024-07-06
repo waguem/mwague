@@ -58,6 +58,9 @@ export type AgentResponse = {
  */
 export type AgentType = "AGENT" | "SUPPLIER";
 
+/**
+ * Amount and rate of a transaction.
+ */
 export type Amount = {
   amount: number;
   rate: number;
@@ -90,13 +93,12 @@ export type CreateAgentRequest = {
   phone: string;
   country: string;
   type: AgentType;
-  office_id?: string;
 };
 
 export type CreateEmployeeRequest = {
   email: string;
   username: string;
-  office_id: string;
+  office_initials: string;
   roles: Array<string>;
   password: string;
 };
@@ -147,6 +149,9 @@ export type HTTPValidationError = {
   detail?: Array<ValidationError>;
 };
 
+/**
+ * Internal transaction request.
+ */
 export type InternalRequest = {
   type: "INTERNAL";
   sender: string;
@@ -154,6 +159,16 @@ export type InternalRequest = {
 };
 
 export type type2 = "INTERNAL";
+
+export type Note = {
+  content: string;
+  created_by: string;
+  created_at: string;
+};
+
+export type NoteList = {
+  notes?: Array<Note>;
+};
 
 export type OfficeResponse = {
   country: string;
@@ -184,7 +199,7 @@ export type TransactionRequest = {
   currency: Currency;
   amount: Amount;
   charges?: Amount;
-  data: InternalRequest | DepositRequest;
+  data?: InternalRequest | DepositRequest;
 };
 
 export type TransactionResponse = {
@@ -194,17 +209,30 @@ export type TransactionResponse = {
   state: TransactionState;
   type: TransactionType;
   created_at?: string;
+  charges?: number;
+  notes: NoteList;
+};
+
+export type TransactionReviewReq = {
+  currency: Currency;
+  amount: Amount;
+  charges?: Amount;
+  data?: InternalRequest | DepositRequest;
+  code: string;
+  type: TransactionType;
+  state: ValidationState;
+  notes?: string;
 };
 
 /**
  * An enumeration.
  */
-export type TransactionState = "REVIEW" | "PENDING" | "PAID" | "CANCELLED";
+export type TransactionState = "REVIEW" | "PENDING" | "PAID" | "CANCELLED" | "REJECTED";
 
 /**
  * An enumeration.
  */
-export type TransactionType = "DEPOSIT" | "INTERNAL";
+export type TransactionType = "DEPOSIT" | "INTERNAL" | "EXTERNAL";
 
 export type ValidationError = {
   loc: Array<string | number>;
@@ -212,9 +240,12 @@ export type ValidationError = {
   type: string;
 };
 
-export type PingApiV1PingGetResponse = unknown;
+/**
+ * An enumeration.
+ */
+export type ValidationState = "APPROVED" | "REJECTED" | "CANCELLED";
 
-export type GetVersionApiV1VersionGetResponse = unknown;
+export type PingApiV1PingGetResponse = unknown;
 
 export type GetOrganizationsApiV1OrganizationGetResponse = Array<OrganizationResponse>;
 
@@ -321,18 +352,21 @@ export type RequestTransactionApiV1TransactionPostData = {
 
 export type RequestTransactionApiV1TransactionPostResponse = TransactionResponse;
 
+export type ReviewTransactionApiV1TransactionTransactionCodeReviewPostData = {
+  requestBody: TransactionReviewReq;
+  transactionCode: string;
+};
+
+export type ReviewTransactionApiV1TransactionTransactionCodeReviewPostResponse = TransactionResponse;
+
+export type GetTransactionApiV1TransactionCodeGetData = {
+  code: string;
+};
+
+export type GetTransactionApiV1TransactionCodeGetResponse = TransactionResponse;
+
 export type $OpenApiTs = {
   "/api/v1/ping": {
-    get: {
-      res: {
-        /**
-         * Successful Response
-         */
-        200: unknown;
-      };
-    };
-  };
-  "/api/v1/version": {
     get: {
       res: {
         /**
@@ -620,6 +654,36 @@ export type $OpenApiTs = {
          * Successful Response
          */
         201: TransactionResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/transaction/{transaction_code}/review": {
+    post: {
+      req: ReviewTransactionApiV1TransactionTransactionCodeReviewPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: TransactionResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/transaction/{code}": {
+    get: {
+      req: GetTransactionApiV1TransactionCodeGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: TransactionResponse;
         /**
          * Validation Error
          */

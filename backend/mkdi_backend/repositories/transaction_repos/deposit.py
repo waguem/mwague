@@ -39,11 +39,11 @@ class DepositTransaction(AbstractTransaction):
         """validate the review inputs"""
         request: pr.TransactionReviewReq = self.get_inputs()
 
-        transaction: Deposit = self.get_transaction(request.code)
-
+        transaction: Deposit = self.transaction
+        receiverInput = request.data.receiver if request.data else transaction.owner_initials
         assert transaction is not None
         assert transaction.amount == request.amount.amount
-        assert transaction.owner_initials == request.data.receiver
+        assert transaction.owner_initials == receiverInput
 
     def create_history(self, fund: Account, transaction: Deposit) -> FundCommit:
         """create a history for a deposit transaction"""
@@ -111,11 +111,18 @@ class DepositTransaction(AbstractTransaction):
         transaction.state = pr.TransactionState.PAID
         return transaction
 
-    def accounts(self) -> List[Account]:
+    def accounts(self, receiver=None) -> List[Account]:
         """
         Only the office fund and the receiver account are used in a deposit transaction
         """
-        receiver_account = self.use_account(self.get_inputs().data.receiver)
+        if self.get_inputs().data is None:
+            # reviewing the transaction
+            tr: Deposit = self.transaction
+            receiver = tr.owner_initials
+        else:
+            receiver = self.get_inputs().data.receiver
+
+        receiver_account = self.use_account(receiver)
         _, fund = self.use_office_accounts()
 
         return [receiver_account, fund]

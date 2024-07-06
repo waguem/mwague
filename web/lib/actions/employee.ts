@@ -69,7 +69,7 @@ export const addEmployee = async (prevState: State, data: FormData): Promise<Sta
         email: userInput.data.email,
         username: userInput.data.username,
         password: userInput.data.password,
-        office_id: userInput.data.office_id,
+        office_initials: userInput.data.office_id,
         roles: userInput.data.roles,
       },
     });

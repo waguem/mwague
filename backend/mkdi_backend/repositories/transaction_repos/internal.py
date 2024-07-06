@@ -142,7 +142,7 @@ class InternalTransaction(AbstractTransaction):
         transaction.state = pr.TransactionState.PAID
         return transaction
 
-    def accounts(self) -> List[Account]:
+    def accounts(self, sender=None, receiver=None) -> List[Account]:
         """return the linked accounts for the transaction
 
         Returns:
@@ -150,7 +150,17 @@ class InternalTransaction(AbstractTransaction):
         """
 
         request: pr.InternalRequest = self.get_inputs().data
-        accounts = [self.use_account(request.sender), self.use_account(request.receiver)]
+
+        if request is None and sender is None and receiver is None:
+            # reviewing the transaction
+            tr: Internal = self.transaction
+            sender = tr.sender_initials
+            receiver = tr.receiver_initials
+
+        accounts = [
+            self.use_account(sender or request.sender),
+            self.use_account(receiver or request.receiver),
+        ]
 
         # if there are charges, add the office account
 

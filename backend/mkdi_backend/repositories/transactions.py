@@ -1,5 +1,8 @@
 from typing import List
 
+from sqlalchemy import union_all
+from sqlalchemy.orm import load_only
+
 from mkdi_backend.models.Account import Account
 from mkdi_backend.models.Agent import Agent
 from mkdi_backend.models.models import KcUser
@@ -91,3 +94,35 @@ class TransactionRepository:
 
         transaction = reviewer.review(code)
         return transaction
+
+    def get_transaction(self, user: KcUser, code: str) -> pr.TransactionResponse:
+        """get a transaction"""
+        # use select and join to get the transaction by code from Internal Deposit and ...
+        fields = list(pr.TransactionDB.__fields__.keys())
+
+        deposit_query = self.db.query(*list(map(lambda x: getattr(Deposit, x), fields))).filter(
+            Deposit.code == code, Deposit.office_id == user.office_id
+        )
+        internal_query = self.db.query(*list(map(lambda x: getattr(Internal, x), fields))).filter(
+            Internal.code == code, Internal.office_id == user.office_id
+        )
+
+        # combine queries using union_all
+        combined_query = union_all(deposit_query, internal_query)
+        result = self.db.execute(combined_query).fetchall()
+        if len(result) > 1:
+            raise MkdiError(
+                error_code=MkdiErrorCode.INVALID_STATE,
+                message=f"Transaction code {code} is not unique",
+            )
+
+        record = dict(result[0])
+        adjusted_record = {}
+        for key, value in record.items():
+            # remove the prefix from the key
+            # however desposits_create_at will be changed to created_at
+            _, col = key.split("_", 1)
+            adjusted_record[col] = value
+        response = pr.TransactionResponse(**adjusted_record)
+
+        return response

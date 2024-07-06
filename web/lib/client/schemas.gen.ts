@@ -199,6 +199,7 @@ export const $Amount = {
   type: "object",
   required: ["amount", "rate"],
   title: "Amount",
+  description: "Amount and rate of a transaction.",
 } as const;
 
 export const $Body_create_office_api_v1_organization_office_post = {
@@ -302,11 +303,6 @@ export const $CreateAgentRequest = {
     type: {
       $ref: "#/components/schemas/AgentType",
     },
-    office_id: {
-      type: "string",
-      format: "uuid",
-      title: "Office Id",
-    },
   },
   type: "object",
   required: ["name", "initials", "email", "phone", "country", "type"],
@@ -329,10 +325,9 @@ export const $CreateEmployeeRequest = {
       nullable: false,
       unique: true,
     },
-    office_id: {
+    office_initials: {
       type: "string",
-      format: "uuid",
-      title: "Office Id",
+      title: "Office Initials",
     },
     roles: {
       items: {
@@ -347,7 +342,7 @@ export const $CreateEmployeeRequest = {
     },
   },
   type: "object",
-  required: ["email", "username", "office_id", "roles", "password"],
+  required: ["email", "username", "office_initials", "roles", "password"],
   title: "CreateEmployeeRequest",
 } as const;
 
@@ -546,6 +541,42 @@ export const $InternalRequest = {
   type: "object",
   required: ["type", "sender", "receiver"],
   title: "InternalRequest",
+  description: "Internal transaction request.",
+} as const;
+
+export const $Note = {
+  properties: {
+    content: {
+      type: "string",
+      title: "Content",
+    },
+    created_by: {
+      type: "string",
+      title: "Created By",
+    },
+    created_at: {
+      type: "string",
+      title: "Created At",
+    },
+  },
+  type: "object",
+  required: ["content", "created_by", "created_at"],
+  title: "Note",
+} as const;
+
+export const $NoteList = {
+  properties: {
+    notes: {
+      items: {
+        $ref: "#/components/schemas/Note",
+      },
+      type: "array",
+      title: "Notes",
+      default: [],
+    },
+  },
+  type: "object",
+  title: "NoteList",
 } as const;
 
 export const $OfficeResponse = {
@@ -669,7 +700,7 @@ export const $TransactionRequest = {
     },
   },
   type: "object",
-  required: ["currency", "amount", "data"],
+  required: ["currency", "amount"],
   title: "TransactionRequest",
 } as const;
 
@@ -689,7 +720,7 @@ export const $TransactionResponse = {
     },
     code: {
       type: "string",
-      maxLength: 16,
+      maxLength: 64,
       title: "Code",
     },
     state: {
@@ -703,14 +734,75 @@ export const $TransactionResponse = {
       format: "date-time",
       title: "Created At",
     },
+    charges: {
+      type: "number",
+      title: "Charges",
+    },
+    notes: {
+      $ref: "#/components/schemas/NoteList",
+    },
   },
   type: "object",
-  required: ["amount", "rate", "code", "state", "type"],
+  required: ["amount", "rate", "code", "state", "type", "notes"],
   title: "TransactionResponse",
 } as const;
 
+export const $TransactionReviewReq = {
+  properties: {
+    currency: {
+      $ref: "#/components/schemas/Currency",
+    },
+    amount: {
+      $ref: "#/components/schemas/Amount",
+    },
+    charges: {
+      $ref: "#/components/schemas/Amount",
+    },
+    data: {
+      oneOf: [
+        {
+          $ref: "#/components/schemas/InternalRequest",
+        },
+        {
+          $ref: "#/components/schemas/DepositRequest",
+        },
+      ],
+      title: "Data",
+      discriminator: {
+        propertyName: "type",
+        mapping: {
+          INTERNAL: "#/components/schemas/InternalRequest",
+          DEPOSIT: "#/components/schemas/DepositRequest",
+        },
+      },
+    },
+    code: {
+      type: "string",
+      title: "Code",
+    },
+    type: {
+      $ref: "#/components/schemas/TransactionType",
+    },
+    state: {
+      allOf: [
+        {
+          $ref: "#/components/schemas/ValidationState",
+        },
+      ],
+      nullable: false,
+    },
+    notes: {
+      type: "string",
+      title: "Notes",
+    },
+  },
+  type: "object",
+  required: ["currency", "amount", "code", "type", "state"],
+  title: "TransactionReviewReq",
+} as const;
+
 export const $TransactionState = {
-  enum: ["REVIEW", "PENDING", "PAID", "CANCELLED"],
+  enum: ["REVIEW", "PENDING", "PAID", "CANCELLED", "REJECTED"],
   title: "TransactionState",
   description: "An enumeration.",
 } as const;
@@ -749,4 +841,10 @@ export const $ValidationError = {
   type: "object",
   required: ["loc", "msg", "type"],
   title: "ValidationError",
+} as const;
+
+export const $ValidationState = {
+  enum: ["APPROVED", "REJECTED", "CANCELLED"],
+  title: "ValidationState",
+  description: "An enumeration.",
 } as const;

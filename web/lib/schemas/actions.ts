@@ -145,3 +145,15 @@ export const AddAccountSchema = zfd.formData({
   currency: zod.enum(["USD", "EUR", "CFA", "GNF", "AED", "RMB"]),
   owner_initials: zfd.text(zod.string()),
 });
+
+export const TransactionReviewResolver = zfd.formData({
+  notes: zfd.text(
+    zod
+      .string()
+      .max(255, "Too Long!")
+      .refine((value) => value.trim() !== "")
+      .optional()
+  ),
+  action: zod.enum(["APPROVE", "REJECT", "CANCEL"]),
+  code: zfd.text(zod.string()),
+});
