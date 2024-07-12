@@ -20,7 +20,7 @@ export default async function AgentPage({
   };
 }) {
   const agents = await getAgents(params.slug);
-
+  console.log(agents);
   return (
     <Fragment>
       <AgentListPagination officeSlug={params.slug} agents={agents} />

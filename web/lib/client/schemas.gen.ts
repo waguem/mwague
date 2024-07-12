@@ -95,15 +95,15 @@ export const $AgentReponseWithAccounts = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     phone: {
       type: "string",
@@ -144,15 +144,15 @@ export const $AgentResponse = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     phone: {
       type: "string",
@@ -278,15 +278,15 @@ export const $CreateAgentRequest = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     phone: {
       type: "string",
@@ -315,15 +315,15 @@ export const $CreateEmployeeRequest = {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     username: {
       type: "string",
       maxLength: 128,
       title: "Username",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     office_initials: {
       type: "string",
@@ -358,8 +358,8 @@ export const $CreateOfficeRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     name: {
       type: "string",
@@ -367,9 +367,16 @@ export const $CreateOfficeRequest = {
       title: "Name",
       nullable: false,
     },
+    default_rates: {
+      items: {
+        $ref: "#/components/schemas/Rate",
+      },
+      type: "array",
+      title: "Default Rates",
+    },
   },
   type: "object",
-  required: ["country", "initials", "name"],
+  required: ["country", "initials", "name", "default_rates"],
   title: "CreateOfficeRequest",
 } as const;
 
@@ -379,8 +386,8 @@ export const $CreateOrganizationRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     org_name: {
       type: "string",
@@ -398,6 +405,22 @@ export const $Currency = {
   enum: ["USD", "EUR", "AED", "CFA", "GNF", "RMB"],
   title: "Currency",
   description: "An enumeration.",
+} as const;
+
+export const $CustomerDetails = {
+  properties: {
+    name: {
+      type: "string",
+      title: "Name",
+    },
+    phone: {
+      type: "string",
+      title: "Phone",
+    },
+  },
+  type: "object",
+  required: ["name", "phone"],
+  title: "CustomerDetails",
 } as const;
 
 export const $DepositRequest = {
@@ -423,15 +446,15 @@ export const $EmployeeResponse = {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     username: {
       type: "string",
       maxLength: 128,
       title: "Username",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     id: {
       type: "string",
@@ -467,15 +490,15 @@ export const $EmployeeResponseComplete = {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     username: {
       type: "string",
       maxLength: 128,
       title: "Username",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     id: {
       type: "string",
@@ -506,6 +529,29 @@ export const $EmployeeResponseComplete = {
   type: "object",
   required: ["email", "username", "id", "office_id", "organization_id", "roles", "office"],
   title: "EmployeeResponseComplete",
+} as const;
+
+export const $ExternalRequest = {
+  properties: {
+    type: {
+      type: "string",
+      enum: ["EXTERNAL"],
+      title: "Type",
+    },
+    sender: {
+      type: "string",
+      title: "Sender",
+    },
+    customer: {
+      $ref: "#/components/schemas/CustomerDetails",
+    },
+    payment_currency: {
+      $ref: "#/components/schemas/Currency",
+    },
+  },
+  type: "object",
+  required: ["type", "sender", "payment_currency"],
+  title: "ExternalRequest",
 } as const;
 
 export const $HTTPValidationError = {
@@ -591,8 +637,8 @@ export const $OfficeResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     name: {
       type: "string",
@@ -631,8 +677,8 @@ export const $OrganizationResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     org_name: {
       type: "string",
@@ -649,6 +695,91 @@ export const $OrganizationResponse = {
   type: "object",
   required: ["initials", "org_name", "id"],
   title: "OrganizationResponse",
+} as const;
+
+export const $PaymentMethod = {
+  enum: ["CASH", "BANK", "MOBILE"],
+  title: "PaymentMethod",
+  description: "An enumeration.",
+} as const;
+
+export const $PaymentRequest = {
+  properties: {
+    amount: {
+      type: "number",
+      minimum: 0,
+      title: "Amount",
+      strict: true,
+    },
+    payment_type: {
+      $ref: "#/components/schemas/TransactionType",
+    },
+    notes: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "Notes",
+      default: {},
+    },
+  },
+  type: "object",
+  required: ["amount", "payment_type"],
+  title: "PaymentRequest",
+} as const;
+
+export const $PaymentResponse = {
+  properties: {
+    payment_date: {
+      type: "string",
+      format: "date",
+      title: "Payment Date",
+    },
+    amount: {
+      type: "number",
+      minimum: 0,
+      title: "Amount",
+      strict: true,
+    },
+    transaction_id: {
+      type: "string",
+      format: "uuid",
+      title: "Transaction Id",
+    },
+    transaction_type: {
+      $ref: "#/components/schemas/TransactionType",
+    },
+    state: {
+      $ref: "#/components/schemas/PaymentState",
+    },
+    notes: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "Notes",
+      default: {},
+    },
+  },
+  type: "object",
+  required: ["payment_date", "amount", "transaction_id", "transaction_type", "state"],
+  title: "PaymentResponse",
+} as const;
+
+export const $PaymentState = {
+  enum: [1, 2],
+  title: "PaymentState",
+  description: "An enumeration.",
 } as const;
 
 export const $Rate = {
@@ -669,6 +800,47 @@ export const $Rate = {
   title: "Rate",
 } as const;
 
+export const $SendingRequest = {
+  properties: {
+    type: {
+      type: "string",
+      enum: ["SENDING"],
+      title: "Type",
+    },
+    receiver_initials: {
+      type: "string",
+      title: "Receiver Initials",
+    },
+    customer_sender: {
+      $ref: "#/components/schemas/CustomerDetails",
+    },
+    customer_receiver: {
+      $ref: "#/components/schemas/CustomerDetails",
+    },
+    bid_rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Bid Rate",
+      strict: true,
+    },
+    offer_rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Offer Rate",
+      strict: true,
+    },
+    payment_method: {
+      $ref: "#/components/schemas/PaymentMethod",
+    },
+    payment_currency: {
+      $ref: "#/components/schemas/Currency",
+    },
+  },
+  type: "object",
+  required: ["type", "receiver_initials", "bid_rate", "offer_rate", "payment_method", "payment_currency"],
+  title: "SendingRequest",
+} as const;
+
 export const $TransactionRequest = {
   properties: {
     currency: {
@@ -680,6 +852,9 @@ export const $TransactionRequest = {
     charges: {
       $ref: "#/components/schemas/Amount",
     },
+    transaction_type: {
+      $ref: "#/components/schemas/TransactionType",
+    },
     data: {
       oneOf: [
         {
@@ -688,6 +863,12 @@ export const $TransactionRequest = {
         {
           $ref: "#/components/schemas/DepositRequest",
         },
+        {
+          $ref: "#/components/schemas/ExternalRequest",
+        },
+        {
+          $ref: "#/components/schemas/SendingRequest",
+        },
       ],
       title: "Data",
       discriminator: {
@@ -695,6 +876,8 @@ export const $TransactionRequest = {
         mapping: {
           INTERNAL: "#/components/schemas/InternalRequest",
           DEPOSIT: "#/components/schemas/DepositRequest",
+          EXTERNAL: "#/components/schemas/ExternalRequest",
+          SENDING: "#/components/schemas/SendingRequest",
         },
       },
     },
@@ -758,6 +941,9 @@ export const $TransactionReviewReq = {
     charges: {
       $ref: "#/components/schemas/Amount",
     },
+    transaction_type: {
+      $ref: "#/components/schemas/TransactionType",
+    },
     data: {
       oneOf: [
         {
@@ -766,6 +952,12 @@ export const $TransactionReviewReq = {
         {
           $ref: "#/components/schemas/DepositRequest",
         },
+        {
+          $ref: "#/components/schemas/ExternalRequest",
+        },
+        {
+          $ref: "#/components/schemas/SendingRequest",
+        },
       ],
       title: "Data",
       discriminator: {
@@ -773,6 +965,8 @@ export const $TransactionReviewReq = {
         mapping: {
           INTERNAL: "#/components/schemas/InternalRequest",
           DEPOSIT: "#/components/schemas/DepositRequest",
+          EXTERNAL: "#/components/schemas/ExternalRequest",
+          SENDING: "#/components/schemas/SendingRequest",
         },
       },
     },
@@ -808,7 +1002,7 @@ export const $TransactionState = {
 } as const;
 
 export const $TransactionType = {
-  enum: ["DEPOSIT", "INTERNAL"],
+  enum: ["DEPOSIT", "INTERNAL", "EXTERNAL", "SENDING", "FOREX"],
   title: "TransactionType",
   description: "An enumeration.",
 } as const;

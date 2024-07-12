@@ -10,6 +10,8 @@ from mkdi_backend.utils.database import CommitMode, managed_tx_method
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol
 from sqlmodel import Session, and_, func
+from sqlalchemy import select, case
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class AccountRepository:
@@ -119,6 +121,56 @@ class AccountRepository:
             list[Account]: A list of accounts associated with the owner.
         """
         return self.db.query(Account).filter(Account.owner_id == owner_id).all()
+
+    async def a_check_invariant(self, org_id: str, office_id: str) -> bool:
+        """
+        Check the invariant for the given organization and office.
+
+        Args:
+            org_id (str): The ID of the organization.
+            office_id (str): The ID of the office.
+
+        Returns:
+            bool: True if the invariant holds, False otherwise.
+        """
+        try:
+
+            # Query to get the sum of balances for positive accounts and the fund account balance in one go
+            session: AsyncSession = self.db
+            result = await session.execute(
+                select(
+                    func.sum(
+                        case(
+                            (Account.type != protocol.AccountType.FUND, Account.balance), else_=0
+                        ).label("positive_balance_sum")
+                    ),
+                    func.sum(
+                        case(
+                            (Account.type == protocol.AccountType.FUND, Account.balance), else_=0
+                        ).label("fund_balance")
+                    ),
+                ).where(Account.office_id == office_id)
+            )
+            positive_balance_sum, fund_balance = result.one()
+
+            # Convert None to 0 if there are no positive accounts or no fund account
+            positive_balance_sum = positive_balance_sum or 0
+            fund_balance = fund_balance or 0
+
+            logger.info(
+                f"Total positive balance: {positive_balance_sum}, Fund account balance: {fund_balance}"
+            )
+
+            # Check the invariant
+            invariant_check = Decimal(positive_balance_sum) - Decimal(fund_balance)
+            logger.debug(f"Invariant difference: {invariant_check}")
+            # whe should accept a small difference due to floating point precision
+
+            return abs(invariant_check) < Decimal(settings.INVARIANT_TOLERANCE)
+
+        except Exception as e:
+            logger.error(f"Error checking invariant: {e}")
+            return False
 
     def check_invariant(self, org_id: str, office_id: str) -> bool:
         """

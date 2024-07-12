@@ -27,7 +27,7 @@ interface Props {
 }
 type ReviewInput = {
   notes: string;
-  action: "APPROVE" | "REJECT";
+  action: "APPROVE" | "REJECT" | "CANCEL";
   code: string;
 };
 export default function QuickReview({ show, transaction, onClose }: Props) {

@@ -1,15 +1,15 @@
-from datetime import date
 from decimal import Decimal
-from typing import Annotated, Optional
+from typing import Annotated, Mapping, Any, Optional
 from uuid import UUID, uuid4
+from sqlalchemy.ext.mutable import MutableDict
 
+from mkdi_shared.schemas import protocol as pr
+from sqlmodel import Field
 import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as pg
-from mkdi_shared.schemas.protocol import PaymentMethod, TransactionDB, TransactionResponse
-from sqlmodel import JSON, Field, Index
 
 
-class Internal(TransactionDB, table=True):
+class Internal(pr.TransactionDB, table=True):
     __tablename__ = "internals"
 
     """
@@ -24,7 +24,7 @@ class Internal(TransactionDB, table=True):
     charges: Annotated[Decimal, Field(ge=0)]
 
 
-class Deposit(TransactionDB, table=True):
+class Deposit(pr.TransactionDB, table=True):
     __tablename__ = "deposits"
     """
         A deposit transaction is made for an account domiciled in the office.
@@ -33,7 +33,7 @@ class Deposit(TransactionDB, table=True):
     owner_initials: str = Field(foreign_key="accounts.initials")
 
 
-class Sending(TransactionDB, table=True):
+class Sending(pr.TransactionDB, table=True):
     __tablename__ = "sendings"
     """
     A transfer transaction is made by a client of the office and the payment is made elsewhere by an office collaborator.
@@ -42,14 +42,24 @@ class Sending(TransactionDB, table=True):
     This transaction may be subject to transaction fees, in which case these fees are paid by the client for the benefit of the office.
     """
 
-    receiver_account_id: UUID = Field(foreign_key="accounts.id")
+    receiver_initials: str = Field(foreign_key="accounts.initials")
 
     bid_rate: Decimal
     offer_rate: Decimal
-    method: PaymentMethod
+    method: pr.PaymentMethod
+    payment_currency: pr.Currency
+    charges: Annotated[Decimal, Field(ge=0)]
+
+    customer_sender: Mapping[Any, Mapping | Any] = Field(
+        default={}, sa_column=sa.Column(MutableDict.as_mutable(pg.JSONB))
+    )
+
+    customer_receiver: Mapping[Any, Mapping | Any] = Field(
+        default={}, sa_column=sa.Column(MutableDict.as_mutable(pg.JSONB))
+    )
 
 
-class ForEx(TransactionDB, table=True):
+class ForEx(pr.TransactionDB, table=True):
     """
     Une transaction de change est effectué
     """
@@ -57,13 +67,29 @@ class ForEx(TransactionDB, table=True):
     __tablename__ = "forex"
     bid_rate: Decimal
     offer_rate: Decimal
-    method: PaymentMethod
+    method: pr.PaymentMethod
 
 
-class External(TransactionDB, table=True):
+class External(pr.TransactionDB, table=True):
     __tablename__ = "externals"
     """
        A Transaction is a transaction made to a third party's account for the office.
        It is made physically at the office in cash. This implies a physical movement of the available funds at the office.
     """
-    sender_account_id: UUID = Field(foreign_key="accounts.id")
+    sender_initials: str = Field(foreign_key="accounts.initials")
+    charges: Annotated[Decimal, Field(ge=0)]
+    customer: Mapping[Any, Mapping | Any] = Field(
+        default={}, sa_column=sa.Column(MutableDict.as_mutable(pg.JSONB))
+    )
+
+
+class Payment(pr.PaymentBase, table=True):
+    __tablename__ = "payments"
+    id: Optional[UUID] = Field(
+        sa_column=sa.Column(
+            pg.UUID(as_uuid=True),
+            primary_key=True,
+            default=uuid4,
+            server_default=sa.text("gen_random_uuid()"),
+        )
+    )

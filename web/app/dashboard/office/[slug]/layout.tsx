@@ -45,7 +45,12 @@ export default async function OfficeLayout({
   const getNavigationItems = (office: OfficeResponse) => {
     let items = [
       {
-        name: "Home",
+        name: "Transactions",
+        url: `/dashboard/office/${office.id}/transactions`,
+        icon: <IconRefresh />,
+      },
+      {
+        name: "Office",
         url: `/dashboard/office/${office.id}`,
         icon: <IconHome className="h-5 w-5" />,
       },
@@ -53,11 +58,6 @@ export default async function OfficeLayout({
         name: "Activities",
         url: "#",
         icon: <IconMoon />,
-      },
-      {
-        name: "Transactions",
-        url: "#",
-        icon: <IconRefresh />,
       },
       {
         name: "Agents",

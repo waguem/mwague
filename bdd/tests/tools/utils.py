@@ -5,6 +5,25 @@ from client.rest import ApiException
 import json
 
 
+def request_transaction_generic(ctx, request):
+    with client.ApiClient(ctx.config) as api:
+        transaction_api = client.TransactionsApi(api)
+        try:
+            response: client.TransactionResponse = (
+                transaction_api.request_transaction_api_v1_transaction_post(
+                    transaction_request=ctx.request
+                )
+            )
+            ctx.response = response
+            ctx.error = None
+        except ApiException as e:
+
+            if hasattr(e, "body"):
+                ctx.error = json.loads(e.body)["message"]
+            else:
+                ctx.error = e
+
+
 def request_transaction(ctx, amount, charges, currency, data):
     """request internal transaction"""
     with client.ApiClient(ctx.config) as api:
@@ -85,5 +104,39 @@ def review_transaction(ctx, agent, state, currency, data, tr_type, amount, charg
                 )
                 ctx.response = response
                 ctx.error = None
+                ctx.review_successful = True
             except ApiException as e:
                 ctx.error = e
+
+
+def get_transaction(ctx, tr_type: client.TransactionType, amount: Decimal, intials: str):
+    """get transaction"""
+    with client.ApiClient(ctx.config) as api:
+        tr_api = client.TransactionsApi(api)
+        # get transaction
+        res = tr_api.get_agent_transactions_api_v1_agent_initials_transactions_get(initials=intials)
+
+        # find the transaction to review
+        transactions = list(
+            filter(
+                lambda x: x.type == tr_type
+                and abs(Decimal(x.amount) - Decimal(str(amount))) < 0.001,
+                res,
+            )
+        )
+        assert len(transactions) <= 1
+        return transactions[0] if len(transactions) > 0 else None
+
+
+def pay_transaction(ctx, transaction: client.TransactionResponse, payment: client.PaymentRequest):
+    """pay transaction"""
+    with client.ApiClient(ctx.config) as api:
+        tr_api = client.TransactionsApi(api)
+        try:
+            response: client.PaymentResponse = tr_api.add_payment_api_v1_transaction_code_pay_post(
+                code=transaction.code, payment_request=payment
+            )
+            ctx.response = response
+            ctx.error = None
+        except ApiException as e:
+            ctx.error = e

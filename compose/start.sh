@@ -23,7 +23,7 @@ else
 fi
 
 # create network if not exists
-
 docker compose -f "$compose_file" down
+docker volume rm "compose_backend_data_$option" || true
 docker compose -f "$compose_file" up -d --build
 ./export.sh keycloak import

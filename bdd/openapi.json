@@ -626,6 +626,31 @@
         "security": [{ "OAuth2AuthorizationCodeBearer": ["office_admin"] }]
       }
     },
+    "/api/v1/office/transactions": {
+      "get": {
+        "tags": ["transactions"],
+        "summary": "Get Office Transactions",
+        "description": "get all transactions for an office",
+        "operationId": "get_office_transactions_api_v1_office_transactions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TransactionResponse"
+                  },
+                  "type": "array",
+                  "title": "Response Get Office Transactions Api V1 Office Transactions Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": [] }]
+      }
+    },
     "/api/v1/agent/{initials}/transactions": {
       "get": {
         "tags": ["transactions"],
@@ -744,6 +769,125 @@
         },
         "security": [{ "OAuth2AuthorizationCodeBearer": ["office_admin"] }]
       }
+    },
+    "/api/v1/transaction/{code}": {
+      "get": {
+        "tags": ["transactions"],
+        "summary": "Get Transaction",
+        "description": "get a single transaction",
+        "operationId": "get_transaction_api_v1_transaction__code__get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": { "type": "string", "title": "Code" },
+            "name": "code",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TransactionResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": [] }]
+      },
+      "put": {
+        "tags": ["transactions"],
+        "summary": "Update Transaction",
+        "description": "update a transaction",
+        "operationId": "update_transaction_api_v1_transaction__code__put",
+        "parameters": [
+          {
+            "required": true,
+            "schema": { "type": "string", "title": "Code" },
+            "name": "code",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/TransactionRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TransactionResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": [] }]
+      }
+    },
+    "/api/v1/transaction/{code}/pay": {
+      "post": {
+        "tags": ["transactions"],
+        "summary": "Add Payment",
+        "description": "add payment to a transaction",
+        "operationId": "add_payment_api_v1_transaction__code__pay_post",
+        "parameters": [
+          {
+            "required": true,
+            "schema": { "type": "string", "title": "Code" },
+            "name": "code",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PaymentRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PaymentResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": [] }]
+      }
     }
   },
   "components": {
@@ -812,15 +956,15 @@
             "type": "string",
             "maxLength": 4,
             "title": "Initials",
-            "unique": true,
-            "nullable": false
+            "nullable": false,
+            "unique": true
           },
           "email": {
             "type": "string",
             "maxLength": 128,
             "title": "Email",
-            "unique": true,
-            "nullable": false
+            "nullable": false,
+            "unique": true
           },
           "phone": {
             "type": "string",
@@ -853,15 +997,15 @@
             "type": "string",
             "maxLength": 4,
             "title": "Initials",
-            "unique": true,
-            "nullable": false
+            "nullable": false,
+            "unique": true
           },
           "email": {
             "type": "string",
             "maxLength": 128,
             "title": "Email",
-            "unique": true,
-            "nullable": false
+            "nullable": false,
+            "unique": true
           },
           "phone": {
             "type": "string",
@@ -962,15 +1106,15 @@
             "type": "string",
             "maxLength": 4,
             "title": "Initials",
-            "unique": true,
-            "nullable": false
+            "nullable": false,
+            "unique": true
           },
           "email": {
             "type": "string",
             "maxLength": 128,
             "title": "Email",
-            "unique": true,
-            "nullable": false
+            "nullable": false,
+            "unique": true
           },
           "phone": {
             "type": "string",
@@ -996,15 +1140,15 @@
             "type": "string",
             "maxLength": 128,
             "title": "Email",
-            "unique": true,
-            "nullable": false
+            "nullable": false,
+            "unique": true
           },
           "username": {
             "type": "string",
             "maxLength": 128,
             "title": "Username",
-            "unique": true,
-            "nullable": false
+            "nullable": false,
+            "unique": true
           },
           "office_initials": { "type": "string", "title": "Office Initials" },
           "roles": {
@@ -1036,18 +1180,23 @@
             "type": "string",
             "maxLength": 8,
             "title": "Initials",
-            "unique": true,
-            "nullable": false
+            "nullable": false,
+            "unique": true
           },
           "name": {
             "type": "string",
             "maxLength": 64,
             "title": "Name",
             "nullable": false
+          },
+          "default_rates": {
+            "items": { "$ref": "#/components/schemas/Rate" },
+            "type": "array",
+            "title": "Default Rates"
           }
         },
         "type": "object",
-        "required": ["country", "initials", "name"],
+        "required": ["country", "initials", "name", "default_rates"],
         "title": "CreateOfficeRequest"
       },
       "CreateOrganizationRequest": {
@@ -1056,8 +1205,8 @@
             "type": "string",
             "maxLength": 8,
             "title": "Initials",
-            "unique": true,
-            "nullable": false
+            "nullable": false,
+            "unique": true
           },
           "org_name": {
             "type": "string",
@@ -1075,6 +1224,15 @@
         "title": "Currency",
         "description": "An enumeration."
       },
+      "CustomerDetails": {
+        "properties": {
+          "name": { "type": "string", "title": "Name" },
+          "phone": { "type": "string", "title": "Phone" }
+        },
+        "type": "object",
+        "required": ["name", "phone"],
+        "title": "CustomerDetails"
+      },
       "DepositRequest": {
         "properties": {
           "type": { "type": "string", "enum": ["DEPOSIT"], "title": "Type" },
@@ -1090,15 +1248,15 @@
             "type": "string",
             "maxLength": 128,
             "title": "Email",
-            "unique": true,
-            "nullable": false
+            "nullable": false,
+            "unique": true
           },
           "username": {
             "type": "string",
             "maxLength": 128,
             "title": "Username",
-            "unique": true,
-            "nullable": false
+            "nullable": false,
+            "unique": true
           },
           "id": { "type": "string", "format": "uuid", "title": "Id" },
           "office_id": {
@@ -1134,15 +1292,15 @@
             "type": "string",
             "maxLength": 128,
             "title": "Email",
-            "unique": true,
-            "nullable": false
+            "nullable": false,
+            "unique": true
           },
           "username": {
             "type": "string",
             "maxLength": 128,
             "title": "Username",
-            "unique": true,
-            "nullable": false
+            "nullable": false,
+            "unique": true
           },
           "id": { "type": "string", "format": "uuid", "title": "Id" },
           "office_id": {
@@ -1173,6 +1331,17 @@
           "office"
         ],
         "title": "EmployeeResponseComplete"
+      },
+      "ExternalRequest": {
+        "properties": {
+          "type": { "type": "string", "enum": ["EXTERNAL"], "title": "Type" },
+          "sender": { "type": "string", "title": "Sender" },
+          "customer": { "$ref": "#/components/schemas/CustomerDetails" },
+          "payment_currency": { "$ref": "#/components/schemas/Currency" }
+        },
+        "type": "object",
+        "required": ["type", "sender", "payment_currency"],
+        "title": "ExternalRequest"
       },
       "HTTPValidationError": {
         "properties": {
@@ -1230,8 +1399,8 @@
             "type": "string",
             "maxLength": 8,
             "title": "Initials",
-            "unique": true,
-            "nullable": false
+            "nullable": false,
+            "unique": true
           },
           "name": {
             "type": "string",
@@ -1258,8 +1427,8 @@
             "type": "string",
             "maxLength": 8,
             "title": "Initials",
-            "unique": true,
-            "nullable": false
+            "nullable": false,
+            "unique": true
           },
           "org_name": {
             "type": "string",
@@ -1272,6 +1441,75 @@
         "type": "object",
         "required": ["initials", "org_name", "id"],
         "title": "OrganizationResponse"
+      },
+      "PaymentMethod": {
+        "enum": ["CASH", "BANK", "MOBILE"],
+        "title": "PaymentMethod",
+        "description": "An enumeration."
+      },
+      "PaymentRequest": {
+        "properties": {
+          "amount": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Amount",
+            "strict": true
+          },
+          "payment_type": { "$ref": "#/components/schemas/TransactionType" },
+          "notes": {
+            "additionalProperties": { "anyOf": [{ "type": "object" }, {}] },
+            "type": "object",
+            "title": "Notes",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "required": ["amount", "payment_type"],
+        "title": "PaymentRequest"
+      },
+      "PaymentResponse": {
+        "properties": {
+          "payment_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Payment Date"
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Amount",
+            "strict": true
+          },
+          "transaction_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Transaction Id"
+          },
+          "transaction_type": {
+            "$ref": "#/components/schemas/TransactionType"
+          },
+          "state": { "$ref": "#/components/schemas/PaymentState" },
+          "notes": {
+            "additionalProperties": { "anyOf": [{ "type": "object" }, {}] },
+            "type": "object",
+            "title": "Notes",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "required": [
+          "payment_date",
+          "amount",
+          "transaction_id",
+          "transaction_type",
+          "state"
+        ],
+        "title": "PaymentResponse"
+      },
+      "PaymentState": {
+        "enum": [1, 2],
+        "title": "PaymentState",
+        "description": "An enumeration."
       },
       "Rate": {
         "properties": {
@@ -1287,28 +1525,72 @@
         "required": ["currency", "rate"],
         "title": "Rate"
       },
+      "SendingRequest": {
+        "properties": {
+          "type": { "type": "string", "enum": ["SENDING"], "title": "Type" },
+          "receiver_initials": {
+            "type": "string",
+            "title": "Receiver Initials"
+          },
+          "customer_sender": { "$ref": "#/components/schemas/CustomerDetails" },
+          "customer_receiver": {
+            "$ref": "#/components/schemas/CustomerDetails"
+          },
+          "bid_rate": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Bid Rate",
+            "strict": true
+          },
+          "offer_rate": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Offer Rate",
+            "strict": true
+          },
+          "payment_method": { "$ref": "#/components/schemas/PaymentMethod" },
+          "payment_currency": { "$ref": "#/components/schemas/Currency" }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "receiver_initials",
+          "bid_rate",
+          "offer_rate",
+          "payment_method",
+          "payment_currency"
+        ],
+        "title": "SendingRequest"
+      },
       "TransactionRequest": {
         "properties": {
           "currency": { "$ref": "#/components/schemas/Currency" },
           "amount": { "$ref": "#/components/schemas/Amount" },
           "charges": { "$ref": "#/components/schemas/Amount" },
+          "transaction_type": {
+            "$ref": "#/components/schemas/TransactionType"
+          },
           "data": {
             "oneOf": [
               { "$ref": "#/components/schemas/InternalRequest" },
-              { "$ref": "#/components/schemas/DepositRequest" }
+              { "$ref": "#/components/schemas/DepositRequest" },
+              { "$ref": "#/components/schemas/ExternalRequest" },
+              { "$ref": "#/components/schemas/SendingRequest" }
             ],
             "title": "Data",
             "discriminator": {
               "propertyName": "type",
               "mapping": {
                 "INTERNAL": "#/components/schemas/InternalRequest",
-                "DEPOSIT": "#/components/schemas/DepositRequest"
+                "DEPOSIT": "#/components/schemas/DepositRequest",
+                "EXTERNAL": "#/components/schemas/ExternalRequest",
+                "SENDING": "#/components/schemas/SendingRequest"
               }
             }
           }
         },
         "type": "object",
-        "required": ["currency", "amount", "data"],
+        "required": ["currency", "amount"],
         "title": "TransactionRequest"
       },
       "TransactionResponse": {
@@ -1345,17 +1627,24 @@
           "currency": { "$ref": "#/components/schemas/Currency" },
           "amount": { "$ref": "#/components/schemas/Amount" },
           "charges": { "$ref": "#/components/schemas/Amount" },
+          "transaction_type": {
+            "$ref": "#/components/schemas/TransactionType"
+          },
           "data": {
             "oneOf": [
               { "$ref": "#/components/schemas/InternalRequest" },
-              { "$ref": "#/components/schemas/DepositRequest" }
+              { "$ref": "#/components/schemas/DepositRequest" },
+              { "$ref": "#/components/schemas/ExternalRequest" },
+              { "$ref": "#/components/schemas/SendingRequest" }
             ],
             "title": "Data",
             "discriminator": {
               "propertyName": "type",
               "mapping": {
                 "INTERNAL": "#/components/schemas/InternalRequest",
-                "DEPOSIT": "#/components/schemas/DepositRequest"
+                "DEPOSIT": "#/components/schemas/DepositRequest",
+                "EXTERNAL": "#/components/schemas/ExternalRequest",
+                "SENDING": "#/components/schemas/SendingRequest"
               }
             }
           },
@@ -1368,7 +1657,7 @@
           "notes": { "type": "string", "title": "Notes" }
         },
         "type": "object",
-        "required": ["currency", "amount", "data", "code", "type", "state"],
+        "required": ["currency", "amount", "code", "type", "state"],
         "title": "TransactionReviewReq"
       },
       "TransactionState": {
@@ -1377,7 +1666,7 @@
         "description": "An enumeration."
       },
       "TransactionType": {
-        "enum": ["DEPOSIT", "INTERNAL"],
+        "enum": ["DEPOSIT", "INTERNAL", "EXTERNAL", "SENDING", "FOREX"],
         "title": "TransactionType",
         "description": "An enumeration."
       },

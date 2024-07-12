@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { DepositRequest, InternalRequest, TransactionRequest } from "../client";
+
 // Step 1: Define the registry
 // Assuming you have Zod schemas defined somewhere
 
@@ -67,7 +68,29 @@ const Deposit = zfd.formData({
   rate: zfd.text(zPNumber),
   message: zfd.text(z.string().max(255)),
 });
-
+const External = zfd.formData({
+  sender: zfd.text(z.string().max(20)).refine((value) => value.trim() !== ""),
+  amount: zfd.text(zPNumber),
+  rate: zfd.text(zPNumber),
+  message: zfd.text(z.string().max(255)).optional(),
+  customer_name: zfd.text(z.string().max(255)).optional(),
+  customer_phone: zfd.text(z.string().max(255)).optional(),
+  payment_currency: z.enum(["USD", "EUR", "CFA", "GNF", "AED", "RMB"]),
+});
+const Sending = zfd.formData({
+  receiver_initials: zfd.text(z.string().max(20)).refine((value) => value.trim() !== ""),
+  amount: zfd.text(zPNumber),
+  rate: zfd.text(zPNumber),
+  bid_rate: zfd.text(zPNumber),
+  offer_rate: zfd.text(zPNumber),
+  message: zfd.text(z.string().max(255)).optional(),
+  payment_currency: z.enum(["USD", "EUR", "CFA", "GNF", "AED", "RMB"]),
+  payment_method: z.enum(["CASH", "BANK", "MOBILE", "OTHER"]),
+  sender_name: zfd.text(z.string().max(255)).optional(),
+  sender_phone: zfd.text(z.string().max(255)).optional(),
+  receiver_name: zfd.text(z.string().max(255)).optional(),
+  receiver_phone: zfd.text(z.string().max(255)).optional(),
+});
 export type Data = InternalRequest | DepositRequest;
 export interface FormResolver {
   resolver: z.ZodSchema<any>;
@@ -158,9 +181,95 @@ const DepositFormResolver: FormResolver = {
     };
   },
 };
+
+const SendingFormResolver: FormResolver = {
+  resolver: Sending,
+  run: (data: FormData) => {
+    const parsed = Sending.safeParse(data);
+    const charges = zNumber.safeParse(data.get("charges") as string);
+    if (!parsed.success) {
+      console.log(parsed.error.errors);
+      return {
+        status: "error",
+        error: "Invalid transaction data",
+        errors: parsed.error.errors.map((error) => ({
+          path: error.path.join("."),
+          message: error.message,
+        })),
+      };
+    }
+    return {
+      amount: {
+        amount: +parsed.data.amount,
+        rate: +parsed.data.rate,
+      },
+      currency: data.get("currency") as string,
+      charges: {
+        amount: charges.data ? +charges.data : 0,
+        rate: +parsed.data.rate,
+      },
+      data: {
+        type: "SENDING",
+        receiver_initials: parsed.data.receiver_initials,
+        customer_sender: {
+          name: parsed.data.sender_name,
+          phone: parsed.data.sender_phone,
+        },
+        customer_receiver: {
+          name: parsed.data.receiver_name,
+          phone: parsed.data.receiver_phone,
+        },
+        bid_rate: +parsed.data.bid_rate,
+        offer_rate: +parsed.data.offer_rate,
+        payment_currency: parsed.data.payment_currency,
+        payment_method: parsed.data.payment_method,
+      },
+    };
+  },
+};
+const ExternalFormResolver: FormResolver = {
+  resolver: External,
+  run: (data: FormData) => {
+    const parsed = External.safeParse(data);
+    const charges = zNumber.safeParse(data.get("charges") as string);
+    if (!parsed.success) {
+      console.log(parsed.error.errors);
+      return {
+        status: "error",
+        error: "Invalid transaction data",
+        errors: parsed.error.errors.map((error) => ({
+          path: error.path.join("."),
+          message: error.message,
+        })),
+      };
+    }
+    return {
+      amount: {
+        amount: +parsed.data.amount,
+        rate: +parsed.data.rate,
+      },
+      currency: data.get("currency") as string,
+      charges: {
+        amount: charges.data ? +charges.data : 0,
+        rate: +parsed.data.rate,
+      },
+      data: {
+        sender: parsed.data.sender,
+        type: "EXTERNAL",
+        payment_currency: parsed.data.payment_currency,
+        customer: {
+          name: parsed.data.customer_name,
+          phone: parsed.data.customer_phone,
+        },
+      },
+    };
+  },
+};
 const resolverRegistry: Record<string, FormResolver> = {
   INTERNAL: InternalFormResolver,
   DEPOSIT: DepositFormResolver,
+  EXTERNAL: ExternalFormResolver,
+  SENDING: SendingFormResolver,
 };
 
 // Step 2: Create the function

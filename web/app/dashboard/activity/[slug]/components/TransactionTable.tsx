@@ -100,6 +100,7 @@ export default function TransactionTable({ transactions, slug }: Props) {
                         "bg-info/20 text-info": transaction.type === "INTERNAL",
                         "bg-primary/20 text-primary": transaction.type === "EXTERNAL",
                         "bg-success/20 text-success": transaction.type === "DEPOSIT",
+                        "bg-danger/20 text-danger": transaction.type === "SENDING",
                       })}
                     >
                       {ucFirst(transaction.type.toLowerCase())}

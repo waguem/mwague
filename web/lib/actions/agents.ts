@@ -71,6 +71,7 @@ export async function getOfficeAgents(officeId: string) {
       });
       return response;
     } catch (e) {
+      console.error(e);
       return [];
     }
   });

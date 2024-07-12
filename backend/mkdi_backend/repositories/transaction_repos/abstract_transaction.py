@@ -5,6 +5,7 @@ from typing import List, Tuple
 
 from datetime import datetime
 from loguru import logger
+from sqlalchemy.ext.asyncio.session import AsyncSession
 from mkdi_backend.models.Account import Account, AccountType
 from mkdi_backend.models.Activity import Activity
 from mkdi_backend.models.models import KcUser
@@ -13,7 +14,7 @@ from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol as pr
 from mkdi_backend.repositories.transaction_repos.invariant import has_activity_started
 
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 
 class AbstractTransaction(ABC):
@@ -67,6 +68,20 @@ class AbstractTransaction(ABC):
             DB session
         """
         return self.db
+
+    async def a_has_started_activity(self):
+        session: AsyncSession = self.db
+        if not self.activity:
+            self.activity = (
+                await session.execute(
+                    select(Activity).where(
+                        Activity.office_id == self.user.office_id,
+                        Activity.state == pr.ActivityState.OPEN,
+                    )
+                )
+            ).fetchone()
+
+        return self.activity
 
     def has_started_activity(self):
         """
@@ -230,8 +245,6 @@ class AbstractTransaction(ABC):
                 )
             logger.debug(f"Reviewing transaction {transaction}")
 
-            self.set_transaction(transaction)
-
             transaction = review(transaction)
         except Exception as e:
             logger.error(f"Error reviewing transaction {e}")
@@ -249,6 +262,10 @@ class AbstractTransaction(ABC):
         Returns:
             pr.TransactionResponse: _description_
         """
+
+    @managed_tx_method(auto_commit=CommitMode.COMMIT)
+    def update_transaction(self) -> pr.TransactionResponse:
+        """update a transaction request"""
 
     @managed_tx_method(auto_commit=CommitMode.COMMIT)
     def reject(self, transaction: pr.TransactionDB) -> pr.TransactionResponse:
@@ -270,7 +287,7 @@ class AbstractTransaction(ABC):
                     created_at=datetime.now().isoformat(),
                 )
             )
-
+        transaction.reviwed_by = self.user.user_db_id
         self.db.add(transaction)
         return transaction
 
@@ -294,6 +311,7 @@ class AbstractTransaction(ABC):
             )
         )
 
+        transaction.reviwed_by = self.user.user_db_id
         self.db.add(transaction)
 
         return transaction

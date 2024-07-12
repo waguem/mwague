@@ -68,7 +68,7 @@ def run_migrations_online() -> None:
 
         with context.begin_transaction():
             context.get_context()._ensure_version_table()
-            connection.execute("LOCK TABLE alembic_version IN ACCESS EXCLUSIVE MODE")
+            # connection.execute("LOCK TABLE alembic_version IN ACCESS EXCLUSIVE MODE")
             context.run_migrations()
 
 

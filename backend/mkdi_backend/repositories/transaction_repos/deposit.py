@@ -109,6 +109,7 @@ class DepositTransaction(AbstractTransaction):
         commits = self.commit(transaction)
         transaction.save_commit(commits)
         transaction.state = pr.TransactionState.PAID
+        transaction.reviwed_by = self.user.user_db_id
         return transaction
 
     def accounts(self, receiver=None) -> List[Account]:

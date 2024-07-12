@@ -9,7 +9,7 @@ engine = create_engine(
     isolation_level="REPEATABLE READ",
     pool_size=5,
     max_overflow=10,
-    echo=True,
+    echo=False,
 )
 
 

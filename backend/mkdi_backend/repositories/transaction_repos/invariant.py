@@ -3,7 +3,7 @@
 from functools import wraps
 from http import HTTPStatus
 from typing import List
-
+import asyncio
 from loguru import logger
 from mkdi_backend.models.Account import Account
 from mkdi_backend.repositories.account import AccountRepository
@@ -17,6 +17,134 @@ from psycopg2.errors import (
 )
 from sqlalchemy.exc import OperationalError, PendingRollbackError, NoResultFound
 from sqlmodel import SQLModel
+
+
+def async_managed_invariant_tx_method(
+    auto_commit: CommitMode = CommitMode.COMMIT, num_retries: int = 3
+):
+    """Invariant checker decorator for async methods"""
+
+    async def check_invariant(self):
+        """Check system invariant before calling a function asynchronously"""
+        # This is a placeholder for the actual invariant check implementation
+        # It should be an async function that checks system invariants
+        # For example, checking if the account status is active, etc.
+        # This function should return True if the invariant check passes, False otherwise
+        acc_repo = AccountRepository(self.db)
+        cor = [
+            self.a_has_started_activity(),
+            acc_repo.a_check_invariant(self.user.organization_id, self.user.office_id),
+        ]
+
+        return all(await asyncio.gather(*cor))
+
+    def decorator(f):
+        @wraps(f)
+        async def wrapped_f(self, *args, **kwargs):
+            logger.info(f"Checking Sys Invariant for {f.__name__}")
+            logger.info(f"Auto Commit Mode: {auto_commit}")
+            invariant_exception = MkdiError(
+                "UNHEALTHY_INVARIANT",
+                error_code=MkdiErrorCode.UNHEALTHY_INVARIANT,
+                http_status_code=HTTPStatus.NOT_ACCEPTABLE,
+            )
+            result: SQLModel | List[SQLModel] = None
+            retry_exhausted = True
+            healthy = True
+            for attempt in range(num_retries):
+                try:
+                    # Assuming check_invariant is an async function
+                    healthy = await check_invariant(self)
+                    if not healthy:
+                        raise MkdiError(
+                            "UNHEALTHY_INVARIANT",
+                            error_code=MkdiErrorCode.UNHEALTHY_INVARIANT,
+                            http_status_code=HTTPStatus.NOT_ACCEPTABLE,
+                        )
+
+                    logger.info(f"Sys Invariant is Healthy before {f.__name__}")
+                    start_accounts: List[Account] = await self.a_accounts()
+                    # increment accounts versions
+                    for account in start_accounts:
+                        if account:
+                            account.version += 1
+                            self.db.add(account)
+
+                    await self.db.commit()
+
+                    result = await f(self, *args, **kwargs)
+
+                    end_accounts: List[Account] = await self.a_accounts()
+                    mismatch = False
+                    for index, account in enumerate(end_accounts):
+                        if not account:
+                            continue
+                        logger.info(f"Checking Account {account}")
+                        if account.version != start_accounts[index].version:
+                            logger.info("Version Mismatch Detected")
+                            logger.info(f"Before version : {start_accounts[index].version}")
+                            logger.info(f"After version : {account.version}")
+                            mismatch = True
+                            break
+                    if mismatch:
+                        await self.db.rollback()
+                        retry_exhausted = False
+
+                    if isinstance(result, List):
+                        for item in result:
+                            self.db.add(item)
+                    elif isinstance(result, SQLModel):
+                        self.db.add(result)
+
+                    await self.db.commit()
+
+                    healthy = await check_invariant(self)
+                    if not healthy:
+                        logger.info(f"Sys Invariant is Unhealthy after {f.__name__}")
+                        await self.db.rollback()
+                        continue
+
+                    if isinstance(result, SQLModel):
+                        logger.info("Refreshing DB")
+                        await self.db.refresh(result)
+                    retry_exhausted = False
+                    logger.info(f"Sys Invariant is Healthy after {f.__name__}")
+                    break
+                except (
+                    DeadlockDetected,
+                    ExclusionViolation,
+                    SerializationFailure,
+                    UniqueViolation,
+                    OperationalError,
+                    PendingRollbackError,
+                ) as e:
+                    logger.error(f"Transaction error: {e}. Retrying...")
+                    if auto_commit == CommitMode.ROLLBACK:
+                        # Assuming self.db.rollback() is an async operation
+                        await self.db.rollback()
+                    await asyncio.sleep(
+                        0.1 * attempt
+                    )  # Exponential back-off could be a better strategy
+                except MkdiError as e:
+                    if auto_commit == CommitMode.ROLLBACK:
+                        await self.db.rollback()
+                    raise e
+
+            if retry_exhausted and not healthy:
+                raise invariant_exception
+            elif retry_exhausted:
+                logger.error("Retry attempts exhausted.")
+                raise MkdiError(
+                    "ACCOUNT_VERSION_MISMATCH",
+                    error_code=MkdiErrorCode.ACCOUNT_VERSION_MISMATCH,
+                    http_status_code=HTTPStatus.NOT_ACCEPTABLE,
+                )
+
+            return result
+
+        return wrapped_f
+
+    return decorator
 
 
 def managed_invariant_tx_method(

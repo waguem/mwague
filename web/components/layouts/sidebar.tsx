@@ -47,6 +47,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     const selector = document.querySelector('.sidebar ul a[href="' + window.location.pathname + '"]');
+    console.log(toggleMenu);
     if (selector) {
       selector.classList.add("active");
       const ul: any = selector.closest("ul.sub-menu");
@@ -101,10 +102,9 @@ const Sidebar = () => {
           <PerfectScrollbar className="relative h-[calc(100vh-80px)]">
             <ul className="relative space-y-0.5 p-4 py-0 font-semibold">
               <li className="menu nav-item">
-                <button
-                  type="button"
+                <Link
+                  href={`/dashboard`}
                   className={`${currentMenu === "dashboard" ? "active" : ""} nav-link group w-full`}
-                  onClick={() => toggleMenu("dashboard")}
                 >
                   <div className="flex items-center">
                     <IconMenuDashboard className="shrink-0 group-hover:!text-primary" />
@@ -116,7 +116,7 @@ const Sidebar = () => {
                   <div className={currentMenu !== "dashboard" ? "-rotate-90 rtl:rotate-90" : ""}>
                     <IconCaretDown />
                   </div>
-                </button>
+                </Link>
               </li>
               <li className="nav-item">
                 <Link href={`/dashboard/activity`} className="group">

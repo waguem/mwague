@@ -122,14 +122,6 @@ class InternalTransaction(AbstractTransaction):
 
         return internal
 
-    def cancel_transaction(self, user: KcUser, user_input: pr.TransactionRequest) -> None:
-        """cancel the transaction
-
-        Args:
-            user (KcUser): _description_
-            input (pr.TransactionRequest): _description_
-        """
-
     @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
     def approve(self, transaction: Internal):
         """
@@ -175,3 +167,8 @@ class InternalTransaction(AbstractTransaction):
         get internal transaction
         """
         return self.db.query(Internal).filter(Internal.code == code).one()
+
+    def add_payment(self, code: str) -> pr.PaymentResponse:
+        raise MkdiError(
+            error_code=MkdiErrorCode.INVALID_STATE, message="Internal transactions cannot be paid"
+        )

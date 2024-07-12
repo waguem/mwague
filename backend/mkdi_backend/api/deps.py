@@ -9,6 +9,8 @@ from mkdi_backend.database import engine
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.models.roles import Role
 from mkdi_backend.repositories.employee import EmployeeRepository
+from mkdi_backend.dbmanager import get_db_session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 # from mkdi_backend.models import ApiClient
 from sqlmodel import Session
@@ -18,6 +20,8 @@ oauth2_scheme = OAuth2AuthorizationCodeBearer(
     authorizationUrl=settings.KC_AUTHORIZATION_URL,
     tokenUrl=settings.KC_TOKEN_URL,
 )
+
+AsyncDBSessionDep = Annotated[AsyncSession, Depends(get_db_session)]
 
 
 def get_db() -> Generator:

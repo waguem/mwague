@@ -1,18 +1,17 @@
 # pyling: disable-all
 from datetime import date, datetime
 from decimal import Decimal
-from enum import Enum
+from enum import Enum, auto
 from typing import Annotated, Dict, List, Literal, Optional, Union, Mapping, Any
 from uuid import UUID, uuid4
 import json
 import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as pg
-from mkdi_shared.exceptions.mkdi_api_error import MkdiErrorCode
+from mkdi_shared.exceptions.mkdi_api_error import MkdiErrorCode, MkdiError
 from pydantic import BaseModel, Field, root_validator
 from sqlmodel import Field as SQLModelField
 from sqlmodel import SQLModel
 from sqlalchemy.ext.mutable import MutableDict
-from sqlalchemy import event
 
 
 def custom_serializer(obj):
@@ -37,21 +36,6 @@ class OrganizationResponse(OrganizationBase):
 
 
 class CreateOrganizationRequest(OrganizationBase):
-    pass
-
-
-class OfficeBase(SQLModel):
-    country: str = Field(nullable=False, max_length=64)
-    initials: str = Field(nullable=False, max_length=8, unique=True)
-    name: str = Field(nullable=False, max_length=64)
-
-
-class OfficeResponse(OfficeBase):
-    id: UUID
-    currencies: dict | list[dict] | None = None
-
-
-class CreateOfficeRequest(OfficeBase):
     pass
 
 
@@ -86,13 +70,20 @@ class EmployeeResponse(EmployeeBase):
         return transformed
 
 
-class EmployeeResponseComplete(EmployeeResponse):
-    office: OfficeResponse
-
-
 class AgentType(Enum):
     AGENT = "AGENT"
     SUPPLIER = "SUPPLIER"
+
+
+class TransactionType(Enum):
+    # direct transaction
+    DEPOSIT = "DEPOSIT"
+    INTERNAL = "INTERNAL"
+    # pending payment
+    EXTERNAL = "EXTERNAL"
+    SENDING = "SENDING"
+    # ForEx
+    FOREX = "FOREX"
 
 
 class Currency(Enum):
@@ -104,11 +95,45 @@ class Currency(Enum):
     RMB = "RMB"
 
 
+class PaymentMethod(Enum):
+    CASH = "CASH"
+    BANK = "BANK"
+    MOBILE = "MOBILE"
+
+
 class AccountType(Enum):
     AGENT = "AGENT"
     SUPPLIER = "SUPPLIER"
     OFFICE = "OFFICE"
     FUND = "FUND"
+
+
+class PaymentState(Enum):
+    PAID = auto()
+    CANCELLED = auto()
+
+
+class PaymentBase(SQLModel):
+    payment_date: date
+    amount: Annotated[Decimal, Field(strict=True, ge=0)]
+    transaction_id: UUID
+    transaction_type: TransactionType
+    state: PaymentState
+    notes: Mapping[Any, Mapping | Any] = SQLModelField(
+        default={}, sa_column=sa.Column(MutableDict.as_mutable(pg.JSONB))
+    )
+
+
+class PaymentRequest(BaseModel):
+    amount: Annotated[Decimal, Field(strict=True, ge=0)]
+    payment_type: TransactionType
+    notes: Mapping[Any, Mapping | Any] = SQLModelField(
+        default={}, sa_column=sa.Column(MutableDict.as_mutable(pg.JSONB))
+    )
+
+
+class PaymentResponse(PaymentBase):
+    pass
 
 
 class AgentBase(SQLModel):
@@ -148,7 +173,7 @@ class AccountBase(SQLModel):
     type: AccountType
     currency: Currency
     initials: str = SQLModelField(nullable=False, max_length=4, unique=True)
-    balance: Decimal = Field(default=0, max_digits=5, decimal_places=3, nullable=True)
+    balance: Decimal = Field(default=0, decimal_places=3, nullable=True)
 
     def credit(self, amount: Decimal) -> TransactionCommit:
         commit = self.get_commit(amount, VariationType.CREDIT)
@@ -210,6 +235,65 @@ class CreateActivityRequest(BaseModel):
     rates: List[Rate]
 
 
+class Amount(BaseModel):
+    """Amount and rate of a transaction."""
+
+    amount: Annotated[Decimal, Field(strict=True, ge=0)]
+    rate: Annotated[Decimal, Field(strict=True, ge=0)]
+
+
+class ValidationState(Enum):
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    CANCELLED = "CANCELLED"
+
+
+class InternalRequest(BaseModel):
+    """Internal transaction request."""
+
+    type: Literal["INTERNAL"]
+    sender: str
+    receiver: str
+
+
+class CustomerDetails(BaseModel):
+    name: str
+    phone: str
+
+
+class ExternalRequest(BaseModel):
+    type: Literal["EXTERNAL"]
+    sender: str
+    customer: Optional[CustomerDetails] = None
+    payment_currency: Currency
+
+
+class SendingRequest(BaseModel):
+    type: Literal["SENDING"]
+    receiver_initials: str
+    customer_sender: Optional[CustomerDetails] = None
+    customer_receiver: Optional[CustomerDetails] = None
+    bid_rate: Annotated[Decimal, Field(strict=True, gt=0)]
+    offer_rate: Annotated[Decimal, Field(strict=True, gt=0)]
+    payment_method: PaymentMethod
+    payment_currency: Currency
+
+
+class DepositRequest(BaseModel):
+    type: Literal["DEPOSIT"]
+    receiver: str
+
+
+class TransactionRequest(BaseModel):
+    currency: Currency
+    amount: Amount
+    charges: Amount | None
+    transaction_type: Optional[TransactionType] = None
+    data: Optional[Union[InternalRequest, DepositRequest, ExternalRequest, SendingRequest]] = Field(
+        default=None, discriminator="type"
+    )
+
+
 class TransactionState(Enum):
     REVIEW = "REVIEW"
     PENDING = "PENDING"
@@ -218,15 +302,23 @@ class TransactionState(Enum):
     REJECTED = "REJECTED"
 
 
-class TransactionType(Enum):
-    DEPOSIT = "DEPOSIT"
-    INTERNAL = "INTERNAL"
+class OfficeBase(SQLModel):
+    country: str = Field(nullable=False, max_length=64)
+    initials: str = Field(nullable=False, max_length=8, unique=True)
+    name: str = Field(nullable=False, max_length=64)
 
 
-class PaymentMethod(Enum):
-    CASH = "CASH"
-    BANK = "BANK"
-    MOBILE = "MOBILE"
+class OfficeResponse(OfficeBase):
+    id: UUID
+    currencies: dict | list[dict] | None = None
+
+
+class EmployeeResponseComplete(EmployeeResponse):
+    office: OfficeResponse
+
+
+class CreateOfficeRequest(OfficeBase):
+    default_rates: List[Rate]
 
 
 class Note(BaseModel):
@@ -268,10 +360,12 @@ class TransactionDB(TransactionBase):
     office_id: UUID = SQLModelField(foreign_key="offices.id")
     org_id: UUID = SQLModelField(foreign_key="organizations.id")
     created_by: UUID = SQLModelField(foreign_key="employees.id")
+    reviwed_by: Optional[UUID] = SQLModelField(foreign_key="employees.id", nullable=True)
 
     history: Mapping[Any, Mapping | Any] = SQLModelField(
         default={}, sa_column=sa.Column(MutableDict.as_mutable(pg.JSONB))
     )
+
     notes: Mapping[Any, Mapping | Any] = SQLModelField(
         default={}, sa_column=sa.Column(MutableDict.as_mutable(pg.JSONB))
     )
@@ -282,14 +376,11 @@ class TransactionDB(TransactionBase):
     def save_commit(self, commits: List[TransactionCommit]) -> None:
         """save the commits to the history"""
         # load jsonb from self.history
-        hist = self.history.copy()
-        if "history" not in hist:
-            hist["history"] = []
+        if not ("history" in self.history and isinstance(self.history, list)):
+            self.history["history"] = []
         item = {}
-        item["commits"] = [item.dict() for item in commits]
-        hist["history"].append(item)
-
-        self.history = hist
+        item["commits"] = commits
+        self.history["history"].append(item)
 
     def add_note(self, note: Note) -> None:
         notes = {"notes": []}
@@ -300,41 +391,23 @@ class TransactionDB(TransactionBase):
         self.notes = notes
         return self.notes
 
+    def update(self, request: TransactionRequest):
+        valid_states = [
+            TransactionState.PENDING,
+            TransactionState.REVIEW,
+            TransactionState.REJECTED,
+        ]
 
-class Amount(BaseModel):
-    """Amount and rate of a transaction."""
+        if not self.state in valid_states:
+            raise MkdiError(
+                error_code=MkdiErrorCode.INVALID_STATE,
+                message=f"Cannot update {self.state} transaction",
+            )
 
-    amount: Annotated[Decimal, Field(strict=True, ge=0)]
-    rate: Annotated[Decimal, Field(strict=True, ge=0)]
-
-
-class InternalRequest(BaseModel):
-    """Internal transaction request."""
-
-    type: Literal["INTERNAL"]
-    sender: str
-    receiver: str
-
-
-class DepositRequest(BaseModel):
-    type: Literal["DEPOSIT"]
-    receiver: str
-
-
-class ValidationState(Enum):
-    APPROVED = "APPROVED"
-    REJECTED = "REJECTED"
-    CANCELLED = "CANCELLED"
-
-
-class TransactionRequest(BaseModel):
-    currency: Currency
-    amount: Amount
-    charges: Amount | None
-
-    data: Optional[Union[InternalRequest, DepositRequest]] = Field(
-        default=None, discriminator="type"
-    )
+        self.amount = request.amount.amount
+        self.rate = request.amount.rate
+        if hasattr(self, "charges") and request.charges:
+            setattr(self, "charges", request.charges.amount)
 
 
 class TransactionReviewReq(TransactionRequest):

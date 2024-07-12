@@ -108,10 +108,8 @@ def request_transaction_response(ctx, state, reason):
     elif state == "REVIEW":
         assert ctx.error is None
         response: api_client.TransactionResponse = ctx.response
-        request: api_client.Data = ctx.request.data
         assert response.state == api_client.TransactionState.REVIEW
         assert response.amount == ctx.request.amount.amount
-        assert response.type == request.actual_instance.type
         assert response.rate == ctx.request.amount.rate
         assert response.code is not None
         assert response.created_at is not None

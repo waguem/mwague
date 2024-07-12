@@ -9,9 +9,6 @@ export const metadata: Metadata = {
 
 const Organization = async () => {
   const session = await getServerSession(authOptions);
-  if (session?.user.roles.includes("org_admin")) {
-    redirect("/dashboard/organization");
-  }
   // redirec to the logged user office
   redirect(`/dashboard/office/${session?.user.officeId}`);
   // set session token to OpenAPI header

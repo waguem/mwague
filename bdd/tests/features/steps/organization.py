@@ -79,7 +79,7 @@ def create_office_step(context, office_name, initials, country):
         office_api = api_client.OfficeApi(api)
         request = api_client.BodyCreateOfficeApiV1OrganizationOfficePost(
             create_office=api_client.CreateOfficeRequest(
-                country=country, initials=initials, name=office_name
+                country=country, initials=initials, name=office_name, default_rates=[]
             )
         )
         context.request = request

@@ -29,7 +29,10 @@ export async function addOffice(prevSate: State, data: FormData): Promise<State>
 
     const response = await createOffice({
       requestBody: {
-        create_office: validationsFields.data,
+        create_office: {
+          ...validationsFields.data,
+          default_rates: [],
+        },
       },
     });
 

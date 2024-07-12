@@ -8,11 +8,19 @@ import {
   requestTransactionApiV1TransactionPost as requestTransactionApi,
   getTransactionApiV1TransactionCodeGet as getTransactionByCode,
   reviewTransactionApiV1TransactionTransactionCodeReviewPost as reviewTransactionApi,
+  getOfficeTransactionsApiV1OfficeTransactionsGet as getOfficeTransactionsApi,
   TransactionReviewReq,
 } from "@/lib/client";
 import { State } from "./state";
 import { getResolver } from "../schemas/transactionsResolvers";
 import { TransactionReviewResolver } from "../schemas/actions";
+import { revalidatePath } from "next/cache";
+
+export const getMyOfficeTransactions = cache(async () => {
+  return withToken(async () => {
+    return await getOfficeTransactionsApi();
+  });
+});
 
 export const getAgentTransactions = cache(async (initials: string) => {
   return withToken(async () => {
@@ -34,14 +42,15 @@ export async function addTransaction(prevSate: State, data: FormData): Promise<S
       errors: validation.errors,
     };
   }
-
+  console.log("data ", validation);
   try {
     const response = await requestTransactionApi({
       requestBody: validation,
     });
-
+    revalidatePath("/dashboard/office/[slug]/transactions");
     return { message: `${response.type} Transaction ${response.code} added successfully`, status: "success" };
   } catch (e) {
+    console.log(e);
     if (e instanceof ApiError) {
       return {
         status: "error",
@@ -78,6 +87,7 @@ export const reviewTransaction = async (prevSate: State, data: FormData) => {
       };
     }
 
+    revalidatePath("/dashboard/office/[slug]/transactions");
     // get the transaction by code
     const transaction = await getTransactionByCode({
       code: validation.data.code,
@@ -99,7 +109,12 @@ export const reviewTransaction = async (prevSate: State, data: FormData) => {
       code: transaction.code,
       notes: validation.data.notes,
       currency: "USD",
-      state: validation.data.action === "APPROVE" ? "APPROVED" : "REJECTED",
+      state:
+        validation.data.action === "APPROVE"
+          ? "APPROVED"
+          : validation.data.action === "REJECT"
+          ? "REJECTED"
+          : "CANCELLED",
       type: transaction.type,
       charges: {
         amount: transaction.charges ?? 0,

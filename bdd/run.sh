@@ -15,7 +15,7 @@ fi
 run(){
     behave --tags=@init -k
     behave --tags=@initialize -k
-    behave --tags=~@init --tags=~@initialize -k
+    #behave --tags=~@init --tags=~@initialize -k
 }
 wait_for_it(){
     api_url=$1

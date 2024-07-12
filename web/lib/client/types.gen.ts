@@ -107,6 +107,7 @@ export type CreateOfficeRequest = {
   country: string;
   initials: string;
   name: string;
+  default_rates: Array<Rate>;
 };
 
 export type CreateOrganizationRequest = {
@@ -118,6 +119,11 @@ export type CreateOrganizationRequest = {
  * An enumeration.
  */
 export type Currency = "USD" | "EUR" | "AED" | "CFA" | "GNF" | "RMB";
+
+export type CustomerDetails = {
+  name: string;
+  phone: string;
+};
 
 export type DepositRequest = {
   type: "DEPOSIT";
@@ -145,6 +151,15 @@ export type EmployeeResponseComplete = {
   office: OfficeResponse;
 };
 
+export type ExternalRequest = {
+  type: "EXTERNAL";
+  sender: string;
+  customer?: CustomerDetails;
+  payment_currency: Currency;
+};
+
+export type type2 = "EXTERNAL";
+
 export type HTTPValidationError = {
   detail?: Array<ValidationError>;
 };
@@ -158,7 +173,7 @@ export type InternalRequest = {
   receiver: string;
 };
 
-export type type2 = "INTERNAL";
+export type type3 = "INTERNAL";
 
 export type Note = {
   content: string;
@@ -190,16 +205,67 @@ export type OrganizationResponse = {
   id: string;
 };
 
+/**
+ * An enumeration.
+ */
+export type PaymentMethod = "CASH" | "BANK" | "MOBILE";
+
+export type PaymentRequest = {
+  amount: number;
+  payment_type: TransactionType;
+  notes?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+};
+
+export type PaymentResponse = {
+  payment_date: string;
+  amount: number;
+  transaction_id: string;
+  transaction_type: TransactionType;
+  state: PaymentState;
+  notes?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+};
+
+/**
+ * An enumeration.
+ */
+export type PaymentState = 1 | 2;
+
 export type Rate = {
   currency: string;
   rate: number;
 };
 
+export type SendingRequest = {
+  type: "SENDING";
+  receiver_initials: string;
+  customer_sender?: CustomerDetails;
+  customer_receiver?: CustomerDetails;
+  bid_rate: number;
+  offer_rate: number;
+  payment_method: PaymentMethod;
+  payment_currency: Currency;
+};
+
+export type type4 = "SENDING";
+
 export type TransactionRequest = {
   currency: Currency;
   amount: Amount;
   charges?: Amount;
-  data?: InternalRequest | DepositRequest;
+  transaction_type?: TransactionType;
+  data?: InternalRequest | DepositRequest | ExternalRequest | SendingRequest;
 };
 
 export type TransactionResponse = {
@@ -217,7 +283,8 @@ export type TransactionReviewReq = {
   currency: Currency;
   amount: Amount;
   charges?: Amount;
-  data?: InternalRequest | DepositRequest;
+  transaction_type?: TransactionType;
+  data?: InternalRequest | DepositRequest | ExternalRequest | SendingRequest;
   code: string;
   type: TransactionType;
   state: ValidationState;
@@ -232,7 +299,7 @@ export type TransactionState = "REVIEW" | "PENDING" | "PAID" | "CANCELLED" | "RE
 /**
  * An enumeration.
  */
-export type TransactionType = "DEPOSIT" | "INTERNAL" | "EXTERNAL";
+export type TransactionType = "DEPOSIT" | "INTERNAL" | "EXTERNAL" | "SENDING" | "FOREX";
 
 export type ValidationError = {
   loc: Array<string | number>;
@@ -340,6 +407,8 @@ export type StartActivityApiV1OfficeActivityPostData = {
 
 export type StartActivityApiV1OfficeActivityPostResponse = ActivityResponse;
 
+export type GetOfficeTransactionsApiV1OfficeTransactionsGetResponse = Array<TransactionResponse>;
+
 export type GetAgentTransactionsApiV1AgentInitialsTransactionsGetData = {
   initials: string;
 };
@@ -364,6 +433,20 @@ export type GetTransactionApiV1TransactionCodeGetData = {
 };
 
 export type GetTransactionApiV1TransactionCodeGetResponse = TransactionResponse;
+
+export type UpdateTransactionApiV1TransactionCodePutData = {
+  code: string;
+  requestBody: TransactionRequest;
+};
+
+export type UpdateTransactionApiV1TransactionCodePutResponse = TransactionResponse;
+
+export type AddPaymentApiV1TransactionCodePayPostData = {
+  code: string;
+  requestBody: PaymentRequest;
+};
+
+export type AddPaymentApiV1TransactionCodePayPostResponse = PaymentResponse;
 
 export type $OpenApiTs = {
   "/api/v1/ping": {
@@ -631,6 +714,16 @@ export type $OpenApiTs = {
       };
     };
   };
+  "/api/v1/office/transactions": {
+    get: {
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<TransactionResponse>;
+      };
+    };
+  };
   "/api/v1/agent/{initials}/transactions": {
     get: {
       req: GetAgentTransactionsApiV1AgentInitialsTransactionsGetData;
@@ -684,6 +777,34 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: TransactionResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+    put: {
+      req: UpdateTransactionApiV1TransactionCodePutData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: TransactionResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/transaction/{code}/pay": {
+    post: {
+      req: AddPaymentApiV1TransactionCodePayPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: PaymentResponse;
         /**
          * Validation Error
          */

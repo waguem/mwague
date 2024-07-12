@@ -38,6 +38,7 @@ import type {
   GetActivityApiV1OfficeActivityGetResponse,
   StartActivityApiV1OfficeActivityPostData,
   StartActivityApiV1OfficeActivityPostResponse,
+  GetOfficeTransactionsApiV1OfficeTransactionsGetResponse,
   GetAgentTransactionsApiV1AgentInitialsTransactionsGetData,
   GetAgentTransactionsApiV1AgentInitialsTransactionsGetResponse,
   RequestTransactionApiV1TransactionPostData,
@@ -46,6 +47,10 @@ import type {
   ReviewTransactionApiV1TransactionTransactionCodeReviewPostResponse,
   GetTransactionApiV1TransactionCodeGetData,
   GetTransactionApiV1TransactionCodeGetResponse,
+  UpdateTransactionApiV1TransactionCodePutData,
+  UpdateTransactionApiV1TransactionCodePutResponse,
+  AddPaymentApiV1TransactionCodePayPostData,
+  AddPaymentApiV1TransactionCodePayPostResponse,
 } from "./types.gen";
 
 /**
@@ -468,6 +473,20 @@ export const startActivityApiV1OfficeActivityPost = (
 };
 
 /**
+ * Get Office Transactions
+ * get all transactions for an office
+ * @returns TransactionResponse Successful Response
+ * @throws ApiError
+ */
+export const getOfficeTransactionsApiV1OfficeTransactionsGet =
+  (): CancelablePromise<GetOfficeTransactionsApiV1OfficeTransactionsGetResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/office/transactions",
+    });
+  };
+
+/**
  * Get Agent Transactions
  * get all transactions for an agent
  * @param data The data for the request.
@@ -555,6 +574,58 @@ export const getTransactionApiV1TransactionCodeGet = (
     path: {
       code: data.code,
     },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Update Transaction
+ * update a transaction
+ * @param data The data for the request.
+ * @param data.code
+ * @param data.requestBody
+ * @returns TransactionResponse Successful Response
+ * @throws ApiError
+ */
+export const updateTransactionApiV1TransactionCodePut = (
+  data: UpdateTransactionApiV1TransactionCodePutData
+): CancelablePromise<UpdateTransactionApiV1TransactionCodePutResponse> => {
+  return __request(OpenAPI, {
+    method: "PUT",
+    url: "/api/v1/transaction/{code}",
+    path: {
+      code: data.code,
+    },
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Add Payment
+ * add payment to a transaction
+ * @param data The data for the request.
+ * @param data.code
+ * @param data.requestBody
+ * @returns PaymentResponse Successful Response
+ * @throws ApiError
+ */
+export const addPaymentApiV1TransactionCodePayPost = (
+  data: AddPaymentApiV1TransactionCodePayPostData
+): CancelablePromise<AddPaymentApiV1TransactionCodePayPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/transaction/{code}/pay",
+    path: {
+      code: data.code,
+    },
+    body: data.requestBody,
+    mediaType: "application/json",
     errors: {
       422: "Validation Error",
     },
