@@ -108,7 +108,7 @@ def pay_external(ctx, payment, amount, sender, account):
 @then("The transaction is at a given state {state}")
 def after_payment(ctx, state):
     ctx.transaction = utils.get_transaction(
-        ctx, client.TransactionType.EXTERNAL, ctx.amount, ctx.sender, ctx.account
+        ctx, client.TransactionType.EXTERNAL, ctx.amount, ctx.sender
     )
 
     if ctx.payment == "COMPLETE":

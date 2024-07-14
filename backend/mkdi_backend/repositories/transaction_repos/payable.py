@@ -71,7 +71,7 @@ class PayableTransaction(AbstractTransaction):
     @async_managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
     async def add_payment(self, payment: pr.PaymentRequest, code: str) -> Payment:
         """add payment to the transaction"""
-        transaction = await self.get_a_transaction(code)
+        transaction = await self.get_a_transaction(code=code, tr_type=payment.payment_type)
         self.set_transaction(transaction)
 
         # the transaction should not have a paid amount greather than the amount

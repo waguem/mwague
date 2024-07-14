@@ -1,6 +1,8 @@
 # pylint: disable=missing-module-docstring
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm.session import Session
+
+# from sqlalchemy.exc.asyncio import AsyncSession
 from decimal import Decimal
 from tests.tools.config import config
 
@@ -13,12 +15,18 @@ engine = create_engine(
 )
 
 
+def clean_transactions():
+    with Session(engine) as session:
+        session.execute(text("DELETE FROM public.externals"))
+        session.execute(text("DELETE FROM public.sendings"))
+        session.execute(text("DELETE FROM public.deposits"))
+        session.execute(text("DELETE FROM public.forex"))
+        session.commit()
+
+
 def clean_db():
     with Session(engine) as session:
-        session.execute(text("DELETE FROM public.internals"))
-        session.execute(text("DELETE FROM public.externals"))
-        session.execute(text("DELETE FROM public.accounts"))
-        session.execute(text("DELETE FROM public.deposits"))
+        clean_transactions()
         session.execute(text("DELETE FROM public.fundcommits"))
         session.execute(text("DELETE FROM public.activities"))
         session.execute(text("DELETE FROM public.employees"))
