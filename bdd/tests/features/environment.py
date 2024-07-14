@@ -20,7 +20,7 @@ def setup(context):
 def teardown(context):
     """tear down the tests."""
     oidc.disconnect()
-    clean_database(context)
+    # clean_database(context)
 
 
 def clean_database(_):

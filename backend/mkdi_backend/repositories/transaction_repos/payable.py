@@ -21,10 +21,6 @@ class PayableTransaction(AbstractTransaction):
         """commit payment"""
 
     @abstractmethod
-    async def get_a_transaction(self, code: str) -> pr.TransactionDB:
-        """get a transaction"""
-
-    @abstractmethod
     def cancel_payment(self, payment: Payment) -> None:
         """cancel payment on the transaction"""
         pass

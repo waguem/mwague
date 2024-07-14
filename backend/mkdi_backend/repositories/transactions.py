@@ -6,7 +6,13 @@ from sqlalchemy.ext.asyncio.session import AsyncSession
 from mkdi_backend.models.Account import Account
 from mkdi_backend.models.Agent import Agent
 from mkdi_backend.models.models import KcUser
-from mkdi_backend.models.transactions.transactions import Deposit, Internal, External, Sending
+from mkdi_backend.models.transactions.transactions import (
+    Deposit,
+    Internal,
+    External,
+    Sending,
+    TransactionWithDetails,
+)
 from mkdi_backend.repositories.transaction_repos import (
     deposit,
     internal,
@@ -211,7 +217,7 @@ class TransactionRepository:
                 error_code=MkdiErrorCode.INVALID_STATE,
                 message="Transaction is not payable",
             )
-        tr = await transactionImpl.get_a_transaction(code)
+        tr = await transactionImpl.get_a_transaction(tr_type=usr_input.payment_type, code=code)
         transactionImpl.set_transaction(tr)
         payment = await transactionImpl.add_payment(payment=usr_input, code=code)
         return payment
@@ -252,3 +258,15 @@ class TransactionRepository:
         records = (await session.execute(combined_query)).all()
         resp = [pr.TransactionResponse(**dict(record._mapping)) for record in records]
         return resp
+
+    async def get_office_transactions_with_details(
+        self, user: KcUser, tr_code: str, tr_type: pr.TransactionType
+    ) -> TransactionWithDetails:
+        transactionImpl: AbstractTransaction = None
+        try:
+            transactionImpl = self.get_concrete_type(tr_type)(self.db, user, None)
+        except ValidationError as e:
+            raise e
+
+        tr = await transactionImpl.get_a_transaction(tr_type, tr_code)
+        return tr

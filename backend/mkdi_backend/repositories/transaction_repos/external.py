@@ -229,11 +229,6 @@ class ExternalTransaction(PayableTransaction):
         """
         return self.db.query(External).filter(External.code == code).one()
 
-    async def get_a_transaction(self, tr_code: str) -> External:
-        session: AsyncSession = self.db
-        q = await session.execute(select(External).where(External.code == tr_code))
-        return q.scalars().one_or_none()
-
     @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
     def cancel_payment(self, payment: Payment) -> None:
         """cancel payment on the transaction"""

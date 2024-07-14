@@ -154,6 +154,7 @@ export const TransactionReviewResolver = zfd.formData({
       .refine((value) => value.trim() !== "")
       .optional()
   ),
+  type: zod.enum(["INTERNAL", "EXTERNAL", "DEPOSIT", "SENDING", "FOREX"]),
   action: zod.enum(["APPROVE", "REJECT", "CANCEL"]),
   code: zfd.text(zod.string()),
 });

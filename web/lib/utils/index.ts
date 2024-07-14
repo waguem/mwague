@@ -1,3 +1,6 @@
+import { MantineColor } from "@mantine/core";
+import { TransactionState, TransactionType } from "../client";
+
 export function getFlagEmoji(countryCode: string) {
   const codePoints = countryCode
     .toUpperCase()
@@ -61,3 +64,37 @@ export const accountTypeOptions = [
   { value: "OFFICE", label: "Office" },
   { value: "FUND", label: "Fund" },
 ];
+
+export const getBadgeType = (tr_type: TransactionType): MantineColor => {
+  switch (tr_type) {
+    case "EXTERNAL":
+      return "blue";
+    case "INTERNAL":
+      return "cyan";
+    case "DEPOSIT":
+      return "orange";
+    case "FOREX":
+      return "teal";
+    case "SENDING":
+      return "grape";
+    default:
+      return "gray";
+  }
+};
+
+export const getStateBadge = (state: TransactionState): MantineColor => {
+  switch (state) {
+    case "PENDING":
+      return "lime";
+    case "PAID":
+      return "green";
+    case "REVIEW":
+      return "indigo";
+    case "REJECTED":
+      return "orange";
+    case "CANCELLED":
+      return "red";
+    default:
+      return "gray";
+  }
+};

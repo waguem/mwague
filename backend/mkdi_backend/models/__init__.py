@@ -4,7 +4,14 @@ from .Agent import Agent
 from .employee import Employee
 from .office import Office
 from .organization import Organization
-from .transactions.transactions import Deposit, ForEx, Internal, Sending
+from .transactions.transactions import (
+    Deposit,
+    ForEx,
+    Internal,
+    Sending,
+    External,
+    TransactionWithDetails,
+)
 
 __all__ = [
     "Organization",
@@ -17,4 +24,6 @@ __all__ = [
     "Deposit",
     "Sending",
     "ForEx",
+    "External",
+    "TransactionWithDetails",
 ]

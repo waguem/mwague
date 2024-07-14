@@ -188,7 +188,6 @@ const SendingFormResolver: FormResolver = {
     const parsed = Sending.safeParse(data);
     const charges = zNumber.safeParse(data.get("charges") as string);
     if (!parsed.success) {
-      console.log(parsed.error.errors);
       return {
         status: "error",
         error: "Invalid transaction data",
@@ -233,7 +232,6 @@ const ExternalFormResolver: FormResolver = {
     const parsed = External.safeParse(data);
     const charges = zNumber.safeParse(data.get("charges") as string);
     if (!parsed.success) {
-      console.log(parsed.error.errors);
       return {
         status: "error",
         error: "Invalid transaction data",

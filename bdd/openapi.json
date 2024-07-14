@@ -773,15 +773,21 @@
     "/api/v1/transaction/{code}": {
       "get": {
         "tags": ["transactions"],
-        "summary": "Get Transaction",
-        "description": "get a single transaction",
-        "operationId": "get_transaction_api_v1_transaction__code__get",
+        "summary": "Get Office Transactions With Details",
+        "description": "get all transactions for an office with details",
+        "operationId": "get_office_transactions_with_details_api_v1_transaction__code__get",
         "parameters": [
           {
             "required": true,
             "schema": { "type": "string", "title": "Code" },
             "name": "code",
             "in": "path"
+          },
+          {
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/TransactionType" },
+            "name": "tr_type",
+            "in": "query"
           }
         ],
         "responses": {
@@ -789,7 +795,16 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/TransactionResponse" }
+                "schema": {
+                  "anyOf": [
+                    { "$ref": "#/components/schemas/Internal" },
+                    { "$ref": "#/components/schemas/Deposit" },
+                    { "$ref": "#/components/schemas/Sending" },
+                    { "$ref": "#/components/schemas/ForEx" },
+                    { "$ref": "#/components/schemas/External" }
+                  ],
+                  "title": "Response Get Office Transactions With Details Api V1 Transaction  Code  Get"
+                }
               }
             }
           },
@@ -802,7 +817,7 @@
             }
           }
         },
-        "security": [{ "OAuth2AuthorizationCodeBearer": [] }]
+        "security": [{ "OAuth2AuthorizationCodeBearer": ["office_admin"] }]
       },
       "put": {
         "tags": ["transactions"],
@@ -1233,6 +1248,74 @@
         "required": ["name", "phone"],
         "title": "CustomerDetails"
       },
+      "Deposit": {
+        "properties": {
+          "amount": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Amount",
+            "strict": true
+          },
+          "rate": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Rate",
+            "strict": true
+          },
+          "code": { "type": "string", "maxLength": 64, "title": "Code" },
+          "state": { "$ref": "#/components/schemas/TransactionState" },
+          "type": { "$ref": "#/components/schemas/TransactionType" },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "office_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Office Id"
+          },
+          "org_id": { "type": "string", "format": "uuid", "title": "Org Id" },
+          "created_by": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Created By"
+          },
+          "reviwed_by": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Reviwed By"
+          },
+          "history": {
+            "additionalProperties": { "anyOf": [{ "type": "object" }, {}] },
+            "type": "object",
+            "title": "History",
+            "default": {}
+          },
+          "notes": {
+            "additionalProperties": { "anyOf": [{ "type": "object" }, {}] },
+            "type": "object",
+            "title": "Notes",
+            "default": {}
+          },
+          "owner_initials": { "type": "string", "title": "Owner Initials" }
+        },
+        "type": "object",
+        "required": [
+          "amount",
+          "rate",
+          "code",
+          "state",
+          "type",
+          "office_id",
+          "org_id",
+          "created_by",
+          "owner_initials"
+        ],
+        "title": "Deposit",
+        "description": "Transaction database model"
+      },
       "DepositRequest": {
         "properties": {
           "type": { "type": "string", "enum": ["DEPOSIT"], "title": "Type" },
@@ -1332,6 +1415,82 @@
         ],
         "title": "EmployeeResponseComplete"
       },
+      "External": {
+        "properties": {
+          "amount": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Amount",
+            "strict": true
+          },
+          "rate": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Rate",
+            "strict": true
+          },
+          "code": { "type": "string", "maxLength": 64, "title": "Code" },
+          "state": { "$ref": "#/components/schemas/TransactionState" },
+          "type": { "$ref": "#/components/schemas/TransactionType" },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "office_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Office Id"
+          },
+          "org_id": { "type": "string", "format": "uuid", "title": "Org Id" },
+          "created_by": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Created By"
+          },
+          "reviwed_by": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Reviwed By"
+          },
+          "history": {
+            "additionalProperties": { "anyOf": [{ "type": "object" }, {}] },
+            "type": "object",
+            "title": "History",
+            "default": {}
+          },
+          "notes": {
+            "additionalProperties": { "anyOf": [{ "type": "object" }, {}] },
+            "type": "object",
+            "title": "Notes",
+            "default": {}
+          },
+          "sender_initials": { "type": "string", "title": "Sender Initials" },
+          "charges": { "type": "number", "minimum": 0.0, "title": "Charges" },
+          "customer": {
+            "additionalProperties": { "anyOf": [{ "type": "object" }, {}] },
+            "type": "object",
+            "title": "Customer",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "required": [
+          "amount",
+          "rate",
+          "code",
+          "state",
+          "type",
+          "office_id",
+          "org_id",
+          "created_by",
+          "sender_initials",
+          "charges"
+        ],
+        "title": "External",
+        "description": "Transaction database model"
+      },
       "ExternalRequest": {
         "properties": {
           "type": { "type": "string", "enum": ["EXTERNAL"], "title": "Type" },
@@ -1343,6 +1502,78 @@
         "required": ["type", "sender", "payment_currency"],
         "title": "ExternalRequest"
       },
+      "ForEx": {
+        "properties": {
+          "amount": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Amount",
+            "strict": true
+          },
+          "rate": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Rate",
+            "strict": true
+          },
+          "code": { "type": "string", "maxLength": 64, "title": "Code" },
+          "state": { "$ref": "#/components/schemas/TransactionState" },
+          "type": { "$ref": "#/components/schemas/TransactionType" },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "office_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Office Id"
+          },
+          "org_id": { "type": "string", "format": "uuid", "title": "Org Id" },
+          "created_by": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Created By"
+          },
+          "reviwed_by": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Reviwed By"
+          },
+          "history": {
+            "additionalProperties": { "anyOf": [{ "type": "object" }, {}] },
+            "type": "object",
+            "title": "History",
+            "default": {}
+          },
+          "notes": {
+            "additionalProperties": { "anyOf": [{ "type": "object" }, {}] },
+            "type": "object",
+            "title": "Notes",
+            "default": {}
+          },
+          "bid_rate": { "type": "number", "title": "Bid Rate" },
+          "offer_rate": { "type": "number", "title": "Offer Rate" },
+          "method": { "$ref": "#/components/schemas/PaymentMethod" }
+        },
+        "type": "object",
+        "required": [
+          "amount",
+          "rate",
+          "code",
+          "state",
+          "type",
+          "office_id",
+          "org_id",
+          "created_by",
+          "bid_rate",
+          "offer_rate",
+          "method"
+        ],
+        "title": "ForEx",
+        "description": "Une transaction de change est effectu\u00e9"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -1353,6 +1584,81 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "Internal": {
+        "properties": {
+          "amount": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Amount",
+            "strict": true
+          },
+          "rate": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Rate",
+            "strict": true
+          },
+          "code": { "type": "string", "maxLength": 64, "title": "Code" },
+          "state": { "$ref": "#/components/schemas/TransactionState" },
+          "type": { "$ref": "#/components/schemas/TransactionType" },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "office_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Office Id"
+          },
+          "org_id": { "type": "string", "format": "uuid", "title": "Org Id" },
+          "created_by": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Created By"
+          },
+          "reviwed_by": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Reviwed By"
+          },
+          "history": {
+            "additionalProperties": { "anyOf": [{ "type": "object" }, {}] },
+            "type": "object",
+            "title": "History",
+            "default": {}
+          },
+          "notes": {
+            "additionalProperties": { "anyOf": [{ "type": "object" }, {}] },
+            "type": "object",
+            "title": "Notes",
+            "default": {}
+          },
+          "sender_initials": { "type": "string", "title": "Sender Initials" },
+          "receiver_initials": {
+            "type": "string",
+            "title": "Receiver Initials"
+          },
+          "charges": { "type": "number", "minimum": 0.0, "title": "Charges" }
+        },
+        "type": "object",
+        "required": [
+          "amount",
+          "rate",
+          "code",
+          "state",
+          "type",
+          "office_id",
+          "org_id",
+          "created_by",
+          "sender_initials",
+          "receiver_initials",
+          "charges"
+        ],
+        "title": "Internal",
+        "description": "Transaction database model"
       },
       "InternalRequest": {
         "properties": {
@@ -1524,6 +1830,99 @@
         "type": "object",
         "required": ["currency", "rate"],
         "title": "Rate"
+      },
+      "Sending": {
+        "properties": {
+          "amount": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Amount",
+            "strict": true
+          },
+          "rate": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Rate",
+            "strict": true
+          },
+          "code": { "type": "string", "maxLength": 64, "title": "Code" },
+          "state": { "$ref": "#/components/schemas/TransactionState" },
+          "type": { "$ref": "#/components/schemas/TransactionType" },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "office_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Office Id"
+          },
+          "org_id": { "type": "string", "format": "uuid", "title": "Org Id" },
+          "created_by": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Created By"
+          },
+          "reviwed_by": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Reviwed By"
+          },
+          "history": {
+            "additionalProperties": { "anyOf": [{ "type": "object" }, {}] },
+            "type": "object",
+            "title": "History",
+            "default": {}
+          },
+          "notes": {
+            "additionalProperties": { "anyOf": [{ "type": "object" }, {}] },
+            "type": "object",
+            "title": "Notes",
+            "default": {}
+          },
+          "receiver_initials": {
+            "type": "string",
+            "title": "Receiver Initials"
+          },
+          "bid_rate": { "type": "number", "title": "Bid Rate" },
+          "offer_rate": { "type": "number", "title": "Offer Rate" },
+          "method": { "$ref": "#/components/schemas/PaymentMethod" },
+          "payment_currency": { "$ref": "#/components/schemas/Currency" },
+          "charges": { "type": "number", "minimum": 0.0, "title": "Charges" },
+          "customer_sender": {
+            "additionalProperties": { "anyOf": [{ "type": "object" }, {}] },
+            "type": "object",
+            "title": "Customer Sender",
+            "default": {}
+          },
+          "customer_receiver": {
+            "additionalProperties": { "anyOf": [{ "type": "object" }, {}] },
+            "type": "object",
+            "title": "Customer Receiver",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "required": [
+          "amount",
+          "rate",
+          "code",
+          "state",
+          "type",
+          "office_id",
+          "org_id",
+          "created_by",
+          "receiver_initials",
+          "bid_rate",
+          "offer_rate",
+          "method",
+          "payment_currency",
+          "charges"
+        ],
+        "title": "Sending",
+        "description": "Transaction database model"
       },
       "SendingRequest": {
         "properties": {

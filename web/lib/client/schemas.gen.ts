@@ -423,6 +423,98 @@ export const $CustomerDetails = {
   title: "CustomerDetails",
 } as const;
 
+export const $Deposit = {
+  properties: {
+    amount: {
+      type: "number",
+      minimum: 0,
+      title: "Amount",
+      strict: true,
+    },
+    rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Rate",
+      strict: true,
+    },
+    code: {
+      type: "string",
+      maxLength: 64,
+      title: "Code",
+    },
+    state: {
+      $ref: "#/components/schemas/TransactionState",
+    },
+    type: {
+      $ref: "#/components/schemas/TransactionType",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    office_id: {
+      type: "string",
+      format: "uuid",
+      title: "Office Id",
+    },
+    org_id: {
+      type: "string",
+      format: "uuid",
+      title: "Org Id",
+    },
+    created_by: {
+      type: "string",
+      format: "uuid",
+      title: "Created By",
+    },
+    reviwed_by: {
+      type: "string",
+      format: "uuid",
+      title: "Reviwed By",
+    },
+    history: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "History",
+      default: {},
+    },
+    notes: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "Notes",
+      default: {},
+    },
+    owner_initials: {
+      type: "string",
+      title: "Owner Initials",
+    },
+  },
+  type: "object",
+  required: ["amount", "rate", "code", "state", "type", "office_id", "org_id", "created_by", "owner_initials"],
+  title: "Deposit",
+  description: "Transaction database model",
+} as const;
+
 export const $DepositRequest = {
   properties: {
     type: {
@@ -531,6 +623,127 @@ export const $EmployeeResponseComplete = {
   title: "EmployeeResponseComplete",
 } as const;
 
+export const $External = {
+  properties: {
+    amount: {
+      type: "number",
+      minimum: 0,
+      title: "Amount",
+      strict: true,
+    },
+    rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Rate",
+      strict: true,
+    },
+    code: {
+      type: "string",
+      maxLength: 64,
+      title: "Code",
+    },
+    state: {
+      $ref: "#/components/schemas/TransactionState",
+    },
+    type: {
+      $ref: "#/components/schemas/TransactionType",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    office_id: {
+      type: "string",
+      format: "uuid",
+      title: "Office Id",
+    },
+    org_id: {
+      type: "string",
+      format: "uuid",
+      title: "Org Id",
+    },
+    created_by: {
+      type: "string",
+      format: "uuid",
+      title: "Created By",
+    },
+    reviwed_by: {
+      type: "string",
+      format: "uuid",
+      title: "Reviwed By",
+    },
+    history: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "History",
+      default: {},
+    },
+    notes: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "Notes",
+      default: {},
+    },
+    sender_initials: {
+      type: "string",
+      title: "Sender Initials",
+    },
+    charges: {
+      type: "number",
+      minimum: 0,
+      title: "Charges",
+    },
+    customer: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "Customer",
+      default: {},
+    },
+  },
+  type: "object",
+  required: [
+    "amount",
+    "rate",
+    "code",
+    "state",
+    "type",
+    "office_id",
+    "org_id",
+    "created_by",
+    "sender_initials",
+    "charges",
+  ],
+  title: "External",
+  description: "Transaction database model",
+} as const;
+
 export const $ExternalRequest = {
   properties: {
     type: {
@@ -554,6 +767,117 @@ export const $ExternalRequest = {
   title: "ExternalRequest",
 } as const;
 
+export const $ForEx = {
+  properties: {
+    amount: {
+      type: "number",
+      minimum: 0,
+      title: "Amount",
+      strict: true,
+    },
+    rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Rate",
+      strict: true,
+    },
+    code: {
+      type: "string",
+      maxLength: 64,
+      title: "Code",
+    },
+    state: {
+      $ref: "#/components/schemas/TransactionState",
+    },
+    type: {
+      $ref: "#/components/schemas/TransactionType",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    office_id: {
+      type: "string",
+      format: "uuid",
+      title: "Office Id",
+    },
+    org_id: {
+      type: "string",
+      format: "uuid",
+      title: "Org Id",
+    },
+    created_by: {
+      type: "string",
+      format: "uuid",
+      title: "Created By",
+    },
+    reviwed_by: {
+      type: "string",
+      format: "uuid",
+      title: "Reviwed By",
+    },
+    history: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "History",
+      default: {},
+    },
+    notes: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "Notes",
+      default: {},
+    },
+    bid_rate: {
+      type: "number",
+      title: "Bid Rate",
+    },
+    offer_rate: {
+      type: "number",
+      title: "Offer Rate",
+    },
+    method: {
+      $ref: "#/components/schemas/PaymentMethod",
+    },
+  },
+  type: "object",
+  required: [
+    "amount",
+    "rate",
+    "code",
+    "state",
+    "type",
+    "office_id",
+    "org_id",
+    "created_by",
+    "bid_rate",
+    "offer_rate",
+    "method",
+  ],
+  title: "ForEx",
+  description: "Une transaction de change est effectué",
+} as const;
+
 export const $HTTPValidationError = {
   properties: {
     detail: {
@@ -566,6 +890,119 @@ export const $HTTPValidationError = {
   },
   type: "object",
   title: "HTTPValidationError",
+} as const;
+
+export const $Internal = {
+  properties: {
+    amount: {
+      type: "number",
+      minimum: 0,
+      title: "Amount",
+      strict: true,
+    },
+    rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Rate",
+      strict: true,
+    },
+    code: {
+      type: "string",
+      maxLength: 64,
+      title: "Code",
+    },
+    state: {
+      $ref: "#/components/schemas/TransactionState",
+    },
+    type: {
+      $ref: "#/components/schemas/TransactionType",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    office_id: {
+      type: "string",
+      format: "uuid",
+      title: "Office Id",
+    },
+    org_id: {
+      type: "string",
+      format: "uuid",
+      title: "Org Id",
+    },
+    created_by: {
+      type: "string",
+      format: "uuid",
+      title: "Created By",
+    },
+    reviwed_by: {
+      type: "string",
+      format: "uuid",
+      title: "Reviwed By",
+    },
+    history: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "History",
+      default: {},
+    },
+    notes: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "Notes",
+      default: {},
+    },
+    sender_initials: {
+      type: "string",
+      title: "Sender Initials",
+    },
+    receiver_initials: {
+      type: "string",
+      title: "Receiver Initials",
+    },
+    charges: {
+      type: "number",
+      minimum: 0,
+      title: "Charges",
+    },
+  },
+  type: "object",
+  required: [
+    "amount",
+    "rate",
+    "code",
+    "state",
+    "type",
+    "office_id",
+    "org_id",
+    "created_by",
+    "sender_initials",
+    "receiver_initials",
+    "charges",
+  ],
+  title: "Internal",
+  description: "Transaction database model",
 } as const;
 
 export const $InternalRequest = {
@@ -798,6 +1235,158 @@ export const $Rate = {
   type: "object",
   required: ["currency", "rate"],
   title: "Rate",
+} as const;
+
+export const $Sending = {
+  properties: {
+    amount: {
+      type: "number",
+      minimum: 0,
+      title: "Amount",
+      strict: true,
+    },
+    rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Rate",
+      strict: true,
+    },
+    code: {
+      type: "string",
+      maxLength: 64,
+      title: "Code",
+    },
+    state: {
+      $ref: "#/components/schemas/TransactionState",
+    },
+    type: {
+      $ref: "#/components/schemas/TransactionType",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    office_id: {
+      type: "string",
+      format: "uuid",
+      title: "Office Id",
+    },
+    org_id: {
+      type: "string",
+      format: "uuid",
+      title: "Org Id",
+    },
+    created_by: {
+      type: "string",
+      format: "uuid",
+      title: "Created By",
+    },
+    reviwed_by: {
+      type: "string",
+      format: "uuid",
+      title: "Reviwed By",
+    },
+    history: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "History",
+      default: {},
+    },
+    notes: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "Notes",
+      default: {},
+    },
+    receiver_initials: {
+      type: "string",
+      title: "Receiver Initials",
+    },
+    bid_rate: {
+      type: "number",
+      title: "Bid Rate",
+    },
+    offer_rate: {
+      type: "number",
+      title: "Offer Rate",
+    },
+    method: {
+      $ref: "#/components/schemas/PaymentMethod",
+    },
+    payment_currency: {
+      $ref: "#/components/schemas/Currency",
+    },
+    charges: {
+      type: "number",
+      minimum: 0,
+      title: "Charges",
+    },
+    customer_sender: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "Customer Sender",
+      default: {},
+    },
+    customer_receiver: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "Customer Receiver",
+      default: {},
+    },
+  },
+  type: "object",
+  required: [
+    "amount",
+    "rate",
+    "code",
+    "state",
+    "type",
+    "office_id",
+    "org_id",
+    "created_by",
+    "receiver_initials",
+    "bid_rate",
+    "offer_rate",
+    "method",
+    "payment_currency",
+    "charges",
+  ],
+  title: "Sending",
+  description: "Transaction database model",
 } as const;
 
 export const $SendingRequest = {

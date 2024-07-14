@@ -9,7 +9,6 @@ import {
   getActivityApiV1OfficeActivityGet as getCurrentActivityApi,
   startActivityApiV1OfficeActivityPost as startActivityApi,
 } from "../client";
-import { revalidatePath } from "next/cache";
 
 const StartFormData = zod.object({
   rates: zod.array(
@@ -40,7 +39,7 @@ export async function startActivity(prevState: State, data: FormData) {
       await startActivityApi({
         requestBody: userInput.data,
       });
-      revalidatePath("/dashboard/activity");
+      //revalidatePath("/dashboard/activity");
       return { status: "success", message: "Activity started successfully" };
     } catch (e) {
       if (e instanceof ApiError) {

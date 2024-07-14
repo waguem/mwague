@@ -1,8 +1,13 @@
 import ProviderComponent from "@/components/layouts/provider-component";
-import "react-perfect-scrollbar/dist/css/styles.css";
-import "../styles/tailwind.css";
-import { Metadata } from "next";
 import { Nunito } from "next/font/google";
+import { Metadata } from "next";
+import { ColorSchemeScript, MantineProvider } from "@mantine/core";
+
+import "react-perfect-scrollbar/dist/css/styles.css";
+import "@mantine/notifications/styles.css";
+import "@mantine/core/styles.layer.css";
+
+import "../styles/tailwind.css";
 
 export const metadata: Metadata = {
   title: {
@@ -20,8 +25,13 @@ const nunito = Nunito({
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <ColorSchemeScript defaultColorScheme="auto" />
+      </head>
       <body className={nunito.variable}>
-        <ProviderComponent>{children}</ProviderComponent>
+        <MantineProvider defaultColorScheme="auto">
+          <ProviderComponent>{children}</ProviderComponent>
+        </MantineProvider>
       </body>
     </html>
   );

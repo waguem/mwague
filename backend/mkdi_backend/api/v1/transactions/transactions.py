@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Security
 from mkdi_backend.api.deps import check_authorization, get_db, AsyncDBSessionDep
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.repositories.transactions import TransactionRepository
+from mkdi_backend.models.transactions.transactions import TransactionWithDetails
 from mkdi_shared.schemas import protocol
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import Session
@@ -72,21 +73,6 @@ def review_transaction(
     return reviewed
 
 
-@router.get(
-    "/transaction/{code}",
-    response_model=protocol.TransactionResponse,
-    status_code=200,
-)
-def get_transaction(
-    *,
-    user: Annotated[KcUser, Security(check_authorization, scopes=[])],
-    code: str,
-    db: Session = Depends(get_db),
-) -> protocol.TransactionResponse:
-    """get a single transaction"""
-    return TransactionRepository(db).get_transaction(user, code)
-
-
 @router.put("/transaction/{code}")
 def update_transaction(
     *,
@@ -113,3 +99,21 @@ async def add_payment(
 ) -> protocol.PaymentResponse:
     """add payment to a transaction"""
     return await TransactionRepository(db).add_payment(user, code, usr_input)
+
+
+@router.get(
+    "/transaction/{code}",
+    response_model=TransactionWithDetails,
+    status_code=200,
+)
+async def get_office_transactions_with_details(
+    *,
+    user: Annotated[KcUser, Security(check_authorization, scopes=["office_admin"])],
+    code: str,
+    tr_type: protocol.TransactionType,
+    db: AsyncDBSessionDep,
+) -> TransactionWithDetails:
+    """get all transactions for an office with details"""
+    return await TransactionRepository(db).get_office_transactions_with_details(
+        user, tr_code=code, tr_type=tr_type
+    )

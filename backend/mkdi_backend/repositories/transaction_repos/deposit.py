@@ -7,7 +7,7 @@ import string
 from mkdi_backend.models.Account import Account
 from mkdi_backend.models.Activity import FundCommit
 from mkdi_backend.models.models import KcUser
-from mkdi_backend.models.transactions.transactions import Deposit
+from mkdi_backend.models.transactions.transactions import Deposit, TransactionWithDetails
 from mkdi_backend.repositories.transaction_repos.abstract_transaction import AbstractTransaction
 from mkdi_backend.repositories.transaction_repos.invariant import (
     CommitMode,
@@ -15,6 +15,7 @@ from mkdi_backend.repositories.transaction_repos.invariant import (
 )
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol as pr
+from sqlalchemy.ext.asyncio.session import AsyncSession
 
 
 class DepositTransaction(AbstractTransaction):

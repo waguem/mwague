@@ -164,11 +164,6 @@ class SendingTransaction(PayableTransaction):
 
         return accounts.all()
 
-    async def get_a_transaction(self, tr_code: str) -> Sending:
-        session: AsyncSession = self.db
-        q = await session.execute(select(Sending).where(Sending.code == tr_code))
-        return q.scalars().one_or_none()
-
     @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
     def cancel_payment(self, payment: Payment) -> None:
         """cancel payment on the transaction"""

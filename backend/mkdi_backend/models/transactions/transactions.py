@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Annotated, Mapping, Any, Optional
+from typing import Annotated, Mapping, Any, Optional, Union
 from uuid import UUID, uuid4
 from sqlalchemy.ext.mutable import MutableDict
 
@@ -93,3 +93,6 @@ class Payment(pr.PaymentBase, table=True):
             server_default=sa.text("gen_random_uuid()"),
         )
     )
+
+
+TransactionWithDetails = Union[Internal, Deposit, Sending, ForEx, External]

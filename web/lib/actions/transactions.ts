@@ -6,7 +6,7 @@ import {
   ApiError,
   getAgentTransactionsApiV1AgentInitialsTransactionsGet as getAgentTransactionsApi,
   requestTransactionApiV1TransactionPost as requestTransactionApi,
-  getTransactionApiV1TransactionCodeGet as getTransactionByCode,
+  getOfficeTransactionsWithDetailsApiV1TransactionCodeGet as getTransactionByCode,
   reviewTransactionApiV1TransactionTransactionCodeReviewPost as reviewTransactionApi,
   getOfficeTransactionsApiV1OfficeTransactionsGet as getOfficeTransactionsApi,
   TransactionReviewReq,
@@ -42,7 +42,7 @@ export async function addTransaction(prevSate: State, data: FormData): Promise<S
       errors: validation.errors,
     };
   }
-  console.log("data ", validation);
+
   try {
     const response = await requestTransactionApi({
       requestBody: validation,
@@ -50,7 +50,6 @@ export async function addTransaction(prevSate: State, data: FormData): Promise<S
     revalidatePath("/dashboard/office/[slug]/transactions");
     return { message: `${response.type} Transaction ${response.code} added successfully`, status: "success" };
   } catch (e) {
-    console.log(e);
     if (e instanceof ApiError) {
       return {
         status: "error",
@@ -66,10 +65,17 @@ export async function addTransaction(prevSate: State, data: FormData): Promise<S
   };
 }
 
-export const reviewTransaction = async (prevSate: State, data: FormData) => {
+export interface ReviewFormData extends FormData {
+  code: string;
+  action: string;
+  notes: string;
+  officeId: string;
+}
+
+export const reviewTransaction = async (prevSate: State, data: ReviewFormData): Promise<State> => {
   return withToken(async () => {
     const validation = TransactionReviewResolver.safeParse(data);
-    console.log(validation.error);
+    const { officeId } = data;
     if (!validation.success) {
       return { message: "Invalid review data", status: "error" };
     }
@@ -81,16 +87,16 @@ export const reviewTransaction = async (prevSate: State, data: FormData) => {
         errors: [
           {
             path: "notes",
-            message: "Add comment",
+            message: "should have comments",
           },
         ],
       };
     }
 
-    revalidatePath("/dashboard/office/[slug]/transactions");
     // get the transaction by code
     const transaction = await getTransactionByCode({
       code: validation.data.code,
+      trType: validation.data.type,
     });
     // make sure the transaction is not already reviewed
     if (transaction.state !== "REVIEW") {
@@ -116,16 +122,16 @@ export const reviewTransaction = async (prevSate: State, data: FormData) => {
           ? "REJECTED"
           : "CANCELLED",
       type: transaction.type,
-      charges: {
-        amount: transaction.charges ?? 0,
-        rate: transaction.rate,
-      },
     };
 
     const response = await reviewTransactionApi({
       transactionCode: transaction.code,
       requestBody: reviewInput,
     });
+
+    revalidatePath(
+      officeId.length > 0 ? `/dashboard/office/${officeId}/transactions` : "/dashboard/office/[slug]/transactions"
+    );
 
     return {
       message: `Transaction ${response.code} has been ${validation.data.action} successfully`,

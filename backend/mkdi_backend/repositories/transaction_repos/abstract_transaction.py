@@ -7,7 +7,15 @@ from datetime import datetime
 from loguru import logger
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from mkdi_backend.models.Account import Account, AccountType
-from mkdi_backend.models.Activity import Activity
+from mkdi_backend.models import (
+    Activity,
+    Deposit,
+    Internal,
+    ForEx,
+    Sending,
+    External,
+    TransactionWithDetails,
+)
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.utils.database import CommitMode, managed_tx_method
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
@@ -339,3 +347,39 @@ class AbstractTransaction(ABC):
         Returns:
             pr.TransactionDB: The retrieved transaction if found, otherwise None.
         """
+
+    def get_model(self, tr_type: pr.TransactionType):
+        """
+        get the model for the transaction type
+
+        Args:
+            tr_type (pr.TransactionType): the transaction type
+
+        Returns:
+            the model for the transaction type
+        """
+        match tr_type:
+            case pr.TransactionType.DEPOSIT:
+                return Deposit
+            case pr.TransactionType.EXTERNAL:
+                return External
+            case pr.TransactionType.INTERNAL:
+                return Internal
+            case pr.TransactionType.SENDING:
+                return Sending
+            case pr.TransactionType.FOREX:
+                return ForEx
+            case _:
+                raise MkdiError(
+                    error_code=MkdiErrorCode.INVALID_INPUT, message="Invalid transaction type"
+                )
+
+    async def get_a_transaction(
+        self, tr_type: pr.TransactionType, code: str
+    ) -> TransactionWithDetails:
+        """get a transaction"""
+        session: AsyncSession = self.db
+        model = self.get_model(tr_type)
+        res = await session.execute(select(model).where(model.code == code))
+
+        return res.scalar()

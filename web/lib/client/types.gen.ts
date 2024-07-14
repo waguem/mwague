@@ -125,6 +125,38 @@ export type CustomerDetails = {
   phone: string;
 };
 
+/**
+ * Transaction database model
+ */
+export type Deposit = {
+  amount: number;
+  rate: number;
+  code: string;
+  state: TransactionState;
+  type: TransactionType;
+  created_at?: string;
+  id?: string;
+  office_id: string;
+  org_id: string;
+  created_by: string;
+  reviwed_by?: string;
+  history?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  notes?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  owner_initials: string;
+};
+
 export type DepositRequest = {
   type: "DEPOSIT";
   receiver: string;
@@ -151,6 +183,46 @@ export type EmployeeResponseComplete = {
   office: OfficeResponse;
 };
 
+/**
+ * Transaction database model
+ */
+export type External = {
+  amount: number;
+  rate: number;
+  code: string;
+  state: TransactionState;
+  type: TransactionType;
+  created_at?: string;
+  id?: string;
+  office_id: string;
+  org_id: string;
+  created_by: string;
+  reviwed_by?: string;
+  history?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  notes?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  sender_initials: string;
+  charges: number;
+  customer?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+};
+
 export type ExternalRequest = {
   type: "EXTERNAL";
   sender: string;
@@ -160,8 +232,76 @@ export type ExternalRequest = {
 
 export type type2 = "EXTERNAL";
 
+/**
+ * Une transaction de change est effectué
+ */
+export type ForEx = {
+  amount: number;
+  rate: number;
+  code: string;
+  state: TransactionState;
+  type: TransactionType;
+  created_at?: string;
+  id?: string;
+  office_id: string;
+  org_id: string;
+  created_by: string;
+  reviwed_by?: string;
+  history?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  notes?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  bid_rate: number;
+  offer_rate: number;
+  method: PaymentMethod;
+};
+
 export type HTTPValidationError = {
   detail?: Array<ValidationError>;
+};
+
+/**
+ * Transaction database model
+ */
+export type Internal = {
+  amount: number;
+  rate: number;
+  code: string;
+  state: TransactionState;
+  type: TransactionType;
+  created_at?: string;
+  id?: string;
+  office_id: string;
+  org_id: string;
+  created_by: string;
+  reviwed_by?: string;
+  history?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  notes?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  sender_initials: string;
+  receiver_initials: string;
+  charges: number;
 };
 
 /**
@@ -245,6 +385,57 @@ export type PaymentState = 1 | 2;
 export type Rate = {
   currency: string;
   rate: number;
+};
+
+/**
+ * Transaction database model
+ */
+export type Sending = {
+  amount: number;
+  rate: number;
+  code: string;
+  state: TransactionState;
+  type: TransactionType;
+  created_at?: string;
+  id?: string;
+  office_id: string;
+  org_id: string;
+  created_by: string;
+  reviwed_by?: string;
+  history?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  notes?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  receiver_initials: string;
+  bid_rate: number;
+  offer_rate: number;
+  method: PaymentMethod;
+  payment_currency: Currency;
+  charges: number;
+  customer_sender?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  customer_receiver?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
 };
 
 export type SendingRequest = {
@@ -428,11 +619,17 @@ export type ReviewTransactionApiV1TransactionTransactionCodeReviewPostData = {
 
 export type ReviewTransactionApiV1TransactionTransactionCodeReviewPostResponse = TransactionResponse;
 
-export type GetTransactionApiV1TransactionCodeGetData = {
+export type GetOfficeTransactionsWithDetailsApiV1TransactionCodeGetData = {
   code: string;
+  trType: TransactionType;
 };
 
-export type GetTransactionApiV1TransactionCodeGetResponse = TransactionResponse;
+export type GetOfficeTransactionsWithDetailsApiV1TransactionCodeGetResponse =
+  | Internal
+  | Deposit
+  | Sending
+  | ForEx
+  | External;
 
 export type UpdateTransactionApiV1TransactionCodePutData = {
   code: string;
@@ -771,12 +968,12 @@ export type $OpenApiTs = {
   };
   "/api/v1/transaction/{code}": {
     get: {
-      req: GetTransactionApiV1TransactionCodeGetData;
+      req: GetOfficeTransactionsWithDetailsApiV1TransactionCodeGetData;
       res: {
         /**
          * Successful Response
          */
-        200: TransactionResponse;
+        200: Internal | Deposit | Sending | ForEx | External;
         /**
          * Validation Error
          */

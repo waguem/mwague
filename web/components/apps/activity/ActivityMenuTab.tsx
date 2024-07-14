@@ -67,7 +67,7 @@ export default function ActivityMenuTab({ agents, office, activity }: Props) {
                 {agents.map((agent: any, index: number) => (
                   <Link
                     key={index}
-                    href={`/dashboard/activity/${agent.initials}`}
+                    href={`#`}
                     className={clsx(
                       "flex w-full items-center justify-between rounded-md p-1 hover:bg-gray-100 hover:text-primary dark:hover:bg-[#050b14] dark:hover:text-primary",
                       {

@@ -2,6 +2,7 @@
 import App from "@/App";
 import store from "@/store";
 import { Provider } from "react-redux";
+import { Notifications } from "@mantine/notifications";
 import React, { ReactNode, Suspense } from "react";
 
 // import { appWithI18Next } from 'ni18n';
@@ -16,6 +17,7 @@ const ProviderComponent = ({ children }: IProps) => {
   return (
     <Provider store={store}>
       <Suspense fallback={<Loading />}>
+        <Notifications />
         <App>{children}</App>
       </Suspense>
     </Provider>

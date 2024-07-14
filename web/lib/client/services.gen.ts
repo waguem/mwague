@@ -45,8 +45,8 @@ import type {
   RequestTransactionApiV1TransactionPostResponse,
   ReviewTransactionApiV1TransactionTransactionCodeReviewPostData,
   ReviewTransactionApiV1TransactionTransactionCodeReviewPostResponse,
-  GetTransactionApiV1TransactionCodeGetData,
-  GetTransactionApiV1TransactionCodeGetResponse,
+  GetOfficeTransactionsWithDetailsApiV1TransactionCodeGetData,
+  GetOfficeTransactionsWithDetailsApiV1TransactionCodeGetResponse,
   UpdateTransactionApiV1TransactionCodePutData,
   UpdateTransactionApiV1TransactionCodePutResponse,
   AddPaymentApiV1TransactionCodePayPostData,
@@ -558,21 +558,25 @@ export const reviewTransactionApiV1TransactionTransactionCodeReviewPost = (
 };
 
 /**
- * Get Transaction
- * get a single transaction
+ * Get Office Transactions With Details
+ * get all transactions for an office with details
  * @param data The data for the request.
  * @param data.code
- * @returns TransactionResponse Successful Response
+ * @param data.trType
+ * @returns unknown Successful Response
  * @throws ApiError
  */
-export const getTransactionApiV1TransactionCodeGet = (
-  data: GetTransactionApiV1TransactionCodeGetData
-): CancelablePromise<GetTransactionApiV1TransactionCodeGetResponse> => {
+export const getOfficeTransactionsWithDetailsApiV1TransactionCodeGet = (
+  data: GetOfficeTransactionsWithDetailsApiV1TransactionCodeGetData
+): CancelablePromise<GetOfficeTransactionsWithDetailsApiV1TransactionCodeGetResponse> => {
   return __request(OpenAPI, {
     method: "GET",
     url: "/api/v1/transaction/{code}",
     path: {
       code: data.code,
+    },
+    query: {
+      tr_type: data.trType,
     },
     errors: {
       422: "Validation Error",
