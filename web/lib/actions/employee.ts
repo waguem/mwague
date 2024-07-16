@@ -4,6 +4,7 @@ import {
   createEmployeeApiV1OfficeEmployeePost as createEmployeeApi,
   getEmployeeApiV1OfficeEmployeeMeGet as getMeApiV1MeGet,
   updateOfficeEmployeesApiV1OfficeEmployeePut as updateOfficeEmployeesApi,
+  EmployeeResponse,
 } from "@/lib/client";
 import { withToken } from "./withToken";
 import { AddUserSchema, UpdateUserSchema } from "../schemas/actions";
@@ -87,10 +88,12 @@ export const me = cache(async () => {
   });
 });
 
-export const updateOfficeEmployees = async (prevState: State, data: FormData): Promise<State> => {
+interface UpdateEmployeesForm extends FormData {
+  editedRows: Array<EmployeeResponse>;
+}
+export const updateOfficeEmployees = async (prevState: State, data: UpdateEmployeesForm): Promise<State> => {
   return await withToken(async () => {
     //save edited users
-    console.log(data);
     await updateOfficeEmployeesApi({
       requestBody: {
         employees: data.editedRows,
