@@ -14,7 +14,6 @@ dependencies = [
     "behave",
     "python-keycloak",
     "SQLAlchemy==2.0.16",
-    "asyncpg==0.28.0",
     "psycopg2-binary",
     "python-dateutil"
 ]
