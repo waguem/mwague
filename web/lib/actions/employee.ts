@@ -91,7 +91,7 @@ export const updateOfficeEmployees = async (prevState: State, data: FormData): P
   return await withToken(async () => {
     //save edited users
     console.log(data);
-    const response = await updateOfficeEmployeesApi({
+    await updateOfficeEmployeesApi({
       requestBody: {
         employees: data.editedRows,
       },
