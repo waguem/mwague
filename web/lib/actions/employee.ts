@@ -3,6 +3,7 @@ import {
   updateEmployeeApiV1OfficeEmployeeEmployeeIdAssignPut as updateEmployeeApi,
   createEmployeeApiV1OfficeEmployeePost as createEmployeeApi,
   getEmployeeApiV1OfficeEmployeeMeGet as getMeApiV1MeGet,
+  updateOfficeEmployeesApiV1OfficeEmployeePut as updateOfficeEmployeesApi,
 } from "@/lib/client";
 import { withToken } from "./withToken";
 import { AddUserSchema, UpdateUserSchema } from "../schemas/actions";
@@ -69,7 +70,7 @@ export const addEmployee = async (prevState: State, data: FormData): Promise<Sta
         email: userInput.data.email,
         username: userInput.data.username,
         password: userInput.data.password,
-        office_initials: userInput.data.office_id,
+        office_id: userInput.data.office_id,
         roles: userInput.data.roles,
       },
     });
@@ -85,3 +86,21 @@ export const me = cache(async () => {
     return await getMeApiV1MeGet();
   });
 });
+
+export const updateOfficeEmployees = async (prevState: State, data: FormData): Promise<State> => {
+  return await withToken(async () => {
+    //save edited users
+    console.log(data);
+    const response = await updateOfficeEmployeesApi({
+      requestBody: {
+        employees: data.editedRows,
+      },
+    });
+    const officeId = data.editedRows[0].office_id;
+    revalidatePath(`/dashboard/office/${officeId}`);
+    return {
+      status: "success",
+      message: "Employees Updated Successfully",
+    };
+  });
+};

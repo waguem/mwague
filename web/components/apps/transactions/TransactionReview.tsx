@@ -278,6 +278,8 @@ export default function TransactionReview({ code, type, onClose, review }: Props
         color: "teal",
         message: state.message,
         className: "",
+        withBorder: true,
+        radius: "md",
         icon: <IconCheck size={20} />,
         loading: false,
         withCloseButton: true,
@@ -293,6 +295,8 @@ export default function TransactionReview({ code, type, onClose, review }: Props
           color: "red",
           message: `Input ${error.path} ${error.message}`,
           className: "mt-2",
+          radius: "md",
+          withBorder: true,
           icon: <IconX size={20} />,
           loading: false,
           withCloseButton: true,
@@ -319,7 +323,16 @@ export default function TransactionReview({ code, type, onClose, review }: Props
       break;
   }
   return (
-    <Drawer opened={review} onClose={onClose} withCloseButton={false}>
+    <Drawer
+      overlayProps={{ backgroundOpacity: 0.5, blur: 4 }}
+      transitionProps={{ duration: 1000 }}
+      offset={8}
+      position="right"
+      radius="md"
+      opened={review}
+      onClose={onClose}
+      withCloseButton={false}
+    >
       <Box pos="relative">
         <LoadingOverlay
           visible={pending}
@@ -349,18 +362,19 @@ export default function TransactionReview({ code, type, onClose, review }: Props
               </>
             )}
           </Timeline.Item>
-          {transaction && transaction.state === "REVIEW" && (
-            <form
-              action={(formData) => {
-                const data: any = {
-                  ...formData,
-                  ...getValues(),
-                  officeId: transaction!.office_id,
-                };
-                startTransition(() => formAction(data as unknown as ReviewFormData));
-              }}
-            >
-              <Timeline.Item title="Transaction review" bullet={<IconMessageDots size={12} />}>
+          <Timeline.Item title="Transaction review" bullet={<IconMessageDots size={12} />}>
+            {transaction && transaction.state === "REVIEW" && (
+              <form
+                className="mt-5"
+                action={(formData) => {
+                  const data: any = {
+                    ...formData,
+                    ...getValues(),
+                    officeId: transaction!.office_id,
+                  };
+                  startTransition(() => formAction(data as unknown as ReviewFormData));
+                }}
+              >
                 <Textarea rows={5} {...register("notes", { required: false })} placeholder="Add notes here" />
                 <Space h={10} />
                 <Group style={{ display: "flex", justifyContent: "center" }}>
@@ -398,9 +412,9 @@ export default function TransactionReview({ code, type, onClose, review }: Props
                     Cancel
                   </Button>
                 </Group>
-              </Timeline.Item>
-            </form>
-          )}
+              </form>
+            )}
+          </Timeline.Item>
         </Timeline>
       </Box>
     </Drawer>

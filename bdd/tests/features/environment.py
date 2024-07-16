@@ -25,7 +25,7 @@ def teardown(context):
 
 def clean_database(_):
     """clean the database."""
-    database.clean_transactions()
+    # database.clean_transactions()
 
 
 def after_scenario(__, _):

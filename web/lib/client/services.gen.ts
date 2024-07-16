@@ -15,6 +15,8 @@ import type {
   GetOfficeApiV1OrganizationOfficeOfficeIdGetData,
   GetOfficeApiV1OrganizationOfficeOfficeIdGetResponse,
   GetEmployeesApiV1OfficeEmployeeGetResponse,
+  UpdateOfficeEmployeesApiV1OfficeEmployeePutData,
+  UpdateOfficeEmployeesApiV1OfficeEmployeePutResponse,
   CreateEmployeeApiV1OfficeEmployeePostData,
   CreateEmployeeApiV1OfficeEmployeePostResponse,
   GetOfficeEmployeesApiV1OfficeOfficeIdEmployeeGetData,
@@ -206,6 +208,28 @@ export const getEmployeesApiV1OfficeEmployeeGet = (): CancelablePromise<GetEmplo
   return __request(OpenAPI, {
     method: "GET",
     url: "/api/v1/office/employee",
+  });
+};
+
+/**
+ * Update Office Employees
+ * update list of employees
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns EmployeeResponse Successful Response
+ * @throws ApiError
+ */
+export const updateOfficeEmployeesApiV1OfficeEmployeePut = (
+  data: UpdateOfficeEmployeesApiV1OfficeEmployeePutData
+): CancelablePromise<UpdateOfficeEmployeesApiV1OfficeEmployeePutResponse> => {
+  return __request(OpenAPI, {
+    method: "PUT",
+    url: "/api/v1/office/employee",
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
   });
 };
 

@@ -40,12 +40,12 @@ class CreateOrganizationRequest(OrganizationBase):
 
 
 class EmployeeBase(SQLModel):
-    email: str = Field(nullable=False, max_length=128, unique=True)
-    username: str = Field(nullable=False, max_length=128, unique=True)
+    email: str = SQLModelField(nullable=False, max_length=128, unique=True)
+    username: str = SQLModelField(nullable=False, max_length=128, unique=True)
 
 
 class CreateEmployeeRequest(EmployeeBase):
-    office_initials: str
+    office_id: str
     roles: List[str]
     password: str
 
@@ -427,6 +427,12 @@ class MkdiErrorResponse(BaseModel):
 
     error_code: MkdiErrorCode
     message: str
+
+
+class UpdateEmployeeListRequest(BaseModel):
+    """Update employee list request."""
+
+    employees: List[EmployeeResponse]
 
 
 # @event.listens_for(TransactionDB.history, "modified")

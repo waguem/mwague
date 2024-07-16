@@ -81,6 +81,9 @@ async def get_user_info(
             user_db_id=str(userdb.id),
         )
     except Exception as e:
+        from loguru import logger
+
+        logger.error(f"Error getting user info {e}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),  # "Invalid authentication credentials",

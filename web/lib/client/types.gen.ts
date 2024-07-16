@@ -98,7 +98,7 @@ export type CreateAgentRequest = {
 export type CreateEmployeeRequest = {
   email: string;
   username: string;
-  office_initials: string;
+  office_id: string;
   roles: Array<string>;
   password: string;
 };
@@ -492,6 +492,13 @@ export type TransactionState = "REVIEW" | "PENDING" | "PAID" | "CANCELLED" | "RE
  */
 export type TransactionType = "DEPOSIT" | "INTERNAL" | "EXTERNAL" | "SENDING" | "FOREX";
 
+/**
+ * Update employee list request.
+ */
+export type UpdateEmployeeListRequest = {
+  employees: Array<EmployeeResponse>;
+};
+
 export type ValidationError = {
   loc: Array<string | number>;
   msg: string;
@@ -530,6 +537,12 @@ export type GetOfficeApiV1OrganizationOfficeOfficeIdGetData = {
 export type GetOfficeApiV1OrganizationOfficeOfficeIdGetResponse = OfficeResponse;
 
 export type GetEmployeesApiV1OfficeEmployeeGetResponse = Array<EmployeeResponse>;
+
+export type UpdateOfficeEmployeesApiV1OfficeEmployeePutData = {
+  requestBody: UpdateEmployeeListRequest;
+};
+
+export type UpdateOfficeEmployeesApiV1OfficeEmployeePutResponse = Array<EmployeeResponse>;
 
 export type CreateEmployeeApiV1OfficeEmployeePostData = {
   requestBody: CreateEmployeeRequest;
@@ -734,6 +747,19 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: Array<EmployeeResponse>;
+      };
+    };
+    put: {
+      req: UpdateOfficeEmployeesApiV1OfficeEmployeePutData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<EmployeeResponse>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
       };
     };
     post: {

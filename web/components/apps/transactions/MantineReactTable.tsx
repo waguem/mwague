@@ -79,6 +79,11 @@ const MantineTable = ({ data }: Props) => {
   const table = useMantineReactTable({
     columns,
     enableEditing: true,
+    positionActionsColumn: "last",
+    paginationDisplayMode: "pages",
+    initialState: {
+      density: "xs",
+    },
     renderRowActions: ({ row }) => (
       <Box style={{ display: "flex", flexWrap: "nowrap", gap: "8px" }}>
         <Tooltip label="Review Transaction">

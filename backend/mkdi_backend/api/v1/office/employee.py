@@ -1,7 +1,7 @@
 from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, Security
-from mkdi_backend.api.deps import check_authorization, get_db
+from mkdi_backend.api.deps import check_authorization, get_db, AsyncDBSessionDep
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.repositories.employee import EmployeeRepository
 from mkdi_shared.schemas import protocol
@@ -17,7 +17,7 @@ async def create_employee(
     *,
     user: Annotated[KcUser, Security(check_authorization, scopes=["office_admin"])],
     user_input: protocol.CreateEmployeeRequest,
-    db: Session = Depends(get_db),
+    db: AsyncDBSessionDep,
 ):
     """
     Create a new employee.
@@ -32,7 +32,7 @@ async def create_employee(
     return await EmployeeRepository(db).create(
         auth_user=user,
         usr_input=user_input,
-        office_initials=user_input.office_initials,
+        office_id=user_input.office_id,
         organization_id=user.organization_id,
     )
 
@@ -79,3 +79,14 @@ def update_employee(
     db: Session = Depends(get_db),
 ) -> protocol.EmployeeResponse:
     return EmployeeRepository(db).update_employee(employee_id, user.organization_id, data)
+
+
+@router.put("/office/employee")
+async def update_office_employees(
+    *,
+    user: Annotated[KcUser, Security(check_authorization, scopes=[])],
+    updated_users: protocol.UpdateEmployeeListRequest,
+    db: AsyncDBSessionDep,
+) -> List[protocol.EmployeeResponse]:
+    """update list of employees"""
+    return await EmployeeRepository(db).update_employees(user=user, updated_users=updated_users)

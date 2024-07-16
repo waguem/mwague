@@ -5,8 +5,11 @@ from mkdi_backend.models.employee import Employee
 from mkdi_backend.utils.database import CommitMode, async_managed_tx_method, managed_tx_method
 from mkdi_backend.repositories.office import OfficeRepository
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
-from mkdi_shared.schemas.protocol import CreateEmployeeRequest
-from sqlmodel import Session
+from mkdi_shared.schemas import protocol as pr
+from sqlmodel import Session, update, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from typing import List
 
 
 class EmployeeRepository:
@@ -51,31 +54,29 @@ class EmployeeRepository:
         self,
         *,
         auth_user: KcUser,
-        usr_input: CreateEmployeeRequest,
-        office_initials: str,
+        usr_input: pr.CreateEmployeeRequest,
+        office_id: str,
         organization_id: str,
     ):
-        user: Employee = (
-            self.db.query(Employee).filter(Employee.username == usr_input.username).first()
-        )
 
+        session: AsyncSession = self.db
+        user = await session.scalar(select(Employee).where(Employee.username == usr_input.username))
         if user:
             raise MkdiError(
                 f"Username {usr_input.username} already exists",
                 error_code=MkdiErrorCode.USER_EXISTS,
             )
 
-        office = OfficeRepository(self.db).get_by_initials(office_initials)
+        office = await OfficeRepository(self.db).get_by_id(office_id)
         if not office:
-            raise MkdiError(
-                f"Office {office_initials} not found", error_code=MkdiErrorCode.NOT_FOUND
-            )
+            raise MkdiError("Office not found", error_code=MkdiErrorCode.NOT_FOUND)
 
         user = Employee(
             username=usr_input.username,
             email=usr_input.email,
             office_id=office.id,
             organization_id=organization_id,
+            roles=[],
         )
 
         kc_admin = KeycloakAdminHelper()
@@ -93,7 +94,6 @@ class EmployeeRepository:
                 error_code=MkdiErrorCode.INVALID_ROLE,
             )
         user.roles = assinged_roles
-
         self.db.add(user)
 
         return user
@@ -134,3 +134,42 @@ class EmployeeRepository:
         user.username = data.username
         self.db.add(user)
         return user
+
+    @async_managed_tx_method(auto_commit=CommitMode.COMMIT)
+    async def update_employees(
+        self, user: KcUser, updated_users: pr.UpdateEmployeeListRequest
+    ) -> List[pr.EmployeeResponse]:
+        """update employee list"""
+        # session: AsyncSession = self.db
+        # get the list of users
+        session: AsyncSession = self.db
+        result = []
+        for updated in updated_users.employees:
+            # attempt to change the user roles
+
+            await session.execute(
+                update(Employee)
+                .where(Employee.id == updated.id, Employee.office_id == user.office_id)
+                .values(email=updated.email.lower(), roles=updated.roles)
+            )
+            u = (
+                await session.execute(
+                    select(Employee).where(
+                        Employee.id == updated.id, Employee.office_id == user.office_id
+                    )
+                )
+            ).scalar()
+            rprovider = RoleProvider()
+            updated_roles = rprovider.update_user_roles(u.provider_account_id, updated.roles)
+            KeycloakAdminHelper().update_user(
+                user_id=u.provider_account_id, data={"email": updated.email.lower()}
+            )
+            if len(updated_roles) != len(updated.roles):
+                raise MkdiError(
+                    f"Roles {updated.roles} are not valid roles",
+                    error_code=MkdiErrorCode.INVALID_ROLE,
+                )
+            session.add(u)
+            result.append(u)
+
+        return result

@@ -111,14 +111,18 @@ def async_managed_tx_method(
                     for i in range(num_retries):
                         try:
                             result = await f(self, *args, **kwargs)
-                            self.db.commit()
+                            await self.db.commit()
                             if isinstance(result, SQLModel):
-                                self.db.refresh(result)
+                                await self.db.refresh(result)
+                            elif isinstance(result, list):
+                                for item in result:
+                                    if isinstance(item, SQLModel):
+                                        await self.db.refresh(item)
                             retry_exhausted = False
                             break
                         except PendingRollbackError as e:
                             logger.info(str(e))
-                            self.db.rollback()
+                            await self.db.rollback()
                         except OperationalError as e:
                             if e.orig is not None and isinstance(
                                 e.orig,
@@ -132,7 +136,7 @@ def async_managed_tx_method(
                                 logger.info(
                                     f"{type(e.orig)} Inner {e.orig.pgcode} {type(e.orig.pgcode)}"
                                 )
-                                self.db.rollback()
+                                await self.db.rollback()
                             else:
                                 raise e
                         logger.info(f"Retry {i+1}/{num_retries}")
@@ -145,11 +149,11 @@ def async_managed_tx_method(
                 else:
                     result = await f(self, *args, **kwargs)
                     if auto_commit == CommitMode.FLUSH:
-                        self.db.flush()
+                        await self.db.flush()
                         if isinstance(result, SQLModel):
                             self.db.refresh(result)
                     elif auto_commit == CommitMode.ROLLBACK:
-                        self.db.rollback()
+                        await self.db.rollback()
                 return result
             except Exception as e:
                 logger.info("Something went wrong")

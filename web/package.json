@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "NEXT_TURBOPACK_TRACING=1 NEXT_CPU_PROF=1 NODE_ENV=development next dev --turbo",
+    "dev": "NODE_ENV=development next dev --turbo",
     "build": "NODE_ENV=production next build",
     "prebuild": "pnpm run lint",
     "start": "next start",

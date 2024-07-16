@@ -1,10 +1,11 @@
-from typing import List, Optional
+from typing import Optional, Mapping, Any, List
 from uuid import UUID, uuid4
 
 import sqlalchemy as sa
+from sqlalchemy.ext.mutable import MutableList
 import sqlalchemy.dialects.postgresql as pg
 from mkdi_shared.schemas.protocol import EmployeeBase
-from sqlmodel import Field, Index, Relationship
+from sqlmodel import Field, Index
 
 
 class Employee(EmployeeBase, table=True):
@@ -22,9 +23,10 @@ class Employee(EmployeeBase, table=True):
         )
     )
 
-    roles: Optional[str] = Field(default="", nullable=True)
+    roles: List[dict] = Field(default=[], sa_column=sa.Column(MutableList.as_mutable(pg.JSONB)))
+
     office_id: UUID = Field(foreign_key="offices.id")
     organization_id: UUID = Field(foreign_key="organizations.id")
     provider_account_id: Optional[str]
 
-    office: "Office" = Relationship(back_populates="employees")  # type: ignore
+    # office: "Office" = Relationship(back_populates="employees")  # type: ignore

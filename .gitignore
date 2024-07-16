@@ -27,3 +27,4 @@ website/node_modules
 backend/venv/
 /gen/**
 /bdd/venv/
+web/CPU.main.1721102932395.cpuprofile

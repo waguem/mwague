@@ -5,6 +5,7 @@ from sqlalchemy.orm.session import Session
 # from sqlalchemy.exc.asyncio import AsyncSession
 from decimal import Decimal
 from tests.tools.config import config
+import json
 
 engine = create_engine(
     url=config.DATABASE_URI,
@@ -92,7 +93,7 @@ def create_first_user(username, email, roles):
                 "username": username,
                 "office_id": office_id,
                 "organization_id": org_id,
-                "roles": roles,
+                "roles": json.dumps(roles),
             },
         )
         session.commit()
@@ -237,3 +238,12 @@ def get_office_invariant(office_id: str) -> Decimal:
         return invariant
     except Exception as e:
         print(e)
+
+
+def get_office(initials: str):
+    with Session(engine) as session:
+        office = session.execute(
+            text("SELECT * FROM public.offices WHERE initials = :initials"),
+            {"initials": initials},
+        ).fetchone()
+    return office

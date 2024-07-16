@@ -6,6 +6,7 @@ from client.rest import ApiException
 from client.exceptions import BadRequestException
 from tests.tools import oidc, types
 from loguru import logger
+from tests.tools import database
 
 
 @given('logged user has role "{user_role}"')
@@ -131,8 +132,7 @@ def created_office_response(ctx):
 def create_employee_step(ctx, data, office_initials):
     user = json.loads(data)
     ctx.user_data = user
-    ctx.office_initials = office_initials
-
+    ctx.office = database.get_office(office_initials)
     with api_client.ApiClient(ctx.config) as api:
         employee_api = api_client.EmployeeApi(api)
         request = api_client.CreateEmployeeRequest(
@@ -140,7 +140,7 @@ def create_employee_step(ctx, data, office_initials):
             email=user["email"],
             password=user["password"],
             roles=user["roles"],
-            office_initials=office_initials,
+            office_id=str(ctx.office.id),
         )
 
         ctx.request = request

@@ -26,5 +26,5 @@ class Office(OfficeBase, table=True):
     organization_id: UUID = Field(foreign_key="organizations.id")
     organization: "Organization" = Relationship(back_populates="offices")  # type: ignore
 
-    employees: list["Employee"] = Relationship(back_populates="office")  # type: ignore
+    # employees: list["Employee"] = Relationship(back_populates="office")  # type: ignore
     currencies: list[dict] | None = Field(default={}, sa_column=sa.Column(pg.JSONB))

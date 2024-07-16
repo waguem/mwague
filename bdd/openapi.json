@@ -212,6 +212,45 @@
         },
         "security": [{ "OAuth2AuthorizationCodeBearer": ["office_admin"] }]
       },
+      "put": {
+        "tags": ["employee"],
+        "summary": "Update Office Employees",
+        "description": "update list of employees",
+        "operationId": "update_office_employees_api_v1_office_employee_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEmployeeListRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "$ref": "#/components/schemas/EmployeeResponse" },
+                  "type": "array",
+                  "title": "Response Update Office Employees Api V1 Office Employee Put"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2AuthorizationCodeBearer": [] }]
+      },
       "post": {
         "tags": ["employee"],
         "summary": "Create Employee",
@@ -971,15 +1010,15 @@
             "type": "string",
             "maxLength": 4,
             "title": "Initials",
-            "nullable": false,
-            "unique": true
+            "unique": true,
+            "nullable": false
           },
           "email": {
             "type": "string",
             "maxLength": 128,
             "title": "Email",
-            "nullable": false,
-            "unique": true
+            "unique": true,
+            "nullable": false
           },
           "phone": {
             "type": "string",
@@ -1012,15 +1051,15 @@
             "type": "string",
             "maxLength": 4,
             "title": "Initials",
-            "nullable": false,
-            "unique": true
+            "unique": true,
+            "nullable": false
           },
           "email": {
             "type": "string",
             "maxLength": 128,
             "title": "Email",
-            "nullable": false,
-            "unique": true
+            "unique": true,
+            "nullable": false
           },
           "phone": {
             "type": "string",
@@ -1121,15 +1160,15 @@
             "type": "string",
             "maxLength": 4,
             "title": "Initials",
-            "nullable": false,
-            "unique": true
+            "unique": true,
+            "nullable": false
           },
           "email": {
             "type": "string",
             "maxLength": 128,
             "title": "Email",
-            "nullable": false,
-            "unique": true
+            "unique": true,
+            "nullable": false
           },
           "phone": {
             "type": "string",
@@ -1151,21 +1190,13 @@
       },
       "CreateEmployeeRequest": {
         "properties": {
-          "email": {
-            "type": "string",
-            "maxLength": 128,
-            "title": "Email",
-            "nullable": false,
-            "unique": true
-          },
+          "email": { "type": "string", "maxLength": 128, "title": "Email" },
           "username": {
             "type": "string",
             "maxLength": 128,
-            "title": "Username",
-            "nullable": false,
-            "unique": true
+            "title": "Username"
           },
-          "office_initials": { "type": "string", "title": "Office Initials" },
+          "office_id": { "type": "string", "title": "Office Id" },
           "roles": {
             "items": { "type": "string" },
             "type": "array",
@@ -1174,13 +1205,7 @@
           "password": { "type": "string", "title": "Password" }
         },
         "type": "object",
-        "required": [
-          "email",
-          "username",
-          "office_initials",
-          "roles",
-          "password"
-        ],
+        "required": ["email", "username", "office_id", "roles", "password"],
         "title": "CreateEmployeeRequest"
       },
       "CreateOfficeRequest": {
@@ -1195,8 +1220,8 @@
             "type": "string",
             "maxLength": 8,
             "title": "Initials",
-            "nullable": false,
-            "unique": true
+            "unique": true,
+            "nullable": false
           },
           "name": {
             "type": "string",
@@ -1220,8 +1245,8 @@
             "type": "string",
             "maxLength": 8,
             "title": "Initials",
-            "nullable": false,
-            "unique": true
+            "unique": true,
+            "nullable": false
           },
           "org_name": {
             "type": "string",
@@ -1327,19 +1352,11 @@
       },
       "EmployeeResponse": {
         "properties": {
-          "email": {
-            "type": "string",
-            "maxLength": 128,
-            "title": "Email",
-            "nullable": false,
-            "unique": true
-          },
+          "email": { "type": "string", "maxLength": 128, "title": "Email" },
           "username": {
             "type": "string",
             "maxLength": 128,
-            "title": "Username",
-            "nullable": false,
-            "unique": true
+            "title": "Username"
           },
           "id": { "type": "string", "format": "uuid", "title": "Id" },
           "office_id": {
@@ -1371,19 +1388,11 @@
       },
       "EmployeeResponseComplete": {
         "properties": {
-          "email": {
-            "type": "string",
-            "maxLength": 128,
-            "title": "Email",
-            "nullable": false,
-            "unique": true
-          },
+          "email": { "type": "string", "maxLength": 128, "title": "Email" },
           "username": {
             "type": "string",
             "maxLength": 128,
-            "title": "Username",
-            "nullable": false,
-            "unique": true
+            "title": "Username"
           },
           "id": { "type": "string", "format": "uuid", "title": "Id" },
           "office_id": {
@@ -1705,8 +1714,8 @@
             "type": "string",
             "maxLength": 8,
             "title": "Initials",
-            "nullable": false,
-            "unique": true
+            "unique": true,
+            "nullable": false
           },
           "name": {
             "type": "string",
@@ -1733,8 +1742,8 @@
             "type": "string",
             "maxLength": 8,
             "title": "Initials",
-            "nullable": false,
-            "unique": true
+            "unique": true,
+            "nullable": false
           },
           "org_name": {
             "type": "string",
@@ -2068,6 +2077,19 @@
         "enum": ["DEPOSIT", "INTERNAL", "EXTERNAL", "SENDING", "FOREX"],
         "title": "TransactionType",
         "description": "An enumeration."
+      },
+      "UpdateEmployeeListRequest": {
+        "properties": {
+          "employees": {
+            "items": { "$ref": "#/components/schemas/EmployeeResponse" },
+            "type": "array",
+            "title": "Employees"
+          }
+        },
+        "type": "object",
+        "required": ["employees"],
+        "title": "UpdateEmployeeListRequest",
+        "description": "Update employee list request."
       },
       "ValidationError": {
         "properties": {

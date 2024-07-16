@@ -315,19 +315,15 @@ export const $CreateEmployeeRequest = {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
-      nullable: false,
     },
     username: {
       type: "string",
       maxLength: 128,
       title: "Username",
-      unique: true,
-      nullable: false,
     },
-    office_initials: {
+    office_id: {
       type: "string",
-      title: "Office Initials",
+      title: "Office Id",
     },
     roles: {
       items: {
@@ -342,7 +338,7 @@ export const $CreateEmployeeRequest = {
     },
   },
   type: "object",
-  required: ["email", "username", "office_initials", "roles", "password"],
+  required: ["email", "username", "office_id", "roles", "password"],
   title: "CreateEmployeeRequest",
 } as const;
 
@@ -538,15 +534,11 @@ export const $EmployeeResponse = {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
-      nullable: false,
     },
     username: {
       type: "string",
       maxLength: 128,
       title: "Username",
-      unique: true,
-      nullable: false,
     },
     id: {
       type: "string",
@@ -582,15 +574,11 @@ export const $EmployeeResponseComplete = {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
-      nullable: false,
     },
     username: {
       type: "string",
       maxLength: 128,
       title: "Username",
-      unique: true,
-      nullable: false,
     },
     id: {
       type: "string",
@@ -1594,6 +1582,22 @@ export const $TransactionType = {
   enum: ["DEPOSIT", "INTERNAL", "EXTERNAL", "SENDING", "FOREX"],
   title: "TransactionType",
   description: "An enumeration.",
+} as const;
+
+export const $UpdateEmployeeListRequest = {
+  properties: {
+    employees: {
+      items: {
+        $ref: "#/components/schemas/EmployeeResponse",
+      },
+      type: "array",
+      title: "Employees",
+    },
+  },
+  type: "object",
+  required: ["employees"],
+  title: "UpdateEmployeeListRequest",
+  description: "Update employee list request.",
 } as const;
 
 export const $ValidationError = {

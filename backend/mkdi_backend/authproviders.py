@@ -51,6 +51,10 @@ class KeycloakAdminHelper:
             verify=settings.ENV == "production" and settings.KC_VERIFY_CERTS,
         )
 
+    def update_user(self, *, user_id: str, data: dict):
+        out = self.get_kc_admin().update_user(user_id, data)
+        return out
+
     def create_user(
         self, *, auth_user: KcUser, usr_input: protocol.CreateEmployeeRequest, office_id: str
     ):

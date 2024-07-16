@@ -9,6 +9,7 @@ import {
 } from "@/lib/client";
 import { redirect } from "next/navigation";
 import { getOfficeCached } from "@/lib/actions";
+import EmployeesTable from "@/components/apps/office/EmployeesTable";
 
 async function getEmployees(officeId: string): Promise<EmployeeResponse[]> {
   try {
@@ -55,6 +56,9 @@ export default async function Page({
       </div>
       <div className="panel mt-5">
         <UsersTable officeId={office.id} users={employees} />
+      </div>
+      <div className="panel mt-5">
+        <EmployeesTable employees={employees} />
       </div>
     </div>
   );

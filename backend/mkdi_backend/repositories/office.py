@@ -2,7 +2,8 @@ from mkdi_backend.models.office import Office
 from mkdi_backend.utils.database import CommitMode, managed_tx_method
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol
-from sqlmodel import Session
+from sqlmodel import Session, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class OfficeRepository:
@@ -14,9 +15,6 @@ class OfficeRepository:
 
     def get_all(self):
         return self.db.query(Office).all()
-
-    def get_by_id(self, id):
-        return self.db.get_by_id(id)
 
     def get_by_initials(self, initials: str):
         return self.db.query(Office).filter(Office.initials == initials).first()
@@ -57,3 +55,8 @@ class OfficeRepository:
             .filter(Office.id == office_id and Office.organization_id == organization_id)
             .first()
         )
+
+    async def get_by_id(self, office_id) -> Office | None:
+        """return office by id"""
+        session: AsyncSession = self.db
+        return await session.scalar(select(Office).where(Office.id == office_id))
