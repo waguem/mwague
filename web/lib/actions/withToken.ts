@@ -1,5 +1,4 @@
 import { setApiToken } from "@/app/hooks/useApi";
-import logger from "../logger";
 import { ApiError } from "../client";
 
 export const withToken = async (fn: CallableFunction) => {
