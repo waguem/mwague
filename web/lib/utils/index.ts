@@ -1,5 +1,13 @@
 import { MantineColor } from "@mantine/core";
 import { TransactionState, TransactionType } from "../client";
+import {
+  IconCurrency,
+  IconCurrencyDollar,
+  IconCurrencyEuro,
+  IconCurrencyRenminbi,
+  IconCurrencyLira,
+  IconCurrencyDirham,
+} from "@tabler/icons-react";
 
 export function getFlagEmoji(countryCode: string) {
   const codePoints = countryCode
@@ -32,6 +40,7 @@ export const countryList = [
   { value: "Burkina Faso", label: "Burkina Faso", code: "BF" },
   { value: "United Arab Emirates", label: "United Arab Emirates", code: "AE" },
   { value: "Mozambique", label: "Mozambique", code: "MZ" },
+  { value: "Senegal", label: "Senegal", code: "SN" },
 ];
 
 export const countryOptions = countryList.map((option) => ({
@@ -97,4 +106,13 @@ export const getStateBadge = (state: TransactionState): MantineColor => {
     default:
       return "gray";
   }
+};
+
+export const MoneyIcons = {
+  USD: IconCurrencyDollar,
+  EUR: IconCurrencyEuro,
+  CFA: IconCurrency,
+  RMB: IconCurrencyRenminbi,
+  LIRA: IconCurrencyLira,
+  AED: IconCurrencyDirham,
 };

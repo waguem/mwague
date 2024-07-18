@@ -4,6 +4,7 @@ import {
   ApiError,
   createOfficeApiV1OrganizationOfficePost as createOffice,
   getOfficeApiV1OrganizationOfficeOfficeIdGet as getOfficeById,
+  updateOfficeApiV1OrganizationOfficeOfficeIdPut,
 } from "@/lib/client";
 import { AddOfficeSchema } from "@/lib/schemas/actions";
 import { revalidatePath } from "next/cache";
@@ -66,3 +67,19 @@ export const getOfficeCached = cache(async (slug: string) => {
     return await getOfficeById({ officeId: slug });
   });
 });
+
+export const updateOfficeInfo = async (officeId: string, data: Record<string, string | string[]>): Promise<State> => {
+  return withToken(async () => {
+    console.log("Updating office info", officeId, data);
+    const response = await updateOfficeApiV1OrganizationOfficeOfficeIdPut({
+      officeId,
+      requestBody: data,
+    });
+
+    console.log("Response ", response);
+    return {
+      status: "success",
+      message: "Office Updated Successfully",
+    };
+  });
+};

@@ -5,18 +5,20 @@ import IconCashBanknotes from "@/components/icon/icon-cash-banknotes";
 import IconSend from "@/components/icon/icon-send";
 import IconBox from "@/components/icon/icon-box";
 import IconBolt from "@/components/icon/icon-bolt";
-import { TransactionType } from "@/lib/client";
+import { ActivityResponse, OfficeResponse, TransactionType } from "@/lib/client";
 import InternalForms from "./InternalForms";
 import ExternalForms from "./ExternalForms";
 import DepositForms from "./DepositForms";
 import SendingForms from "./SendingForms";
+import StartActivityForm from "../activity/StartActivityForm";
 
 interface Props {
-  officeId: string;
+  office: OfficeResponse;
   agentAccounts: any[];
+  activity: ActivityResponse;
 }
 
-export default function TransactionsForms({ agentAccounts }: Props) {
+export default function TransactionsForms({ agentAccounts, activity, office }: Props) {
   const [form, setForm] = useState<TransactionType>("INTERNAL");
   const navItems: {
     name: string;
@@ -51,6 +53,7 @@ export default function TransactionsForms({ agentAccounts }: Props) {
   ];
 
   const getContent = (form: TransactionType) => {
+    if (!activity) return <StartActivityForm office={office} />;
     switch (form) {
       case "INTERNAL":
         return <InternalForms agentWithAccounts={agentAccounts} />;

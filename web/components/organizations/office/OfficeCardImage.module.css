@@ -1,0 +1,8 @@
+.card {
+    background-color: var(--mantine-color-body);
+    height: 100%;
+}
+
+.avatar {
+    border: 2px solid var(--mantine-color-body);
+}

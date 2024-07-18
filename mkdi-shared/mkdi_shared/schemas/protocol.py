@@ -435,6 +435,13 @@ class UpdateEmployeeListRequest(BaseModel):
     employees: List[EmployeeResponse]
 
 
+class UpdateOffice(BaseModel):
+    name: Optional[str]
+    country: Optional[str]
+    currencies: Optional[list[str]]
+    baseCurrency: Optional[str]
+
+
 # @event.listens_for(TransactionDB.history, "modified")
 # def modified_json(instance, initiator):
 #     print("json value modified:", instance.data)

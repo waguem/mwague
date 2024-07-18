@@ -95,15 +95,15 @@ export const $AgentReponseWithAccounts = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -144,15 +144,15 @@ export const $AgentResponse = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -278,15 +278,15 @@ export const $CreateAgentRequest = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -354,8 +354,8 @@ export const $CreateOfficeRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     name: {
       type: "string",
@@ -382,8 +382,8 @@ export const $CreateOrganizationRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     org_name: {
       type: "string",
@@ -1062,8 +1062,8 @@ export const $OfficeResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     name: {
       type: "string",
@@ -1102,8 +1102,8 @@ export const $OrganizationResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     org_name: {
       type: "string",
@@ -1598,6 +1598,32 @@ export const $UpdateEmployeeListRequest = {
   required: ["employees"],
   title: "UpdateEmployeeListRequest",
   description: "Update employee list request.",
+} as const;
+
+export const $UpdateOffice = {
+  properties: {
+    name: {
+      type: "string",
+      title: "Name",
+    },
+    country: {
+      type: "string",
+      title: "Country",
+    },
+    currencies: {
+      items: {
+        type: "object",
+      },
+      type: "array",
+      title: "Currencies",
+    },
+    baseCurrency: {
+      type: "string",
+      title: "Basecurrency",
+    },
+  },
+  type: "object",
+  title: "UpdateOffice",
 } as const;
 
 export const $ValidationError = {

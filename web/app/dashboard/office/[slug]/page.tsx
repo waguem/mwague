@@ -1,5 +1,4 @@
 import OfficeInfo from "@/components/organizations/office/OfficeInfo";
-import OfficePerformance from "@/components/organizations/office/OfficePerformance";
 import UsersTable from "@/components/organizations/users/UsersTable";
 
 import { setApiToken } from "@/app/hooks/useApi";
@@ -10,6 +9,8 @@ import {
 import { redirect } from "next/navigation";
 import { getOfficeCached } from "@/lib/actions";
 import EmployeesTable from "@/components/apps/office/EmployeesTable";
+import { OfficeCardImage } from "@/components/organizations/office/OfficeCardImage";
+import { Grid, GridCol } from "@mantine/core";
 
 async function getEmployees(officeId: string): Promise<EmployeeResponse[]> {
   try {
@@ -45,15 +46,16 @@ export default async function Page({
 
   return (
     <div>
-      <div className="mb-5 grid grid-cols-1 gap-5 lg:grid-cols-3 xl:grid-cols-4">
-        <div className="panel">
-          <div className="mb-5 flex items-center justify-between">
-            <h5 className="text-lg font-semibold dark:text-white-light">Office Info</h5>
+      <Grid className="mb-5 gap-5">
+        <GridCol span={4}>
+          <div className="panel h-full">
+            <OfficeCardImage office={office} />
           </div>
+        </GridCol>
+        <GridCol span={8}>
           <OfficeInfo office={office} />
-        </div>
-        <OfficePerformance />
-      </div>
+        </GridCol>
+      </Grid>
       <div className="panel mt-5">
         <UsersTable officeId={office.id} users={employees} />
       </div>

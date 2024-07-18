@@ -14,6 +14,8 @@ import type {
   CreateOfficeApiV1OrganizationOfficePostResponse,
   GetOfficeApiV1OrganizationOfficeOfficeIdGetData,
   GetOfficeApiV1OrganizationOfficeOfficeIdGetResponse,
+  UpdateOfficeApiV1OrganizationOfficeOfficeIdPutData,
+  UpdateOfficeApiV1OrganizationOfficeOfficeIdPutResponse,
   GetEmployeesApiV1OfficeEmployeeGetResponse,
   UpdateOfficeEmployeesApiV1OfficeEmployeePutData,
   UpdateOfficeEmployeesApiV1OfficeEmployeePutResponse,
@@ -193,6 +195,41 @@ export const getOfficeApiV1OrganizationOfficeOfficeIdGet = (
     path: {
       office_id: data.officeId,
     },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Update Office
+ * Update an office by ID.
+ *
+ * Args:
+ * user (KcUser): The authenticated user object.
+ * office_id (int): The ID of the office to update.
+ * data (protocol.UpdateOfficeRequest): The data to update the office with.
+ * db (AsyncDBSessionDep): The database session.
+ *
+ * Returns:
+ * protocol.OfficeResponse: The updated office response.
+ * @param data The data for the request.
+ * @param data.officeId
+ * @param data.requestBody
+ * @returns OfficeResponse Successful Response
+ * @throws ApiError
+ */
+export const updateOfficeApiV1OrganizationOfficeOfficeIdPut = (
+  data: UpdateOfficeApiV1OrganizationOfficeOfficeIdPutData
+): CancelablePromise<UpdateOfficeApiV1OrganizationOfficeOfficeIdPutResponse> => {
+  return __request(OpenAPI, {
+    method: "PUT",
+    url: "/api/v1/organization/office/{office_id}",
+    path: {
+      office_id: data.officeId,
+    },
+    body: data.requestBody,
+    mediaType: "application/json",
     errors: {
       422: "Validation Error",
     },

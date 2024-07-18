@@ -37,6 +37,7 @@ import { TransactionReviewResolver } from "@/lib/schemas/actions";
 import { useFormState } from "react-dom";
 import { State } from "@/lib/actions";
 import { notifications } from "@mantine/notifications";
+import { useDisclosure } from "@mantine/hooks";
 
 interface Props {
   onClose: () => void;
@@ -249,6 +250,7 @@ export default function TransactionReview({ code, type, onClose, review }: Props
     mode: "all",
     resolver: zodResolver(TransactionReviewResolver),
   });
+  const [opened, { open, close }] = useDisclosure(review);
   const [pending, startTransition] = useTransition();
   const [state, formAction] = useFormState<State, ReviewFormData>(reviewTransaction, null);
   const [transaction, setTransaction] = useState<any>(undefined);
@@ -329,7 +331,7 @@ export default function TransactionReview({ code, type, onClose, review }: Props
       offset={8}
       position="right"
       radius="md"
-      opened={review}
+      opened={opened}
       onClose={onClose}
       withCloseButton={false}
     >

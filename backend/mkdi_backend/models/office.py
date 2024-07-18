@@ -1,9 +1,10 @@
 """Office model."""
 
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID, uuid4
 
 import sqlalchemy as sa
+from sqlalchemy.ext.mutable import MutableList
 import sqlalchemy.dialects.postgresql as pg
 from mkdi_shared.schemas.protocol import OfficeBase
 from sqlmodel import Field, Relationship
@@ -27,4 +28,6 @@ class Office(OfficeBase, table=True):
     organization: "Organization" = Relationship(back_populates="offices")  # type: ignore
 
     # employees: list["Employee"] = Relationship(back_populates="office")  # type: ignore
-    currencies: list[dict] | None = Field(default={}, sa_column=sa.Column(pg.JSONB))
+    currencies: List[dict] = Field(
+        default=[], sa_column=sa.Column(MutableList.as_mutable(pg.JSONB))
+    )

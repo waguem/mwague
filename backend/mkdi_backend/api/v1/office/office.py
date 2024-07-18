@@ -5,6 +5,7 @@ from mkdi_backend.api.deps import (
     check_authorization,
     get_db,
     get_user_info,
+    AsyncDBSessionDep,
     hasSufficientPermissions,
 )
 from mkdi_backend.models.models import KcUser
@@ -87,3 +88,30 @@ def get_office(
         )
 
     return OfficeRepository(db).get_office(office_id, user.organization_id)
+
+
+@router.put(
+    "/organization/office/{office_id}",
+    status_code=200,
+    response_model=protocol.OfficeResponse,
+)
+async def update_office(
+    *,
+    user: Annotated[KcUser, Security(check_authorization, scopes=["office_admin"])],
+    office_id: str,
+    data: protocol.UpdateOffice,
+    db: AsyncDBSessionDep,
+) -> protocol.OfficeResponse:
+    """
+    Update an office by ID.
+
+    Args:
+        user (KcUser): The authenticated user object.
+        office_id (int): The ID of the office to update.
+        data (protocol.UpdateOfficeRequest): The data to update the office with.
+        db (AsyncDBSessionDep): The database session.
+
+    Returns:
+        protocol.OfficeResponse: The updated office response.
+    """
+    return await OfficeRepository(db).update_office(user, office_id, data)

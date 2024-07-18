@@ -499,6 +499,15 @@ export type UpdateEmployeeListRequest = {
   employees: Array<EmployeeResponse>;
 };
 
+export type UpdateOffice = {
+  name?: string;
+  country?: string;
+  currencies?: Array<{
+    [key: string]: unknown;
+  }>;
+  baseCurrency?: string;
+};
+
 export type ValidationError = {
   loc: Array<string | number>;
   msg: string;
@@ -535,6 +544,13 @@ export type GetOfficeApiV1OrganizationOfficeOfficeIdGetData = {
 };
 
 export type GetOfficeApiV1OrganizationOfficeOfficeIdGetResponse = OfficeResponse;
+
+export type UpdateOfficeApiV1OrganizationOfficeOfficeIdPutData = {
+  officeId: string;
+  requestBody: UpdateOffice;
+};
+
+export type UpdateOfficeApiV1OrganizationOfficeOfficeIdPutResponse = OfficeResponse;
 
 export type GetEmployeesApiV1OfficeEmployeeGetResponse = Array<EmployeeResponse>;
 
@@ -728,6 +744,19 @@ export type $OpenApiTs = {
   "/api/v1/organization/office/{office_id}": {
     get: {
       req: GetOfficeApiV1OrganizationOfficeOfficeIdGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: OfficeResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+    put: {
+      req: UpdateOfficeApiV1OrganizationOfficeOfficeIdPutData;
       res: {
         /**
          * Successful Response
