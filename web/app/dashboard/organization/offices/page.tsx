@@ -1,19 +1,19 @@
-import { cache } from "react";
-import { getOrgOfficesApiV1OrganizationOfficeGet as getOfficesApi, OfficeResponse } from "@/lib/client";
-import { withToken } from "@/lib/actions/withToken";
-import Link from "next/link";
-import Image from "next/image";
+// import { getOrgOfficesApiV1OrganizationOfficeGet as getOfficesApi, OfficeResponse } from "@/lib/client";
+// import { cache } from "react";
+// import { withToken } from "@/lib/actions/withToken";
+// import Link from "next/link";
+// import Image from "next/image";
 import IconSearch from "@/components/icon/icon-search";
 import AddOfficeForm from "@/components/apps/org/AddOfficeForm";
 
-const getOffices = cache(async () => {
-  return withToken(async () => {
-    return await getOfficesApi();
-  });
-});
+// const getOffices = cache(async () => {
+//   return await withToken(async () => {
+//     return await getOfficesApi();
+//   });
+// });
 
 export default async function OrgOfficePage() {
-  const offices = await getOffices();
+  // const offices:OfficeResponse[] = await getOffices();
   return (
     <div className="panel ">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -37,7 +37,7 @@ export default async function OrgOfficePage() {
           </button>
         </div>
       </div>
-      <div className="mt-0 overflow-hidden border-0 block w-full space-y-2 overflow-x-auto rounded-lg border-white-dark/20 p-4">
+      {/* <div className="mt-0 overflow-hidden border-0 block w-full space-y-2 overflow-x-auto rounded-lg border-white-dark/20 p-4">
         {offices.map((item: OfficeResponse, index: number) => {
           return (
             <Link
@@ -61,7 +61,7 @@ export default async function OrgOfficePage() {
             </Link>
           );
         })}
-      </div>
+      </div> */}
     </div>
   );
 }
