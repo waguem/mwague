@@ -94,7 +94,7 @@ export const getBadgeType = (tr_type: TransactionType): MantineColor => {
 export const getStateBadge = (state: TransactionState): MantineColor => {
   switch (state) {
     case "PENDING":
-      return "lime";
+      return "blue";
     case "PAID":
       return "green";
     case "REVIEW":

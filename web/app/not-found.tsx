@@ -1,12 +1,14 @@
 "use client";
-import { Metadata } from "next";
-import Link from "next/link";
+
 import React from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { redirect, usePathname } from "next/navigation";
-export const metadata: Metadata = {
-  title: "Error 404",
-};
+// import { Metadata } from "next";
+
+// export const metadata: Metadata = {
+//   title: "Error 404",
+// };
 
 const NotFound = () => {
   const pathname = usePathname();

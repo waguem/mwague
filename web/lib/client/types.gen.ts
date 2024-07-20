@@ -352,14 +352,10 @@ export type PaymentMethod = "CASH" | "BANK" | "MOBILE";
 
 export type PaymentRequest = {
   amount: number;
+  rate: number;
   payment_type: TransactionType;
-  notes?: {
-    [key: string]:
-      | {
-          [key: string]: unknown;
-        }
-      | unknown;
-  };
+  customer?: CustomerDetails;
+  notes?: string;
 };
 
 export type PaymentResponse = {
@@ -502,9 +498,7 @@ export type UpdateEmployeeListRequest = {
 export type UpdateOffice = {
   name?: string;
   country?: string;
-  currencies?: Array<{
-    [key: string]: unknown;
-  }>;
+  currencies?: Array<string>;
   baseCurrency?: string;
 };
 

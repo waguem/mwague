@@ -1,6 +1,6 @@
-import AgentListPagination from "@/components/apps/agents/AgentListPagination";
 import { cache, Fragment } from "react";
 import { getOfficeAgents } from "@/lib/actions";
+import AgentTableMant from "@/components/apps/agents/AgentTable";
 
 const getAgents = cache(async (officeId: string) => {
   let response: Awaited<ReturnType<typeof getOfficeAgents>> = [];
@@ -23,7 +23,7 @@ export default async function AgentPage({
 
   return (
     <Fragment>
-      <AgentListPagination officeSlug={params.slug} agents={agents} />
+      <AgentTableMant agents={agents} />
     </Fragment>
   );
 }

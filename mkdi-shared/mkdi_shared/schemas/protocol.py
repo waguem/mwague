@@ -124,14 +124,6 @@ class PaymentBase(SQLModel):
     )
 
 
-class PaymentRequest(BaseModel):
-    amount: Annotated[Decimal, Field(strict=True, ge=0)]
-    payment_type: TransactionType
-    notes: Mapping[Any, Mapping | Any] = SQLModelField(
-        default={}, sa_column=sa.Column(MutableDict.as_mutable(pg.JSONB))
-    )
-
-
 class PaymentResponse(PaymentBase):
     pass
 
@@ -277,6 +269,14 @@ class SendingRequest(BaseModel):
     offer_rate: Annotated[Decimal, Field(strict=True, gt=0)]
     payment_method: PaymentMethod
     payment_currency: Currency
+
+
+class PaymentRequest(BaseModel):
+    amount: Annotated[Decimal, Field(strict=True, ge=0)]
+    rate: Annotated[Decimal, Field(strict=True, ge=0)]
+    payment_type: TransactionType
+    customer: Optional[CustomerDetails] = None
+    notes: str | None
 
 
 class DepositRequest(BaseModel):

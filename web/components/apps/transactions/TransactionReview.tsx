@@ -39,10 +39,9 @@ import { State } from "@/lib/actions";
 import { notifications } from "@mantine/notifications";
 
 interface Props {
-  onClose: () => void;
-  code: string;
-  type: TransactionType | string;
-  review: boolean;
+  row: any;
+  opened: boolean;
+  close: () => void;
 }
 
 type ReviewInput = {
@@ -50,6 +49,8 @@ type ReviewInput = {
   action: "APPROVE" | "REJECT" | "CANCEL";
   code: string;
   type: TransactionType;
+  charges: number;
+  amount: number;
 };
 
 function ExternalView({ transaction }: { transaction: External }) {
@@ -244,7 +245,7 @@ function SendingView({ transaction }: { transaction: Sending }) {
   );
 }
 
-export default function TransactionReview({ code, type, onClose, review }: Props) {
+export default function TransactionReview({ row, opened, close }: Props) {
   const { register, reset, setValue, getValues } = useForm<ReviewInput>({
     mode: "all",
     resolver: zodResolver(TransactionReviewResolver),
@@ -254,22 +255,29 @@ export default function TransactionReview({ code, type, onClose, review }: Props
   const [transaction, setTransaction] = useState<any>(undefined);
 
   useEffect(() => {
-    async function fetchTransaction() {
+    async function fetchTransaction(code: string, type: string) {
       const res = await fetch(`/api/transaction?code=${code}&type=${type}`);
       const data = await res.json();
       setTransaction(data);
       setValue("type", data.type);
+      setValue("charges", data.charges);
+      setValue("amount", data.amount);
     }
-    if (code && type) {
-      fetchTransaction();
+
+    if (row?.code && row?.type) {
+      fetchTransaction(row.code, row.type);
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [code, type]);
+  }, [row]);
 
   useEffect(() => {
-    setValue("code", code);
+    if (row?.code) {
+      setValue("code", row.code);
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [row]);
 
   useEffect(() => {
     if (state?.status === "success") {
@@ -286,7 +294,7 @@ export default function TransactionReview({ code, type, onClose, review }: Props
         autoClose: 3000,
         style: { marginTop: 10 },
       });
-      onClose();
+      close();
       reset();
     } else if (state?.status == "error" && state.errors?.length! > 0) {
       state.errors!.forEach((error) => {
@@ -308,7 +316,7 @@ export default function TransactionReview({ code, type, onClose, review }: Props
   }, [state]);
 
   let View: any = ExternalView;
-  switch (type) {
+  switch (row?.type) {
     case "EXTERNAL":
       View = ExternalView;
       break;
@@ -325,13 +333,12 @@ export default function TransactionReview({ code, type, onClose, review }: Props
   return (
     <Drawer
       overlayProps={{ backgroundOpacity: 0.5, blur: 4 }}
-      transitionProps={{ duration: 1000 }}
+      transitionProps={{ duration: 500 }}
       offset={8}
-      position="right"
       radius="md"
-      opened={review}
-      onClose={onClose}
-      withCloseButton={false}
+      position="right"
+      opened={opened}
+      onClose={close}
     >
       <Box pos="relative">
         <LoadingOverlay
@@ -380,6 +387,7 @@ export default function TransactionReview({ code, type, onClose, review }: Props
                 <Group style={{ display: "flex", justifyContent: "center" }}>
                   <Button
                     color="green"
+                    variant="outline"
                     leftSection={<IconCircleCheck size={16} />}
                     size={"xs"}
                     type="submit"
@@ -391,6 +399,7 @@ export default function TransactionReview({ code, type, onClose, review }: Props
                   </Button>
                   <Button
                     color="orange"
+                    variant="outline"
                     leftSection={<IconCancel size={16} />}
                     size={"xs"}
                     type="submit"
@@ -402,6 +411,7 @@ export default function TransactionReview({ code, type, onClose, review }: Props
                   </Button>
                   <Button
                     color="red"
+                    variant="outline"
                     leftSection={<IconTrash size={16} />}
                     size="xs"
                     type="submit"

@@ -95,15 +95,15 @@ export const $AgentReponseWithAccounts = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     phone: {
       type: "string",
@@ -144,15 +144,15 @@ export const $AgentResponse = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     phone: {
       type: "string",
@@ -278,15 +278,15 @@ export const $CreateAgentRequest = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     phone: {
       type: "string",
@@ -354,8 +354,8 @@ export const $CreateOfficeRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     name: {
       type: "string",
@@ -382,8 +382,8 @@ export const $CreateOrganizationRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     org_name: {
       type: "string",
@@ -1062,8 +1062,8 @@ export const $OfficeResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     name: {
       type: "string",
@@ -1102,8 +1102,8 @@ export const $OrganizationResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     org_name: {
       type: "string",
@@ -1136,25 +1136,25 @@ export const $PaymentRequest = {
       title: "Amount",
       strict: true,
     },
+    rate: {
+      type: "number",
+      minimum: 0,
+      title: "Rate",
+      strict: true,
+    },
     payment_type: {
       $ref: "#/components/schemas/TransactionType",
     },
+    customer: {
+      $ref: "#/components/schemas/CustomerDetails",
+    },
     notes: {
-      additionalProperties: {
-        anyOf: [
-          {
-            type: "object",
-          },
-          {},
-        ],
-      },
-      type: "object",
+      type: "string",
       title: "Notes",
-      default: {},
     },
   },
   type: "object",
-  required: ["amount", "payment_type"],
+  required: ["amount", "rate", "payment_type"],
   title: "PaymentRequest",
 } as const;
 
@@ -1612,7 +1612,7 @@ export const $UpdateOffice = {
     },
     currencies: {
       items: {
-        type: "object",
+        type: "string",
       },
       type: "array",
       title: "Currencies",

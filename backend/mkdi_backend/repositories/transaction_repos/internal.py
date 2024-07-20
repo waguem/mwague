@@ -142,7 +142,6 @@ class InternalTransaction(AbstractTransaction):
         """
 
         request: pr.InternalRequest = self.get_inputs().data
-
         if request is None and sender is None and receiver is None:
             # reviewing the transaction
             tr: Internal = self.transaction

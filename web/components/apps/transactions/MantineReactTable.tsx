@@ -4,19 +4,29 @@ import "@mantine/dates/styles.css"; //if using mantine date picker features
 import "mantine-react-table/styles.css"; //make sure MRT styles were imported in your app root (once)
 import { useMemo, useState } from "react";
 import { NumberFormatter, Badge, ActionIcon, Box, Tooltip, Grid } from "@mantine/core";
-import { IconEyeCheck, IconEdit } from "@tabler/icons-react";
+import { IconEyeCheck, IconEdit, IconCash } from "@tabler/icons-react";
 import { Text } from "@mantine/core";
 import { format as formatDate, formatDistanceToNow } from "date-fns";
 import { MantineReactTable, useMantineReactTable, type MRT_ColumnDef } from "mantine-react-table";
-import { TransactionResponse, TransactionState, TransactionType } from "@/lib/client";
+import { OfficeResponse, TransactionResponse, TransactionState, TransactionType } from "@/lib/client";
 import TransactionReview from "./TransactionReview";
 import { getBadgeType, getStateBadge } from "@/lib/utils";
+import PayTransaction from "./PayTransaction";
+import { useDisclosure } from "@mantine/hooks";
 
 interface Props {
   data: TransactionResponse[];
+  office: OfficeResponse;
 }
-const MantineTable = ({ data }: Props) => {
+const MantineTable = ({ data, office }: Props) => {
   const [revewing, setReviewing] = useState<number>(-1);
+  const [paying, setPaying] = useState<number>(-1);
+  const [opened, { open, close }] = useDisclosure(false);
+  const [reviewOpened, { open: openReview, close: closeReview }] = useDisclosure(false);
+
+  const isPayable = (type: TransactionType) => {
+    return ["DEPOSIT", "EXTERNAL", "FOREX"].includes(type);
+  };
   //should be memoized or stable
   const columns = useMemo<MRT_ColumnDef<TransactionResponse>[]>(
     () => [
@@ -93,6 +103,7 @@ const MantineTable = ({ data }: Props) => {
             radius={"xl"}
             onClick={() => {
               setReviewing(row.index);
+              openReview();
             }}
           >
             <IconEyeCheck size={20} />
@@ -112,6 +123,22 @@ const MantineTable = ({ data }: Props) => {
             </ActionIcon>
           </Tooltip>
         )}
+
+        {isPayable(row.getValue("type")) && (
+          <Tooltip label="Pay Transaction">
+            <ActionIcon
+              color="cyan"
+              variant="outline"
+              radius={"xl"}
+              onClick={() => {
+                setPaying(row.index);
+                open();
+              }}
+            >
+              <IconCash size={20} />
+            </ActionIcon>
+          </Tooltip>
+        )}
       </Box>
     ),
     data, //must be memoized or stable (useState, useMemo, defined outside of this component, etc.)
@@ -119,14 +146,8 @@ const MantineTable = ({ data }: Props) => {
 
   return (
     <>
-      {revewing > -1 && (
-        <TransactionReview
-          review={revewing > -1}
-          onClose={() => setReviewing(-1)}
-          code={revewing > -1 ? data[revewing].code : ""}
-          type={revewing > -1 ? data[revewing].type : ""}
-        />
-      )}
+      <TransactionReview row={data[revewing]} close={closeReview} opened={reviewOpened} />
+      <PayTransaction row={data[paying]} close={close} opened={opened} officeId={office.id} />
       <MantineReactTable table={table} />;
     </>
   );

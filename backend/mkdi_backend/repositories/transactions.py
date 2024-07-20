@@ -268,5 +268,5 @@ class TransactionRepository:
         except ValidationError as e:
             raise e
 
-        tr = await transactionImpl.get_a_transaction(tr_type, tr_code)
+        tr = await transactionImpl.get_a_transaction(tr_type, tr_code, include_payments=True)
         return tr

@@ -15,7 +15,9 @@ from mkdi_backend.models import (
     Sending,
     External,
     TransactionWithDetails,
+    Payment,
 )
+from mkdi_backend.models.transactions.transactions import ExternalWithPayments, SendingWithPayments
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.utils.database import CommitMode, managed_tx_method
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
@@ -48,7 +50,7 @@ class AbstractTransaction(ABC):
 
         Args:
             db (Session): The database session.
-            user (KcUser): The user associated with the transaction.
+            user (KcUser): The #user associated with the transaction.
             user_input (any): The user input for the transaction.
 
         """
@@ -80,14 +82,14 @@ class AbstractTransaction(ABC):
     async def a_has_started_activity(self):
         session: AsyncSession = self.db
         if not self.activity:
-            self.activity = (
-                await session.execute(
+            self.activity = dict(
+                await session.scalar(
                     select(Activity).where(
                         Activity.office_id == self.user.office_id,
                         Activity.state == pr.ActivityState.OPEN,
                     )
                 )
-            ).fetchone()
+            )
 
         return self.activity
 
@@ -375,11 +377,29 @@ class AbstractTransaction(ABC):
                 )
 
     async def get_a_transaction(
-        self, tr_type: pr.TransactionType, code: str
+        self, tr_type: pr.TransactionType, code: str, include_payments=False
     ) -> TransactionWithDetails:
         """get a transaction"""
         session: AsyncSession = self.db
         model = self.get_model(tr_type)
+        # if is payable return the payments list
         res = await session.execute(select(model).where(model.code == code))
+        transaction = res.scalars().first()
 
-        return res.scalar()
+        # not payable or completed
+        if not (
+            transaction
+            and tr_type
+            in [pr.TransactionType.EXTERNAL, pr.TransactionType.SENDING, pr.TransactionType.FOREX]
+            and include_payments
+        ):
+            return transaction
+        # fetch payments
+        payments_q = await session.execute(
+            select(Payment).where(Payment.transaction_id == transaction.id)
+        )
+        payments = payments_q.scalars().all()
+        transaction_with_details = model.withPayments(transaction, payments)
+        transaction_with_details.payments = payments
+        # compete from here
+        return transaction_with_details

@@ -5,6 +5,7 @@ import { countryOptions, currencyOptions } from "@/lib/utils";
 import { Button, Grid, GridCol, Loader, MultiSelect, Select, Stack, TextInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconBuildingBurjAlArab, IconBuildingWarehouse, IconCheck, IconEdit, IconMapPin2 } from "@tabler/icons-react";
+import { isArray } from "lodash";
 import { useState, useTransition } from "react";
 export default function OfficeInfo({ office }: { office: OfficeResponse }) {
   const [editing, setEditing] = useState<Record<string, string>>({});
@@ -70,13 +71,15 @@ export default function OfficeInfo({ office }: { office: OfficeResponse }) {
   };
   const hasOption = (office: OfficeResponse, option: any) => {
     const currencies: { name: string; main: boolean; defaultRate: number }[] = office?.currencies ?? ([] as any);
-    return currencies.find((curr) => curr.name === option.value) != null;
+    if (isArray(currencies)) {
+      return currencies.find((curr) => curr.name === option.value) != null;
+    }
+    return false;
   };
 
   const getDefaultCurrenciesOptions = () =>
     currencyOptions.filter((option) => hasOption(office, option)).map((option) => option.value);
 
-  console.log(office);
   return (
     <div className="panel w-full h-full">
       <Grid>
@@ -84,7 +87,12 @@ export default function OfficeInfo({ office }: { office: OfficeResponse }) {
           <Stack align="stretch" gap="md">
             <Grid>
               <GridCol span={10}>
-                <TextInput label="Organization" value={"Organization"} rightSection={<IconBuildingBurjAlArab />} />
+                <TextInput
+                  label="Organization"
+                  readOnly
+                  value={"Organization"}
+                  rightSection={<IconBuildingBurjAlArab />}
+                />
               </GridCol>
               <GridCol span={2} />
             </Grid>

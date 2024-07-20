@@ -93,12 +93,17 @@ class PayableTransaction(AbstractTransaction):
         payment.payment_date = datetime.datetime.now()
         # commit payment
         has_complete = (paid + payment.amount) == transaction.amount
-        commits = await self.a_commit(payment.amount, transaction, has_complete=has_complete)
+
+        commits, fund_history = await self.a_commit(
+            payment.amount, transaction, has_complete=has_complete
+        )
 
         transaction.save_commit(commits)
         if has_complete:
             transaction.state = pr.TransactionState.PAID
 
+        # create fund history
         self.db.add(transaction)
+        self.db.add(fund_history)
 
         return payment

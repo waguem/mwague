@@ -2,6 +2,7 @@
 import "server-only";
 import { cache } from "react";
 import { withToken } from "./withToken";
+
 import {
   ApiError,
   getAgentTransactionsApiV1AgentInitialsTransactionsGet as getAgentTransactionsApi,
@@ -10,11 +11,14 @@ import {
   reviewTransactionApiV1TransactionTransactionCodeReviewPost as reviewTransactionApi,
   getOfficeTransactionsApiV1OfficeTransactionsGet as getOfficeTransactionsApi,
   TransactionReviewReq,
+  GetOfficeTransactionsWithDetailsApiV1TransactionCodeGetResponse,
+  addPaymentApiV1TransactionCodePayPost,
 } from "@/lib/client";
 import { State } from "./state";
 import { getResolver } from "../schemas/transactionsResolvers";
-import { TransactionReviewResolver } from "../schemas/actions";
+import { PaymentResolver, TransactionReviewResolver, PaymentRequest } from "../schemas/actions";
 import { revalidatePath } from "next/cache";
+import assert from "node:assert";
 
 export const getMyOfficeTransactions = cache(async () => {
   return withToken(async () => {
@@ -76,6 +80,8 @@ export const reviewTransaction = async (prevSate: State, data: ReviewFormData): 
   return withToken(async () => {
     const validation = TransactionReviewResolver.safeParse(data);
     const { officeId } = data;
+    console.log(data);
+
     if (!validation.success) {
       return { message: "Invalid review data", status: "error" };
     }
@@ -94,10 +100,15 @@ export const reviewTransaction = async (prevSate: State, data: ReviewFormData): 
     }
 
     // get the transaction by code
-    const transaction = await getTransactionByCode({
+    const transaction: GetOfficeTransactionsWithDetailsApiV1TransactionCodeGetResponse = await getTransactionByCode({
       code: validation.data.code,
       trType: validation.data.type,
     });
+
+    if ("charges" in transaction) {
+      assert(transaction?.charges == validation.data.charges);
+    }
+
     // make sure the transaction is not already reviewed
     if (transaction.state !== "REVIEW") {
       return {
@@ -110,6 +121,10 @@ export const reviewTransaction = async (prevSate: State, data: ReviewFormData): 
     const reviewInput: TransactionReviewReq = {
       amount: {
         amount: transaction.amount,
+        rate: transaction.rate,
+      },
+      charges: {
+        amount: "charges" in transaction ? transaction.charges : 0,
         rate: transaction.rate,
       },
       code: transaction.code,
@@ -136,6 +151,40 @@ export const reviewTransaction = async (prevSate: State, data: ReviewFormData): 
     return {
       message: `Transaction ${response.code} has been ${validation.data.action} successfully`,
       status: "success",
+    };
+  });
+};
+
+export const payTransaction = async (officeId: string, data: PaymentRequest): Promise<State> => {
+  return withToken(async () => {
+    const validation = PaymentResolver.safeParse(data);
+    if (!validation.success) {
+      console.log(validation.error);
+      return {
+        status: "error",
+        message: "Invalid payment data",
+      };
+    }
+
+    const response = await addPaymentApiV1TransactionCodePayPost({
+      code: validation.data.code,
+      requestBody: {
+        amount: Number(validation.data.mainAmount),
+        payment_type: validation.data.type,
+        rate: Number(validation.data.rate),
+        customer: {
+          name: validation.data.customerName,
+          phone: validation.data.customerPhone ?? "",
+        },
+        notes: validation.data.notes,
+      },
+    });
+
+    revalidatePath("/dashboard/office/[slug]/transactions");
+
+    return {
+      status: "success",
+      message: `${validation.data.type} Transaction ${validation.data.code} paid ${response.amount} successfully`,
     };
   });
 };

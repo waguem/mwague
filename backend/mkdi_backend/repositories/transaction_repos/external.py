@@ -10,6 +10,7 @@ from sqlalchemy import select, case, or_, and_
 from mkdi_backend.models.Account import Account
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.models.transactions.transactions import External, Payment
+from mkdi_backend.models.Activity import FundCommit
 from mkdi_backend.repositories.transaction_repos.payable import PayableTransaction
 from mkdi_backend.repositories.transaction_repos.invariant import (
     managed_invariant_tx_method,
@@ -71,8 +72,15 @@ class ExternalTransaction(PayableTransaction):
             commits.append(sender.debit(transaction.charges))
             # in
             commits.append(office.credit(transaction.charges))
-
-        return commits
+        activity = await self.a_has_started_activity()
+        fund_history = FundCommit(
+            v_from=(fund.balance + commited_amount),
+            variation=commited_amount,
+            activity_id=activity["id"],
+            description="External Transaction",
+            date=datetime.datetime.now(),
+        )
+        return commits, fund_history
 
     def commit(self, transaction: External) -> List[pr.TransactionCommit]:
         """commit the transaction to the requested state

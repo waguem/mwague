@@ -1,12 +1,24 @@
 from decimal import Decimal
-from typing import Annotated, Mapping, Any, Optional, Union
+from typing import Annotated, Mapping, Any, Optional, Union, List
 from uuid import UUID, uuid4
 from sqlalchemy.ext.mutable import MutableDict
-
+from pydantic import Field as PydanticField
 from mkdi_shared.schemas import protocol as pr
 from sqlmodel import Field
 import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as pg
+
+
+class Payment(pr.PaymentBase, table=True):
+    __tablename__ = "payments"
+    id: Optional[UUID] = Field(
+        sa_column=sa.Column(
+            pg.UUID(as_uuid=True),
+            primary_key=True,
+            default=uuid4,
+            server_default=sa.text("gen_random_uuid()"),
+        )
+    )
 
 
 class Internal(pr.TransactionDB, table=True):
@@ -33,7 +45,7 @@ class Deposit(pr.TransactionDB, table=True):
     owner_initials: str = Field(foreign_key="accounts.initials")
 
 
-class Sending(pr.TransactionDB, table=True):
+class SendingBase(pr.TransactionDB):
     __tablename__ = "sendings"
     """
     A transfer transaction is made by a client of the office and the payment is made elsewhere by an office collaborator.
@@ -70,7 +82,7 @@ class ForEx(pr.TransactionDB, table=True):
     method: pr.PaymentMethod
 
 
-class External(pr.TransactionDB, table=True):
+class ExternalBase(pr.TransactionDB):
     __tablename__ = "externals"
     """
        A Transaction is a transaction made to a third party's account for the office.
@@ -83,16 +95,24 @@ class External(pr.TransactionDB, table=True):
     )
 
 
-class Payment(pr.PaymentBase, table=True):
-    __tablename__ = "payments"
-    id: Optional[UUID] = Field(
-        sa_column=sa.Column(
-            pg.UUID(as_uuid=True),
-            primary_key=True,
-            default=uuid4,
-            server_default=sa.text("gen_random_uuid()"),
-        )
-    )
+class ExternalWithPayments(ExternalBase):
+    payments: List[Payment] = PydanticField(default=[])
 
 
-TransactionWithDetails = Union[Internal, Deposit, Sending, ForEx, External]
+class SendingWithPayments(SendingBase):
+    payments: List[Payment] = PydanticField(default=[])
+
+
+class External(ExternalBase, table=True):
+
+    def withPayments(self, payments: List[Payment]) -> ExternalWithPayments:
+        return ExternalWithPayments(**self.dict(), payments=payments)
+
+
+class Sending(SendingBase, table=True):
+
+    def withPayments(self, payments: List[Payment]) -> ExternalWithPayments:
+        return SendingWithPayments(**self.dict(), payments=payments)
+
+
+TransactionWithDetails = Union[Internal, Deposit, SendingWithPayments, ForEx, ExternalWithPayments]

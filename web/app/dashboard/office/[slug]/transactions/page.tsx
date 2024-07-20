@@ -10,15 +10,13 @@ export default async function Transactions({ params }: { params: { slug: string 
   const agentAccounts = await getMyOfficeAgents();
   const activity = await getCurrentActivity();
   const office = await getOfficeCached(params.slug);
-  console.log(office);
-  console.log(activity);
   return (
     <div className="grid grid-row-2 gap-4">
       <div className="row-span-1 relative flex h-full gap-5 sm:h-[calc(70vh_-_150px)]">
         <TransactionsForms activity={activity} office={office} agentAccounts={agentAccounts} />
       </div>
       <div>
-        <MantineReactTable data={transactions} />
+        <MantineReactTable office={office} data={transactions} />
       </div>
     </div>
   );

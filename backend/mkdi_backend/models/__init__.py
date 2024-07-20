@@ -11,6 +11,7 @@ from .transactions.transactions import (
     Sending,
     External,
     TransactionWithDetails,
+    Payment,
 )
 
 __all__ = [
@@ -26,4 +27,5 @@ __all__ = [
     "ForEx",
     "External",
     "TransactionWithDetails",
+    "Payment",
 ]

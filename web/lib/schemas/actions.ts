@@ -1,5 +1,7 @@
 import zod from "zod";
 import { zfd } from "zod-form-data";
+import { zNumber, zPNumber } from "./transactionsResolvers";
+import { TransactionType } from "../client";
 
 export const AddOfficeSchema = zfd.formData({
   name: zfd.text(
@@ -141,11 +143,11 @@ export const AddAccountSchema = zfd.formData({
       .refine((value) => value.trim() !== "")
   ),
   type: zod.enum(["AGENT", "SUPPLIER", "OFFICE", "FUND"]),
-
   currency: zod.enum(["USD", "EUR", "CFA", "GNF", "AED", "RMB"]),
   owner_initials: zfd.text(zod.string()),
 });
 
+export const zTransactionType = zod.enum(["INTERNAL", "EXTERNAL", "DEPOSIT", "SENDING", "FOREX"]);
 export const TransactionReviewResolver = zfd.formData({
   notes: zfd.text(
     zod
@@ -154,7 +156,40 @@ export const TransactionReviewResolver = zfd.formData({
       .refine((value) => value.trim() !== "")
       .optional()
   ),
-  type: zod.enum(["INTERNAL", "EXTERNAL", "DEPOSIT", "SENDING", "FOREX"]),
+  type: zTransactionType,
   action: zod.enum(["APPROVE", "REJECT", "CANCEL"]),
   code: zfd.text(zod.string()),
+  amount: zfd.text(zPNumber).optional(),
+  charges: zfd.text(zNumber).optional(),
+});
+
+/**
+ * mainAmount:number
+  convertedAmount:number
+  rate:number
+  customerName:string
+  customerPhone?:string
+  notes?:string
+ */
+
+export type PaymentRequest = {
+  mainAmount: number;
+  convertedAmount: number;
+  rate: number;
+  customerName: string;
+  customerPhone?: string;
+  notes?: string;
+  type: TransactionType;
+  code: string;
+};
+
+export const PaymentResolver = zfd.formData({
+  code: zfd.text(zod.string().max(16, "Too Long!")),
+  mainAmount: zfd.text(zPNumber),
+  convertedAmount: zfd.text(zPNumber),
+  rate: zfd.text(zPNumber),
+  customerName: zfd.text(zod.string()),
+  type: zTransactionType,
+  customerPhone: zfd.text(zod.string()).optional(),
+  notes: zfd.text(zod.string()).optional(),
 });
