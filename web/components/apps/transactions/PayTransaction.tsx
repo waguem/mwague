@@ -24,28 +24,27 @@ import {
 import { useEffect, useState, useTransition } from "react";
 import {
   IconCancel,
-  IconCheck,
   IconCurrencyDirham,
   IconCurrencyDollar,
   IconHandGrab,
   IconReceipt,
   IconSend,
-  IconX,
 } from "@tabler/icons-react";
 import { useForm } from "@mantine/form";
 import { payTransaction } from "@/lib/actions/transactions";
-import { isArray } from "lodash";
-import { notifications } from "@mantine/notifications";
 
 import { PaymentRequest } from "@/lib/schemas/actions";
+import { decodeNotification } from "../notifications/notifications";
 interface PayTransactionProps {
   row: any;
   opened: boolean;
   close: () => void;
   officeId: string;
+  // eslint-disable-next-line
+  getAvatarGroup: (users: string[]) => any[];
 }
 
-export default function PayTransaction({ row, opened, close, officeId }: PayTransactionProps) {
+export default function PayTransaction({ row, opened, close, officeId, getAvatarGroup }: PayTransactionProps) {
   const [pending, startTransition] = useTransition();
 
   const [transaction, setTransaction] = useState<any>(undefined);
@@ -74,53 +73,7 @@ export default function PayTransaction({ row, opened, close, officeId }: PayTran
   const handlePayment = async () => {
     try {
       const response = await payTransaction(officeId, form.values);
-      if (!response) {
-        return;
-      }
-      if (response.status === "error") {
-        if (isArray(response.errors)) {
-          response.errors.forEach((error) => {
-            notifications.show({
-              title: "Transaction Payment",
-              color: "red",
-              message: `Input ${error.path} ${error.message}`,
-              className: "mt-2",
-              radius: "md",
-              withBorder: true,
-              icon: <IconX size={20} />,
-              loading: false,
-              withCloseButton: true,
-              autoClose: 3000,
-            });
-          });
-        } else {
-          notifications.show({
-            title: "Transaction Payment",
-            color: "red",
-            message: response.message,
-            className: "mt-2",
-            radius: "md",
-            withBorder: true,
-            icon: <IconX size={20} />,
-            loading: false,
-            withCloseButton: true,
-            autoClose: 3000,
-          });
-        }
-      } else if (response.status === "success") {
-        notifications.show({
-          title: "Transaction Payment",
-          color: "teal",
-          message: `Payment successful`,
-          className: "mt-2",
-          radius: "md",
-          withBorder: true,
-          icon: <IconCheck size={20} />,
-          loading: false,
-          withCloseButton: true,
-          autoClose: 3000,
-        });
-      }
+      decodeNotification("Transaction Payment", response);
     } catch (e) {}
   };
 
@@ -138,6 +91,7 @@ export default function PayTransaction({ row, opened, close, officeId }: PayTran
       console.log(data);
       setTransaction(data);
     }
+    console.log("fetching transaction");
 
     if (row?.code && row?.type) {
       setTransaction(undefined);
@@ -149,13 +103,14 @@ export default function PayTransaction({ row, opened, close, officeId }: PayTran
 
   let rows = transaction?.payments?.map((item: any) => {
     // const selected = selection.includes(item.id);
+    const payerProfile = getAvatarGroup([item.paid_by])[0];
     return (
       <Table.Tr key={item.id}>
         <Table.Td>{item.payment_date}</Table.Td>
         <Table.Td>
           <Group gap="sm" justify="left">
-            <Avatar size={26} src={item.avatar} radius={26} />
-            Thierno
+            <Avatar size={26} src={payerProfile.avatar_url} radius={26} />
+            {payerProfile.username}
           </Group>
         </Table.Td>
         <Table.Td>

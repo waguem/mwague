@@ -65,49 +65,73 @@ class OfficeRepository:
 
     @async_managed_tx_method(auto_commit=CommitMode.COMMIT)
     async def update_office(self, user: KcUser, office_id: str, data: protocol.UpdateOffice):
-        office = await self.get_by_id(office_id)
+        session: AsyncSession = self.db
+        query = await session.execute(select(Office).where(Office.id == office_id))
+        office = query.scalars().first()
+
         if not office:
             raise MkdiError(
                 f"Office with id {office_id} not found", error_code=MkdiErrorCode.NOT_FOUND
             )
 
-        if not (data.name or data.baseCurrency or data.currencies or data.country):
+        if not (
+            data.name or data.baseCurrency or data.mainCurrency or data.currencies or data.country
+        ):
             return office
         # update the office
         if data.name:
             office.name = data.name
-        currencies = office.currencies
 
-        if data.baseCurrency:
-            # check if the base currency is in the currencies list
-            item = next((item for item in currencies if item["name"] == data.baseCurrency), None)
-            if not item:
-                raise MkdiError(
-                    f"Currency {data.baseCurrency} not found",
-                    error_code=MkdiErrorCode.INVALID_CURRENCY,
+        if data.baseCurrency or data.mainCurrency:
+
+            if data.baseCurrency:
+                # check if the base currency is in the currencies list
+                item = next(
+                    (item for item in office.currencies if item["name"] == data.baseCurrency), None
                 )
+                if not item:
+                    raise MkdiError(
+                        f"Currency {data.baseCurrency} not found",
+                        error_code=MkdiErrorCode.INVALID_CURRENCY,
+                    )
+            if data.mainCurrency:
+                item = next(
+                    (item for item in office.currencies if item["name"] == data.mainCurrency), None
+                )
+                if not item:
+                    raise MkdiError(
+                        f"Currency {data.baseCurrency} not found",
+                        error_code=MkdiErrorCode.INVALID_CURRENCY,
+                    )
 
-            curr_copy = deepcopy(currencies)
-            currencies.clear()
+            curr_copy = deepcopy(office.currencies)
+            office.currencies.clear()
             for currency in curr_copy:
-                currency["main"] = currency["name"] == data.baseCurrency
-                currencies.append(currency)
+                currency["base"] = (
+                    currency["name"] == data.baseCurrency if data.baseCurrency else currency["base"]
+                )
+                currency["main"] = (
+                    currency["name"] == data.mainCurrency if data.mainCurrency else currency["main"]
+                )
+                office.currencies.append(currency)
 
         if data.currencies:
-            main = next((item for item in currencies if item["main"]), None)
+            main = next((item for item in office.currencies if item["main"]), None)
+            base = next((item for item in office.currencies if item["base"]), None)
+
             office.currencies.clear()
             for currency in data.currencies:
-                currencies.append(
+                office.currencies.append(
                     {
                         "name": currency,
                         "main": main["name"] == currency if main else False,
+                        "base": base["name"] == currency if base else False,
                         "defaultRate": 1.0,
                     }
                 )
 
         if data.country:
             office.country = data.country
-        session: AsyncSession = self.db
 
         session.add(office)
         return office

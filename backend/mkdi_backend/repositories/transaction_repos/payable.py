@@ -89,6 +89,7 @@ class PayableTransaction(AbstractTransaction):
             transaction_type=payment.payment_type,
             state=pr.PaymentState.PAID,
             notes={"notes": []},
+            paid_by=self.user.user_db_id,
         )
         payment.payment_date = datetime.datetime.now()
         # commit payment

@@ -2,6 +2,64 @@
   "realm": "mwague",
   "users": [
     {
+      "id": "5a7e3e61-5694-4ba7-b09e-b3277e1c2062",
+      "username": "botoreadmin",
+      "firstName": "Admin",
+      "lastName": "Layla",
+      "email": "btoreadmin@gmail.com",
+      "emailVerified": true,
+      "attributes": {
+        "organizationId": ["be043614-98ba-4c04-ab3f-60db316211df"],
+        "officeId": ["922058a3-19c3-4efb-a1e6-fc275d5786fc"]
+      },
+      "createdTimestamp": 1721398339014,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "beb450ee-a0a5-4017-8023-9a7b7a421556",
+          "type": "password",
+          "createdDate": 1721398339416,
+          "secretData": "{\"value\":\"UJJ3D8WeGIIixhqStGi/IhnBzOfumnIsAc65C1RqRftqMMFO1Pi0ezxe0HvfmMhkJwWJ9MmPve/geIxlgHALUg==\",\"salt\":\"JCZ6Vq2YwEPh26Z/xn44oQ==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["office_admin"],
+      "notBefore": 1721398354,
+      "groups": []
+    },
+    {
+      "id": "e14f3506-9ca2-451e-826f-a2f77dfd9942",
+      "username": "franceadmin",
+      "firstName": "Golo",
+      "lastName": "Kante",
+      "email": "franceadmin@gmail.com",
+      "emailVerified": true,
+      "attributes": {
+        "organizationId": ["be043614-98ba-4c04-ab3f-60db316211df"],
+        "officeId": ["db5085fd-85ec-4e31-ac74-d46acdcb71ee"]
+      },
+      "createdTimestamp": 1721398342755,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "289b40b0-7e6b-4a99-9ac1-e88ddc254df8",
+          "type": "password",
+          "createdDate": 1721398343147,
+          "secretData": "{\"value\":\"Af/R/Loi7XBqT/gOKwTWxt9Q9L7Lebvd779J7gx+fIeUFfFJS+2QlhtNex6xoP0oDvZZJbH2NsPlgHxO7917tA==\",\"salt\":\"t2KCVuJw96PpqcWbmchVeA==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["office_admin"],
+      "notBefore": 1721398347,
+      "groups": []
+    },
+    {
       "id": "b1141a26-9495-4b52-ac50-0791c6d2110c",
       "username": "kcadmincli",
       "firstName": "Admin",
@@ -31,7 +89,63 @@
       "clientRoles": {
         "realm-management": ["realm-admin"]
       },
-      "notBefore": 1719903060,
+      "notBefore": 1721398355,
+      "groups": []
+    },
+    {
+      "id": "70df339d-40db-414d-bab2-61b465ad380e",
+      "username": "safeer",
+      "email": "safeer@gmail.com",
+      "emailVerified": true,
+      "attributes": {
+        "organizationId": ["be043614-98ba-4c04-ab3f-60db316211df"],
+        "officeId": ["fc2e690e-14d9-4da0-bfab-3fc2e75b8641"]
+      },
+      "createdTimestamp": 1721398918173,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "3a666152-c203-4a86-a4a5-b4c5105fc6b4",
+          "type": "password",
+          "createdDate": 1721398918647,
+          "secretData": "{\"value\":\"hW8v7O+23Yz1hoa2UcjmnKH4ddmrlizcCse+JiwSyMcL7o8e+ur8LfT1PMe4uj7YhIIxZdDCE8hrS0FwC0Wy6g==\",\"salt\":\"zWuE++c9qhi6k88I9Vbumg==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": ["UPDATE_PASSWORD"],
+      "realmRoles": ["office_admin"],
+      "notBefore": 0,
+      "groups": []
+    },
+    {
+      "id": "54edaba2-1e88-4fb1-adc7-06fc9e7fe09f",
+      "username": "samadmin",
+      "firstName": "PSSI",
+      "lastName": "Benoi",
+      "email": "samadming@gmail.com",
+      "emailVerified": true,
+      "attributes": {
+        "organizationId": ["be043614-98ba-4c04-ab3f-60db316211df"],
+        "officeId": ["5ca85b2f-9ed9-45a4-b09f-a0754a3c3e36"]
+      },
+      "createdTimestamp": 1721398340940,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "1b98569a-c918-4c3d-8cd8-3e9438502b93",
+          "type": "password",
+          "createdDate": 1721398341316,
+          "secretData": "{\"value\":\"dDc8REwHqHkIzW+3UVKU9TO6BJf+Hky7jDZ+yoJ1ZQ4ZKG4shhwgX9Hbo+YKAjGSYvUEJZaxfhLUqUHIXhFWfQ==\",\"salt\":\"JQ4JXMBQLN4DyE3JhCJAdg==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["office_admin"],
+      "notBefore": 1721398355,
       "groups": []
     },
     {
@@ -50,6 +164,71 @@
         "rns:mwague:portal": ["uma_protection"]
       },
       "notBefore": 0,
+      "groups": []
+    },
+    {
+      "id": "89aa3d98-0fb3-46af-9c3a-eba56fc3c752",
+      "username": "softadmin",
+      "firstName": "Soft",
+      "lastName": "Admin",
+      "email": "softadmin@gmail.com",
+      "emailVerified": true,
+      "attributes": {
+        "organizationId": ["be043614-98ba-4c04-ab3f-60db316211df"],
+        "officeId": ["311303c8-80b9-4610-ba84-158dab8e27d3"]
+      },
+      "createdTimestamp": 1721398328385,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "2aeb349e-8140-4f6f-98c9-b39cf30c7ff3",
+          "type": "password",
+          "createdDate": 1721398328835,
+          "secretData": "{\"value\":\"0S794SjG1qlbJdQsDp6PCl/vjB37Aj3XWcvg+KRsvkPHy+JTD7+oMccjBlRit4iJ34cp4olqzyzvZoHDMPr2Tw==\",\"salt\":\"1tgVIC8xiUhtCcPo+Udltw==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "offline_access",
+        "org_admin",
+        "default-roles-mwague",
+        "soft_admin",
+        "office_admin",
+        "uma_authorization"
+      ],
+      "notBefore": 1721398343,
+      "groups": []
+    },
+    {
+      "id": "bae06f6d-f1cb-4eb5-9cb6-effc241e2e73",
+      "username": "wagueadmin",
+      "firstName": "Admin",
+      "lastName": "Wague",
+      "email": "wagueadmin@gmail.com",
+      "emailVerified": true,
+      "attributes": {
+        "organizationId": ["be043614-98ba-4c04-ab3f-60db316211df"],
+        "officeId": ["fc2e690e-14d9-4da0-bfab-3fc2e75b8641"]
+      },
+      "createdTimestamp": 1721398337041,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "e4ea338c-1c4c-4bf7-9b35-f77fcd158089",
+          "type": "password",
+          "createdDate": 1721398337452,
+          "secretData": "{\"value\":\"MueqRaKCdJoCFLgB2g/IbRwtdoFKxVwpkFYdThChjCwr3+QzdMcxFNXcNaZGzse+P6RurZd0FiPppltpH+Wh6w==\",\"salt\":\"lG0nOBGgsjEQSwpyOX9epQ==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["soft_admin", "office_admin"],
+      "notBefore": 1721398352,
       "groups": []
     }
   ]

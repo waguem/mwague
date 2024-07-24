@@ -1,5 +1,5 @@
-import { MantineColor } from "@mantine/core";
-import { TransactionState, TransactionType } from "../client";
+import { BadgeVariant, MantineColor, MantineGradient } from "@mantine/core";
+import { Currency, TransactionState, TransactionType } from "../client";
 import {
   IconCurrency,
   IconCurrencyDollar,
@@ -7,6 +7,7 @@ import {
   IconCurrencyRenminbi,
   IconCurrencyLira,
   IconCurrencyDirham,
+  IconCurrencyCent,
 } from "@tabler/icons-react";
 
 export function getFlagEmoji(countryCode: string) {
@@ -59,6 +60,7 @@ export const currencyOptions = [
   { value: "CFA", label: "CFA" },
   { value: "GNF", label: "GNF" },
   { value: "AED", label: "AED" },
+  { value: "RMB", label: "RMB" },
 ];
 
 /**
@@ -91,28 +93,76 @@ export const getBadgeType = (tr_type: TransactionType): MantineColor => {
   }
 };
 
-export const getStateBadge = (state: TransactionState): MantineColor => {
+type BadgeProps = {
+  color?: MantineColor;
+  variant: BadgeVariant;
+  gradient?: MantineGradient;
+};
+export const getStateBadge = (state: TransactionState): BadgeProps => {
   switch (state) {
     case "PENDING":
-      return "blue";
+      return {
+        variant: "gradient",
+        gradient: {
+          from: "red",
+          to: "blue",
+          deg: 60,
+        },
+      };
     case "PAID":
-      return "green";
+      return {
+        variant: "gradient",
+        gradient: {
+          from: "cyan",
+          to: "teal",
+          deg: 120,
+        },
+      };
     case "REVIEW":
-      return "indigo";
+      return {
+        variant: "gradient",
+        gradient: {
+          from: "cyan",
+          to: "orange",
+          deg: 110,
+        },
+      };
     case "REJECTED":
-      return "orange";
+      return {
+        color: "orange",
+        variant: "filled",
+      };
     case "CANCELLED":
-      return "red";
+      return {
+        color: "red",
+        variant: "filled",
+      };
     default:
-      return "gray";
+      return {
+        color: "gray",
+        variant: "gradient",
+        gradient: {
+          from: "teal",
+          to: "cyan",
+          deg: 110,
+        },
+      };
   }
 };
 
-export const MoneyIcons = {
-  USD: IconCurrencyDollar,
-  EUR: IconCurrencyEuro,
-  CFA: IconCurrency,
-  RMB: IconCurrencyRenminbi,
-  LIRA: IconCurrencyLira,
-  AED: IconCurrencyDirham,
+export const getMoneyIcon = (currency: Currency, size: number) => {
+  switch (currency) {
+    case "USD":
+      return <IconCurrencyDollar size={size} />;
+    case "EUR":
+      return <IconCurrencyEuro size={size} />;
+    case "CFA":
+      return <IconCurrency size={size} />;
+    case "RMB":
+      return <IconCurrencyRenminbi size={size} />;
+    case "AED":
+      return <IconCurrencyDirham size={size} />;
+    case "GNF":
+      return <IconCurrencyCent size={size} />;
+  }
 };

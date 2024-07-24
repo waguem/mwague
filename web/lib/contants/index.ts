@@ -3,3 +3,4 @@ export const INTERNAL_RESOLVER = "INTERNAL";
 export const DEPOSIT_RESOLVER = "DEPOSIT";
 export const EXTERNAL_RESOLVER = "EXTERNAL";
 export const SENDING_RESOLVER = "SENDING";
+export const FOREX_RESOLVER = "FOREX";

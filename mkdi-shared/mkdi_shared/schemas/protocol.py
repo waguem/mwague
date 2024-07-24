@@ -55,19 +55,7 @@ class EmployeeResponse(EmployeeBase):
     office_id: UUID
     organization_id: UUID
     roles: List[str]
-
-    @root_validator(pre=True)
-    def transform_roles(cls, values) -> Dict:
-        """
-        str format {role_admin,role_user}
-        transform to list format [soft_admin_0,org_admin_1]
-        """
-        roles = values.get("roles")
-        transformed = dict(values)
-        if isinstance(roles, str):
-            transformed["roles"] = roles[1 : len(roles) - 1].split(",")
-            # remove curly braces remote _1 at the end
-        return transformed
+    avatar_url: str | None = None
 
 
 class AgentType(Enum):
@@ -125,7 +113,7 @@ class PaymentBase(SQLModel):
 
 
 class PaymentResponse(PaymentBase):
-    pass
+    paid_by: UUID | None
 
 
 class AgentBase(SQLModel):
@@ -271,6 +259,18 @@ class SendingRequest(BaseModel):
     payment_currency: Currency
 
 
+class ForExRequest(BaseModel):
+    type: Literal["FOREX"]
+    provider_account: str
+    customer_account: str
+    currency: Currency
+    base_currency: Currency
+    daily_rate: Annotated[Decimal, Field(strict=True, gt=0)]
+    buying_rate: Annotated[Decimal, Field(strict=True, gt=0)]
+    selling_rate: Annotated[Decimal, Field(strict=True, gt=0)]
+    amount: Annotated[Decimal, Field(strict=True, ge=0)]
+
+
 class PaymentRequest(BaseModel):
     amount: Annotated[Decimal, Field(strict=True, ge=0)]
     rate: Annotated[Decimal, Field(strict=True, ge=0)]
@@ -289,9 +289,9 @@ class TransactionRequest(BaseModel):
     amount: Amount
     charges: Amount | None
     transaction_type: Optional[TransactionType] = None
-    data: Optional[Union[InternalRequest, DepositRequest, ExternalRequest, SendingRequest]] = Field(
-        default=None, discriminator="type"
-    )
+    data: Optional[
+        Union[InternalRequest, DepositRequest, ExternalRequest, SendingRequest, ForExRequest]
+    ] = Field(default=None, discriminator="type")
 
 
 class TransactionState(Enum):
@@ -409,6 +409,8 @@ class TransactionDB(TransactionBase):
         if hasattr(self, "charges") and request.charges:
             setattr(self, "charges", request.charges.amount)
 
+        self.state = TransactionState.REVIEW
+
 
 class TransactionReviewReq(TransactionRequest):
     code: str
@@ -440,6 +442,7 @@ class UpdateOffice(BaseModel):
     country: Optional[str]
     currencies: Optional[list[str]]
     baseCurrency: Optional[str]
+    mainCurrency: Optional[str]
 
 
 # @event.listens_for(TransactionDB.history, "modified")

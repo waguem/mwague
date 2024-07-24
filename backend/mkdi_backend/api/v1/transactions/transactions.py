@@ -5,6 +5,7 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends, Security
 from mkdi_backend.api.deps import check_authorization, get_db, AsyncDBSessionDep
 from mkdi_backend.models.models import KcUser
+from mkdi_backend.models.transactions.transaction_item import TransactionItem
 from mkdi_backend.repositories.transactions import TransactionRepository
 from mkdi_backend.models.transactions.transactions import TransactionWithDetails
 from mkdi_shared.schemas import protocol
@@ -16,16 +17,16 @@ router = APIRouter()
 
 @router.get(
     "/office/transactions",
-    response_model=List[protocol.TransactionResponse],
+    response_model=List[TransactionItem],
     status_code=200,
 )
 async def get_office_transactions(
     *,
     user: Annotated[KcUser, Security(check_authorization, scopes=[])],
     db: AsyncDBSessionDep,
-) -> list[protocol.TransactionResponse]:
+) -> List[TransactionItem]:
     """get all transactions for an office"""
-    return await TransactionRepository(db).get_office_transactions(user)
+    return await TransactionRepository(db).get_offcie_transactions_items(user)
 
 
 @router.get(

@@ -3,6 +3,7 @@
 from typing import List
 import random
 import string
+import datetime
 
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from sqlalchemy import select, or_, and_
@@ -12,6 +13,7 @@ from mkdi_backend.models.transactions.transactions import Payment, Sending
 from mkdi_backend.repositories.transaction_repos.payable import PayableTransaction
 from mkdi_backend.repositories.transaction_repos.invariant import managed_invariant_tx_method
 from mkdi_backend.utils.database import CommitMode
+from mkdi_backend.models.Activity import FundCommit
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol as pr
 
@@ -56,7 +58,16 @@ class SendingTransaction(PayableTransaction):
             # the office has maid a benefice +
             commits.append(office.credit(transaction.charges))
 
-        return commits
+        activity = await self.a_has_started_activity()
+
+        fund_history = FundCommit(
+            v_from=(fund.balance - commited_amount),
+            variation=commited_amount,
+            activity_id=activity["id"],
+            description="Sending Transaction",
+            date=datetime.datetime.now(),
+        )
+        return commits, fund_history
 
     def accounts(self, receiver=None) -> List[Account]:
         request = self.get_inputs()

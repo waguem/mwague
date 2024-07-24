@@ -11,6 +11,7 @@ import ExternalForms from "./ExternalForms";
 import DepositForms from "./DepositForms";
 import SendingForms from "./SendingForms";
 import StartActivityForm from "../activity/StartActivityForm";
+import ForexForms from "./ForexForms";
 
 interface Props {
   office: OfficeResponse;
@@ -64,7 +65,7 @@ export default function TransactionsForms({ agentAccounts, activity, office }: P
       case "SENDING":
         return <SendingForms agentWithAccounts={agentAccounts} />;
       case "FOREX":
-        return null;
+        return <ForexForms office={office} agentWithAccounts={agentAccounts} />;
       default:
         null;
     }

@@ -5,6 +5,7 @@ import {
   createOfficeApiV1OrganizationOfficePost as createOffice,
   getOfficeApiV1OrganizationOfficeOfficeIdGet as getOfficeById,
   updateOfficeApiV1OrganizationOfficeOfficeIdPut,
+  getOfficeEmployeesApiV1OfficeOfficeIdEmployeeGet as getEmployeesByOfficeId,
 } from "@/lib/client";
 import { AddOfficeSchema } from "@/lib/schemas/actions";
 import { revalidatePath } from "next/cache";
@@ -66,6 +67,15 @@ export const getOfficeCached = cache(async (slug: string) => {
   return withToken(async () => {
     return await getOfficeById({ officeId: slug });
   });
+});
+
+export const getEmployeesCached = cache(async (officeId: string) => {
+  return withToken(
+    async () =>
+      await getEmployeesByOfficeId({
+        officeId,
+      })
+  );
 });
 
 export const updateOfficeInfo = async (officeId: string, data: Record<string, string | string[]>): Promise<State> => {

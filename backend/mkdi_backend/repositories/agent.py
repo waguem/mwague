@@ -60,10 +60,7 @@ class AgentRepository:
         # Query to fetch agents and their accounts
         response = (
             self.db.query(Agent, Account)
-            .outerjoin(
-                Account,
-                and_(Agent.id == Account.owner_id, Account.type == protocol.AccountType.AGENT),
-            )
+            .outerjoin(Account, Agent.id == Account.owner_id)
             .filter(Agent.office_id == office_id, Agent.org_id == org_id)
             .all()
         )

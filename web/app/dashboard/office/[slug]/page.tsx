@@ -1,5 +1,4 @@
 import OfficeInfo from "@/components/organizations/office/OfficeInfo";
-import UsersTable from "@/components/organizations/users/UsersTable";
 
 import { setApiToken } from "@/app/hooks/useApi";
 import {
@@ -24,6 +23,7 @@ async function getEmployees(officeId: string): Promise<EmployeeResponse[]> {
   }
   return [];
 }
+
 export default async function Page({
   params,
 }: {
@@ -56,12 +56,7 @@ export default async function Page({
           <OfficeInfo office={office} />
         </GridCol>
       </Grid>
-      <div className="panel mt-5">
-        <UsersTable officeId={office.id} users={employees} />
-      </div>
-      <div className="panel mt-5">
-        <EmployeesTable employees={employees} />
-      </div>
+      <EmployeesTable employees={employees} />
     </div>
   );
 }

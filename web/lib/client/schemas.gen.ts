@@ -95,15 +95,15 @@ export const $AgentReponseWithAccounts = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -144,15 +144,15 @@ export const $AgentResponse = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -278,15 +278,15 @@ export const $CreateAgentRequest = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -354,8 +354,8 @@ export const $CreateOfficeRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     name: {
       type: "string",
@@ -382,8 +382,8 @@ export const $CreateOrganizationRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     org_name: {
       type: "string",
@@ -562,6 +562,10 @@ export const $EmployeeResponse = {
       type: "array",
       title: "Roles",
     },
+    avatar_url: {
+      type: "string",
+      title: "Avatar Url",
+    },
   },
   type: "object",
   required: ["email", "username", "id", "office_id", "organization_id", "roles"],
@@ -601,6 +605,10 @@ export const $EmployeeResponseComplete = {
       },
       type: "array",
       title: "Roles",
+    },
+    avatar_url: {
+      type: "string",
+      title: "Avatar Url",
     },
     office: {
       $ref: "#/components/schemas/OfficeResponse",
@@ -755,6 +763,135 @@ export const $ExternalRequest = {
   title: "ExternalRequest",
 } as const;
 
+export const $ExternalWithPayments = {
+  properties: {
+    amount: {
+      type: "number",
+      minimum: 0,
+      title: "Amount",
+      strict: true,
+    },
+    rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Rate",
+      strict: true,
+    },
+    code: {
+      type: "string",
+      maxLength: 64,
+      title: "Code",
+    },
+    state: {
+      $ref: "#/components/schemas/TransactionState",
+    },
+    type: {
+      $ref: "#/components/schemas/TransactionType",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    office_id: {
+      type: "string",
+      format: "uuid",
+      title: "Office Id",
+    },
+    org_id: {
+      type: "string",
+      format: "uuid",
+      title: "Org Id",
+    },
+    created_by: {
+      type: "string",
+      format: "uuid",
+      title: "Created By",
+    },
+    reviwed_by: {
+      type: "string",
+      format: "uuid",
+      title: "Reviwed By",
+    },
+    history: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "History",
+      default: {},
+    },
+    notes: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "Notes",
+      default: {},
+    },
+    sender_initials: {
+      type: "string",
+      title: "Sender Initials",
+    },
+    charges: {
+      type: "number",
+      minimum: 0,
+      title: "Charges",
+    },
+    customer: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "Customer",
+      default: {},
+    },
+    payments: {
+      items: {
+        $ref: "#/components/schemas/Payment",
+      },
+      type: "array",
+      title: "Payments",
+      default: [],
+    },
+  },
+  type: "object",
+  required: [
+    "amount",
+    "rate",
+    "code",
+    "state",
+    "type",
+    "office_id",
+    "org_id",
+    "created_by",
+    "sender_initials",
+    "charges",
+  ],
+  title: "ExternalWithPayments",
+  description: "Transaction database model",
+} as const;
+
 export const $ForEx = {
   properties: {
     amount: {
@@ -864,6 +1001,67 @@ export const $ForEx = {
   ],
   title: "ForEx",
   description: "Une transaction de change est effectué",
+} as const;
+
+export const $ForExRequest = {
+  properties: {
+    type: {
+      type: "string",
+      enum: ["FOREX"],
+      title: "Type",
+    },
+    provider_account: {
+      type: "string",
+      title: "Provider Account",
+    },
+    customer_account: {
+      type: "string",
+      title: "Customer Account",
+    },
+    currency: {
+      $ref: "#/components/schemas/Currency",
+    },
+    base_currency: {
+      $ref: "#/components/schemas/Currency",
+    },
+    daily_rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Daily Rate",
+      strict: true,
+    },
+    buying_rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Buying Rate",
+      strict: true,
+    },
+    selling_rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Selling Rate",
+      strict: true,
+    },
+    amount: {
+      type: "number",
+      minimum: 0,
+      title: "Amount",
+      strict: true,
+    },
+  },
+  type: "object",
+  required: [
+    "type",
+    "provider_account",
+    "customer_account",
+    "currency",
+    "base_currency",
+    "daily_rate",
+    "buying_rate",
+    "selling_rate",
+    "amount",
+  ],
+  title: "ForExRequest",
 } as const;
 
 export const $HTTPValidationError = {
@@ -1062,8 +1260,8 @@ export const $OfficeResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     name: {
       type: "string",
@@ -1102,8 +1300,8 @@ export const $OrganizationResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     org_name: {
       type: "string",
@@ -1120,6 +1318,59 @@ export const $OrganizationResponse = {
   type: "object",
   required: ["initials", "org_name", "id"],
   title: "OrganizationResponse",
+} as const;
+
+export const $Payment = {
+  properties: {
+    payment_date: {
+      type: "string",
+      format: "date",
+      title: "Payment Date",
+    },
+    amount: {
+      type: "number",
+      minimum: 0,
+      title: "Amount",
+      strict: true,
+    },
+    transaction_id: {
+      type: "string",
+      format: "uuid",
+      title: "Transaction Id",
+    },
+    transaction_type: {
+      $ref: "#/components/schemas/TransactionType",
+    },
+    state: {
+      $ref: "#/components/schemas/PaymentState",
+    },
+    notes: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "Notes",
+      default: {},
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    paid_by: {
+      type: "string",
+      format: "uuid",
+      title: "Paid By",
+    },
+  },
+  type: "object",
+  required: ["payment_date", "amount", "transaction_id", "transaction_type", "state", "paid_by"],
+  title: "Payment",
 } as const;
 
 export const $PaymentMethod = {
@@ -1194,6 +1445,11 @@ export const $PaymentResponse = {
       type: "object",
       title: "Notes",
       default: {},
+    },
+    paid_by: {
+      type: "string",
+      format: "uuid",
+      title: "Paid By",
     },
   },
   type: "object",
@@ -1418,6 +1674,191 @@ export const $SendingRequest = {
   title: "SendingRequest",
 } as const;
 
+export const $SendingWithPayments = {
+  properties: {
+    amount: {
+      type: "number",
+      minimum: 0,
+      title: "Amount",
+      strict: true,
+    },
+    rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Rate",
+      strict: true,
+    },
+    code: {
+      type: "string",
+      maxLength: 64,
+      title: "Code",
+    },
+    state: {
+      $ref: "#/components/schemas/TransactionState",
+    },
+    type: {
+      $ref: "#/components/schemas/TransactionType",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    office_id: {
+      type: "string",
+      format: "uuid",
+      title: "Office Id",
+    },
+    org_id: {
+      type: "string",
+      format: "uuid",
+      title: "Org Id",
+    },
+    created_by: {
+      type: "string",
+      format: "uuid",
+      title: "Created By",
+    },
+    reviwed_by: {
+      type: "string",
+      format: "uuid",
+      title: "Reviwed By",
+    },
+    history: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "History",
+      default: {},
+    },
+    notes: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "Notes",
+      default: {},
+    },
+    receiver_initials: {
+      type: "string",
+      title: "Receiver Initials",
+    },
+    bid_rate: {
+      type: "number",
+      title: "Bid Rate",
+    },
+    offer_rate: {
+      type: "number",
+      title: "Offer Rate",
+    },
+    method: {
+      $ref: "#/components/schemas/PaymentMethod",
+    },
+    payment_currency: {
+      $ref: "#/components/schemas/Currency",
+    },
+    charges: {
+      type: "number",
+      minimum: 0,
+      title: "Charges",
+    },
+    customer_sender: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "Customer Sender",
+      default: {},
+    },
+    customer_receiver: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "Customer Receiver",
+      default: {},
+    },
+    payments: {
+      items: {
+        $ref: "#/components/schemas/Payment",
+      },
+      type: "array",
+      title: "Payments",
+      default: [],
+    },
+  },
+  type: "object",
+  required: [
+    "amount",
+    "rate",
+    "code",
+    "state",
+    "type",
+    "office_id",
+    "org_id",
+    "created_by",
+    "receiver_initials",
+    "bid_rate",
+    "offer_rate",
+    "method",
+    "payment_currency",
+    "charges",
+  ],
+  title: "SendingWithPayments",
+  description: "Transaction database model",
+} as const;
+
+export const $TransactionItem = {
+  properties: {
+    item: {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/Internal",
+        },
+        {
+          $ref: "#/components/schemas/Deposit",
+        },
+        {
+          $ref: "#/components/schemas/Sending",
+        },
+        {
+          $ref: "#/components/schemas/External",
+        },
+      ],
+      title: "Item",
+    },
+  },
+  type: "object",
+  required: ["item"],
+  title: "TransactionItem",
+} as const;
+
 export const $TransactionRequest = {
   properties: {
     currency: {
@@ -1446,6 +1887,9 @@ export const $TransactionRequest = {
         {
           $ref: "#/components/schemas/SendingRequest",
         },
+        {
+          $ref: "#/components/schemas/ForExRequest",
+        },
       ],
       title: "Data",
       discriminator: {
@@ -1455,6 +1899,7 @@ export const $TransactionRequest = {
           DEPOSIT: "#/components/schemas/DepositRequest",
           EXTERNAL: "#/components/schemas/ExternalRequest",
           SENDING: "#/components/schemas/SendingRequest",
+          FOREX: "#/components/schemas/ForExRequest",
         },
       },
     },
@@ -1535,6 +1980,9 @@ export const $TransactionReviewReq = {
         {
           $ref: "#/components/schemas/SendingRequest",
         },
+        {
+          $ref: "#/components/schemas/ForExRequest",
+        },
       ],
       title: "Data",
       discriminator: {
@@ -1544,6 +1992,7 @@ export const $TransactionReviewReq = {
           DEPOSIT: "#/components/schemas/DepositRequest",
           EXTERNAL: "#/components/schemas/ExternalRequest",
           SENDING: "#/components/schemas/SendingRequest",
+          FOREX: "#/components/schemas/ForExRequest",
         },
       },
     },
@@ -1620,6 +2069,10 @@ export const $UpdateOffice = {
     baseCurrency: {
       type: "string",
       title: "Basecurrency",
+    },
+    mainCurrency: {
+      type: "string",
+      title: "Maincurrency",
     },
   },
   type: "object",

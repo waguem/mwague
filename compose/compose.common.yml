@@ -64,7 +64,7 @@ services:
     command: redis-server /usr/local/etc/redis/redis.conf
 
   backend:
-    image: tiangolo/uvicorn-gunicorn-fastapi:python3.10
+    image: tiangolo/uvicorn-gunicorn-fastapi:python3.11
     working_dir: /backend
 
     volumes:

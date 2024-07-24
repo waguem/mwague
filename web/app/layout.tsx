@@ -30,10 +30,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en">
       <head>
-        <ColorSchemeScript defaultColorScheme="auto" />
+        <ColorSchemeScript defaultColorScheme="dark" />
       </head>
       <body className={nunito.variable}>
-        <MantineProvider defaultColorScheme="auto">
+        <MantineProvider defaultColorScheme="light">
           <ProviderComponent>{children}</ProviderComponent>
         </MantineProvider>
       </body>

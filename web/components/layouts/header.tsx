@@ -14,8 +14,6 @@ import IconXCircle from "@/components/icon/icon-x-circle";
 import IconSun from "@/components/icon/icon-sun";
 import IconMoon from "@/components/icon/icon-moon";
 import IconLaptop from "@/components/icon/icon-laptop";
-import IconMailDot from "@/components/icon/icon-mail-dot";
-import IconArrowLeft from "@/components/icon/icon-arrow-left";
 import IconInfoCircle from "@/components/icon/icon-info-circle";
 import IconBellBing from "@/components/icon/icon-bell-bing";
 import IconMenuDashboard from "@/components/icon/menu/icon-menu-dashboard";
@@ -23,14 +21,8 @@ import IconCaretDown from "@/components/icon/icon-caret-down";
 import { usePathname, useRouter } from "next/navigation";
 import { getTranslation } from "@/i18n";
 import Image from "next/image";
+import { MantineColorScheme, useMantineColorScheme } from "@mantine/core";
 
-interface MessageType {
-  id: number;
-  image: string;
-  title: string;
-  message: string;
-  time: string;
-}
 interface NotificationType {
   id: number;
   profile: string;
@@ -45,6 +37,8 @@ const Header = (props: HeaderProps) => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { t, i18n } = getTranslation();
+
+  const { setColorScheme } = useMantineColorScheme();
 
   useEffect(() => {
     const selector = document.querySelector('ul.horizontal-menu a[href="' + window.location.pathname + '"]');
@@ -85,16 +79,14 @@ const Header = (props: HeaderProps) => {
     }
     router.refresh();
   };
-
-  function createMarkup(messages: any) {
-    return { __html: messages };
-  }
-  const [messages, setMessages] = useState<MessageType[]>([]);
-
-  const removeMessage = (value: number) => {
-    setMessages(messages.filter((user) => user.id !== value));
+  const changeTheme = (theme: MantineColorScheme) => {
+    if (theme === "auto") {
+      dispatch(toggleTheme("system"));
+    } else {
+      dispatch(toggleTheme(theme));
+    }
+    setColorScheme(theme);
   };
-
   const [notifications, setNotifications] = useState<NotificationType[]>([]);
 
   const removeNotification = (value: number) => {
@@ -209,7 +201,7 @@ const Header = (props: HeaderProps) => {
                     "flex items-center rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60"
                   }`}
                   title="Dark Mode"
-                  onClick={() => dispatch(toggleTheme("dark"))}
+                  onClick={() => changeTheme("dark")}
                 >
                   <IconSun />
                 </button>
@@ -223,7 +215,7 @@ const Header = (props: HeaderProps) => {
                     "flex items-center rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60"
                   }`}
                   title="Light Mode"
-                  onClick={() => dispatch(toggleTheme("system"))}
+                  onClick={() => changeTheme("auto")}
                 >
                   <IconMoon />
                 </button>
@@ -235,7 +227,7 @@ const Header = (props: HeaderProps) => {
                     "flex items-center rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60"
                   }`}
                   title="Light Mode"
-                  onClick={() => dispatch(toggleTheme("light"))}
+                  onClick={() => changeTheme("light")}
                 >
                   <IconLaptop />
                 </button>
@@ -284,72 +276,6 @@ const Header = (props: HeaderProps) => {
                       </li>
                     );
                   })}
-                </ul>
-              </Dropdown>
-            </div>
-            <div className="dropdown shrink-0">
-              <Dropdown
-                offset={[0, 8]}
-                placement={`${isRtl ? "bottom-start" : "bottom-end"}`}
-                btnClassName="block p-2 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60"
-                button={<IconMailDot />}
-              >
-                <ul className="w-[300px] !py-0 text-xs text-dark dark:text-white-dark sm:w-[375px]">
-                  <li className="mb-5" onClick={(e) => e.stopPropagation()}>
-                    <div className="relative !h-[68px] w-full overflow-hidden rounded-t-md p-5 text-white hover:!bg-transparent">
-                      <div className="bg- absolute inset-0 h-full w-full bg-[url(/assets/images/menu-heade.jpg)] bg-cover bg-center bg-no-repeat"></div>
-                      <h4 className="relative z-10 text-lg font-semibold">Messages</h4>
-                    </div>
-                  </li>
-                  {messages.length > 0 ? (
-                    <>
-                      <li onClick={(e) => e.stopPropagation()}>
-                        {messages.map((message) => {
-                          return (
-                            <div key={message.id} className="flex items-center px-5 py-3">
-                              <div dangerouslySetInnerHTML={createMarkup(message.image)}></div>
-                              <span className="px-3 dark:text-gray-500">
-                                <div className="text-sm font-semibold dark:text-white-light/90">{message.title}</div>
-                                <div>{message.message}</div>
-                              </span>
-                              <span className="whitespace-pre rounded bg-white-dark/20 px-1 font-semibold text-dark/60 ltr:ml-auto ltr:mr-2 rtl:ml-2 rtl:mr-auto dark:text-white-dark">
-                                {message.time}
-                              </span>
-                              <button
-                                type="button"
-                                title="Close"
-                                className="text-neutral-300 hover:text-danger"
-                                onClick={() => removeMessage(message.id)}
-                              >
-                                <IconXCircle />
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </li>
-                      <li className="mt-5 border-t border-white-light text-center dark:border-white/10">
-                        <button
-                          type="button"
-                          className="group !h-[48px] justify-center !py-4 font-semibold text-primary dark:text-gray-400"
-                        >
-                          <span className="group-hover:underline ltr:mr-1 rtl:ml-1">VIEW ALL ACTIVITIES</span>
-                          <IconArrowLeft className="transition duration-300 group-hover:translate-x-1 ltr:ml-1 rtl:mr-1" />
-                        </button>
-                      </li>
-                    </>
-                  ) : (
-                    <li className="mb-5" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        type="button"
-                        className="!grid min-h-[200px] place-content-center text-lg hover:!bg-transparent"
-                      >
-                        <div className="mx-auto mb-4 rounded-full text-primary ring-4 ring-primary/30">
-                          <IconInfoCircle fill={true} className="h-10 w-10" />
-                        </div>
-                        No data available.
-                      </button>
-                    </li>
-                  )}
                 </ul>
               </Dropdown>
             </div>
@@ -457,7 +383,7 @@ const Header = (props: HeaderProps) => {
                     width={100}
                     height={100}
                     className="h-9 w-9 rounded-full object-cover saturate-50 group-hover:saturate-100"
-                    src="/assets/images/user-profile.jpeg"
+                    src="/assets/avatars/avat-1.png"
                     alt="userProfile"
                   />
                 }

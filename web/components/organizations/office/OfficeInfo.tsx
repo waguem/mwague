@@ -2,7 +2,7 @@
 import { updateOfficeInfo } from "@/lib/actions";
 import { OfficeResponse } from "@/lib/client";
 import { countryOptions, currencyOptions } from "@/lib/utils";
-import { Button, Grid, GridCol, Loader, MultiSelect, Select, Stack, TextInput } from "@mantine/core";
+import { Button, Grid, GridCol, Group, Loader, MultiSelect, Select, Stack, TextInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconBuildingBurjAlArab, IconBuildingWarehouse, IconCheck, IconEdit, IconMapPin2 } from "@tabler/icons-react";
 import { isArray } from "lodash";
@@ -11,12 +11,25 @@ export default function OfficeInfo({ office }: { office: OfficeResponse }) {
   const [editing, setEditing] = useState<Record<string, string>>({});
   const [fields, setFields] = useState<Record<string, string | string[]>>({});
   const [pending, startTransition] = useTransition();
-  const saveEdit = async (name: string) => {
-    const data: any = {
-      [name]: fields[name],
-    };
+
+  const saveEdit = async (name: string | string[]) => {
+    const data: any = {};
+    if (isArray(name)) {
+      for (const n of name) {
+        if (fields[n] !== undefined) {
+          data[n] = fields[n];
+        }
+      }
+      console.log("Data", data);
+      if (Object.keys(data).length === 0) {
+        return;
+      }
+    } else {
+      data[name] = fields[name];
+    }
+
     const response = await updateOfficeInfo(office.id, data);
-    console.log(response);
+
     if (response?.status === "success") {
       // show notification
       notifications.show({
@@ -62,11 +75,22 @@ export default function OfficeInfo({ office }: { office: OfficeResponse }) {
     return <IconCheck color="teal" size={16} />;
   };
 
-  const handleBtnClick = (field: string) => {
-    if (editing[field]) {
-      startTransition(() => saveEdit(field));
+  const handleBtnClick = (fields: string | string[]) => {
+    console.log(fields);
+    if (!isArray(fields)) {
+      if (editing[fields]) {
+        startTransition(() => saveEdit(fields));
+      } else {
+        setEditing((prev) => ({ ...prev, [fields]: editing[fields] ? "" : fields }));
+      }
     } else {
-      setEditing((prev) => ({ ...prev, [field]: editing[field] ? "" : field }));
+      // lists of fields at once
+      const isEditing = fields.some((f) => editing[f]);
+      if (isEditing) {
+        startTransition(() => saveEdit(fields));
+      } else {
+        setEditing((prev) => fields.reduce((acc, f) => ({ ...acc, [f]: f }), prev));
+      }
     }
   };
   const hasOption = (office: OfficeResponse, option: any) => {
@@ -77,8 +101,29 @@ export default function OfficeInfo({ office }: { office: OfficeResponse }) {
     return false;
   };
 
+  const isBaseCurrency = (office: OfficeResponse, option: any) => {
+    const currencies: { name: string; main: boolean; defaultRate: number; base: boolean }[] =
+      office?.currencies ?? ([] as any);
+    if (isArray(currencies)) {
+      return currencies.find((curr) => curr.name === option.value && curr.base) != null;
+    }
+    return false;
+  };
+
+  const isMainCurrency = (office: OfficeResponse, option: any) => {
+    const currencies: { name: string; main: boolean; defaultRate: number; base: boolean }[] =
+      office?.currencies ?? ([] as any);
+    if (isArray(currencies)) {
+      return currencies.find((curr) => curr.name === option.value && curr.main) != null;
+    }
+    return false;
+  };
+
   const getDefaultCurrenciesOptions = () =>
     currencyOptions.filter((option) => hasOption(office, option)).map((option) => option.value);
+
+  const getMainCurrencyOption = () => currencyOptions.find((option) => isMainCurrency(office, option))?.value;
+  const getBaseCurrencyOption = () => currencyOptions.find((option) => isBaseCurrency(office, option))?.value;
 
   return (
     <div className="panel w-full h-full">
@@ -172,16 +217,28 @@ export default function OfficeInfo({ office }: { office: OfficeResponse }) {
             </Grid>
             <Grid>
               <GridCol span={10}>
-                <Select
-                  label="Base Currency"
-                  data={currencyOptions}
-                  readOnly={!editing["baseCurrency"]}
-                  onChange={(value) => setFields((prev) => ({ ...prev, baseCurrency: value ?? "" }))}
-                />
+                <Group grow>
+                  <Select
+                    label="Main Currency"
+                    data={currencyOptions}
+                    readOnly={!(editing["mainCurrency"] && editing["baseCurrency"])}
+                    defaultValue={getMainCurrencyOption()}
+                    onChange={(value) => setFields((prev) => ({ ...prev, mainCurrency: value ?? "" }))}
+                  />
+                  <Select
+                    label="Payment Currency"
+                    data={currencyOptions}
+                    readOnly={!(editing["mainCurrency"] && editing["baseCurrency"])}
+                    defaultValue={getBaseCurrencyOption()}
+                    onChange={(value) => setFields((prev) => ({ ...prev, baseCurrency: value ?? "" }))}
+                  />
+                </Group>
               </GridCol>
               <GridCol span={2} pos={"relative"}>
                 <Button
-                  onClick={() => handleBtnClick("baseCurrency")}
+                  onClick={() => {
+                    handleBtnClick(["baseCurrency", "mainCurrency"]);
+                  }}
                   variant="outline"
                   size="sm"
                   style={{ position: "absolute", bottom: "8px" }}

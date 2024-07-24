@@ -2,16 +2,19 @@ from typing import List
 
 from sqlalchemy import union_all
 from sqlalchemy.ext.asyncio.session import AsyncSession
-
+from asyncio import TaskGroup
 from mkdi_backend.models.Account import Account
 from mkdi_backend.models.Agent import Agent
 from mkdi_backend.models.models import KcUser
+from mkdi_backend.models.transactions.transaction_item import TransactionItem
+from mkdi_backend.dbmanager import sessionmanager
 from mkdi_backend.models.transactions.transactions import (
     Deposit,
     Internal,
     External,
     Sending,
     TransactionWithDetails,
+    ForEx,
 )
 from mkdi_backend.repositories.transaction_repos import (
     deposit,
@@ -19,6 +22,7 @@ from mkdi_backend.repositories.transaction_repos import (
     external,
     payable,
     sending,
+    forex,
 )
 from mkdi_backend.repositories.transaction_repos.abstract_transaction import AbstractTransaction
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
@@ -110,6 +114,7 @@ class TransactionRepository:
             pr.TransactionType.DEPOSIT: deposit.DepositTransaction,
             pr.TransactionType.EXTERNAL: external.ExternalTransaction,
             pr.TransactionType.SENDING: sending.SendingTransaction,
+            pr.TransactionType.FOREX: forex.ForExTransaction,
         }
 
         try:
@@ -221,6 +226,63 @@ class TransactionRepository:
         transactionImpl.set_transaction(tr)
         payment = await transactionImpl.add_payment(payment=usr_input, code=code)
         return payment
+
+    def _collect_transactions(self, *items) -> List[TransactionItem]:
+        result = []
+        for collection in items:
+            for item in collection.scalars().all():
+                result.append(TransactionItem(item=item))
+
+        return result
+
+    async def get_offcie_transactions_items(self, user: KcUser) -> List[TransactionItem]:
+
+        async with (
+            sessionmanager.session() as session1,
+            sessionmanager.session() as session2,
+            sessionmanager.session() as session3,
+            sessionmanager.session() as session4,
+        ):
+            office_id = user.office_id
+            deposit_stm = (
+                select(Deposit)
+                .where(Deposit.office_id == office_id)
+                .order_by(Deposit.created_at.desc())
+            )
+            external_stm = (
+                select(External)
+                .where(External.office_id == office_id)
+                .order_by(External.created_at.desc())
+            )
+            sending_stm = (
+                select(Sending)
+                .where(Sending.office_id == office_id)
+                .order_by(Sending.created_at.desc())
+            )
+            internal_stm = (
+                select(Internal)
+                .where(Internal.office_id == office_id)
+                .order_by(Internal.created_at.desc())
+            )
+            forex_stm = (
+                select(ForEx).where(ForEx.office_id == office_id).order_by(ForEx.created_at.desc())
+            )
+            async with TaskGroup() as tg:
+                deposit_task = tg.create_task(session1.execute(deposit_stm))
+                external_task = tg.create_task(session2.execute(external_stm))
+                sending_task = tg.create_task(session3.execute(sending_stm))
+                internal_task = tg.create_task(session4.execute(internal_stm))
+                forex_task = tg.create_task(session4.execute(forex_stm))
+
+                deposits, externals, sendings, internals, forexs = (
+                    await deposit_task,
+                    await external_task,
+                    await sending_task,
+                    await internal_task,
+                    await forex_task,
+                )
+
+                return self._collect_transactions(deposits, externals, sendings, internals, forexs)
 
     async def get_office_transactions(self, user: KcUser) -> List[pr.TransactionResponse]:
         fields = list(pr.TransactionDB.__fields__.keys())

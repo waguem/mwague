@@ -18,6 +18,7 @@ export default async function DefaultLayout({ children }: { children: React.Reac
   if (!session || !session?.accessToken) {
     redirect("/auth/login");
   }
+
   return (
     <>
       {/* BEGIN MAIN CONTAINER */}

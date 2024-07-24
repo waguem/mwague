@@ -1,12 +1,11 @@
 "use client";
-import { Deposit, External, Internal, Sending, TransactionType } from "@/lib/client";
-import { useEffect, useState, useTransition } from "react";
+import { Deposit, External, Internal, Sending, TransactionItem, TransactionType } from "@/lib/client";
+import { useEffect, useTransition } from "react";
 import {
   List,
   ThemeIcon,
   rem,
   Text,
-  Skeleton,
   NumberFormatter,
   Timeline,
   Drawer,
@@ -39,7 +38,7 @@ import { State } from "@/lib/actions";
 import { notifications } from "@mantine/notifications";
 
 interface Props {
-  row: any;
+  row: TransactionItem;
   opened: boolean;
   close: () => void;
 }
@@ -249,35 +248,18 @@ export default function TransactionReview({ row, opened, close }: Props) {
   const { register, reset, setValue, getValues } = useForm<ReviewInput>({
     mode: "all",
     resolver: zodResolver(TransactionReviewResolver),
+    defaultValues: {
+      action: "APPROVE",
+      notes: "",
+      code: row?.item?.code,
+      type: row?.item?.type,
+      charges: 0,
+      amount: row?.item?.amount ?? 0,
+    },
   });
+
   const [pending, startTransition] = useTransition();
   const [state, formAction] = useFormState<State, ReviewFormData>(reviewTransaction, null);
-  const [transaction, setTransaction] = useState<any>(undefined);
-
-  useEffect(() => {
-    async function fetchTransaction(code: string, type: string) {
-      const res = await fetch(`/api/transaction?code=${code}&type=${type}`);
-      const data = await res.json();
-      setTransaction(data);
-      setValue("type", data.type);
-      setValue("charges", data.charges);
-      setValue("amount", data.amount);
-    }
-
-    if (row?.code && row?.type) {
-      fetchTransaction(row.code, row.type);
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [row]);
-
-  useEffect(() => {
-    if (row?.code) {
-      setValue("code", row.code);
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [row]);
 
   useEffect(() => {
     if (state?.status === "success") {
@@ -316,7 +298,7 @@ export default function TransactionReview({ row, opened, close }: Props) {
   }, [state]);
 
   let View: any = ExternalView;
-  switch (row?.type) {
+  switch (row?.item.type) {
     case "EXTERNAL":
       View = ExternalView;
       break;
@@ -359,25 +341,17 @@ export default function TransactionReview({ row, opened, close }: Props) {
             <Text size="xs" mt={4}>
               2 hours ago
             </Text>
-            {transaction && <View transaction={transaction} />}
-            {!transaction && (
-              <>
-                <span>Loading...</span>
-                <Skeleton height={8} radius="xl" />
-                <Skeleton height={8} mt={6} radius="xl" />
-                <Skeleton height={8} mt={6} width="70%" radius="xl" />
-              </>
-            )}
+            {row?.item && <View transaction={row.item} />}
           </Timeline.Item>
           <Timeline.Item title="Transaction review" bullet={<IconMessageDots size={12} />}>
-            {transaction && transaction.state === "REVIEW" && (
+            {row?.item && row?.item.state === "REVIEW" && (
               <form
                 className="mt-5"
                 action={(formData) => {
                   const data: any = {
                     ...formData,
                     ...getValues(),
-                    officeId: transaction!.office_id,
+                    officeId: row?.item.office_id,
                   };
                   startTransition(() => formAction(data as unknown as ReviewFormData));
                 }}

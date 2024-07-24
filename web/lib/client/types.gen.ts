@@ -171,6 +171,7 @@ export type EmployeeResponse = {
   office_id: string;
   organization_id: string;
   roles: Array<string>;
+  avatar_url?: string;
 };
 
 export type EmployeeResponseComplete = {
@@ -180,6 +181,7 @@ export type EmployeeResponseComplete = {
   office_id: string;
   organization_id: string;
   roles: Array<string>;
+  avatar_url?: string;
   office: OfficeResponse;
 };
 
@@ -233,6 +235,47 @@ export type ExternalRequest = {
 export type type2 = "EXTERNAL";
 
 /**
+ * Transaction database model
+ */
+export type ExternalWithPayments = {
+  amount: number;
+  rate: number;
+  code: string;
+  state: TransactionState;
+  type: TransactionType;
+  created_at?: string;
+  id?: string;
+  office_id: string;
+  org_id: string;
+  created_by: string;
+  reviwed_by?: string;
+  history?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  notes?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  sender_initials: string;
+  charges: number;
+  customer?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  payments?: Array<Payment>;
+};
+
+/**
  * Une transaction de change est effectué
  */
 export type ForEx = {
@@ -265,6 +308,20 @@ export type ForEx = {
   offer_rate: number;
   method: PaymentMethod;
 };
+
+export type ForExRequest = {
+  type: "FOREX";
+  provider_account: string;
+  customer_account: string;
+  currency: Currency;
+  base_currency: Currency;
+  daily_rate: number;
+  buying_rate: number;
+  selling_rate: number;
+  amount: number;
+};
+
+export type type3 = "FOREX";
 
 export type HTTPValidationError = {
   detail?: Array<ValidationError>;
@@ -313,7 +370,7 @@ export type InternalRequest = {
   receiver: string;
 };
 
-export type type3 = "INTERNAL";
+export type type4 = "INTERNAL";
 
 export type Note = {
   content: string;
@@ -345,6 +402,23 @@ export type OrganizationResponse = {
   id: string;
 };
 
+export type Payment = {
+  payment_date: string;
+  amount: number;
+  transaction_id: string;
+  transaction_type: TransactionType;
+  state: PaymentState;
+  notes?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  id?: string;
+  paid_by: string;
+};
+
 /**
  * An enumeration.
  */
@@ -371,6 +445,7 @@ export type PaymentResponse = {
         }
       | unknown;
   };
+  paid_by?: string;
 };
 
 /**
@@ -445,14 +520,70 @@ export type SendingRequest = {
   payment_currency: Currency;
 };
 
-export type type4 = "SENDING";
+export type type5 = "SENDING";
+
+/**
+ * Transaction database model
+ */
+export type SendingWithPayments = {
+  amount: number;
+  rate: number;
+  code: string;
+  state: TransactionState;
+  type: TransactionType;
+  created_at?: string;
+  id?: string;
+  office_id: string;
+  org_id: string;
+  created_by: string;
+  reviwed_by?: string;
+  history?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  notes?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  receiver_initials: string;
+  bid_rate: number;
+  offer_rate: number;
+  method: PaymentMethod;
+  payment_currency: Currency;
+  charges: number;
+  customer_sender?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  customer_receiver?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  payments?: Array<Payment>;
+};
+
+export type TransactionItem = {
+  item: Internal | Deposit | Sending | External;
+};
 
 export type TransactionRequest = {
   currency: Currency;
   amount: Amount;
   charges?: Amount;
   transaction_type?: TransactionType;
-  data?: InternalRequest | DepositRequest | ExternalRequest | SendingRequest;
+  data?: InternalRequest | DepositRequest | ExternalRequest | SendingRequest | ForExRequest;
 };
 
 export type TransactionResponse = {
@@ -471,7 +602,7 @@ export type TransactionReviewReq = {
   amount: Amount;
   charges?: Amount;
   transaction_type?: TransactionType;
-  data?: InternalRequest | DepositRequest | ExternalRequest | SendingRequest;
+  data?: InternalRequest | DepositRequest | ExternalRequest | SendingRequest | ForExRequest;
   code: string;
   type: TransactionType;
   state: ValidationState;
@@ -500,6 +631,7 @@ export type UpdateOffice = {
   country?: string;
   currencies?: Array<string>;
   baseCurrency?: string;
+  mainCurrency?: string;
 };
 
 export type ValidationError = {
@@ -621,7 +753,7 @@ export type StartActivityApiV1OfficeActivityPostData = {
 
 export type StartActivityApiV1OfficeActivityPostResponse = ActivityResponse;
 
-export type GetOfficeTransactionsApiV1OfficeTransactionsGetResponse = Array<TransactionResponse>;
+export type GetOfficeTransactionsApiV1OfficeTransactionsGetResponse = Array<TransactionItem>;
 
 export type GetAgentTransactionsApiV1AgentInitialsTransactionsGetData = {
   initials: string;
@@ -650,9 +782,9 @@ export type GetOfficeTransactionsWithDetailsApiV1TransactionCodeGetData = {
 export type GetOfficeTransactionsWithDetailsApiV1TransactionCodeGetResponse =
   | Internal
   | Deposit
-  | Sending
+  | SendingWithPayments
   | ForEx
-  | External;
+  | ExternalWithPayments;
 
 export type UpdateTransactionApiV1TransactionCodePutData = {
   code: string;
@@ -966,7 +1098,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Array<TransactionResponse>;
+        200: Array<TransactionItem>;
       };
     };
   };
@@ -1022,7 +1154,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Internal | Deposit | Sending | ForEx | External;
+        200: Internal | Deposit | SendingWithPayments | ForEx | ExternalWithPayments;
         /**
          * Validation Error
          */

@@ -72,10 +72,7 @@ class AccountRepository:
                         error_code=MkdiErrorCode.DUPLICATE_ERROR,
                     )
 
-            case protocol.AccountType.SUPPLIER:
-                # raise Http not implemented
-                raise NotImplementedError("Creating account for office or fund is not implemented")
-            case protocol.AccountType.AGENT:
+            case protocol.AccountType.AGENT | protocol.AccountType.SUPPLIER:
                 owner = self.db.query(Agent).filter(Agent.initials == input.owner_initials).first()
 
         if not owner:

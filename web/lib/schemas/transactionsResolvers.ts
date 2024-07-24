@@ -4,7 +4,7 @@ import { DepositRequest, InternalRequest, TransactionRequest } from "../client";
 
 // Step 1: Define the registry
 // Assuming you have Zod schemas defined somewhere
-
+export const zCurrency = z.enum(["USD", "EUR", "CFA", "GNF", "AED", "RMB"]);
 export const zNumber = z.preprocess(
   (value) => {
     // Attempt to convert string to number if it's a string that represents a number
@@ -75,7 +75,7 @@ const External = zfd.formData({
   message: zfd.text(z.string().max(255)).optional(),
   customer_name: zfd.text(z.string().max(255)).optional(),
   customer_phone: zfd.text(z.string().max(255)).optional(),
-  payment_currency: z.enum(["USD", "EUR", "CFA", "GNF", "AED", "RMB"]),
+  payment_currency: zCurrency,
 });
 const Sending = zfd.formData({
   receiver_initials: zfd.text(z.string().max(20)).refine((value) => value.trim() !== ""),
@@ -84,12 +84,23 @@ const Sending = zfd.formData({
   bid_rate: zfd.text(zPNumber),
   offer_rate: zfd.text(zPNumber),
   message: zfd.text(z.string().max(255)).optional(),
-  payment_currency: z.enum(["USD", "EUR", "CFA", "GNF", "AED", "RMB"]),
+  payment_currency: zCurrency,
   payment_method: z.enum(["CASH", "BANK", "MOBILE", "OTHER"]),
   sender_name: zfd.text(z.string().max(255)).optional(),
   sender_phone: zfd.text(z.string().max(255)).optional(),
   receiver_name: zfd.text(z.string().max(255)).optional(),
   receiver_phone: zfd.text(z.string().max(255)).optional(),
+});
+const ForEx = zfd.formData({
+  provider_account: zfd.text(z.string().max(10)).refine((value) => value.trim() !== ""),
+  customer_account: zfd.text(z.string().max(10)).refine((value) => value.trim() !== ""),
+  base_currency: zCurrency,
+  currency: zCurrency,
+  daily_rate: zfd.text(zPNumber),
+  buying_rate: zfd.text(zPNumber),
+  selling_rate: zfd.text(zPNumber),
+  amount: zfd.text(zPNumber),
+  message: zfd.text(z.string().max(255)).optional(),
 });
 export type Data = InternalRequest | DepositRequest;
 export interface FormResolver {
@@ -263,11 +274,53 @@ const ExternalFormResolver: FormResolver = {
     };
   },
 };
+
+const ForexFromResolver: FormResolver = {
+  resolver: ForEx,
+  run: (data: FormData) => {
+    const parsed = ForEx.safeParse(data);
+    const charges = 0;
+    if (!parsed.success) {
+      return {
+        status: "error",
+        error: "Invalid transaction data",
+        errors: parsed.error.errors.map((error) => ({
+          path: error.path.join("."),
+          message: error.message,
+        })),
+      };
+    }
+
+    return {
+      amount: {
+        amount: +parsed.data.amount,
+        rate: +parsed.data.daily_rate,
+      },
+      currency: data.get("currency") as string,
+      charges: {
+        amount: charges,
+        rate: +parsed.data.daily_rate,
+      },
+      data: {
+        type: "FOREX",
+        provider_account: parsed.data.provider_account,
+        customer_account: parsed.data.customer_account,
+        currency: parsed.data.currency,
+        base_currency: parsed.data.base_currency,
+        daily_rate: +parsed.data.daily_rate,
+        buying_rate: +parsed.data.buying_rate,
+        selling_rate: +parsed.data.selling_rate,
+        amount: +parsed.data.amount,
+      },
+    };
+  },
+};
 const resolverRegistry: Record<string, FormResolver> = {
   INTERNAL: InternalFormResolver,
   DEPOSIT: DepositFormResolver,
   EXTERNAL: ExternalFormResolver,
   SENDING: SendingFormResolver,
+  FOREX: ForexFromResolver,
 };
 
 // Step 2: Create the function

@@ -29,4 +29,6 @@ class Employee(EmployeeBase, table=True):
     organization_id: UUID = Field(foreign_key="organizations.id")
     provider_account_id: Optional[str]
 
+    avatar_url: Optional[str]
+
     # office: "Office" = Relationship(back_populates="employees")  # type: ignore

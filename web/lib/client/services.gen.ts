@@ -536,7 +536,7 @@ export const startActivityApiV1OfficeActivityPost = (
 /**
  * Get Office Transactions
  * get all transactions for an office
- * @returns TransactionResponse Successful Response
+ * @returns TransactionItem Successful Response
  * @throws ApiError
  */
 export const getOfficeTransactionsApiV1OfficeTransactionsGet =

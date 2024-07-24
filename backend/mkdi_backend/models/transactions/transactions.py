@@ -1,12 +1,13 @@
 from decimal import Decimal
-from typing import Annotated, Mapping, Any, Optional, Union, List
+from typing import Annotated, Mapping, Any, Optional, Union, List, ClassVar
 from uuid import UUID, uuid4
 from sqlalchemy.ext.mutable import MutableDict
-from pydantic import Field as PydanticField
+from pydantic import Field as PydanticField, BaseModel
 from mkdi_shared.schemas import protocol as pr
 from sqlmodel import Field
 import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as pg
+from sqlalchemy.ext.hybrid import hybrid_property
 
 
 class Payment(pr.PaymentBase, table=True):
@@ -19,6 +20,8 @@ class Payment(pr.PaymentBase, table=True):
             server_default=sa.text("gen_random_uuid()"),
         )
     )
+
+    paid_by: UUID = Field(foreign_key="employees.id")
 
 
 class Internal(pr.TransactionDB, table=True):
@@ -71,15 +74,31 @@ class SendingBase(pr.TransactionDB):
     )
 
 
-class ForEx(pr.TransactionDB, table=True):
+class ForExBase(pr.TransactionDB):
     """
     Une transaction de change est effectué
     """
 
     __tablename__ = "forex"
-    bid_rate: Decimal
-    offer_rate: Decimal
-    method: pr.PaymentMethod
+    currency: pr.Currency
+    base_currency: pr.Currency
+    buying_rate: Annotated[Decimal, Field(ge=0)]
+    selling_rate: Annotated[Decimal, Field(ge=0)]
+    provider_account: str = Field(foreign_key="accounts.initials")
+    customer_account: str = Field(foreign_key="accounts.initials")
+
+    is_valid: ClassVar[bool] = hybrid_property(lambda cls: cls.buying_rate > cls.selling_rate)
+    buying_amount: ClassVar[Decimal] = hybrid_property(lambda cls: cls.amount / cls.buying_rate)
+    selling_amount: ClassVar[Decimal] = hybrid_property(lambda cls: cls.amount / cls.selling_rate)
+
+
+class ForExWithPayments(ForExBase):
+    payments: List[Payment] = PydanticField(default=[])
+
+
+class ForEx(ForExBase, table=True):
+    def withPayments(self, payments: List[Payment]) -> ForExWithPayments:
+        return ForExWithPayments(**self.dict(), payments=payments)
 
 
 class ExternalBase(pr.TransactionDB):
@@ -115,4 +134,10 @@ class Sending(SendingBase, table=True):
         return SendingWithPayments(**self.dict(), payments=payments)
 
 
-TransactionWithDetails = Union[Internal, Deposit, SendingWithPayments, ForEx, ExternalWithPayments]
+class TransactionItem(BaseModel):
+    item: Union[Internal, Deposit, Sending, ForEx, External]
+
+
+TransactionWithDetails = Union[
+    Internal, Deposit, SendingWithPayments, ForExWithPayments, ExternalWithPayments
+]

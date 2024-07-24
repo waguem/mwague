@@ -13,6 +13,7 @@ import {
   TransactionReviewReq,
   GetOfficeTransactionsWithDetailsApiV1TransactionCodeGetResponse,
   addPaymentApiV1TransactionCodePayPost,
+  updateTransactionApiV1TransactionCodePut,
 } from "@/lib/client";
 import { State } from "./state";
 import { getResolver } from "../schemas/transactionsResolvers";
@@ -37,7 +38,7 @@ export async function addTransaction(prevSate: State, data: FormData): Promise<S
   if (!resolver) {
     return { message: "Invalid transaction type", status: "error" };
   }
-
+  debugger;
   const validation = resolver.run(data);
   if ("status" in validation) {
     return {
@@ -46,6 +47,7 @@ export async function addTransaction(prevSate: State, data: FormData): Promise<S
       errors: validation.errors,
     };
   }
+  console.log(validation);
 
   try {
     const response = await requestTransactionApi({
@@ -185,6 +187,41 @@ export const payTransaction = async (officeId: string, data: PaymentRequest): Pr
     return {
       status: "success",
       message: `${validation.data.type} Transaction ${validation.data.code} paid ${response.amount} successfully`,
+    };
+  });
+};
+
+export const updateTransaction = async (officeId: string, data: any): Promise<State> => {
+  return withToken(async () => {
+    // make sure amount is a positive number and rate a positive number and charge a positive number
+    if (data.amount <= 0 || data.rate <= 0 || data.charges < 0) {
+      return {
+        status: "error",
+        message: "Invalid amount, rate or charges",
+      };
+    }
+
+    const response = await updateTransactionApiV1TransactionCodePut({
+      code: data.code ?? "",
+      requestBody: {
+        currency: "USD",
+        transaction_type: data.type,
+        amount: {
+          amount: data.amount ?? 0,
+          rate: data.rate ?? 0,
+        },
+        charges: {
+          amount: data.charges ?? 0,
+          rate: data.rate ?? 1,
+        },
+      },
+    });
+
+    revalidatePath(`/dashboard/office/${officeId}/transactions`);
+
+    return {
+      status: "success",
+      message: `Transaction ${response.code} updated successfully`,
     };
   });
 };

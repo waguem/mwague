@@ -3,10 +3,11 @@ import { getDefaultMRTOptions } from "@/components/mantine";
 import { EmployeeResponse } from "@/lib/client";
 import { MantineReactTable, MRT_ColumnDef, useMantineReactTable } from "mantine-react-table";
 import { useMemo, useState, useTransition } from "react";
-import { Button, MultiSelect } from "@mantine/core";
+import { Avatar, Button, Group, MultiSelect } from "@mantine/core";
 import { updateOfficeEmployees } from "@/lib/actions/employee";
 import { notifications } from "@mantine/notifications";
 import { IconChecklist } from "@tabler/icons-react";
+import { AddUser } from "@/components/organizations/users/AddUser";
 
 interface Props {
   employees: EmployeeResponse[];
@@ -75,6 +76,12 @@ const EmployeesTable = ({ employees }: Props) => {
         accessorKey: "username",
         header: "Username",
         enableEditing: false,
+        Cell: ({ cell, row }) => (
+          <Group>
+            <Avatar size={26} src={row.original.avatar_url} radius={26} />
+            {cell.getValue() as any}
+          </Group>
+        ),
       },
       {
         accessorKey: "email",
@@ -103,6 +110,14 @@ const EmployeesTable = ({ employees }: Props) => {
       {
         accessorKey: "roles",
         header: "Roles",
+        Cell: ({ row }) => (
+          <MultiSelect
+            placeholder="Pick value"
+            defaultValue={getdefaultRoleOptions(row.getValue("email") as string)}
+            data={rolesOptions}
+            readOnly
+          />
+        ),
         Edit: ({ row }) => (
           <MultiSelect
             placeholder="Pick value"
@@ -130,10 +145,11 @@ const EmployeesTable = ({ employees }: Props) => {
     columns,
     data: employees,
     ...options,
-    enableRowActions: false,
     getRowId: (row) => row.email,
-    createDisplayMode: "row", // ('modal', and 'custom' are also available)
-    editDisplayMode: "table", // ('modal', 'row', 'cell', and 'custom' are also available)
+    createDisplayMode: "custom", // ('modal', and 'custom' are also available)
+
+    renderTopToolbarCustomActions: () => <AddUser officeId={employees[0]?.office_id ?? "#"} />,
+    editDisplayMode: "row", // ('modal', 'row', 'cell', and 'custom' are also available)
     renderBottomToolbarCustomActions: () => (
       <Button
         color="blue"
