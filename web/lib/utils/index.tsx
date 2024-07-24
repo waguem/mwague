@@ -5,7 +5,6 @@ import {
   IconCurrencyDollar,
   IconCurrencyEuro,
   IconCurrencyRenminbi,
-  IconCurrencyLira,
   IconCurrencyDirham,
   IconCurrencyCent,
 } from "@tabler/icons-react";
