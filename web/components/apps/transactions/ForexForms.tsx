@@ -159,9 +159,7 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
                 leftSection={
                   <Group>
                     <Tooltip label="aed">
-                      <>
-                        {getMoneyIcon(baseCurrency?.name, 16)}
-                      </>
+                      <>{getMoneyIcon(baseCurrency?.name, 16)}</>
                     </Tooltip>
                   </Group>
                 }

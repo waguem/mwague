@@ -296,9 +296,9 @@ export default function TransactionReview({ row, opened, close }: Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
-  
-  useEffect(()=>{
-    if(row?.item){
+
+  useEffect(() => {
+    if (row?.item) {
       reset({
         action: "APPROVE",
         notes: "",
@@ -308,7 +308,7 @@ export default function TransactionReview({ row, opened, close }: Props) {
         amount: row?.item?.amount ?? 0,
       });
     }
-  },[row,reset])
+  }, [row, reset]);
 
   let View: any = ExternalView;
   switch (row?.item.type) {

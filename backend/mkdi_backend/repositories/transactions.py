@@ -322,7 +322,7 @@ class TransactionRepository:
         resp = [pr.TransactionResponse(**dict(record._mapping)) for record in records]
         return resp
 
-    async def  get_office_transactions_with_details(
+    async def get_office_transactions_with_details(
         self, user: KcUser, tr_code: str, tr_type: pr.TransactionType
     ) -> TransactionWithDetails:
         transactionImpl: AbstractTransaction = None

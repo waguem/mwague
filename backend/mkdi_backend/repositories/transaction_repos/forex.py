@@ -14,10 +14,11 @@ from mkdi_shared.schemas import protocol as pr
 from mkdi_backend.models.Activity import FundCommit
 
 from decimal import Decimal
-from sqlmodel import select,or_,and_
+from sqlmodel import select, or_, and_
 import datetime
 import random
 import string
+
 
 class ForExTransaction(PayableTransaction):
     """Foreign Exchange Transaction"""
@@ -33,10 +34,12 @@ class ForExTransaction(PayableTransaction):
     async def a_commit(
         self, amount, transaction: ForEx, has_complete=False
     ) -> List[pr.TransactionCommit]:
-        commits =[]
+        commits = []
         accounts: List[Account] = await self.a_accounts()
         office: Account = next((x for x in accounts if x.type == pr.AccountType.OFFICE), None)
-        sender: Account = next((x for x in accounts if x.initials == transaction.customer_account), None)
+        sender: Account = next(
+            (x for x in accounts if x.initials == transaction.customer_account), None
+        )
         fund: Account = next((x for x in accounts if x.type == pr.AccountType.FUND), None)
 
         assert fund is not None
@@ -70,7 +73,9 @@ class ForExTransaction(PayableTransaction):
         assert isinstance(user_input, pr.ForExRequest)
         assert user_input.provider_account is not None
         assert user_input.customer_account is not None
-        customer_account = self.db.scalar(select(Account).where(Account.initials==user_input.customer_account))
+        customer_account = self.db.scalar(
+            select(Account).where(Account.initials == user_input.customer_account)
+        )
 
         assert customer_account is not None
         forEx = ForEx(
@@ -98,40 +103,33 @@ class ForExTransaction(PayableTransaction):
 
     async def a_accounts(self, customer_account=None, provider_account=None) -> List[Account]:
         session = self.db
-        request : pr.ForExRequest = self.get_inputs().data if hasattr(self.get_inputs(), 'data') else None
-        
+        request: pr.ForExRequest = (
+            self.get_inputs().data if hasattr(self.get_inputs(), "data") else None
+        )
+
         if request is None and customer_account is None:
             tr: ForEx = self.transaction
             customer_account = tr.customer_account
             provider_account = tr.provider_account
 
         condition = or_(
-            Account.initials==customer_account,
-            and_(
-                Account.type==pr.AccountType.FUND,
-                Account.office_id==self.user.office_id
-            ),
-            and_(
-                Account.type==pr.AccountType.OFFICE,
-                Account.office_id==self.user.office_id
-            )
+            Account.initials == customer_account,
+            and_(Account.type == pr.AccountType.FUND, Account.office_id == self.user.office_id),
+            and_(Account.type == pr.AccountType.OFFICE, Account.office_id == self.user.office_id),
         )
-        accounts = await session.scalars(
-            select(Account).where(condition)
-        )
+        accounts = await session.scalars(select(Account).where(condition))
 
         return accounts.all()
 
     def accounts(self, customer_account=None, provider_account=None) -> List[Account]:
-        request : pr.ForExRequest = self.get_inputs().data
+        request: pr.ForExRequest = self.get_inputs().data
         if request is None and customer_account is None:
             tr: ForEx = self.transaction
             customer_account = tr.customer_account
 
-        stmt = select(Account).where(or_(
-            Account.initials==customer_account,
-            Account.initials==provider_account
-        ))
+        stmt = select(Account).where(
+            or_(Account.initials == customer_account, Account.initials == provider_account)
+        )
 
         accounts = self.db.exec(stmt).all()
 
