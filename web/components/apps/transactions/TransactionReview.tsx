@@ -296,6 +296,19 @@ export default function TransactionReview({ row, opened, close }: Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
+  
+  useEffect(()=>{
+    if(row?.item){
+      reset({
+        action: "APPROVE",
+        notes: "",
+        code: row?.item?.code,
+        type: row?.item?.type,
+        charges: row?.item?.charges ?? 0,
+        amount: row?.item?.amount ?? 0,
+      });
+    }
+  },[row,reset])
 
   let View: any = ExternalView;
   switch (row?.item.type) {

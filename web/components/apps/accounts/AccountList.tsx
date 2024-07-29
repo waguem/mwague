@@ -6,7 +6,7 @@ interface Props {
 }
 
 export default async function AccountList({ accounts }: Props) {
-  if (accounts.length === 0) {
+  if (accounts?.length === 0) {
     return (
       <div className="!grid items-center justify-center h-96!grid min-h-[200px] place-content-center text-lg hover:!bg-transparent">
         <div className="mx-auto mb-4 rounded-full text-primary ring-4 ring-primary/30">
@@ -19,7 +19,7 @@ export default async function AccountList({ accounts }: Props) {
 
   return (
     <div className="flex gap-4 justify-between">
-      {accounts.map((account: AccountResponse) => (
+      {accounts?.map((account: AccountResponse) => (
         <AccountCard key={account.initials} account={account} />
       ))}
     </div>

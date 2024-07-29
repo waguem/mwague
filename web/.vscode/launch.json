@@ -6,7 +6,7 @@
       "type": "node-terminal",
       "request": "launch",
       "cwd": "${workspaceFolder}",
-      "command": "pnpm trubo"
+      "command": "pnpm turbo"
     },
     {
       "name": "Next.js: debug client-side",

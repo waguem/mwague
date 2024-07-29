@@ -90,6 +90,7 @@ class ForExBase(pr.TransactionDB):
     is_valid: ClassVar[bool] = hybrid_property(lambda cls: cls.buying_rate > cls.selling_rate)
     buying_amount: ClassVar[Decimal] = hybrid_property(lambda cls: cls.amount / cls.buying_rate)
     selling_amount: ClassVar[Decimal] = hybrid_property(lambda cls: cls.amount / cls.selling_rate)
+    forex_result: ClassVar[Decimal] = hybrid_property(lambda cls: cls.selling_amount - cls.buying_amount)
 
 
 class ForExWithPayments(ForExBase):

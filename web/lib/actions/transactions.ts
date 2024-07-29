@@ -108,6 +108,7 @@ export const reviewTransaction = async (prevSate: State, data: ReviewFormData): 
     });
 
     if ("charges" in transaction) {
+      console.log("validating charges");
       assert(transaction?.charges == validation.data.charges);
     }
 

@@ -242,6 +242,7 @@ class TransactionRepository:
             sessionmanager.session() as session2,
             sessionmanager.session() as session3,
             sessionmanager.session() as session4,
+            sessionmanager.session() as session5,
         ):
             office_id = user.office_id
             deposit_stm = (
@@ -272,7 +273,7 @@ class TransactionRepository:
                 external_task = tg.create_task(session2.execute(external_stm))
                 sending_task = tg.create_task(session3.execute(sending_stm))
                 internal_task = tg.create_task(session4.execute(internal_stm))
-                forex_task = tg.create_task(session4.execute(forex_stm))
+                forex_task = tg.create_task(session5.execute(forex_stm))
 
                 deposits, externals, sendings, internals, forexs = (
                     await deposit_task,
@@ -321,7 +322,7 @@ class TransactionRepository:
         resp = [pr.TransactionResponse(**dict(record._mapping)) for record in records]
         return resp
 
-    async def get_office_transactions_with_details(
+    async def  get_office_transactions_with_details(
         self, user: KcUser, tr_code: str, tr_type: pr.TransactionType
     ) -> TransactionWithDetails:
         transactionImpl: AbstractTransaction = None

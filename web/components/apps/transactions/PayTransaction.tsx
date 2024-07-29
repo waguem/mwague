@@ -81,13 +81,20 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
     async function fetchTransaction(code: string, type: string) {
       const res = await fetch(`/api/transaction?code=${code}&type=${type}`);
       const data = await res.json();
+      
+      let amount = data.amount
+      if(data.type==="FOREX"){
+        // buying amount => amount / buying_rate
+        amount = data.amount / data.buying_rate
+      }
       form.setValues({
         rate: data.rate,
-        mainAmount: data.amount,
-        convertedAmount: data.amount * data.rate,
+        mainAmount: amount,
+        convertedAmount: amount * data.rate,
         type: data.type,
         code: data.code,
       });
+
       console.log(data);
       setTransaction(data);
     }
