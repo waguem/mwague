@@ -1,5 +1,15 @@
 "use client";
-import { Deposit, External, Internal, Sending, TransactionItem, TransactionType } from "@/lib/client";
+import {
+  Currency,
+  Deposit,
+  External,
+  ForEx,
+  Internal,
+  OfficeResponse,
+  Sending,
+  TransactionItem,
+  TransactionType,
+} from "@/lib/client";
 import { useEffect, useTransition } from "react";
 import {
   List,
@@ -28,6 +38,7 @@ import {
   IconCancel,
   IconX,
   IconCheck,
+  IconArrowsExchange,
 } from "@tabler/icons-react";
 import { useForm } from "react-hook-form";
 import { ReviewFormData, reviewTransaction } from "@/lib/actions/transactions";
@@ -36,10 +47,13 @@ import { TransactionReviewResolver } from "@/lib/schemas/actions";
 import { useFormState } from "react-dom";
 import { State } from "@/lib/actions";
 import { notifications } from "@mantine/notifications";
+import { getMoneyPrefix } from "@/lib/utils";
+import { formatDistanceToNowStrict } from "date-fns";
 
 interface Props {
   row: TransactionItem;
   opened: boolean;
+  office: OfficeResponse;
   close: () => void;
 }
 
@@ -99,7 +113,7 @@ function ExternalView({ transaction }: { transaction: External }) {
     </List>
   );
 }
-function InternalView({ transaction }: { transaction: Internal }) {
+function InternalView({ transaction }: { transaction: Internal; mainCurrency: Currency }) {
   return (
     <List
       style={{ marginTop: 5 }}
@@ -159,7 +173,7 @@ function InternalView({ transaction }: { transaction: Internal }) {
   );
 }
 
-function DepositView({ transaction }: { transaction: Deposit }) {
+function DepositView({ transaction }: { transaction: Deposit; mainCurrency: Currency }) {
   return (
     <List
       style={{ marginTop: 5 }}
@@ -196,7 +210,117 @@ function DepositView({ transaction }: { transaction: Deposit }) {
     </List>
   );
 }
-function SendingView({ transaction }: { transaction: Sending }) {
+
+function ForexView({
+  transaction,
+  mainCurrency,
+  baseCurrency,
+}: {
+  transaction: ForEx;
+  mainCurrency: Currency;
+  baseCurrency: Currency;
+}) {
+  const buying_amount = transaction.amount / transaction.buying_rate;
+  const selling_amount = transaction.amount / transaction.selling_rate;
+  const exchange_benefit = selling_amount - buying_amount;
+  return (
+    <List
+      style={{ marginTop: 5 }}
+      spacing={"xs"}
+      size="sm"
+      center
+      icon={
+        <ThemeIcon color="blue" size={"sm"} radius={"xl"}>
+          <IconCircleCheck style={{ width: rem(16), height: rem(16) }} />
+        </ThemeIcon>
+      }
+    >
+      <List.Item
+        style={{
+          marginTop: 5,
+        }}
+        icon={
+          <ThemeIcon color="blue" size={"sm"} radius={"xl"}>
+            <IconUser style={{ width: rem(16), height: rem(16) }} />
+          </ThemeIcon>
+        }
+      >
+        <Text size="sm">Account : {transaction.customer_account}</Text>
+      </List.Item>
+      <List.Item
+        icon={
+          <ThemeIcon color="grape" size={"sm"} radius={"xl"}>
+            <IconCash style={{ width: rem(16), height: rem(16) }} />
+          </ThemeIcon>
+        }
+      >
+        Amount :{" "}
+        <NumberFormatter
+          thousandSeparator
+          prefix={`${getMoneyPrefix(transaction.currency)} `}
+          value={transaction.amount}
+          decimalScale={3}
+        />
+      </List.Item>
+      <List.Item
+        icon={
+          <ThemeIcon color="cyan" size={"sm"} radius={"xl"}>
+            <IconArrowsExchange style={{ width: rem(16), height: rem(16) }} />
+          </ThemeIcon>
+        }
+      >
+        Rates (B/S) : <NumberFormatter thousandSeparator value={transaction.buying_rate} decimalScale={5} /> /{" "}
+        <NumberFormatter thousandSeparator value={transaction.selling_rate} decimalScale={5} />
+      </List.Item>
+      <List.Item
+        icon={
+          <ThemeIcon color="teal" size={"sm"} radius={"xl"}>
+            <IconCash style={{ width: rem(16), height: rem(16) }} />
+          </ThemeIcon>
+        }
+      >
+        Buyed / Sold :{" "}
+        <NumberFormatter
+          prefix={`${getMoneyPrefix(mainCurrency)}`}
+          thousandSeparator
+          value={buying_amount}
+          decimalScale={2}
+        />{" "}
+        /{" "}
+        <NumberFormatter
+          thousandSeparator
+          value={selling_amount}
+          decimalScale={2}
+          prefix={`${getMoneyPrefix(mainCurrency)}`}
+        />
+      </List.Item>
+      <List.Item
+        icon={
+          <ThemeIcon color="teal" size={"sm"} radius={"xl"}>
+            <IconCoin style={{ width: rem(16), height: rem(16) }} />
+          </ThemeIcon>
+        }
+      >
+        Exchange Benefit :{" "}
+        <NumberFormatter
+          thousandSeparator
+          prefix={`${getMoneyPrefix(mainCurrency)}`}
+          value={exchange_benefit}
+          decimalScale={3}
+        />{" "}
+        /{" "}
+        <NumberFormatter
+          thousandSeparator
+          prefix={`${getMoneyPrefix(baseCurrency)} `}
+          value={exchange_benefit * transaction.rate}
+          decimalScale={3}
+        />
+      </List.Item>
+    </List>
+  );
+}
+
+function SendingView({ transaction }: { transaction: Sending; mainCurrency: Currency; baseCurrency: Currency }) {
   return (
     <List
       style={{ marginTop: 5 }}
@@ -244,7 +368,7 @@ function SendingView({ transaction }: { transaction: Sending }) {
   );
 }
 
-export default function TransactionReview({ row, opened, close }: Props) {
+export default function TransactionReview({ row, opened, close, office }: Props) {
   const { register, reset, setValue, getValues } = useForm<ReviewInput>({
     mode: "all",
     resolver: zodResolver(TransactionReviewResolver),
@@ -257,6 +381,9 @@ export default function TransactionReview({ row, opened, close }: Props) {
       amount: row?.item?.amount ?? 0,
     },
   });
+  const currencies: any = office?.currencies ?? [];
+  const mainCurrency = currencies?.find((currency: any) => currency.main);
+  const baseCurrency = currencies?.find((currency: any) => currency.base);
 
   const [pending, startTransition] = useTransition();
   const [state, formAction] = useFormState<State, ReviewFormData>(reviewTransaction, null);
@@ -304,7 +431,7 @@ export default function TransactionReview({ row, opened, close }: Props) {
         notes: "",
         code: row?.item?.code,
         type: row?.item?.type,
-        charges: row?.item?.charges ?? 0,
+        charges: 0,
         amount: row?.item?.amount ?? 0,
       });
     }
@@ -324,7 +451,11 @@ export default function TransactionReview({ row, opened, close }: Props) {
     case "SENDING":
       View = SendingView;
       break;
+    case "FOREX":
+      View = ForexView;
+      break;
   }
+
   return (
     <Drawer
       overlayProps={{ backgroundOpacity: 0.5, blur: 4 }}
@@ -345,16 +476,18 @@ export default function TransactionReview({ row, opened, close }: Props) {
         <Timeline active={0} bulletSize={24} lineWidth={2}>
           <Timeline.Item bullet={<IconGitBranch size={12} />} title="Transaction Request">
             <Text c="dimmed" size="sm">
-              You&apos;ve created new branch{" "}
-              <Text variant="link" component="span" inherit>
-                fix-notifications
-              </Text>{" "}
-              from master
+              transaction was created{" "}
+              {row?.item?.created_at
+                ? formatDistanceToNowStrict(new Date(row?.item?.created_at), {
+                    addSuffix: true,
+                    roundingMethod: "ceil",
+                  })
+                : ""}
             </Text>
-            <Text size="xs" mt={4}>
-              2 hours ago
-            </Text>
-            {row?.item && <View transaction={row.item} />}
+            <Text size="xs" mt={4}></Text>
+            {row?.item && (
+              <View baseCurrency={baseCurrency?.name} mainCurrency={mainCurrency?.name} transaction={row.item} />
+            )}
           </Timeline.Item>
           <Timeline.Item title="Transaction review" bullet={<IconMessageDots size={12} />}>
             {row?.item && row?.item.state === "REVIEW" && (

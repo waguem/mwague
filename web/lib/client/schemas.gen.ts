@@ -973,16 +973,29 @@ export const $ForEx = {
       title: "Notes",
       default: {},
     },
-    bid_rate: {
-      type: "number",
-      title: "Bid Rate",
+    currency: {
+      $ref: "#/components/schemas/Currency",
     },
-    offer_rate: {
-      type: "number",
-      title: "Offer Rate",
+    base_currency: {
+      $ref: "#/components/schemas/Currency",
     },
-    method: {
-      $ref: "#/components/schemas/PaymentMethod",
+    buying_rate: {
+      type: "number",
+      minimum: 0,
+      title: "Buying Rate",
+    },
+    selling_rate: {
+      type: "number",
+      minimum: 0,
+      title: "Selling Rate",
+    },
+    provider_account: {
+      type: "string",
+      title: "Provider Account",
+    },
+    customer_account: {
+      type: "string",
+      title: "Customer Account",
     },
   },
   type: "object",
@@ -995,9 +1008,12 @@ export const $ForEx = {
     "office_id",
     "org_id",
     "created_by",
-    "bid_rate",
-    "offer_rate",
-    "method",
+    "currency",
+    "base_currency",
+    "buying_rate",
+    "selling_rate",
+    "provider_account",
+    "customer_account",
   ],
   title: "ForEx",
   description: "Une transaction de change est effectué",
@@ -1062,6 +1078,141 @@ export const $ForExRequest = {
     "amount",
   ],
   title: "ForExRequest",
+} as const;
+
+export const $ForExWithPayments = {
+  properties: {
+    amount: {
+      type: "number",
+      minimum: 0,
+      title: "Amount",
+      strict: true,
+    },
+    rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Rate",
+      strict: true,
+    },
+    code: {
+      type: "string",
+      maxLength: 64,
+      title: "Code",
+    },
+    state: {
+      $ref: "#/components/schemas/TransactionState",
+    },
+    type: {
+      $ref: "#/components/schemas/TransactionType",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    office_id: {
+      type: "string",
+      format: "uuid",
+      title: "Office Id",
+    },
+    org_id: {
+      type: "string",
+      format: "uuid",
+      title: "Org Id",
+    },
+    created_by: {
+      type: "string",
+      format: "uuid",
+      title: "Created By",
+    },
+    reviwed_by: {
+      type: "string",
+      format: "uuid",
+      title: "Reviwed By",
+    },
+    history: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "History",
+      default: {},
+    },
+    notes: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "Notes",
+      default: {},
+    },
+    currency: {
+      $ref: "#/components/schemas/Currency",
+    },
+    base_currency: {
+      $ref: "#/components/schemas/Currency",
+    },
+    buying_rate: {
+      type: "number",
+      minimum: 0,
+      title: "Buying Rate",
+    },
+    selling_rate: {
+      type: "number",
+      minimum: 0,
+      title: "Selling Rate",
+    },
+    provider_account: {
+      type: "string",
+      title: "Provider Account",
+    },
+    customer_account: {
+      type: "string",
+      title: "Customer Account",
+    },
+    payments: {
+      items: {
+        $ref: "#/components/schemas/Payment",
+      },
+      type: "array",
+      title: "Payments",
+      default: [],
+    },
+  },
+  type: "object",
+  required: [
+    "amount",
+    "rate",
+    "code",
+    "state",
+    "type",
+    "office_id",
+    "org_id",
+    "created_by",
+    "currency",
+    "base_currency",
+    "buying_rate",
+    "selling_rate",
+    "provider_account",
+    "customer_account",
+  ],
+  title: "ForExWithPayments",
+  description: "Une transaction de change est effectué",
 } as const;
 
 export const $HTTPValidationError = {
@@ -1849,6 +2000,9 @@ export const $TransactionItem = {
         },
         {
           $ref: "#/components/schemas/External",
+        },
+        {
+          $ref: "#/components/schemas/ForEx",
         },
       ],
       title: "Item",

@@ -164,4 +164,23 @@ export const getMoneyIcon = (currency: Currency, size: number) => {
     case "GNF":
       return <IconCurrencyCent size={size} />;
   }
+  return <IconCurrency size={size} />;
+};
+
+export const getMoneyPrefix = (currency: Currency) => {
+  switch (currency) {
+    case "USD":
+      return "$";
+    case "EUR":
+      return "€";
+    case "CFA":
+      return "CFA";
+    case "RMB":
+      return "¥";
+    case "AED":
+      return "د.إ";
+    case "GNF":
+      return "FG";
+  }
+  return "";
 };

@@ -9,7 +9,6 @@ import {
   Select,
   Stack,
   NumberFormatter,
-  Tooltip,
   Paper,
   Space,
   Avatar,
@@ -69,9 +68,9 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
     },
     mode: "controlled",
     validate: {
-      account: (value) => (value.length > 0 ? null : "Account is required"),
-      agent: (value) => (value.length > 0 ? null : "Agent is required"),
-      currency: (value) => (value.length > 0 ? null : "Currency is required"),
+      account: (value) => (value?.length > 0 ? null : "Account is required"),
+      agent: (value) => (value?.length > 0 ? null : "Agent is required"),
+      currency: (value) => (value?.length > 0 ? null : "Currency is required"),
       amountInBaseCurrency: (value) => (value > 0 ? null : "Amount is required"),
       amountInBuyedCurrency: (value) => (value > 0 ? null : "Amount is required"),
       amountInMainCurrency: (value) => (value > 0 ? null : "Amount is required"),
@@ -79,7 +78,7 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
       sellingRate: (value) => (value > 0 ? null : "Rate is required"),
       intermeditateByingRate: (value) => (value > 0 ? null : "Rate is required"),
       dailyRate: (value) => (value > 0 ? null : "Rate is required"),
-      provider: (value) => (value.length > 0 ? null : "Provider is required"),
+      provider: (value) => (value?.length > 0 ? null : "Provider is required"),
       intermediateSellingRate: (value) => (value > 0 ? null : "Rate is required"),
     },
   });
@@ -156,13 +155,7 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
                 label={"Daily Rate 1 " + mainCurrency?.name}
                 placeholder="Enter rate"
                 required
-                leftSection={
-                  <Group>
-                    <Tooltip label="aed">
-                      <>{getMoneyIcon(baseCurrency?.name, 16)}</>
-                    </Tooltip>
-                  </Group>
-                }
+                leftSection={<Group>{getMoneyIcon(baseCurrency?.name, 16)}</Group>}
                 value={form.values.dailyRate}
                 onChange={(value) => form.setFieldValue("dailyRate", value as any)}
                 thousandSeparator=","

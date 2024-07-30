@@ -19,7 +19,6 @@ import { State } from "./state";
 import { getResolver } from "../schemas/transactionsResolvers";
 import { PaymentResolver, TransactionReviewResolver, PaymentRequest } from "../schemas/actions";
 import { revalidatePath } from "next/cache";
-import assert from "node:assert";
 
 export const getMyOfficeTransactions = cache(async () => {
   return withToken(async () => {
@@ -106,11 +105,6 @@ export const reviewTransaction = async (prevSate: State, data: ReviewFormData): 
       code: validation.data.code,
       trType: validation.data.type,
     });
-
-    if ("charges" in transaction) {
-      console.log("validating charges");
-      assert(transaction?.charges == validation.data.charges);
-    }
 
     // make sure the transaction is not already reviewed
     if (transaction.state !== "REVIEW") {

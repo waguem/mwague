@@ -5,11 +5,19 @@ import "mantine-react-table/styles.css"; //make sure MRT styles were imported in
 import { useMemo, useState, useTransition } from "react";
 import { NumberFormatter, Badge, ActionIcon, Box, Tooltip, Group, Avatar } from "@mantine/core";
 import { IconEyeCheck, IconEdit, IconCash } from "@tabler/icons-react";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNowStrict } from "date-fns";
 import { MantineReactTable, useMantineReactTable, MRT_TableOptions, type MRT_ColumnDef } from "mantine-react-table";
-import { EmployeeResponse, OfficeResponse, TransactionItem, TransactionState, TransactionType } from "@/lib/client";
+import {
+  Currency,
+  EmployeeResponse,
+  ForEx,
+  OfficeResponse,
+  TransactionItem,
+  TransactionState,
+  TransactionType,
+} from "@/lib/client";
 import TransactionReview from "./TransactionReview";
-import { getBadgeType, getStateBadge } from "@/lib/utils";
+import { getBadgeType, getMoneyPrefix, getStateBadge } from "@/lib/utils";
 import PayTransaction from "./PayTransaction";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -80,9 +88,23 @@ const MantineTable = ({ data, office, employees }: Props) => {
       {
         accessorKey: "item.amount",
         header: "Amount",
-        Cell: ({ cell }) => (
-          <NumberFormatter decimalScale={2} prefix="$" thousandSeparator value={cell.getValue() as string} />
-        ),
+        Cell: ({ cell }) => {
+          const currencies = office?.currencies as any;
+          let currency: Currency = currencies?.find((curr: any) => curr.main)?.name as unknown as Currency;
+
+          if (cell.row.original.item.type === "FOREX") {
+            const tr: ForEx = cell.row.original.item as ForEx;
+            currency = tr.currency;
+          }
+          return (
+            <NumberFormatter
+              decimalScale={2}
+              prefix={`${getMoneyPrefix(currency)} `}
+              thousandSeparator
+              value={cell.getValue() as string}
+            />
+          );
+        },
         mantineEditTextInputProps: {
           type: "number",
           required: true,
@@ -126,7 +148,10 @@ const MantineTable = ({ data, office, employees }: Props) => {
         Cell: ({ cell }) => (
           <Group>
             <Badge color="gray" size="sm" style={{ marginLeft: 0 }}>
-              {formatDistanceToNow(new Date(cell.getValue() as string), { addSuffix: true })}
+              {formatDistanceToNowStrict(new Date(cell.getValue() as string), {
+                addSuffix: true,
+                roundingMethod: "ceil",
+              })}
             </Badge>
           </Group>
         ),
@@ -236,7 +261,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
 
   return (
     <>
-      <TransactionReview row={data[revewing]} close={closeReview} opened={reviewOpened} />
+      <TransactionReview row={data[revewing]} close={closeReview} opened={reviewOpened} office={office} />
       <PayTransaction
         row={data[paying]?.item}
         close={close}

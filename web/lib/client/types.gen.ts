@@ -304,9 +304,12 @@ export type ForEx = {
         }
       | unknown;
   };
-  bid_rate: number;
-  offer_rate: number;
-  method: PaymentMethod;
+  currency: Currency;
+  base_currency: Currency;
+  buying_rate: number;
+  selling_rate: number;
+  provider_account: string;
+  customer_account: string;
 };
 
 export type ForExRequest = {
@@ -322,6 +325,44 @@ export type ForExRequest = {
 };
 
 export type type3 = "FOREX";
+
+/**
+ * Une transaction de change est effectué
+ */
+export type ForExWithPayments = {
+  amount: number;
+  rate: number;
+  code: string;
+  state: TransactionState;
+  type: TransactionType;
+  created_at?: string;
+  id?: string;
+  office_id: string;
+  org_id: string;
+  created_by: string;
+  reviwed_by?: string;
+  history?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  notes?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  currency: Currency;
+  base_currency: Currency;
+  buying_rate: number;
+  selling_rate: number;
+  provider_account: string;
+  customer_account: string;
+  payments?: Array<Payment>;
+};
 
 export type HTTPValidationError = {
   detail?: Array<ValidationError>;
@@ -575,7 +616,7 @@ export type SendingWithPayments = {
 };
 
 export type TransactionItem = {
-  item: Internal | Deposit | Sending | External;
+  item: Internal | Deposit | Sending | External | ForEx;
 };
 
 export type TransactionRequest = {
@@ -783,7 +824,7 @@ export type GetOfficeTransactionsWithDetailsApiV1TransactionCodeGetResponse =
   | Internal
   | Deposit
   | SendingWithPayments
-  | ForEx
+  | ForExWithPayments
   | ExternalWithPayments;
 
 export type UpdateTransactionApiV1TransactionCodePutData = {
@@ -1154,7 +1195,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Internal | Deposit | SendingWithPayments | ForEx | ExternalWithPayments;
+        200: Internal | Deposit | SendingWithPayments | ForExWithPayments | ExternalWithPayments;
         /**
          * Validation Error
          */
