@@ -8,7 +8,7 @@ import json
 import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as pg
 from mkdi_shared.exceptions.mkdi_api_error import MkdiErrorCode, MkdiError
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field
 from sqlmodel import Field as SQLModelField
 from sqlmodel import SQLModel
 from sqlalchemy.ext.mutable import MutableDict
@@ -110,6 +110,22 @@ class PaymentBase(SQLModel):
     notes: Mapping[Any, Mapping | Any] = SQLModelField(
         default={}, sa_column=sa.Column(MutableDict.as_mutable(pg.JSONB))
     )
+
+
+class OfficeWalletBase(SQLModel):
+    payment_currency: Currency
+    wallet_currency: Currency
+
+
+class CreateOfficeWalletRequest(OfficeWalletBase):
+    pass
+
+
+class OfficeWalletResponse(OfficeWalletBase):
+    walletID: str
+    buyed: Decimal
+    paid: Decimal
+    office_id: UUID
 
 
 class PaymentResponse(PaymentBase):
@@ -311,6 +327,7 @@ class OfficeBase(SQLModel):
 class OfficeResponse(OfficeBase):
     id: UUID
     currencies: dict | list[dict] | None = None
+    wallets: List[OfficeWalletResponse] | None = None
 
 
 class EmployeeResponseComplete(EmployeeResponse):

@@ -10,6 +10,7 @@ import { getOfficeCached } from "@/lib/actions";
 import EmployeesTable from "@/components/apps/office/EmployeesTable";
 import { OfficeCardImage } from "@/components/organizations/office/OfficeCardImage";
 import { Grid, GridCol } from "@mantine/core";
+import Wallets from "@/components/apps/office/Wallets";
 
 async function getEmployees(officeId: string): Promise<EmployeeResponse[]> {
   try {
@@ -57,6 +58,7 @@ export default async function Page({
         </GridCol>
       </Grid>
       <EmployeesTable employees={employees} />
+      <Wallets office={office} />
     </div>
   );
 }

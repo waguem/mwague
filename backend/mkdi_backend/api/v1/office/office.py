@@ -115,3 +115,32 @@ async def update_office(
         protocol.OfficeResponse: The updated office response.
     """
     return await OfficeRepository(db).update_office(user, office_id, data)
+
+
+@router.post(
+    "/organization/office/wallet",
+    status_code=201,
+    response_model=protocol.OfficeWalletResponse,
+)
+def create_wallet(
+    *,
+    user: Annotated[KcUser, Security(check_authorization, scopes=["office_admin"])],
+    data: protocol.CreateOfficeWalletRequest,
+    db: Session = Depends(get_db),
+) -> protocol.OfficeWalletResponse:
+    """create a new wallet for an office"""
+    return OfficeRepository(db).create_wallet(user.office_id, data)
+
+
+@router.get(
+    "/organization/office/wallet",
+    status_code=200,
+    response_model=List[protocol.OfficeWalletResponse],
+)
+def get_wallets(
+    *,
+    user: Annotated[KcUser, Security(check_authorization, scopes=["office_admin"])],
+    db: Session = Depends(get_db),
+) -> List[protocol.OfficeWalletResponse]:
+    """return all wallets for an office"""
+    return OfficeRepository(db).get_wallets(user.office_id)

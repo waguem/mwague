@@ -1,9 +1,9 @@
 from mkdi_backend.models.models import KcUser
-from mkdi_backend.models.office import Office
+from mkdi_backend.models.office import Office, OfficeWallet
 from mkdi_backend.utils.database import CommitMode, managed_tx_method, async_managed_tx_method
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol
-from sqlmodel import Session, select
+from sqlmodel import Session, select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from copy import deepcopy
 
@@ -13,22 +13,26 @@ class OfficeRepository:
         self.db: Session = db
 
     def get_org_offices(self, organization_id: str):
-        return self.db.query(Office).filter(Office.organization_id == organization_id).all()
+        """return all offices for an organization"""
+        return self.db.scalars(
+            select(Office).where(Office.organization_id == organization_id)
+        ).all()
 
     def get_all(self):
-        return self.db.query(Office).all()
+        """return all offices"""
+        return self.db.scalars(select(Office)).all()
 
     def get_by_initials(self, initials: str):
-        return self.db.query(Office).filter(Office.initials == initials).first()
+        """return office by initials"""
+        return self.db.scalar(select(Office).where(Office.initials == initials))
 
     @managed_tx_method(auto_commit=CommitMode.COMMIT)
     def create(self, usr_input: protocol.CreateOfficeRequest, organization_id: str):
-        office: Office = (
-            self.db.query(Office)
-            .filter(
-                Office.initials == usr_input.initials and Office.organization_id == organization_id
+
+        office = self.db.scalar(
+            select(Office).where(
+                Office.initials == usr_input.initials, Office.organization_id == organization_id
             )
-            .first()
         )
         if office:
             raise MkdiError(
@@ -45,17 +49,9 @@ class OfficeRepository:
         self.db.add(office)
         return office
 
-    def update(self, id, office):
-        return self.db.update(id, office)
-
-    def delete(self, id):
-        return self.db.delete(id)
-
     def get_office(self, office_id: str, organization_id: str):
-        return (
-            self.db.query(Office)
-            .filter(Office.id == office_id and Office.organization_id == organization_id)
-            .first()
+        return self.db.scalar(
+            select(Office).where(Office.id == office_id, Office.organization_id == organization_id)
         )
 
     async def get_by_id(self, office_id) -> Office | None:
@@ -135,3 +131,35 @@ class OfficeRepository:
 
         session.add(office)
         return office
+
+    @managed_tx_method(auto_commit=CommitMode.COMMIT)
+    def create_wallet(self, office_id: str, data: protocol.CreateOfficeWalletRequest):
+        wallet = self.db.scalar(
+            select(OfficeWallet)
+            .where(OfficeWallet.office_id == office_id)
+            .where(
+                OfficeWallet.payment_currency == data.payment_currency,
+                OfficeWallet.wallet_currency == data.wallet_currency,
+            )
+        )
+
+        if wallet:
+            raise MkdiError(
+                f"Wallet {data.payment_currency} already exists",
+                error_code=MkdiErrorCode.WALLET_EXISTS,
+            )
+        # create a new wallet
+        wallet = OfficeWallet(
+            office_id=office_id,
+            payment_currency=data.payment_currency,
+            wallet_currency=data.wallet_currency,
+            walletID=f"{data.payment_currency}-{data.wallet_currency}",
+        )
+        self.db.add(wallet)
+        return wallet
+
+    def get_wallets(self, office_id: str):
+        """get all wallet for an office"""
+        return self.db.scalars(
+            select(OfficeWallet).where(OfficeWallet.office_id == office_id)
+        ).all()

@@ -146,7 +146,6 @@ export const AddAccountSchema = zfd.formData({
   currency: zod.enum(["USD", "EUR", "CFA", "GNF", "AED", "RMB"]),
   owner_initials: zfd.text(zod.string()),
 });
-
 export const zTransactionType = zod.enum(["INTERNAL", "EXTERNAL", "DEPOSIT", "SENDING", "FOREX"]);
 export const TransactionReviewResolver = zfd.formData({
   notes: zfd.text(

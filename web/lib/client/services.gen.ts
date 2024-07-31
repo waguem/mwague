@@ -16,6 +16,9 @@ import type {
   GetOfficeApiV1OrganizationOfficeOfficeIdGetResponse,
   UpdateOfficeApiV1OrganizationOfficeOfficeIdPutData,
   UpdateOfficeApiV1OrganizationOfficeOfficeIdPutResponse,
+  GetWalletsApiV1OrganizationOfficeWalletGetResponse,
+  CreateWalletApiV1OrganizationOfficeWalletPostData,
+  CreateWalletApiV1OrganizationOfficeWalletPostResponse,
   GetEmployeesApiV1OfficeEmployeeGetResponse,
   UpdateOfficeEmployeesApiV1OfficeEmployeePutData,
   UpdateOfficeEmployeesApiV1OfficeEmployeePutResponse,
@@ -228,6 +231,42 @@ export const updateOfficeApiV1OrganizationOfficeOfficeIdPut = (
     path: {
       office_id: data.officeId,
     },
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Get Wallets
+ * return all wallets for an office
+ * @returns OfficeWalletResponse Successful Response
+ * @throws ApiError
+ */
+export const getWalletsApiV1OrganizationOfficeWalletGet =
+  (): CancelablePromise<GetWalletsApiV1OrganizationOfficeWalletGetResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/organization/office/wallet",
+    });
+  };
+
+/**
+ * Create Wallet
+ * create a new wallet for an office
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns OfficeWalletResponse Successful Response
+ * @throws ApiError
+ */
+export const createWalletApiV1OrganizationOfficeWalletPost = (
+  data: CreateWalletApiV1OrganizationOfficeWalletPostData
+): CancelablePromise<CreateWalletApiV1OrganizationOfficeWalletPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/organization/office/wallet",
     body: data.requestBody,
     mediaType: "application/json",
     errors: {

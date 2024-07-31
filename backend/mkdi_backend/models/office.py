@@ -6,8 +6,9 @@ from uuid import UUID, uuid4
 import sqlalchemy as sa
 from sqlalchemy.ext.mutable import MutableList
 import sqlalchemy.dialects.postgresql as pg
-from mkdi_shared.schemas.protocol import OfficeBase
+from mkdi_shared.schemas.protocol import OfficeBase, OfficeWalletBase
 from sqlmodel import Field, Relationship
+from decimal import Decimal
 
 
 class Office(OfficeBase, table=True):
@@ -31,3 +32,17 @@ class Office(OfficeBase, table=True):
     currencies: List[dict] = Field(
         default=[], sa_column=sa.Column(MutableList.as_mutable(pg.JSONB))
     )
+    # lazy loaded wallets
+    wallets: List["OfficeWallet"] = Relationship(back_populates="office")  # type: ignore
+
+
+class OfficeWallet(OfficeWalletBase, table=True):
+    """Table Office Wallet"""
+
+    __tablename__ = "wallets"
+    walletID: str = Field(nullable=False, max_length=64, primary_key=True)
+
+    buyed: Decimal = Field(max_digits=19, decimal_places=4, default=0, ge=0)
+    paid: Decimal = Field(max_digits=19, decimal_places=4, default=0, ge=0)
+    office_id: UUID = Field(foreign_key="offices.id")
+    office: Office = Relationship(back_populates="wallets")  # type: ignore

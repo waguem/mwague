@@ -376,6 +376,20 @@ export const $CreateOfficeRequest = {
   title: "CreateOfficeRequest",
 } as const;
 
+export const $CreateOfficeWalletRequest = {
+  properties: {
+    payment_currency: {
+      $ref: "#/components/schemas/Currency",
+    },
+    wallet_currency: {
+      $ref: "#/components/schemas/Currency",
+    },
+  },
+  type: "object",
+  required: ["payment_currency", "wallet_currency"],
+  title: "CreateOfficeWalletRequest",
+} as const;
+
 export const $CreateOrganizationRequest = {
   properties: {
     initials: {
@@ -1439,10 +1453,48 @@ export const $OfficeResponse = {
       ],
       title: "Currencies",
     },
+    wallets: {
+      items: {
+        $ref: "#/components/schemas/OfficeWalletResponse",
+      },
+      type: "array",
+      title: "Wallets",
+    },
   },
   type: "object",
   required: ["country", "initials", "name", "id"],
   title: "OfficeResponse",
+} as const;
+
+export const $OfficeWalletResponse = {
+  properties: {
+    payment_currency: {
+      $ref: "#/components/schemas/Currency",
+    },
+    wallet_currency: {
+      $ref: "#/components/schemas/Currency",
+    },
+    walletID: {
+      type: "string",
+      title: "Walletid",
+    },
+    buyed: {
+      type: "number",
+      title: "Buyed",
+    },
+    paid: {
+      type: "number",
+      title: "Paid",
+    },
+    office_id: {
+      type: "string",
+      format: "uuid",
+      title: "Office Id",
+    },
+  },
+  type: "object",
+  required: ["payment_currency", "wallet_currency", "walletID", "buyed", "paid", "office_id"],
+  title: "OfficeWalletResponse",
 } as const;
 
 export const $OrganizationResponse = {

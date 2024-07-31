@@ -6,6 +6,8 @@ import {
   getOfficeApiV1OrganizationOfficeOfficeIdGet as getOfficeById,
   updateOfficeApiV1OrganizationOfficeOfficeIdPut,
   getOfficeEmployeesApiV1OfficeOfficeIdEmployeeGet as getEmployeesByOfficeId,
+  createWalletApiV1OrganizationOfficeWalletPost as createWalletApi,
+  Currency,
 } from "@/lib/client";
 import { AddOfficeSchema } from "@/lib/schemas/actions";
 import { revalidatePath } from "next/cache";
@@ -13,6 +15,7 @@ import { ZodError } from "zod";
 import { State } from "./state";
 import { cache } from "react";
 import { withToken } from "./withToken";
+import { zCurrency } from "../schemas/transactionsResolvers";
 export async function addOffice(prevSate: State, data: FormData): Promise<State> {
   try {
     await setApiToken();
@@ -80,16 +83,40 @@ export const getEmployeesCached = cache(async (officeId: string) => {
 
 export const updateOfficeInfo = async (officeId: string, data: Record<string, string | string[]>): Promise<State> => {
   return withToken(async () => {
-    console.log("Updating office info", officeId, data);
-    const response = await updateOfficeApiV1OrganizationOfficeOfficeIdPut({
+    await updateOfficeApiV1OrganizationOfficeOfficeIdPut({
       officeId,
       requestBody: data,
     });
 
-    console.log("Response ", response);
     return {
       status: "success",
       message: "Office Updated Successfully",
+    };
+  });
+};
+
+export const createWallet = async (payment_currency: Currency, wallet_currency: Currency) => {
+  return withToken(async () => {
+    const isValid = zCurrency.safeParse(payment_currency) && zCurrency.safeParse(wallet_currency);
+    if (!isValid) {
+      return {
+        status: "error",
+        message: "Invalid Currency",
+      };
+    }
+
+    const response = await createWalletApi({
+      requestBody: {
+        payment_currency,
+        wallet_currency,
+      },
+    });
+
+    // revalidate path
+    revalidatePath(`/dashboard/office/${response.office_id}`);
+    return {
+      status: "success",
+      message: "Wallet Created Successfully",
     };
   });
 };

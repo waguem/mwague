@@ -34,6 +34,7 @@ class MkdiErrorCode(IntEnum):
     INVALID_STATE = 16
     NO_ACTIVITY = 17
     NO_DATA_TO_UPDATE = 18
+    WALLET_EXISTS = 19
 
     SERVER_ERROR0 = 500
     SERVER_ERROR1 = 501

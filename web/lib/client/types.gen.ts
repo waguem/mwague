@@ -110,6 +110,11 @@ export type CreateOfficeRequest = {
   default_rates: Array<Rate>;
 };
 
+export type CreateOfficeWalletRequest = {
+  payment_currency: Currency;
+  wallet_currency: Currency;
+};
+
 export type CreateOrganizationRequest = {
   initials: string;
   org_name: string;
@@ -435,6 +440,16 @@ export type OfficeResponse = {
     | Array<{
         [key: string]: unknown;
       }>;
+  wallets?: Array<OfficeWalletResponse>;
+};
+
+export type OfficeWalletResponse = {
+  payment_currency: Currency;
+  wallet_currency: Currency;
+  walletID: string;
+  buyed: number;
+  paid: number;
+  office_id: string;
 };
 
 export type OrganizationResponse = {
@@ -719,6 +734,14 @@ export type UpdateOfficeApiV1OrganizationOfficeOfficeIdPutData = {
 
 export type UpdateOfficeApiV1OrganizationOfficeOfficeIdPutResponse = OfficeResponse;
 
+export type GetWalletsApiV1OrganizationOfficeWalletGetResponse = Array<OfficeWalletResponse>;
+
+export type CreateWalletApiV1OrganizationOfficeWalletPostData = {
+  requestBody: CreateOfficeWalletRequest;
+};
+
+export type CreateWalletApiV1OrganizationOfficeWalletPostResponse = OfficeWalletResponse;
+
 export type GetEmployeesApiV1OfficeEmployeeGetResponse = Array<EmployeeResponse>;
 
 export type UpdateOfficeEmployeesApiV1OfficeEmployeePutData = {
@@ -929,6 +952,29 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: OfficeResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/organization/office/wallet": {
+    get: {
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<OfficeWalletResponse>;
+      };
+    };
+    post: {
+      req: CreateWalletApiV1OrganizationOfficeWalletPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        201: OfficeWalletResponse;
         /**
          * Validation Error
          */
