@@ -3,7 +3,7 @@ import {
   Currency,
   Deposit,
   External,
-  ForEx,
+  ForeignEx,
   Internal,
   OfficeResponse,
   Sending,
@@ -213,16 +213,14 @@ function DepositView({ transaction }: { transaction: Deposit; mainCurrency: Curr
 
 function ForexView({
   transaction,
-  mainCurrency,
-  baseCurrency,
+  office
 }: {
-  transaction: ForEx;
-  mainCurrency: Currency;
-  baseCurrency: Currency;
+  transaction: ForeignEx;
+  office:OfficeResponse
 }) {
-  const buying_amount = transaction.amount / transaction.buying_rate;
-  const selling_amount = transaction.amount / transaction.selling_rate;
-  const exchange_benefit = selling_amount - buying_amount;
+
+  const wallet= office.wallets?.find((wallet)=>wallet.walletID === transaction.wallet_id)
+  
   return (
     <List
       style={{ marginTop: 5 }}
@@ -245,7 +243,7 @@ function ForexView({
           </ThemeIcon>
         }
       >
-        <Text size="sm">Account : {transaction.customer_account}</Text>
+        <Text size="sm">{transaction.is_buying ? "Buying from ":"Selling to"} : {transaction.account}</Text>
       </List.Item>
       <List.Item
         icon={
@@ -257,8 +255,13 @@ function ForexView({
         Amount :{" "}
         <NumberFormatter
           thousandSeparator
-          prefix={`${getMoneyPrefix(transaction.currency)} `}
+          prefix={`${getMoneyPrefix(wallet?.wallet_currency ?? "USD")} `}
           value={transaction.amount}
+          decimalScale={3}
+        /> / <NumberFormatter
+          thousandSeparator
+          prefix={`${getMoneyPrefix(wallet?.payment_currency ?? "USD")} `}
+          value={transaction.paid}
           decimalScale={3}
         />
       </List.Item>
@@ -269,52 +272,16 @@ function ForexView({
           </ThemeIcon>
         }
       >
-        Rates (B/S) : <NumberFormatter thousandSeparator value={transaction.buying_rate} decimalScale={5} /> /{" "}
-        <NumberFormatter thousandSeparator value={transaction.selling_rate} decimalScale={5} />
+        {transaction.is_buying ? "Buying" : "Selling"} Rate : <NumberFormatter thousandSeparator value={transaction.rate ?? 0} decimalScale={5} />
       </List.Item>
       <List.Item
         icon={
-          <ThemeIcon color="teal" size={"sm"} radius={"xl"}>
-            <IconCash style={{ width: rem(16), height: rem(16) }} />
+          <ThemeIcon color="cyan" size={"sm"} radius={"xl"}>
+            <IconArrowsExchange style={{ width: rem(16), height: rem(16) }} />
           </ThemeIcon>
         }
       >
-        Buyed / Sold :{" "}
-        <NumberFormatter
-          prefix={`${getMoneyPrefix(mainCurrency)}`}
-          thousandSeparator
-          value={buying_amount}
-          decimalScale={2}
-        />{" "}
-        /{" "}
-        <NumberFormatter
-          thousandSeparator
-          value={selling_amount}
-          decimalScale={2}
-          prefix={`${getMoneyPrefix(mainCurrency)}`}
-        />
-      </List.Item>
-      <List.Item
-        icon={
-          <ThemeIcon color="teal" size={"sm"} radius={"xl"}>
-            <IconCoin style={{ width: rem(16), height: rem(16) }} />
-          </ThemeIcon>
-        }
-      >
-        Exchange Benefit :{" "}
-        <NumberFormatter
-          thousandSeparator
-          prefix={`${getMoneyPrefix(mainCurrency)}`}
-          value={exchange_benefit}
-          decimalScale={3}
-        />{" "}
-        /{" "}
-        <NumberFormatter
-          thousandSeparator
-          prefix={`${getMoneyPrefix(baseCurrency)} `}
-          value={exchange_benefit * transaction.rate}
-          decimalScale={3}
-        />
+        Wallet Rate : <NumberFormatter thousandSeparator value={transaction.initial_balance_pc > 0 ? Number(transaction.initial_balance_wc / transaction.initial_balance_pc) : 0} decimalScale={5} />
       </List.Item>
     </List>
   );
@@ -486,7 +453,7 @@ export default function TransactionReview({ row, opened, close, office }: Props)
             </Text>
             <Text size="xs" mt={4}></Text>
             {row?.item && (
-              <View baseCurrency={baseCurrency?.name} mainCurrency={mainCurrency?.name} transaction={row.item} />
+              <View office={office} baseCurrency={baseCurrency?.name} mainCurrency={mainCurrency?.name} transaction={row.item} />
             )}
           </Timeline.Item>
           <Timeline.Item title="Transaction review" bullet={<IconMessageDots size={12} />}>

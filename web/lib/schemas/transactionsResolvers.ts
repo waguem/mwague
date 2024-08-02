@@ -92,13 +92,11 @@ const Sending = zfd.formData({
   receiver_phone: zfd.text(z.string().max(255)).optional(),
 });
 const ForEx = zfd.formData({
-  provider_account: zfd.text(z.string().max(10)).refine((value) => value.trim() !== ""),
-  customer_account: zfd.text(z.string().max(10)).refine((value) => value.trim() !== ""),
-  base_currency: zCurrency,
-  currency: zCurrency,
+  walletID: zfd.text(z.string().max(10)).refine((value) => value.trim() !== ""),
+  is_buying: z.enum(["true", "false"]),
   daily_rate: zfd.text(zPNumber),
-  buying_rate: zfd.text(zPNumber),
-  selling_rate: zfd.text(zPNumber),
+  account: zfd.text(z.string().max(10)).refine((value) => value.trim() !== ""),
+  rate: zfd.text(zPNumber),
   amount: zfd.text(zPNumber),
   message: zfd.text(z.string().max(255)).optional(),
 });
@@ -290,11 +288,12 @@ const ForexFromResolver: FormResolver = {
         })),
       };
     }
+    console.log("Parsed Forex ",parsed)
 
     return {
       amount: {
         amount: +parsed.data.amount,
-        rate: +parsed.data.daily_rate,
+        rate: +parsed.data.rate,
       },
       currency: data.get("currency") as string,
       charges: {
@@ -303,13 +302,11 @@ const ForexFromResolver: FormResolver = {
       },
       data: {
         type: "FOREX",
-        provider_account: parsed.data.provider_account,
-        customer_account: parsed.data.customer_account,
-        currency: parsed.data.currency,
-        base_currency: parsed.data.base_currency,
+        walletID: parsed.data.walletID,
+        is_buying: parsed.data.is_buying==="true",
         daily_rate: +parsed.data.daily_rate,
-        buying_rate: +parsed.data.buying_rate,
-        selling_rate: +parsed.data.selling_rate,
+        account: parsed.data.account,
+        rate: +parsed.data.rate,
         amount: +parsed.data.amount,
       },
     };

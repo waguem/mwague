@@ -6,10 +6,10 @@ from .office import Office
 from .organization import Organization
 from .transactions.transactions import (
     Deposit,
-    ForEx,
     Internal,
     Sending,
     External,
+    ForeignEx,
     TransactionWithDetails,
     Payment,
 )
@@ -24,7 +24,7 @@ __all__ = [
     "Internal",
     "Deposit",
     "Sending",
-    "ForEx",
+    "ForeignEx",
     "External",
     "TransactionWithDetails",
     "Payment",

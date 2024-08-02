@@ -8,8 +8,9 @@ from mkdi_backend.repositories.transaction_repos.invariant import (
     CommitMode,
 )
 from mkdi_backend.repositories.transaction_repos.payable import PayableTransaction
-from mkdi_backend.models.transactions.transactions import ForEx, Payment
+from mkdi_backend.models.transactions.transactions import Payment,ForeignEx
 from mkdi_backend.models.Account import Account
+from mkdi_backend.models.office import OfficeWallet
 from mkdi_shared.schemas import protocol as pr
 from mkdi_backend.models.Activity import FundCommit
 
@@ -32,7 +33,7 @@ class ForExTransaction(PayableTransaction):
         return code
 
     async def a_commit(
-        self, amount, transaction: ForEx, has_complete=False
+        self, amount, transaction: ForeignEx, has_complete=False
     ) -> List[pr.TransactionCommit]:
         commits = []
         accounts: List[Account] = await self.a_accounts()
@@ -71,30 +72,56 @@ class ForExTransaction(PayableTransaction):
         user_input: pr.ForExRequest = self.get_inputs().data
 
         assert isinstance(user_input, pr.ForExRequest)
-        assert user_input.provider_account is not None
-        assert user_input.customer_account is not None
-        customer_account = self.db.scalar(
-            select(Account).where(Account.initials == user_input.customer_account)
-        )
+        assert user_input.account is not None
 
-        assert customer_account is not None
-        forEx = ForEx(
-            **user_input.dict(),
+        account = self.db.scalar(
+            select(Account).where(Account.initials == user_input.account).where(
+                Account.office_id == user.office_id
+            )
         )
-        forEx.code = self.generate_code("FX")
+        wallet = self.db.scalar(
+            select(OfficeWallet).where(OfficeWallet.walletID==user_input.walletID)
+            .where(OfficeWallet.office_id == user.office_id)
+        )
+        assert account is not None
+        assert wallet is not None
+        
+        forEx = ForeignEx(
+            account=account.initials,
+            amount=user_input.amount,
+            paid=Decimal(user_input.amount/user_input.rate),
+            code=self.generate_code("FX"),
+            currency=wallet.wallet_currency,
+            is_buying=user_input.is_buying,
+            rate=user_input.rate,
+            wallet_id=user_input.walletID,
+            state=pr.TransactionState.REVIEW,
+            history={"history": []},
+            office_id=user.office_id,
+            org_id=user.organization_id,
+            type=pr.TransactionType.FOREX,
+            created_by=user.user_db_id
+        )
+        forEx.initial_balance_pc=wallet.paid
+        forEx.initial_balance_wc=wallet.buyed
+        # forEx = ForEx(
+        #     **user_input.dict(),
+        # )
+        
+        # forEx.code = self.generate_code("FX")
 
-        forEx.state = pr.TransactionState.REVIEW
-        forEx.created_by = user.user_db_id
-        forEx.history = {"history": []}
-        forEx.rate = user_input.daily_rate
-        forEx.office_id = user.office_id
-        forEx.org_id = user.organization_id
+        # forEx.state = pr.TransactionState.REVIEW
+        # forEx.created_by = user.user_db_id
+        # forEx.history = {"history": []}
+        # forEx.rate = user_input.daily_rate
+        # forEx.office_id = user.office_id
+        # forEx.org_id = user.organization_id
 
         self.db.add(forEx)
         return forEx
 
     @managed_tx_method(auto_commit=CommitMode.COMMIT)
-    def approve(self, transaction: ForEx) -> ForEx:
+    def approve(self, transaction: ForeignEx) -> ForeignEx:
         """approve the transaction"""
         transaction.state = pr.TransactionState.PENDING
         transaction.reviwed_by = self.user.user_db_id
@@ -108,7 +135,7 @@ class ForExTransaction(PayableTransaction):
         )
 
         if request is None and customer_account is None:
-            tr: ForEx = self.transaction
+            tr: ForeignEx = self.transaction
             customer_account = tr.customer_account
             provider_account = tr.provider_account
 
@@ -124,8 +151,8 @@ class ForExTransaction(PayableTransaction):
     def accounts(self, customer_account=None, provider_account=None) -> List[Account]:
         request: pr.ForExRequest = self.get_inputs().data
         if request is None and customer_account is None:
-            tr: ForEx = self.transaction
-            customer_account = tr.customer_account
+            tr: ForeignEx = self.transaction
+            customer_account = tr.account
 
         stmt = select(Account).where(
             or_(Account.initials == customer_account, Account.initials == provider_account)
@@ -135,11 +162,11 @@ class ForExTransaction(PayableTransaction):
 
         return accounts
 
-    def get_transaction(self, code: str) -> ForEx:
+    def get_transaction(self, code: str) -> ForeignEx:
         """
         get internal transaction
         """
-        return self.db.scalar(select(ForEx).where(ForEx.code == code))
+        return self.db.scalar(select(ForeignEx).where(ForeignEx.code == code))
 
     @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
     def cancel_payment(self, payment: Payment) -> None:

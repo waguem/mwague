@@ -33,43 +33,45 @@ export const getAgentTransactions = cache(async (initials: string) => {
 });
 
 export async function addTransaction(prevSate: State, data: FormData): Promise<State> {
-  const resolver = getResolver(data.get("type") as string);
-  if (!resolver) {
-    return { message: "Invalid transaction type", status: "error" };
-  }
-  debugger;
-  const validation = resolver.run(data);
-  if ("status" in validation) {
-    return {
-      message: validation.message ?? "Invalid transaction data",
-      status: "error",
-      errors: validation.errors,
-    };
-  }
-  console.log(validation);
-
-  try {
-    const response = await requestTransactionApi({
-      requestBody: validation,
-    });
-    revalidatePath("/dashboard/office/[slug]/transactions");
-    return { message: `${response.type} Transaction ${response.code} added successfully`, status: "success" };
-  } catch (e) {
-    if (e instanceof ApiError) {
+  return withToken(async () => {
+    const resolver = getResolver(data.get("type") as string);
+    if (!resolver) {
+      return { message: "Invalid transaction type", status: "error" };
+    }
+    debugger;
+    const validation = resolver.run(data);
+    if ("status" in validation) {
       return {
+        message: validation.message ?? "Invalid transaction data",
         status: "error",
-        message: e.message,
+        errors: validation.errors,
       };
     }
-  }
 
-  // something went wrong
-  return {
-    status: "error",
-    message: "An error occurred while processing the transaction",
-  };
+
+    try {
+      const response = await requestTransactionApi({
+        requestBody: validation,
+      });
+      revalidatePath("/dashboard/office/[slug]/transactions");
+      return { message: `${response.type} Transaction ${response.code} added successfully`, status: "success" };
+    } catch (e) {
+      console.log(e.body.detail)
+      if (e instanceof ApiError) {
+        return {
+          status: "error",
+          message: e.message,
+        };
+      }
+    }
+
+    // something went wrong
+    return {
+      status: "error",
+      message: "An error occurred while processing the transaction",
+    };
+  })
 }
-
 export interface ReviewFormData extends FormData {
   code: string;
   action: string;

@@ -11,13 +11,13 @@ from mkdi_backend.models import (
     Activity,
     Deposit,
     Internal,
-    ForEx,
+    ForeignEx,
     Sending,
     External,
     TransactionWithDetails,
     Payment,
 )
-from mkdi_backend.models.transactions.transactions import ExternalWithPayments, SendingWithPayments
+
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.utils.database import CommitMode, managed_tx_method
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
@@ -370,7 +370,7 @@ class AbstractTransaction(ABC):
             case pr.TransactionType.SENDING:
                 return Sending
             case pr.TransactionType.FOREX:
-                return ForEx
+                return ForeignEx
             case _:
                 raise MkdiError(
                     error_code=MkdiErrorCode.INVALID_INPUT, message="Invalid transaction type"

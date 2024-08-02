@@ -906,133 +906,6 @@ export const $ExternalWithPayments = {
   description: "Transaction database model",
 } as const;
 
-export const $ForEx = {
-  properties: {
-    amount: {
-      type: "number",
-      minimum: 0,
-      title: "Amount",
-      strict: true,
-    },
-    rate: {
-      type: "number",
-      exclusiveMinimum: 0,
-      title: "Rate",
-      strict: true,
-    },
-    code: {
-      type: "string",
-      maxLength: 64,
-      title: "Code",
-    },
-    state: {
-      $ref: "#/components/schemas/TransactionState",
-    },
-    type: {
-      $ref: "#/components/schemas/TransactionType",
-    },
-    created_at: {
-      type: "string",
-      format: "date-time",
-      title: "Created At",
-    },
-    id: {
-      type: "string",
-      format: "uuid",
-      title: "Id",
-    },
-    office_id: {
-      type: "string",
-      format: "uuid",
-      title: "Office Id",
-    },
-    org_id: {
-      type: "string",
-      format: "uuid",
-      title: "Org Id",
-    },
-    created_by: {
-      type: "string",
-      format: "uuid",
-      title: "Created By",
-    },
-    reviwed_by: {
-      type: "string",
-      format: "uuid",
-      title: "Reviwed By",
-    },
-    history: {
-      additionalProperties: {
-        anyOf: [
-          {
-            type: "object",
-          },
-          {},
-        ],
-      },
-      type: "object",
-      title: "History",
-      default: {},
-    },
-    notes: {
-      additionalProperties: {
-        anyOf: [
-          {
-            type: "object",
-          },
-          {},
-        ],
-      },
-      type: "object",
-      title: "Notes",
-      default: {},
-    },
-    currency: {
-      $ref: "#/components/schemas/Currency",
-    },
-    base_currency: {
-      $ref: "#/components/schemas/Currency",
-    },
-    buying_rate: {
-      type: "number",
-      minimum: 0,
-      title: "Buying Rate",
-    },
-    selling_rate: {
-      type: "number",
-      minimum: 0,
-      title: "Selling Rate",
-    },
-    provider_account: {
-      type: "string",
-      title: "Provider Account",
-    },
-    customer_account: {
-      type: "string",
-      title: "Customer Account",
-    },
-  },
-  type: "object",
-  required: [
-    "amount",
-    "rate",
-    "code",
-    "state",
-    "type",
-    "office_id",
-    "org_id",
-    "created_by",
-    "currency",
-    "base_currency",
-    "buying_rate",
-    "selling_rate",
-    "provider_account",
-    "customer_account",
-  ],
-  title: "ForEx",
-  description: "Une transaction de change est effectué",
-} as const;
-
 export const $ForExRequest = {
   properties: {
     type: {
@@ -1040,19 +913,13 @@ export const $ForExRequest = {
       enum: ["FOREX"],
       title: "Type",
     },
-    provider_account: {
+    walletID: {
       type: "string",
-      title: "Provider Account",
+      title: "Walletid",
     },
-    customer_account: {
-      type: "string",
-      title: "Customer Account",
-    },
-    currency: {
-      $ref: "#/components/schemas/Currency",
-    },
-    base_currency: {
-      $ref: "#/components/schemas/Currency",
+    is_buying: {
+      type: "boolean",
+      title: "Is Buying",
     },
     daily_rate: {
       type: "number",
@@ -1060,16 +927,14 @@ export const $ForExRequest = {
       title: "Daily Rate",
       strict: true,
     },
-    buying_rate: {
-      type: "number",
-      exclusiveMinimum: 0,
-      title: "Buying Rate",
-      strict: true,
+    account: {
+      type: "string",
+      title: "Account",
     },
-    selling_rate: {
+    rate: {
       type: "number",
       exclusiveMinimum: 0,
-      title: "Selling Rate",
+      title: "Rate",
       strict: true,
     },
     amount: {
@@ -1080,33 +945,22 @@ export const $ForExRequest = {
     },
   },
   type: "object",
-  required: [
-    "type",
-    "provider_account",
-    "customer_account",
-    "currency",
-    "base_currency",
-    "daily_rate",
-    "buying_rate",
-    "selling_rate",
-    "amount",
-  ],
+  required: ["type", "walletID", "is_buying", "daily_rate", "account", "rate", "amount"],
   title: "ForExRequest",
 } as const;
 
-export const $ForExWithPayments = {
+export const $ForeignEx = {
   properties: {
     amount: {
       type: "number",
-      minimum: 0,
+      exclusiveMinimum: 0,
       title: "Amount",
-      strict: true,
     },
     rate: {
       type: "number",
       exclusiveMinimum: 0,
       title: "Rate",
-      strict: true,
+      default: 1,
     },
     code: {
       type: "string",
@@ -1175,29 +1029,160 @@ export const $ForExWithPayments = {
       title: "Notes",
       default: {},
     },
-    currency: {
-      $ref: "#/components/schemas/Currency",
+    account: {
+      type: "string",
+      title: "Account",
     },
-    base_currency: {
-      $ref: "#/components/schemas/Currency",
+    paid: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Paid",
     },
-    buying_rate: {
+    is_buying: {
+      type: "boolean",
+      title: "Is Buying",
+    },
+    wallet_id: {
+      type: "string",
+      title: "Wallet Id",
+    },
+    initial_balance_pc: {
       type: "number",
       minimum: 0,
-      title: "Buying Rate",
+      title: "Initial Balance Pc",
     },
-    selling_rate: {
+    initial_balance_wc: {
       type: "number",
       minimum: 0,
-      title: "Selling Rate",
+      title: "Initial Balance Wc",
     },
-    provider_account: {
-      type: "string",
-      title: "Provider Account",
+  },
+  type: "object",
+  required: [
+    "amount",
+    "code",
+    "state",
+    "type",
+    "office_id",
+    "org_id",
+    "created_by",
+    "account",
+    "paid",
+    "is_buying",
+    "wallet_id",
+    "initial_balance_pc",
+    "initial_balance_wc",
+  ],
+  title: "ForeignEx",
+  description: "Transaction database model",
+} as const;
+
+export const $ForeignExWithPayments = {
+  properties: {
+    amount: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Amount",
     },
-    customer_account: {
+    rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Rate",
+      default: 1,
+    },
+    code: {
       type: "string",
-      title: "Customer Account",
+      maxLength: 64,
+      title: "Code",
+    },
+    state: {
+      $ref: "#/components/schemas/TransactionState",
+    },
+    type: {
+      $ref: "#/components/schemas/TransactionType",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    office_id: {
+      type: "string",
+      format: "uuid",
+      title: "Office Id",
+    },
+    org_id: {
+      type: "string",
+      format: "uuid",
+      title: "Org Id",
+    },
+    created_by: {
+      type: "string",
+      format: "uuid",
+      title: "Created By",
+    },
+    reviwed_by: {
+      type: "string",
+      format: "uuid",
+      title: "Reviwed By",
+    },
+    history: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "History",
+      default: {},
+    },
+    notes: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "Notes",
+      default: {},
+    },
+    account: {
+      type: "string",
+      title: "Account",
+    },
+    paid: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Paid",
+    },
+    is_buying: {
+      type: "boolean",
+      title: "Is Buying",
+    },
+    wallet_id: {
+      type: "string",
+      title: "Wallet Id",
+    },
+    initial_balance_pc: {
+      type: "number",
+      minimum: 0,
+      title: "Initial Balance Pc",
+    },
+    initial_balance_wc: {
+      type: "number",
+      minimum: 0,
+      title: "Initial Balance Wc",
     },
     payments: {
       items: {
@@ -1211,22 +1196,21 @@ export const $ForExWithPayments = {
   type: "object",
   required: [
     "amount",
-    "rate",
     "code",
     "state",
     "type",
     "office_id",
     "org_id",
     "created_by",
-    "currency",
-    "base_currency",
-    "buying_rate",
-    "selling_rate",
-    "provider_account",
-    "customer_account",
+    "account",
+    "paid",
+    "is_buying",
+    "wallet_id",
+    "initial_balance_pc",
+    "initial_balance_wc",
   ],
-  title: "ForExWithPayments",
-  description: "Une transaction de change est effectué",
+  title: "ForeignExWithPayments",
+  description: "Transaction database model",
 } as const;
 
 export const $HTTPValidationError = {
@@ -2054,7 +2038,7 @@ export const $TransactionItem = {
           $ref: "#/components/schemas/External",
         },
         {
-          $ref: "#/components/schemas/ForEx",
+          $ref: "#/components/schemas/ForeignEx",
         },
       ],
       title: "Item",
@@ -2111,7 +2095,7 @@ export const $TransactionRequest = {
     },
   },
   type: "object",
-  required: ["currency", "amount"],
+  required: ["amount"],
   title: "TransactionRequest",
 } as const;
 
@@ -2223,7 +2207,7 @@ export const $TransactionReviewReq = {
     },
   },
   type: "object",
-  required: ["currency", "amount", "code", "type", "state"],
+  required: ["amount", "code", "type", "state"],
   title: "TransactionReviewReq",
 } as const;
 

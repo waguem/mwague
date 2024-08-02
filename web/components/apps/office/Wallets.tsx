@@ -156,7 +156,7 @@ export default function Wallets({ office }: Props) {
       },
       {
         header: "Buying Rate",
-        accessorKey: "buyed",
+        accessorKey: "office_id",
         enableEditing: false,
         Cell: ({ row }) => {
           const rate = Number(row.original.paid! > 0 ? row.original.buyed! / row.original.paid! : 0);

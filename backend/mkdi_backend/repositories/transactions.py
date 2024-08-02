@@ -14,7 +14,7 @@ from mkdi_backend.models.transactions.transactions import (
     External,
     Sending,
     TransactionWithDetails,
-    ForEx,
+    ForeignEx
 )
 from mkdi_backend.repositories.transaction_repos import (
     deposit,
@@ -266,7 +266,7 @@ class TransactionRepository:
                 .order_by(Internal.created_at.desc())
             )
             forex_stm = (
-                select(ForEx).where(ForEx.office_id == office_id).order_by(ForEx.created_at.desc())
+                select(ForeignEx).where(ForeignEx.office_id == office_id).order_by(ForeignEx.created_at.desc())
             )
             async with TaskGroup() as tg:
                 deposit_task = tg.create_task(session1.execute(deposit_stm))
