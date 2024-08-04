@@ -48,7 +48,6 @@ export async function addTransaction(prevSate: State, data: FormData): Promise<S
       };
     }
 
-
     try {
       const response = await requestTransactionApi({
         requestBody: validation,
@@ -56,7 +55,7 @@ export async function addTransaction(prevSate: State, data: FormData): Promise<S
       revalidatePath("/dashboard/office/[slug]/transactions");
       return { message: `${response.type} Transaction ${response.code} added successfully`, status: "success" };
     } catch (e) {
-      console.log(e.body.detail)
+      console.log(e.body.detail);
       if (e instanceof ApiError) {
         return {
           status: "error",
@@ -70,7 +69,7 @@ export async function addTransaction(prevSate: State, data: FormData): Promise<S
       status: "error",
       message: "An error occurred while processing the transaction",
     };
-  })
+  });
 }
 export interface ReviewFormData extends FormData {
   code: string;

@@ -83,6 +83,18 @@ class Currency(Enum):
     RMB = "RMB"
 
 
+class CryptoCurrency(Enum):
+    BITCOINT = "BTC"
+    ETHEREUM = "ETH"
+    USDT = "USDT"  # Tether
+
+
+class TradingType(Enum):
+    BUY = "BUY"
+    SELL = "SELL"
+    EXCHANGE = "EXCHANGE"
+
+
 class PaymentMethod(Enum):
     CASH = "CASH"
     BANK = "BANK"
@@ -112,19 +124,22 @@ class PaymentBase(SQLModel):
     )
 
 
-class OfficeWalletBase(SQLModel):
-    payment_currency: Currency
-    wallet_currency: Currency
+class CryptoWalletBase(SQLModel):
+    # the crypto currency used in the wallet to buy
+    # the trading currency
+    crypto_currency: CryptoCurrency
+    # this currency is used for trading
+    trading_currency: Currency
 
 
-class CreateOfficeWalletRequest(OfficeWalletBase):
+class CreateOfficeWalletRequest(CryptoWalletBase):
     pass
 
 
-class OfficeWalletResponse(OfficeWalletBase):
+class OfficeWalletResponse(CryptoWalletBase):
     walletID: str
-    buyed: Decimal
-    paid: Decimal
+    crypto_balance: Decimal
+    trading_balance: Decimal
     office_id: UUID
 
 
@@ -277,7 +292,7 @@ class SendingRequest(BaseModel):
 
 class ForExRequest(BaseModel):
     type: Literal["FOREX"]
-    walletID:str
+    walletID: str
     is_buying: bool
     daily_rate: Annotated[Decimal, Field(strict=True, gt=0)]
     account: str
@@ -427,6 +442,28 @@ class TransactionDB(TransactionBase):
         self.state = TransactionState.REVIEW
 
 
+class WalletTradingBase(SQLModel):
+    walletID: str
+    trading_type: TradingType
+    amount: Annotated[Decimal, Field(strict=True, ge=0)]
+    daily_rate: Annotated[Decimal, Field(strict=True, gt=0, max_digits=12, decimal_places=6)]
+    trading_rate: Annotated[Decimal, Field(strict=True, gt=0, max_digits=11, decimal_places=6)]
+    # the initial balance of the wallet before the transaction
+    # this is expressed in the wallet currency
+
+
+class WalletTradingRequest(WalletTradingBase):
+    pass
+
+
+class WalletTradingResponse(WalletTradingBase):
+    state: TransactionState
+    created_by: UUID
+    created_at: datetime
+    reviwed_by: UUID | None
+    initial_balance: Annotated[Decimal, Field(strict=True, ge=0)]
+
+
 class TransactionReviewReq(TransactionRequest):
     code: str
     type: TransactionType
@@ -463,4 +500,3 @@ class UpdateOffice(BaseModel):
 # @event.listens_for(TransactionDB.history, "modified")
 # def modified_json(instance, initiator):
 #     print("json value modified:", instance.data)
-

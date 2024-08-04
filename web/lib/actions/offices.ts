@@ -8,6 +8,8 @@ import {
   getOfficeEmployeesApiV1OfficeOfficeIdEmployeeGet as getEmployeesByOfficeId,
   createWalletApiV1OrganizationOfficeWalletPost as createWalletApi,
   Currency,
+  CryptoCurrency,
+  getMyOfficeApiV1OrganizationMyofficeGet as getMyOfficeApi,
 } from "@/lib/client";
 import { AddOfficeSchema } from "@/lib/schemas/actions";
 import { revalidatePath } from "next/cache";
@@ -15,7 +17,7 @@ import { ZodError } from "zod";
 import { State } from "./state";
 import { cache } from "react";
 import { withToken } from "./withToken";
-import { zCurrency } from "../schemas/transactionsResolvers";
+import { zCryptoCurrency, zCurrency } from "../schemas/transactionsResolvers";
 export async function addOffice(prevSate: State, data: FormData): Promise<State> {
   try {
     await setApiToken();
@@ -95,9 +97,9 @@ export const updateOfficeInfo = async (officeId: string, data: Record<string, st
   });
 };
 
-export const createWallet = async (payment_currency: Currency, wallet_currency: Currency) => {
+export const createWallet = async (crypto_currency: CryptoCurrency, trading_currency: Currency) => {
   return withToken(async () => {
-    const isValid = zCurrency.safeParse(payment_currency) && zCurrency.safeParse(wallet_currency);
+    const isValid = zCryptoCurrency.safeParse(crypto_currency) && zCurrency.safeParse(trading_currency);
     if (!isValid) {
       return {
         status: "error",
@@ -107,8 +109,8 @@ export const createWallet = async (payment_currency: Currency, wallet_currency: 
 
     const response = await createWalletApi({
       requestBody: {
-        payment_currency,
-        wallet_currency,
+        crypto_currency,
+        trading_currency,
       },
     });
 
@@ -118,5 +120,11 @@ export const createWallet = async (payment_currency: Currency, wallet_currency: 
       status: "success",
       message: "Wallet Created Successfully",
     };
+  });
+};
+
+export const getMyOffice = async () => {
+  return withToken(async () => {
+    return await getMyOfficeApi();
   });
 };

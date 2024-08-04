@@ -6,6 +6,7 @@ from mkdi_shared.schemas import protocol
 from sqlmodel import Session, select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from copy import deepcopy
+from typing import List
 
 
 class OfficeRepository:
@@ -138,27 +139,28 @@ class OfficeRepository:
             select(OfficeWallet)
             .where(OfficeWallet.office_id == office_id)
             .where(
-                OfficeWallet.payment_currency == data.payment_currency,
-                OfficeWallet.wallet_currency == data.wallet_currency,
+                OfficeWallet.crypto_currency == data.crypto_currency,
+                OfficeWallet.trading_currency == data.trading_currency,
             )
         )
 
         if wallet:
             raise MkdiError(
-                f"Wallet {data.payment_currency} already exists",
+                f"Wallet {data.crypto_currency} already exists",
                 error_code=MkdiErrorCode.WALLET_EXISTS,
             )
+
         # create a new wallet
         wallet = OfficeWallet(
             office_id=office_id,
-            payment_currency=data.payment_currency,
-            wallet_currency=data.wallet_currency,
-            walletID=f"{data.payment_currency}-{data.wallet_currency}",
+            crypto_currency=data.crypto_currency,
+            trading_currency=data.trading_currency,
+            walletID=f"{str(data.crypto_currency.value)}-{str(data.trading_currency.value)}",
         )
         self.db.add(wallet)
         return wallet
 
-    def get_wallets(self, office_id: str):
+    def get_wallets(self, office_id: str) -> List[OfficeWallet]:
         """get all wallet for an office"""
         return self.db.scalars(
             select(OfficeWallet).where(OfficeWallet.office_id == office_id)

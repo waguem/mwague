@@ -1,10 +1,10 @@
-aiohttp==3.8.3
+aiohttp
 alembic==1.13.1
 asyncpg==0.28.0
 fastapi==0.111.0
 httpx==0.24.1
 loguru
-psycopg2-binary==2.9.5
+psycopg2-binary
 pydantic
 pydantic[email]==1.10.4
 pytest==7.3.1

@@ -31,6 +31,7 @@ export const protectedURIs = [
   new ProtectedURI(/^\/dashboard\/org(\/.*)?$/, ["org_admin"]),
   new ProtectedURI(/^\/dashboard\/organization(\/.*)?$/, ["org_admin"]),
   new ProtectedURI(/^\/dashboard\/office(\/.*)?$/, ["office_admin"]),
+  new ProtectedURI(/^\/dashboard\/wallet(\/.*)?$/, ["office_admin"]),
   new ProtectedURI(/^\/dashboard\/agent(\/.*)?$/, "basic"),
   new ProtectedURI(/^\/$/, "basic"),
   // Add more URIs and their roles here

@@ -95,15 +95,15 @@ export const $AgentReponseWithAccounts = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     phone: {
       type: "string",
@@ -144,15 +144,15 @@ export const $AgentResponse = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     phone: {
       type: "string",
@@ -278,15 +278,15 @@ export const $CreateAgentRequest = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     phone: {
       type: "string",
@@ -354,8 +354,8 @@ export const $CreateOfficeRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     name: {
       type: "string",
@@ -378,15 +378,15 @@ export const $CreateOfficeRequest = {
 
 export const $CreateOfficeWalletRequest = {
   properties: {
-    payment_currency: {
-      $ref: "#/components/schemas/Currency",
+    crypto_currency: {
+      $ref: "#/components/schemas/CryptoCurrency",
     },
-    wallet_currency: {
+    trading_currency: {
       $ref: "#/components/schemas/Currency",
     },
   },
   type: "object",
-  required: ["payment_currency", "wallet_currency"],
+  required: ["crypto_currency", "trading_currency"],
   title: "CreateOfficeWalletRequest",
 } as const;
 
@@ -396,8 +396,8 @@ export const $CreateOrganizationRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     org_name: {
       type: "string",
@@ -409,6 +409,12 @@ export const $CreateOrganizationRequest = {
   type: "object",
   required: ["initials", "org_name"],
   title: "CreateOrganizationRequest",
+} as const;
+
+export const $CryptoCurrency = {
+  enum: ["BTC", "ETH", "USDT"],
+  title: "CryptoCurrency",
+  description: "An enumeration.",
 } as const;
 
 export const $Currency = {
@@ -1409,8 +1415,8 @@ export const $OfficeResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     name: {
       type: "string",
@@ -1452,23 +1458,23 @@ export const $OfficeResponse = {
 
 export const $OfficeWalletResponse = {
   properties: {
-    payment_currency: {
-      $ref: "#/components/schemas/Currency",
+    crypto_currency: {
+      $ref: "#/components/schemas/CryptoCurrency",
     },
-    wallet_currency: {
+    trading_currency: {
       $ref: "#/components/schemas/Currency",
     },
     walletID: {
       type: "string",
       title: "Walletid",
     },
-    buyed: {
+    crypto_balance: {
       type: "number",
-      title: "Buyed",
+      title: "Crypto Balance",
     },
-    paid: {
+    trading_balance: {
       type: "number",
-      title: "Paid",
+      title: "Trading Balance",
     },
     office_id: {
       type: "string",
@@ -1477,7 +1483,7 @@ export const $OfficeWalletResponse = {
     },
   },
   type: "object",
-  required: ["payment_currency", "wallet_currency", "walletID", "buyed", "paid", "office_id"],
+  required: ["crypto_currency", "trading_currency", "walletID", "crypto_balance", "trading_balance", "office_id"],
   title: "OfficeWalletResponse",
 } as const;
 
@@ -1487,8 +1493,8 @@ export const $OrganizationResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     org_name: {
       type: "string",
@@ -2021,6 +2027,12 @@ export const $SendingWithPayments = {
   description: "Transaction database model",
 } as const;
 
+export const $TradingType = {
+  enum: ["BUY", "SELL", "EXCHANGE"],
+  title: "TradingType",
+  description: "An enumeration.",
+} as const;
+
 export const $TransactionItem = {
   properties: {
     item: {
@@ -2303,4 +2315,104 @@ export const $ValidationState = {
   enum: ["APPROVED", "REJECTED", "CANCELLED"],
   title: "ValidationState",
   description: "An enumeration.",
+} as const;
+
+export const $WalletTradingRequest = {
+  properties: {
+    walletID: {
+      type: "string",
+      title: "Walletid",
+    },
+    trading_type: {
+      $ref: "#/components/schemas/TradingType",
+    },
+    amount: {
+      type: "number",
+      minimum: 0,
+      title: "Amount",
+      strict: true,
+    },
+    daily_rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Daily Rate",
+      strict: true,
+    },
+    trading_rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Trading Rate",
+      strict: true,
+    },
+  },
+  type: "object",
+  required: ["walletID", "trading_type", "amount", "daily_rate", "trading_rate"],
+  title: "WalletTradingRequest",
+} as const;
+
+export const $WalletTradingResponse = {
+  properties: {
+    walletID: {
+      type: "string",
+      title: "Walletid",
+    },
+    trading_type: {
+      $ref: "#/components/schemas/TradingType",
+    },
+    amount: {
+      type: "number",
+      minimum: 0,
+      title: "Amount",
+      strict: true,
+    },
+    daily_rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Daily Rate",
+      strict: true,
+    },
+    trading_rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Trading Rate",
+      strict: true,
+    },
+    state: {
+      $ref: "#/components/schemas/TransactionState",
+    },
+    created_by: {
+      type: "string",
+      format: "uuid",
+      title: "Created By",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+    reviwed_by: {
+      type: "string",
+      format: "uuid",
+      title: "Reviwed By",
+    },
+    initial_balance: {
+      type: "number",
+      minimum: 0,
+      title: "Initial Balance",
+      strict: true,
+    },
+  },
+  type: "object",
+  required: [
+    "walletID",
+    "trading_type",
+    "amount",
+    "daily_rate",
+    "trading_rate",
+    "state",
+    "created_by",
+    "created_at",
+    "initial_balance",
+  ],
+  title: "WalletTradingResponse",
 } as const;

@@ -5,7 +5,8 @@ export const withToken = async (fn: CallableFunction) => {
     await setApiToken();
     return await fn();
   } catch (e) {
-    console.error(e);
+    // console.error(e);
+    // console.log(e.body.detail)
     return { status: "error", message: "Something went wrong!. Please try again" };
   }
 };

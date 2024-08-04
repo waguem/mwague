@@ -1,5 +1,5 @@
 import { AgentReponseWithAccounts, OfficeResponse } from "@/lib/client";
-import { currencyOptions, getMoneyPrefix } from "@/lib/utils";
+import { getCryptoIcon, getCryptoPrefix, getMoneyPrefix } from "@/lib/utils";
 import {
   Grid,
   GridCol,
@@ -17,7 +17,7 @@ import {
   Textarea,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { IconCurrencyDollar, IconMessage, IconSend, IconWallet } from "@tabler/icons-react";
+import { IconMessage, IconSend, IconWallet } from "@tabler/icons-react";
 import { useTransition } from "react";
 import { getMoneyIcon } from "@/lib/utils";
 import { addTransaction } from "@/lib/actions/transactions";
@@ -30,14 +30,13 @@ interface Props {
 interface FormInputs {
   agent: string;
   account: string;
-  rate: number;
-  intermediateRate: number; //
-  amountInWalletCurrency: number; // amount in buying currency
-  amountInBaseCurrency: number;
-  amountInPaymentCurrency: number;
+  amountInCryptoCurrency: number; // amount in buying currency
+  amountInTradingCurrency: number;
   dailyRate: number;
   message: string;
   walletID: string;
+  buying_rate: number;
+  trading_rate: number;
   forexType: "Buying" | "Selling";
 }
 
@@ -46,40 +45,36 @@ export default function ForeignExForms({ agentWithAccounts, office }: Props) {
 
   const mainCurrency = currencies.find((currency: any) => currency?.main) as any;
   const baseCurrency = currencies.find((currency: any) => currency?.base) as any;
-  const walletOptions = office?.wallets?.map((wallet)=>{
+  const walletOptions = office?.wallets?.map((wallet) => {
     return {
       label: wallet.walletID,
-      value: wallet.walletID
-    }
-  })
+      value: wallet.walletID,
+    };
+  });
   const forexTypeOptions = ["Buying", "Selling"].map((type) => ({
     label: type,
     value: type,
-  }))
+  }));
 
   const form = useForm<FormInputs>({
     initialValues: {
       agent: "",
       account: "",
       dailyRate: mainCurrency?.defaultRate,
-      rate:0,
-      amountInWalletCurrency: 0,
-      amountInBaseCurrency: 0,
-      amountInPaymentCurrency: 0,
-      intermediateRate: 0,
+      buying_rate: 0,
+      trading_rate: 0,
+      amountInCryptoCurrency: 0,
+      amountInTradingCurrency: 0,
       message: "",
-      forexType:"Buying",
-      walletID: ""
+      forexType: "Buying",
+      walletID: "",
     },
     mode: "controlled",
     validate: {
       account: (value) => (value?.length > 0 ? null : "Account is required"),
       agent: (value) => (value?.length > 0 ? null : "Agent is required"),
-      amountInBaseCurrency: (value) => (value > 0 ? null : "Amount is required"),
-      amountInWalletCurrency: (value) => (value > 0 ? null : "Amount is required"),
-      amountInPaymentCurrency: (value) => (value > 0 ? null : "Amount is required"),
-      rate: (value) => (value > 0 ? null : "Rate is required"),
-      intermediateRate: (value) => (value > 0 ? null : "Rate is required"),
+      amountInCryptoCurrency: (value) => (value > 0 ? null : "Amount is required"),
+      amountInTradingCurrency: (value) => (value > 0 ? null : "Amount is required"),
       dailyRate: (value) => (value > 0 ? null : "Rate is required"),
     },
   });
@@ -88,11 +83,10 @@ export default function ForeignExForms({ agentWithAccounts, office }: Props) {
   const handleSubmit = async () => {
     const data: FormData = new FormData();
     data.append("walletID", form.values.walletID);
-    data.append("is_buying", form.values.forexType==="Buying"?"true":"false");
+    data.append("is_buying", form.values.forexType === "Buying" ? "true" : "false");
     data.append("daily_rate", form.values.dailyRate.toString());
     data.append("account", form.values.account);
-    data.append("rate", form.values.rate.toString());
-    data.append("amount", form.values.amountInWalletCurrency.toString());
+    data.append("amount", form.values.amountInCryptoCurrency.toString());
     data.append("message", form.values.message);
     data.append("type", "FOREX");
     const response = await addTransaction(null, data);
@@ -115,7 +109,10 @@ export default function ForeignExForms({ agentWithAccounts, office }: Props) {
         value: account.initials,
       })) ?? [];
 
-  const activeWallet = office?.wallets?.find((wallet)=>wallet.walletID === form.values?.walletID)
+  const activeWallet = office?.wallets?.find((wallet) => wallet.walletID === form.values?.walletID);
+
+  const crypto_prefix = getCryptoPrefix(activeWallet?.crypto_currency ?? "BTC");
+  const trading_prefix = getMoneyPrefix(activeWallet?.trading_currency ?? "USD");
   return (
     <form action={() => startTransition(() => handleSubmit())} className="mt-5">
       <Grid style={{ padding: "10px" }}>
@@ -142,17 +139,6 @@ export default function ForeignExForms({ agentWithAccounts, office }: Props) {
                 value={form.values.forexType}
                 onChange={(value) => form.setFieldValue("forexType", value as any)}
                 required
-              />
-
-              <NumberInput
-                id="dailyRate"
-                label={"Daily Rate 1 " + mainCurrency?.name}
-                placeholder="Enter rate"
-                required
-                leftSection={<Group>{getMoneyIcon(baseCurrency?.name, 16)}</Group>}
-                value={form.values.dailyRate}
-                onChange={(value) => form.setFieldValue("dailyRate", value as any)}
-                thousandSeparator=","
               />
             </Group>
             <Group grow>
@@ -183,48 +169,59 @@ export default function ForeignExForms({ agentWithAccounts, office }: Props) {
               />
             </Group>
             <Group grow>
-              <Select
-                data={currencyOptions}
-                label={`${form.values.forexType} Currency`}
-                placeholder="Select currency"
-                leftSection={getMoneyIcon(office.wallets?.find((wallet)=> wallet.walletID === form.values.walletID)?.wallet_currency ?? "USD", 16)}
-                id="currency"
-                readOnly
-                value={office?.wallets?.find((wallet)=> wallet.walletID === form.values.walletID)?.wallet_currency}
-              />
               <NumberInput
-                id="intermediateRate"
-                label={form.values.forexType+" Rate 1" + baseCurrency?.name}
-                placeholder="Enter intermediate rate"
+                id="dailyRate"
+                label={"Daily Rate 1 " + mainCurrency?.name}
+                placeholder="Enter rate"
                 required
-                value={form.values.intermediateRate}
-                leftSection={getMoneyIcon(office.wallets?.find((wallet)=> wallet.walletID === form.values.walletID)?.wallet_currency ?? "USD", 16)}
-                allowNegative={false}
-                decimalScale={5}
-                onChange={(value) => {
-                  form.setValues({
-                    ...form.values,
-                    intermediateRate: Number(value),
-                    rate: Number(value) * form.values.dailyRate
-                  });
-                }}
+                leftSection={<Group>{getMoneyIcon(baseCurrency?.name, 16)}</Group>}
+                value={form.values.dailyRate}
+                onChange={(value) => form.setFieldValue("dailyRate", value as any)}
                 thousandSeparator=","
               />
               <NumberInput
+                id="buying_rate"
+                label={"Buying Rate 1 " + activeWallet?.crypto_currency}
+                required
+                placeholder="Enter rate"
+                value={form.values.buying_rate}
+                leftSection={<Group>{getMoneyIcon(baseCurrency?.name, 16)}</Group>}
+                onChange={(value) => form.setFieldValue("buying_rate", value as any)}
+                thousandSeparator=","
+                decimalScale={4}
+              />
+            </Group>
+
+            <Group grow>
+              <NumberInput
+                id="buying_rate_converted"
+                label={"Buying Rate 1 " + activeWallet?.crypto_currency}
+                required
+                value={form.values.buying_rate / form.values.dailyRate}
+                leftSection={<Group>{getMoneyIcon(mainCurrency?.name, 16)}</Group>}
+                onChange={(value) => form.setFieldValue("buying_rate", value as any)}
+                thousandSeparator=","
+                decimalScale={4}
+                readOnly
+              />
+              <NumberInput
                 id="rate"
-                label={form.values.forexType+" Rate 1" + mainCurrency?.name}
-                placeholder={"Enter "+form.values.forexType + " rate"}
+                label={"Trading Rate 1" + activeWallet?.crypto_currency}
+                placeholder={"Enter " + form.values.forexType + " rate"}
                 required
                 allowNegative={false}
                 decimalScale={5}
-                value={form.values.rate}
-                leftSection={getMoneyIcon(office.wallets?.find((wallet)=> wallet.walletID === form.values.walletID)?.wallet_currency ?? "USD", 16)}
+                value={form.values.trading_rate}
+                leftSection={getMoneyIcon(
+                  office.wallets?.find((wallet) => wallet.walletID === form.values.walletID)?.trading_currency ?? "USD",
+                  16
+                )}
                 onChange={(value) => {
                   form.setValues({
                     ...form.values,
-                    rate: Number(value),
-                    intermediateRate: Number(value) / form.values.dailyRate
-                  })
+                    trading_rate: Number(value),
+                    amountInTradingCurrency: Number(value) * form.values.amountInCryptoCurrency,
+                  });
                 }}
                 thousandSeparator=","
               />
@@ -234,89 +231,109 @@ export default function ForeignExForms({ agentWithAccounts, office }: Props) {
               <NumberInput
                 decimalScale={2}
                 thousandSeparator=","
-                label={form.values.forexType+" Amount in " + office?.wallets?.find((wallet)=> wallet.walletID === form.values.walletID)?.wallet_currency}
-                leftSection={getMoneyIcon(office.wallets?.find((wallet)=> wallet.walletID === form.values.walletID)?.wallet_currency ?? "USD", 16)}
+                label={
+                  form.values.forexType +
+                  " Amount in " +
+                  office?.wallets?.find((wallet) => wallet.walletID === form.values.walletID)?.crypto_currency
+                }
+                leftSection={getCryptoIcon(activeWallet?.crypto_currency ?? "BTC", 16)}
                 placeholder="Enter amount"
                 id="amount"
                 required
                 allowNegative={false}
-                value={form.values.amountInWalletCurrency}
+                value={form.values.amountInCryptoCurrency}
                 onChange={(value) => {
                   form.setValues({
                     ...form.values,
-                    amountInWalletCurrency: Number(value),
-                    amountInPaymentCurrency: Number(value) / form.values.rate,
-                    amountInBaseCurrency: (Number(value) / form.values.rate) * form.values.dailyRate,
+                    amountInCryptoCurrency: Number(value),
+                    amountInTradingCurrency: Number(value) * form.values.trading_rate,
                   });
                 }}
               />
               <NumberInput
                 decimalScale={3}
                 thousandSeparator=","
-                label={form.values.forexType+" Amount in " + baseCurrency?.name}
-                placeholder="Enter amount"
-                id="amountInBaseCurrency"
-                required
-                value={form.values.amountInBaseCurrency}
-                allowNegative={false}
-                leftSection={getMoneyIcon(baseCurrency?.name, 16)}
-                onChange={(value) => {
-                  const amount = Number(value) * form.values.intermediateRate;
-                  form.setValues({
-                    ...form.values,
-                    amountInBaseCurrency: Number(value),
-                    amountInWalletCurrency: amount,
-                  });
-                }}
-              />
-              <NumberInput
-                decimalScale={3}
-                thousandSeparator=","
-                label={form.values.forexType+" Amount in " + office.wallets?.find((wallet)=> wallet.walletID === form.values.walletID)?.payment_currency}
-                leftSection={<IconCurrencyDollar size={16} />}
+                label={form.values.forexType + " Amount in " + activeWallet?.trading_currency}
+                leftSection={getMoneyIcon(activeWallet?.trading_currency ?? "USD", 16)}
                 placeholder="Enter amount"
                 id="sellingAmount"
                 required
                 allowNegative={false}
-                value={form.values.amountInPaymentCurrency}
+                value={form.values.amountInTradingCurrency}
                 onChange={(value) => {
-                  const amount = Number(value) * form.values.rate;
                   form.setValues({
                     ...form.values,
-                    amountInPaymentCurrency: Number(value),
-                    amountInWalletCurrency: amount,
-                    amountInBaseCurrency: Number(value) * form.values.dailyRate,
+                    amountInTradingCurrency: Number(value),
                   });
                 }}
               />
             </Group>
+            {/* {form.values.forexType == "Selling" && (
+              <Group grow>
+                <Alert variant="light" color="blue" title="">
+                  You previously bought{" "}
+                  <NumberFormatter
+                    value={detail.amount}
+                    prefix={getMoneyPrefix(activeWallet?.wallet_currency ?? "USD")}
+                    thousandSeparator=","
+                  />{" "}
+                  /{" "}
+                  <NumberFormatter
+                    thousandSeparator=","
+                    decimalScale={3}
+                    prefix={getMoneyPrefix(activeWallet?.payment_currency ?? "USD")}
+                    value={detail.buyed}
+                  />{" "}
+                  at a rate of <NumberFormatter decimalScale={5} value={detail.wallet_rate} thousandSeparator="," />.
+                  the Exchange benefit would be :{" "}
+                  <NumberFormatter
+                    decimalScale={2}
+                    value={detail.sold - detail.buyed}
+                    prefix={getMoneyPrefix(activeWallet?.payment_currency ?? "USD")}
+                    thousandSeparator=","
+                  />
+                </Alert>
+              </Group>
+            )} */}
           </Stack>
         </GridCol>
         <GridCol span={4} p={"xs"} pt="md">
           <Stack gap="xs">
-
             <Paper shadow="xs" radius={"md"} p="xl">
               <Grid>
                 <GridCol span={4}>
                   <Group gap="sm">
                     {form.values.walletID}
-                    <NumberFormatter value={activeWallet?.buyed} thousandSeparator="," prefix={getMoneyPrefix(activeWallet?.wallet_currency?? "USD")} color="red" />
-                    <NumberFormatter value={activeWallet?.paid} thousandSeparator="," prefix={getMoneyPrefix(activeWallet?.payment_currency?? "USD")} color="red" />
+                    <NumberFormatter
+                      value={activeWallet?.crypto_balance}
+                      thousandSeparator=","
+                      prefix={crypto_prefix}
+                      color="red"
+                    />
+                    <NumberFormatter
+                      value={activeWallet?.trading_balance}
+                      thousandSeparator=","
+                      prefix={trading_prefix}
+                      color="red"
+                    />
                   </Group>
                 </GridCol>
                 <GridCol span={8}>
                   <Text fz={"md"} fw={500}>
-                    Wallet Buying Rate 1 {activeWallet?.payment_currency} = {activeWallet?.wallet_currency}
+                    Wallet Buying Rate 1 {activeWallet?.crypto_currency} = {activeWallet?.trading_currency}
                   </Text>
                   <Space h="md" />
                   <Text fz={"md"} fw={500}>
+                    <NumberFormatter value={1} thousandSeparator="," prefix={crypto_prefix} decimalScale={2} /> ={" "}
                     <NumberFormatter
-                      value={1}
-                      thousandSeparator=","
-                      prefix={getMoneyPrefix(activeWallet?.payment_currency ?? "USD")}
-                      decimalScale={2}
-                    />{" "}
-                    = <NumberFormatter value={(Number(activeWallet?.buyed) / Number(activeWallet?.paid))} decimalScale={5} suffix={getMoneyPrefix(activeWallet?.wallet_currency ?? "USD")}/>
+                      value={
+                        Number(activeWallet?.crypto_balance) > 0
+                          ? Number(activeWallet?.trading_balance) / Number(activeWallet?.crypto_balance)
+                          : 0
+                      }
+                      decimalScale={5}
+                      suffix={getMoneyPrefix(activeWallet?.trading_currency ?? "USD")}
+                    />
                   </Text>
                 </GridCol>
               </Grid>

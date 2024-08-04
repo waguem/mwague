@@ -12,6 +12,7 @@ import type {
   GetOrgOfficesApiV1OrganizationOfficeGetResponse,
   CreateOfficeApiV1OrganizationOfficePostData,
   CreateOfficeApiV1OrganizationOfficePostResponse,
+  GetMyOfficeApiV1OrganizationMyofficeGetResponse,
   GetOfficeApiV1OrganizationOfficeOfficeIdGetData,
   GetOfficeApiV1OrganizationOfficeOfficeIdGetResponse,
   UpdateOfficeApiV1OrganizationOfficeOfficeIdPutData,
@@ -58,6 +59,10 @@ import type {
   UpdateTransactionApiV1TransactionCodePutResponse,
   AddPaymentApiV1TransactionCodePayPostData,
   AddPaymentApiV1TransactionCodePayPostResponse,
+  TradeWalletApiV1WalletPostData,
+  TradeWalletApiV1WalletPostResponse,
+  GetWalletTradingsApiV1WalletWalletIdTradingsGetData,
+  GetWalletTradingsApiV1WalletWalletIdTradingsGetResponse,
 } from "./types.gen";
 
 /**
@@ -172,6 +177,20 @@ export const createOfficeApiV1OrganizationOfficePost = (
     },
   });
 };
+
+/**
+ * Get My Office
+ * return the office of the authenticated user
+ * @returns OfficeResponse Successful Response
+ * @throws ApiError
+ */
+export const getMyOfficeApiV1OrganizationMyofficeGet =
+  (): CancelablePromise<GetMyOfficeApiV1OrganizationMyofficeGetResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/organization/myoffice",
+    });
+  };
 
 /**
  * Get Office
@@ -730,6 +749,51 @@ export const addPaymentApiV1TransactionCodePayPost = (
     },
     body: data.requestBody,
     mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Trade Wallet
+ * Trade wallet
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns WalletTradingResponse Successful Response
+ * @throws ApiError
+ */
+export const tradeWalletApiV1WalletPost = (
+  data: TradeWalletApiV1WalletPostData
+): CancelablePromise<TradeWalletApiV1WalletPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/wallet",
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Get Wallet Tradings
+ * Get wallet tradings
+ * @param data The data for the request.
+ * @param data.walletId
+ * @returns WalletTradingResponse Successful Response
+ * @throws ApiError
+ */
+export const getWalletTradingsApiV1WalletWalletIdTradingsGet = (
+  data: GetWalletTradingsApiV1WalletWalletIdTradingsGetData
+): CancelablePromise<GetWalletTradingsApiV1WalletWalletIdTradingsGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/wallet/{walletID}/tradings",
+    path: {
+      walletID: data.walletId,
+    },
     errors: {
       422: "Validation Error",
     },

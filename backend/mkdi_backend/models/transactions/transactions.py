@@ -1,14 +1,15 @@
-from decimal import Decimal
+from decimal import Decimal, getcontext
 from typing import Annotated, Mapping, Any, Optional, Union, List, ClassVar
 from uuid import UUID, uuid4
 from sqlalchemy.ext.mutable import MutableDict
 from pydantic import Field as PydanticField, BaseModel
 from mkdi_shared.schemas import protocol as pr
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, func
 import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as pg
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import composite,Mapped,mapped_column
+from sqlalchemy.orm import composite, Mapped, mapped_column
+from datetime import datetime
 import dataclasses
 
 
@@ -143,19 +144,27 @@ class TransactionItem(BaseModel):
     item: Union[Internal, Deposit, Sending, ForEx, External]
 
 
-
-
 class Rate(SQLModel):
     quotient: Decimal
     divider: Decimal
+
+
 @dataclasses.dataclass
 class WalletBalance(SQLModel):
-    amount_wc: Decimal # the current wallet balance if expressed in the wallet currency
-    amount_pc: Decimal # the current wallet balance if expressed in the payment currency
+    amount_wc: Decimal  # the current wallet balance if expressed in the wallet currency
+    amount_pc: Decimal  # the current wallet balance if expressed in the payment currency
 
-    # the we have one rate for each currency
-    # rate_wc: Decimal = Rate(amount_pc , amount_wc)
-    # rate_pc: Decimal = Rate(amount_wc , amount_pc)
+
+def get_wallet_rate(cls) -> Decimal:
+    getcontext().prec = 5
+    return Decimal(cls.initial_balance_wc / cls.initial_balance_pc)
+
+
+def get_buyed_amount(cls) -> Decimal:
+    getcontext().prec = 5
+    return Decimal(cls.amount / cls.wallet_rate) if cls.is_buying else cls.paid
+
+
 class ForeignExBase(pr.TransactionDB):
     __tablename__ = "foreign_exchanges"
     id: Optional[UUID] = Field(
@@ -172,28 +181,54 @@ class ForeignExBase(pr.TransactionDB):
     """
     account: str = Field(foreign_key="accounts.initials")
     # this rate can be either a buying rate or a selling rate
-    rate: Decimal = Field(gt=0,default=1,nullable=False,max_digits=10,decimal_places=6)
+    rate: Decimal = Field(gt=0, default=1, nullable=False, max_digits=10, decimal_places=6)
     # the amount is always is expressed in the wallet currency
-    amount: Decimal = Field(gt=0,nullable=False,max_digits=19,decimal_places=3)
+    amount: Decimal = Field(gt=0, nullable=False, max_digits=19, decimal_places=3)
     # the paid amount is always expressed in the transaction currency (or payment currency)
-    paid: Decimal = Field(gt=0,nullable=False,max_digits=19,decimal_places=3)
+    paid: Decimal = Field(gt=0, nullable=False, max_digits=19, decimal_places=3)
     # whether the transaction is a purchase or a sale this should never be updated manually in any scenario
     is_buying: bool = Field(nullable=False)
     #
     wallet_id: str = Field(foreign_key="wallets.walletID")
 
-    initial_balance_pc: Decimal = Field(ge=0,nullable=False,max_digits=19,decimal_places=3)
-    initial_balance_wc: Decimal = Field(ge=0,nullable=False,max_digits=19,decimal_places=3)
+    initial_balance_pc: Decimal = Field(ge=0, nullable=False, max_digits=19, decimal_places=3)
+    initial_balance_wc: Decimal = Field(ge=0, nullable=False, max_digits=19, decimal_places=3)
 
-class ForeignExWithPayments(ForeignExBase,table=False):
+    wallet_rate: ClassVar[Decimal] = hybrid_property(get_wallet_rate)
+    # thiis amount expres the amount in payment currency at buying time
+    # in other words how much the same amount was worth in the payment currency at the time of the transaction
+    # this is use only when the transaction is a sale
+    buyed: ClassVar[Decimal] = hybrid_property(get_buyed_amount)
+
+
+class ForeignExWithPayments(ForeignExBase, table=False):
     payments: List[Payment] = PydanticField(default=[])
 
-class ForeignEx(ForeignExBase,table=True):
+
+class ForeignEx(ForeignExBase, table=True):
     def withPayments(self, payments: List[Payment]) -> ForeignExWithPayments:
         return ForeignExWithPayments(**self.dict(), payments=payments)
+
+
+class WalletTrading(pr.WalletTradingBase, table=True):
+    __tablename__ = "wallet_trading"
+    id: Optional[UUID] = Field(
+        sa_column=sa.Column(
+            pg.UUID(as_uuid=True),
+            primary_key=True,
+            default=uuid4,
+            server_default=sa.text("gen_random_uuid()"),
+        )
+    )
+    created_at: Annotated[datetime, PydanticField(default_factory=datetime.now)]
+    created_by: UUID = Field(foreign_key="employees.id")
+    reviwed_by: UUID | None = Field(foreign_key="employees.id")
+    state: pr.TransactionState
+
+    amount: Decimal = Field(gt=0, nullable=False, max_digits=19, decimal_places=3)
+    initial_balance: Decimal = Field(ge=0, nullable=False, max_digits=19, decimal_places=3)
+
 
 TransactionWithDetails = Union[
     Internal, Deposit, SendingWithPayments, ForeignExWithPayments, ExternalWithPayments
 ]
-
-

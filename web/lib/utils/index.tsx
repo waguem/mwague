@@ -1,5 +1,5 @@
 import { BadgeVariant, MantineColor, MantineGradient } from "@mantine/core";
-import { Currency, TransactionState, TransactionType } from "../client";
+import { CryptoCurrency, Currency, TransactionState, TransactionType } from "../client";
 import {
   IconCurrency,
   IconCurrencyDollar,
@@ -7,6 +7,9 @@ import {
   IconCurrencyRenminbi,
   IconCurrencyDirham,
   IconCurrencyCent,
+  IconCurrencyBitcoin,
+  IconCurrencyEthereum,
+  IconBrandTether,
 } from "@tabler/icons-react";
 
 export function getFlagEmoji(countryCode: string) {
@@ -60,6 +63,12 @@ export const currencyOptions = [
   { value: "GNF", label: "GNF" },
   { value: "AED", label: "AED" },
   { value: "RMB", label: "RMB" },
+];
+
+export const cryptoCurrencyOptions = [
+  { value: "BITCOIN", label: "BTC" },
+  { value: "ETHERIUM", label: "ETH" },
+  { value: "USDT", label: "USDT" },
 ];
 
 /**
@@ -167,6 +176,18 @@ export const getMoneyIcon = (currency: Currency, size: number) => {
   return <IconCurrency size={size} />;
 };
 
+export const getCryptoIcon = (currency: CryptoCurrency, size: number) => {
+  switch (currency) {
+    case "BTC":
+      return <IconCurrencyBitcoin size={size} />;
+    case "ETH":
+      return <IconCurrencyEthereum size={size} />;
+    case "USDT":
+      return <IconBrandTether size={size} />;
+  }
+  return <IconCurrency size={size} />;
+};
+
 export const getMoneyPrefix = (currency: Currency) => {
   switch (currency) {
     case "USD":
@@ -181,6 +202,18 @@ export const getMoneyPrefix = (currency: Currency) => {
       return "Dhs";
     case "GNF":
       return "FG";
+  }
+  return "";
+};
+
+export const getCryptoPrefix = (currency: CryptoCurrency) => {
+  switch (currency) {
+    case "BTC":
+      return "₿";
+    case "ETH":
+      return "Ξ";
+    case "USDT":
+      return "₮";
   }
   return "";
 };

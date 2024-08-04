@@ -5,6 +5,7 @@ import { DepositRequest, InternalRequest, TransactionRequest } from "../client";
 // Step 1: Define the registry
 // Assuming you have Zod schemas defined somewhere
 export const zCurrency = z.enum(["USD", "EUR", "CFA", "GNF", "AED", "RMB"]);
+export const zCryptoCurrency = z.enum(["BTC", "ETH", "USDT"]);
 export const zNumber = z.preprocess(
   (value) => {
     // Attempt to convert string to number if it's a string that represents a number
@@ -288,7 +289,7 @@ const ForexFromResolver: FormResolver = {
         })),
       };
     }
-    console.log("Parsed Forex ",parsed)
+    console.log("Parsed Forex ", parsed);
 
     return {
       amount: {
@@ -303,7 +304,7 @@ const ForexFromResolver: FormResolver = {
       data: {
         type: "FOREX",
         walletID: parsed.data.walletID,
-        is_buying: parsed.data.is_buying==="true",
+        is_buying: parsed.data.is_buying === "true",
         daily_rate: +parsed.data.daily_rate,
         account: parsed.data.account,
         rate: +parsed.data.rate,

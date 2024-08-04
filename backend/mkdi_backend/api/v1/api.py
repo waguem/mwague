@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from mkdi_backend.api.v1 import organization, ping
 from mkdi_backend.api.v1.office import account, activity, agent, employee, office
 from mkdi_backend.api.v1.transactions import transactions
+from mkdi_backend.api.v1.wallet import wallet
 
 api_router = APIRouter()
 
@@ -15,3 +16,4 @@ api_router.include_router(agent.router, tags=["agent"])
 api_router.include_router(account.router, tags=["account"])
 api_router.include_router(activity.router, tags=["activity"])
 api_router.include_router(transactions.router, tags=["transactions"])
+api_router.include_router(wallet.router, tags=["wallet"])

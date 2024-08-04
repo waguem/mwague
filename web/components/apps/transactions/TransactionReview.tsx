@@ -211,16 +211,9 @@ function DepositView({ transaction }: { transaction: Deposit; mainCurrency: Curr
   );
 }
 
-function ForexView({
-  transaction,
-  office
-}: {
-  transaction: ForeignEx;
-  office:OfficeResponse
-}) {
+function ForexView({ transaction, office }: { transaction: ForeignEx; office: OfficeResponse }) {
+  const wallet = office.wallets?.find((wallet) => wallet.walletID === transaction.wallet_id);
 
-  const wallet= office.wallets?.find((wallet)=>wallet.walletID === transaction.wallet_id)
-  
   return (
     <List
       style={{ marginTop: 5 }}
@@ -243,7 +236,9 @@ function ForexView({
           </ThemeIcon>
         }
       >
-        <Text size="sm">{transaction.is_buying ? "Buying from ":"Selling to"} : {transaction.account}</Text>
+        <Text size="sm">
+          {transaction.is_buying ? "Buying from " : "Selling to"} : {transaction.account}
+        </Text>
       </List.Item>
       <List.Item
         icon={
@@ -258,7 +253,9 @@ function ForexView({
           prefix={`${getMoneyPrefix(wallet?.wallet_currency ?? "USD")} `}
           value={transaction.amount}
           decimalScale={3}
-        /> / <NumberFormatter
+        />{" "}
+        /{" "}
+        <NumberFormatter
           thousandSeparator
           prefix={`${getMoneyPrefix(wallet?.payment_currency ?? "USD")} `}
           value={transaction.paid}
@@ -272,7 +269,8 @@ function ForexView({
           </ThemeIcon>
         }
       >
-        {transaction.is_buying ? "Buying" : "Selling"} Rate : <NumberFormatter thousandSeparator value={transaction.rate ?? 0} decimalScale={5} />
+        {transaction.is_buying ? "Buying" : "Selling"} Rate :{" "}
+        <NumberFormatter thousandSeparator value={transaction.rate ?? 0} decimalScale={5} />
       </List.Item>
       <List.Item
         icon={
@@ -281,7 +279,16 @@ function ForexView({
           </ThemeIcon>
         }
       >
-        Wallet Rate : <NumberFormatter thousandSeparator value={transaction.initial_balance_pc > 0 ? Number(transaction.initial_balance_wc / transaction.initial_balance_pc) : 0} decimalScale={5} />
+        Wallet Rate :{" "}
+        <NumberFormatter
+          thousandSeparator
+          value={
+            transaction.initial_balance_pc > 0
+              ? Number(transaction.initial_balance_wc / transaction.initial_balance_pc)
+              : 0
+          }
+          decimalScale={5}
+        />
       </List.Item>
     </List>
   );
@@ -453,7 +460,12 @@ export default function TransactionReview({ row, opened, close, office }: Props)
             </Text>
             <Text size="xs" mt={4}></Text>
             {row?.item && (
-              <View office={office} baseCurrency={baseCurrency?.name} mainCurrency={mainCurrency?.name} transaction={row.item} />
+              <View
+                office={office}
+                baseCurrency={baseCurrency?.name}
+                mainCurrency={mainCurrency?.name}
+                transaction={row.item}
+              />
             )}
           </Timeline.Item>
           <Timeline.Item title="Transaction review" bullet={<IconMessageDots size={12} />}>

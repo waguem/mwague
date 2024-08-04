@@ -59,6 +59,20 @@ async def get_org_offices(
 
 
 @router.get(
+    "/organization/myoffice",
+    status_code=200,
+    response_model=protocol.OfficeResponse,
+)
+def get_my_office(
+    *,
+    user: Annotated[KcUser, Security(check_authorization, scopes=[])],
+    db: Session = Depends(get_db),
+) -> protocol.OfficeResponse:
+    """return the office of the authenticated user"""
+    return OfficeRepository(db).get_office(user.office_id, user.organization_id)
+
+
+@router.get(
     "/organization/office/{office_id}", status_code=200, response_model=protocol.OfficeResponse
 )
 def get_office(

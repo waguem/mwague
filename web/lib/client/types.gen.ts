@@ -111,14 +111,19 @@ export type CreateOfficeRequest = {
 };
 
 export type CreateOfficeWalletRequest = {
-  payment_currency: Currency;
-  wallet_currency: Currency;
+  crypto_currency: CryptoCurrency;
+  trading_currency: Currency;
 };
 
 export type CreateOrganizationRequest = {
   initials: string;
   org_name: string;
 };
+
+/**
+ * An enumeration.
+ */
+export type CryptoCurrency = "BTC" | "ETH" | "USDT";
 
 /**
  * An enumeration.
@@ -442,11 +447,11 @@ export type OfficeResponse = {
 };
 
 export type OfficeWalletResponse = {
-  payment_currency: Currency;
-  wallet_currency: Currency;
+  crypto_currency: CryptoCurrency;
+  trading_currency: Currency;
   walletID: string;
-  buyed: number;
-  paid: number;
+  crypto_balance: number;
+  trading_balance: number;
   office_id: string;
 };
 
@@ -628,6 +633,11 @@ export type SendingWithPayments = {
   payments?: Array<Payment>;
 };
 
+/**
+ * An enumeration.
+ */
+export type TradingType = "BUY" | "SELL" | "EXCHANGE";
+
 export type TransactionItem = {
   item: Internal | Deposit | Sending | External | ForeignEx;
 };
@@ -699,6 +709,27 @@ export type ValidationError = {
  */
 export type ValidationState = "APPROVED" | "REJECTED" | "CANCELLED";
 
+export type WalletTradingRequest = {
+  walletID: string;
+  trading_type: TradingType;
+  amount: number;
+  daily_rate: number;
+  trading_rate: number;
+};
+
+export type WalletTradingResponse = {
+  walletID: string;
+  trading_type: TradingType;
+  amount: number;
+  daily_rate: number;
+  trading_rate: number;
+  state: TransactionState;
+  created_by: string;
+  created_at: string;
+  reviwed_by?: string;
+  initial_balance: number;
+};
+
 export type PingApiV1PingGetResponse = unknown;
 
 export type GetOrganizationsApiV1OrganizationGetResponse = Array<OrganizationResponse>;
@@ -718,6 +749,8 @@ export type CreateOfficeApiV1OrganizationOfficePostData = {
 };
 
 export type CreateOfficeApiV1OrganizationOfficePostResponse = OfficeResponse;
+
+export type GetMyOfficeApiV1OrganizationMyofficeGetResponse = OfficeResponse;
 
 export type GetOfficeApiV1OrganizationOfficeOfficeIdGetData = {
   officeId: string;
@@ -862,6 +895,18 @@ export type AddPaymentApiV1TransactionCodePayPostData = {
 
 export type AddPaymentApiV1TransactionCodePayPostResponse = PaymentResponse;
 
+export type TradeWalletApiV1WalletPostData = {
+  requestBody: WalletTradingRequest;
+};
+
+export type TradeWalletApiV1WalletPostResponse = WalletTradingResponse;
+
+export type GetWalletTradingsApiV1WalletWalletIdTradingsGetData = {
+  walletId: string;
+};
+
+export type GetWalletTradingsApiV1WalletWalletIdTradingsGetResponse = Array<WalletTradingResponse>;
+
 export type $OpenApiTs = {
   "/api/v1/ping": {
     get: {
@@ -926,6 +971,16 @@ export type $OpenApiTs = {
          * Validation Error
          */
         422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/organization/myoffice": {
+    get: {
+      res: {
+        /**
+         * Successful Response
+         */
+        200: OfficeResponse;
       };
     };
   };
@@ -1268,6 +1323,36 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: PaymentResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/wallet": {
+    post: {
+      req: TradeWalletApiV1WalletPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        201: WalletTradingResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/wallet/{walletID}/tradings": {
+    get: {
+      req: GetWalletTradingsApiV1WalletWalletIdTradingsGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<WalletTradingResponse>;
         /**
          * Validation Error
          */

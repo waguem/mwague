@@ -46,7 +46,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
   const isPayable = (type: TransactionType) => {
     return ["EXTERNAL", "FOREX", "SENDING"].includes(type);
   };
-  
+
   //should be memoized or stable
   const columns = useMemo<MRT_ColumnDef<TransactionItem>[]>(
     () => [
@@ -54,7 +54,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
         accessorKey: "item.code", //access nested data with dot notation
         header: "Code",
         enableEditing: false,
-        size:100,
+        size: 100,
         Cell: ({ cell, row }) => (
           <Group>
             <Avatar.Group spacing="xs">
@@ -73,7 +73,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
       {
         accessorKey: "item.charges",
         header: "Charges",
-        size:100,
+        size: 100,
         enableEditing: true,
         Cell: ({ cell }) => (
           <NumberFormatter decimalScale={2} prefix="$" thousandSeparator value={cell.getValue() ?? (0 as any)} />
@@ -82,33 +82,33 @@ const MantineTable = ({ data, office, employees }: Props) => {
       {
         accessorKey: "item.amount",
         header: "Amount",
-        size:200,
+        size: 200,
         Cell: ({ cell }) => {
           const currencies = office?.currencies as any;
           let currency: Currency = currencies?.find((curr: any) => curr.main)?.name as unknown as Currency;
-          let payment_currency:Currency | undefined= undefined
+          let payment_currency: Currency | undefined = undefined;
           if (cell.row.original.item.type === "FOREX") {
             const tr: ForeignEx = cell.row.original.item as ForeignEx;
-            const wallet = office.wallets?.find((wallet)=>wallet.walletID === tr.wallet_id)
-            currency = wallet?.wallet_currency!
-            payment_currency = wallet?.payment_currency
+            const wallet = office.wallets?.find((wallet) => wallet.walletID === tr.wallet_id);
+            currency = wallet?.trading_currency!;
+            payment_currency = wallet?.crypto_currency;
           }
           return (
             <Group>
-              { cell.row.original.item.type ==="FOREX" &&
+              {cell.row.original.item.type === "FOREX" && (
                 <NumberFormatter
                   decimalScale={3}
                   prefix={`${getMoneyPrefix(payment_currency ?? "USD")}`}
                   thousandSeparator
                   value={(cell.row.original.item as ForeignEx).paid}
                 />
-              }
+              )}
               <NumberFormatter
                 decimalScale={2}
                 prefix={`${getMoneyPrefix(currency)}`}
                 thousandSeparator
                 value={cell.getValue() as string}
-              />  
+              />
             </Group>
           );
         },
@@ -127,7 +127,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
       {
         accessorKey: "item.state", //normal accessorKey
         header: "State",
-        size:50,
+        size: 50,
         enableEditing: false,
         Cell: ({ cell }) => {
           const state: TransactionState = cell.getValue() as TransactionState;
@@ -143,9 +143,14 @@ const MantineTable = ({ data, office, employees }: Props) => {
         accessorKey: "item.type",
         header: "Type",
         enableEditing: false,
-        Cell: ({ cell,row }) => (
+        Cell: ({ cell, row }) => (
           <Badge variant="outline" color={getBadgeType(cell.getValue() as TransactionType)}>
-            {cell.getValue() as string} {cell.getValue()==="FOREX" ? (row.original?.item as ForeignEx).is_buying ? "/ Buying":"/ Selling":"" }
+            {cell.getValue() as string}{" "}
+            {cell.getValue() === "FOREX"
+              ? (row.original?.item as ForeignEx).is_buying
+                ? "/ Buying"
+                : "/ Selling"
+              : ""}
           </Badge>
         ),
       },
@@ -265,8 +270,8 @@ const MantineTable = ({ data, office, employees }: Props) => {
     state: {
       isSaving: pending,
     },
-    mantineTableProps:()=>({
-      striped:true,
+    mantineTableProps: () => ({
+      striped: true,
     }),
   });
 
@@ -280,9 +285,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
         officeId={office.id}
         getAvatarGroup={getAvatarGroup}
       />
-      <MantineReactTable 
-        table={table}
-      />;
+      <MantineReactTable table={table} />;
     </>
   );
 };
