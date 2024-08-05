@@ -17,7 +17,7 @@ from mkdi_backend.repositories.transaction_repos.invariant import (
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol as pr
 from sqlalchemy.ext.asyncio.session import AsyncSession
-
+from sqlmodel import select
 
 class DepositTransaction(AbstractTransaction):
     """

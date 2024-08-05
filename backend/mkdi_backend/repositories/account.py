@@ -159,6 +159,15 @@ class AccountRepository:
             )
             positive_balance_sum, fund_balance = result.one()
 
+            wallet_stm =await self.db.execute(
+                select(func.sum(OfficeWallet.trading_balance)).where(
+                    OfficeWallet.office_id == office_id
+                )
+            )
+
+            wallet_balance_sum = wallet_stm.scalar()
+
+
             # Convert None to 0 if there are no positive accounts or no fund account
             positive_balance_sum = positive_balance_sum or 0
             fund_balance = fund_balance or 0
@@ -168,7 +177,7 @@ class AccountRepository:
             )
 
             # Check the invariant
-            invariant_check = Decimal(positive_balance_sum) - Decimal(fund_balance)
+            invariant_check = Decimal(positive_balance_sum) - Decimal(fund_balance + wallet_balance_sum)
             logger.debug(f"Invariant difference: {invariant_check}")
             # whe should accept a small difference due to floating point precision
 

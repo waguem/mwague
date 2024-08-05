@@ -100,7 +100,9 @@ def async_managed_invariant_tx_method(
                         logger.info(f"Sys Invariant is Unhealthy after {f.__name__}")
                         await self.db.rollback()
                         continue
-
+                    
+                    await self.db.commit()
+                    
                     if isinstance(result, SQLModel):
                         logger.info("Refreshing DB")
                         await self.db.refresh(result)
@@ -137,7 +139,6 @@ def async_managed_invariant_tx_method(
                     error_code=MkdiErrorCode.ACCOUNT_VERSION_MISMATCH,
                     http_status_code=HTTPStatus.NOT_ACCEPTABLE,
                 )
-            await self.db.commit()
             return result
 
         return wrapped_f
@@ -231,7 +232,8 @@ def managed_invariant_tx_method(
                             logger.info(f"Sys Invariant is Unhealthy after {f.__name__}")
                             self.db.rollback()
                             continue
-
+                        
+                        self.db.commit()
                         if isinstance(result, SQLModel):
                             logger.info("Refreshing DB")
                             self.db.refresh(result)
@@ -269,7 +271,6 @@ def managed_invariant_tx_method(
                         http_status_code=HTTPStatus.NOT_ACCEPTABLE,
                     )
 
-                self.db.commit()
             except Exception as error:
                 logger.info(f"Unexpected Error {error}")
                 raise error
