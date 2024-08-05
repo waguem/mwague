@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   tradeWalletApiV1WalletPost,
   getWalletTradingsApiV1WalletWalletIdTradingsGet as getWalletTradingsApi,
+  payTradeApiV1WalletTradeTradeIdPayPost,
 } from "@/lib/client";
 import { withToken } from "./withToken";
 import { TradeWallet } from "@/lib/schemas";
@@ -51,5 +52,19 @@ export const getWalletTradings = async (walletID: string) => {
     return await getWalletTradingsApi({
       walletId: walletID,
     });
+  });
+};
+
+export const payTrade = async (walletID: string, tradeID: string) => {
+  return withToken(async () => {
+    const response = await payTradeApiV1WalletTradeTradeIdPayPost({
+      tradeId: tradeID,
+    });
+    console.log(response);
+    revalidatePath(`/dashboard/wallet/${walletID}`);
+    return {
+      status: "success",
+      message: "Trade Paid Successfully",
+    };
   });
 };

@@ -39,8 +39,7 @@ import type {
   GetAgentApiV1OfficeAgentAgentInitialsGetResponse,
   OpenAccountApiV1AccountPostData,
   OpenAccountApiV1AccountPostResponse,
-  GetOfficeAccountsApiV1OfficeOfficeIdAccountGetData,
-  GetOfficeAccountsApiV1OfficeOfficeIdAccountGetResponse,
+  GetOfficeAccountsApiV1OfficeMyOfficeAccountGetResponse,
   GetAgentAccountsApiV1AgentAgentInitialAccountGetData,
   GetAgentAccountsApiV1AgentAgentInitialAccountGetResponse,
   GetActivityApiV1OfficeActivityGetResponse,
@@ -63,6 +62,8 @@ import type {
   TradeWalletApiV1WalletPostResponse,
   GetWalletTradingsApiV1WalletWalletIdTradingsGetData,
   GetWalletTradingsApiV1WalletWalletIdTradingsGetResponse,
+  PayTradeApiV1WalletTradeTradeIdPayPostData,
+  PayTradeApiV1WalletTradeTradeIdPayPostResponse,
 } from "./types.gen";
 
 /**
@@ -516,25 +517,16 @@ export const openAccountApiV1AccountPost = (
 
 /**
  * Get Office Accounts
- * @param data The data for the request.
- * @param data.officeId
  * @returns AccountResponse Successful Response
  * @throws ApiError
  */
-export const getOfficeAccountsApiV1OfficeOfficeIdAccountGet = (
-  data: GetOfficeAccountsApiV1OfficeOfficeIdAccountGetData
-): CancelablePromise<GetOfficeAccountsApiV1OfficeOfficeIdAccountGetResponse> => {
-  return __request(OpenAPI, {
-    method: "GET",
-    url: "/api/v1/office/{office_id}account",
-    path: {
-      office_id: data.officeId,
-    },
-    errors: {
-      422: "Validation Error",
-    },
-  });
-};
+export const getOfficeAccountsApiV1OfficeMyOfficeAccountGet =
+  (): CancelablePromise<GetOfficeAccountsApiV1OfficeMyOfficeAccountGetResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/office/myOffice/account",
+    });
+  };
 
 /**
  * Get Agent Accounts
@@ -793,6 +785,29 @@ export const getWalletTradingsApiV1WalletWalletIdTradingsGet = (
     url: "/api/v1/wallet/{walletID}/tradings",
     path: {
       walletID: data.walletId,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Pay Trade
+ * Pay trade
+ * @param data The data for the request.
+ * @param data.tradeId
+ * @returns PaymentResponse Successful Response
+ * @throws ApiError
+ */
+export const payTradeApiV1WalletTradeTradeIdPayPost = (
+  data: PayTradeApiV1WalletTradeTradeIdPayPostData
+): CancelablePromise<PayTradeApiV1WalletTradeTradeIdPayPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/wallet/trade/{tradeID}/pay",
+    path: {
+      tradeID: data.tradeId,
     },
     errors: {
       422: "Validation Error",

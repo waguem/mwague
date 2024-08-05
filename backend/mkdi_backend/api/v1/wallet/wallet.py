@@ -23,7 +23,7 @@ def trade_wallet(
 ) -> pr.WalletTradingResponse:
     """Trade wallet"""
 
-    return WalletRepository(db).trade_wallet(user, trade)
+    return WalletRepository(db, user).trade_wallet(trade)
 
 
 @router.get(
@@ -38,4 +38,15 @@ def get_wallet_tradings(
     db: Session = Depends(get_db),
 ) -> List[pr.WalletTradingResponse]:
     """Get wallet tradings"""
-    return WalletRepository(db).get_wallet_tradings(user, walletID)
+    return WalletRepository(db, user).get_wallet_tradings(walletID)
+
+
+@router.post("/wallet/trade/{tradeID}/pay", response_model=pr.PaymentResponse, status_code=201)
+def pay_trade(
+    *,
+    user: KcUser = Security(check_authorization, scopes=["office_admin"]),
+    tradeID: str,
+    db: Session = Depends(get_db),
+) -> pr.PaymentResponse:
+    """Pay trade"""
+    return WalletRepository(db, user).pay_trade(tradeID)

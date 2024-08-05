@@ -457,6 +457,7 @@ class WalletTradingRequest(WalletTradingBase):
 
 
 class WalletTradingResponse(WalletTradingBase):
+    id: UUID
     state: TransactionState
     created_by: UUID
     created_at: datetime

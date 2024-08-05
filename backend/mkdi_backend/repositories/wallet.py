@@ -1,41 +1,50 @@
 """wallet trading repository"""
 
 from mkdi_backend.api.deps import KcUser
-from mkdi_backend.models.transactions.transactions import WalletTrading
+from mkdi_backend.models.transactions.transactions import WalletTrading, Payment
 from mkdi_backend.models.office import OfficeWallet
+from mkdi_backend.models.Account import Account
+from mkdi_backend.models.Activity import FundCommit, Activity
 from sqlmodel import Session, select
 from mkdi_shared.schemas import protocol as pr
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_backend.utils.database import managed_tx_method, CommitMode
+from mkdi_backend.repositories.transaction_repos.invariant import managed_invariant_tx_method
 from typing import List
+from datetime import datetime
 
 
 class WalletRepository:
     """Wallet repository."""
 
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, user: KcUser):
         self.db = db
+        self.user = user
 
-    def trade_wallet(
-        self, user: KcUser, request: pr.WalletTradingRequest
-    ) -> pr.WalletTradingResponse:
+    def trade_wallet(self, request: pr.WalletTradingRequest) -> pr.WalletTradingResponse:
         """Trade wallet."""
         match request.trading_type:
             case pr.TradingType.BUY:
-                return self.buy(user, request)
+                return self.buy(request)
             case pr.TradingType.SELL:
-                return self.sell(user, request)
+                return self.sell(request)
             case pr.TradingType.EXCHANGE:
-                return self.exchange(user, request)
+                return self.exchange(request)
             case _:
                 raise ValueError("Invalid trading type")
+
+    def accounts(self) -> List[Account]:
+        """Get user accounts."""
+        return self.db.scalars(
+            select(Account).where(Account.owner_id == self.user.user_db_id)
+        ).all()
 
     def get_wallet(self, walletID: str) -> OfficeWallet:
         """Get wallet by ID."""
         return self.db.scalar(select(OfficeWallet).where(OfficeWallet.walletID == walletID))
 
     @managed_tx_method(auto_commit=CommitMode.COMMIT)
-    def buy(self, user: KcUser, request: pr.WalletTradingRequest) -> pr.WalletTradingResponse:
+    def buy(self, request: pr.WalletTradingRequest) -> pr.WalletTradingResponse:
         """Buy currency for the wallet."""
         wallet = self.get_wallet(request.walletID)
 
@@ -51,7 +60,7 @@ class WalletRepository:
             amount=request.amount,
             daily_rate=request.daily_rate,
             trading_rate=request.trading_rate,
-            created_by=user.user_db_id,
+            created_by=self.user.user_db_id,
             state=pr.TransactionState.PENDING,
         )
 
@@ -59,14 +68,84 @@ class WalletRepository:
         self.db.add(trade)
         return trade
 
-    def sell(self, user: KcUser, request: pr.WalletTradingRequest) -> pr.WalletTradingResponse:
+    def sell(self, request: pr.WalletTradingRequest) -> pr.WalletTradingResponse:
         """Sell currency from the wallet."""
 
-    def exchange(self, user: KcUser, request: pr.WalletTradingRequest) -> pr.WalletTradingResponse:
+    def exchange(self, request: pr.WalletTradingRequest) -> pr.WalletTradingResponse:
         """Exchange currency from the wallet to another currency, using a other wallet"""
 
-    def get_wallet_tradings(self, user: KcUser, walletID: str) -> List[pr.WalletTradingResponse]:
+    def get_wallet_tradings(self, walletID: str) -> List[pr.WalletTradingResponse]:
         """Get wallet tradings."""
         return self.db.scalars(
-            select(WalletTrading).where(WalletTrading.walletID == walletID)
+            select(WalletTrading)
+            .where(WalletTrading.walletID == walletID)
+            .order_by(WalletTrading.created_at.desc())
         ).all()
+
+    @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
+    def pay_trade(self, tradeID: str) -> pr.WalletTradingResponse:
+        """Pay Trade"""
+        trade = self.db.scalar(
+            select(WalletTrading).where(
+                WalletTrading.id == tradeID, WalletTrading.state == pr.TransactionState.PENDING
+            )
+        )
+        if not trade:
+            raise MkdiError(
+                error_code=MkdiErrorCode.NOT_FOUND,
+                message="Trade not found",
+            )
+        # find wallet
+        wallet = self.get_wallet(trade.walletID)
+        if not wallet:
+            raise MkdiError(
+                error_code=MkdiErrorCode.NOT_FOUND,
+                message="Wallet not found",
+            )
+        # get fund account
+        fund = self.db.scalar(
+            select(Account).where(
+                Account.type == pr.AccountType.FUND, Account.office_id == self.user.office_id
+            )
+        )
+
+        if not fund:
+            raise MkdiError(
+                error_code=MkdiErrorCode.NOT_FOUND,
+                message="Fund account not found",
+            )
+        fund_out = trade.amount * (trade.trading_rate / trade.daily_rate)
+        # move funds from fund to the wallet account
+        # the wallet currency is in crypto currency, but
+        # it holds the equivalent amount in the fund account
+        activity = self.db.scalar(
+            select(Activity).where(
+                Activity.office_id == self.user.office_id, Activity.state == pr.ActivityState.OPEN
+            )
+        )
+        fund.debit(fund_out)
+        wallet.crypto_balance += trade.amount
+        wallet.trading_balance += fund_out
+        fund_history = FundCommit(
+            v_from=(fund.balance - fund_out),
+            variation=fund_out,
+            activity_id=activity.id,
+            description="Trade Payment",
+            date=datetime.now(),
+        )
+
+        payment = Payment(
+            amount=fund_out,
+            transaction_id=trade.id,
+            transaction_type=pr.TransactionType.FOREX,
+            state=pr.PaymentState.PAID,
+            notes={"notes": []},
+            paid_by=self.user.user_db_id,
+        )
+
+        trade.state = pr.TransactionState.PAID
+        payment.payment_date = datetime.now()
+        self.db.add(fund_history)
+        self.db.add(trade)
+
+        return payment

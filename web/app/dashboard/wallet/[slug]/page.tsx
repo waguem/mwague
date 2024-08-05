@@ -1,12 +1,17 @@
 import { WalletTransactions } from "@/components/apps/wallet/WalletTransactions";
-import { getMyOffice, getWalletTradings } from "@/lib/actions";
-import { OfficeResponse, WalletTradingResponse } from "@/lib/client";
+import { getMyOffice, getOfficeAccountsCached, getWalletTradings } from "@/lib/actions";
+import { AccountResponse, OfficeResponse, WalletTradingResponse } from "@/lib/client";
 import { redirect } from "next/navigation";
 export default async function WalletPage({ params }: { params: { slug: string } }) {
   const officePromise: Promise<OfficeResponse> = getMyOffice();
   const walletTradingsPromise: Promise<WalletTradingResponse[]> = getWalletTradings(params.slug);
+  const officeAccountsPromise: Promise<AccountResponse[]> = getOfficeAccountsCached();
 
-  const [office, walletTradings] = await Promise.all([officePromise, walletTradingsPromise]);
+  const [office, walletTradings, officeAccounts] = await Promise.all([
+    officePromise,
+    walletTradingsPromise,
+    officeAccountsPromise,
+  ]);
   if (!office) {
     redirect("/auth/login");
   }
@@ -18,7 +23,7 @@ export default async function WalletPage({ params }: { params: { slug: string } 
 
   return (
     <div>
-      <WalletTransactions office={office} wallet={wallet} tradings={walletTradings} />
+      <WalletTransactions officeAccounts={officeAccounts} office={office} wallet={wallet} tradings={walletTradings} />
     </div>
   );
 }

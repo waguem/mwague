@@ -7,6 +7,7 @@ import asyncio
 from loguru import logger
 from mkdi_backend.models.Account import Account
 from mkdi_backend.repositories.account import AccountRepository
+from mkdi_backend.repositories.activity import ActivityRepo
 from mkdi_backend.utils.database import CommitMode
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from psycopg2.errors import (
@@ -70,8 +71,6 @@ def async_managed_invariant_tx_method(
                             account.version += 1
                             self.db.add(account)
 
-                    await self.db.commit()
-
                     result = await f(self, *args, **kwargs)
 
                     end_accounts: List[Account] = await self.a_accounts()
@@ -96,8 +95,6 @@ def async_managed_invariant_tx_method(
                     elif isinstance(result, SQLModel):
                         self.db.add(result)
 
-                    await self.db.commit()
-
                     healthy = await check_invariant(self)
                     if not healthy:
                         logger.info(f"Sys Invariant is Unhealthy after {f.__name__}")
@@ -109,6 +106,7 @@ def async_managed_invariant_tx_method(
                         await self.db.refresh(result)
                     retry_exhausted = False
                     logger.info(f"Sys Invariant is Healthy after {f.__name__}")
+
                     break
                 except (
                     DeadlockDetected,
@@ -139,7 +137,7 @@ def async_managed_invariant_tx_method(
                     error_code=MkdiErrorCode.ACCOUNT_VERSION_MISMATCH,
                     http_status_code=HTTPStatus.NOT_ACCEPTABLE,
                 )
-
+            await self.db.commit()
             return result
 
         return wrapped_f
@@ -157,7 +155,8 @@ def managed_invariant_tx_method(
         """check sys invariant before calling a function"""
         # check system invariant and make sure it is healthy
         acc_repo = AccountRepository(self.db)
-        return self.has_started_activity() and acc_repo.check_invariant(
+        activity_repo = ActivityRepo(self.db)
+        return activity_repo.has_started(self.user.office_id) and acc_repo.check_invariant(
             self.user.organization_id, self.user.office_id
         )
 
@@ -192,7 +191,6 @@ def managed_invariant_tx_method(
                                 account.version += 1
                                 self.db.add(account)
 
-                        self.db.commit()
                         logger.info(f"Sys Invariant is Healthy before {f.__name__}")
 
                         # api call
@@ -226,7 +224,6 @@ def managed_invariant_tx_method(
                             self.db.add(result)
 
                         # commit the transaction
-                        self.db.commit()
 
                         # check if the system invariant is still healthy
                         healthy = check_invariant(self)
@@ -271,6 +268,8 @@ def managed_invariant_tx_method(
                         error_code=MkdiErrorCode.ACCOUNT_VERSION_MISMATCH,
                         http_status_code=HTTPStatus.NOT_ACCEPTABLE,
                     )
+
+                self.db.commit()
             except Exception as error:
                 logger.info(f"Unexpected Error {error}")
                 raise error

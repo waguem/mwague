@@ -723,6 +723,7 @@ export type WalletTradingResponse = {
   amount: number;
   daily_rate: number;
   trading_rate: number;
+  id: string;
   state: TransactionState;
   created_by: string;
   created_at: string;
@@ -828,11 +829,7 @@ export type OpenAccountApiV1AccountPostData = {
 
 export type OpenAccountApiV1AccountPostResponse = AccountResponse;
 
-export type GetOfficeAccountsApiV1OfficeOfficeIdAccountGetData = {
-  officeId: string;
-};
-
-export type GetOfficeAccountsApiV1OfficeOfficeIdAccountGetResponse = Array<AccountResponse>;
+export type GetOfficeAccountsApiV1OfficeMyOfficeAccountGetResponse = Array<AccountResponse>;
 
 export type GetAgentAccountsApiV1AgentAgentInitialAccountGetData = {
   agentInitial: string;
@@ -906,6 +903,12 @@ export type GetWalletTradingsApiV1WalletWalletIdTradingsGetData = {
 };
 
 export type GetWalletTradingsApiV1WalletWalletIdTradingsGetResponse = Array<WalletTradingResponse>;
+
+export type PayTradeApiV1WalletTradeTradeIdPayPostData = {
+  tradeId: string;
+};
+
+export type PayTradeApiV1WalletTradeTradeIdPayPostResponse = PaymentResponse;
 
 export type $OpenApiTs = {
   "/api/v1/ping": {
@@ -1179,18 +1182,13 @@ export type $OpenApiTs = {
       };
     };
   };
-  "/api/v1/office/{office_id}account": {
+  "/api/v1/office/myOffice/account": {
     get: {
-      req: GetOfficeAccountsApiV1OfficeOfficeIdAccountGetData;
       res: {
         /**
          * Successful Response
          */
         200: Array<AccountResponse>;
-        /**
-         * Validation Error
-         */
-        422: HTTPValidationError;
       };
     };
   };
@@ -1353,6 +1351,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: Array<WalletTradingResponse>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/wallet/trade/{tradeID}/pay": {
+    post: {
+      req: PayTradeApiV1WalletTradeTradeIdPayPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        201: PaymentResponse;
         /**
          * Validation Error
          */

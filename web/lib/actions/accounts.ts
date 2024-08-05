@@ -5,7 +5,7 @@ import {
   ApiError,
   openAccountApiV1AccountPost as openAccountApi,
   getAgentAccountsApiV1AgentAgentInitialAccountGet as getAgentAccountsApi,
-  getOfficeAccountsApiV1OfficeOfficeIdAccountGet as getOfficeAccountsApi,
+  getOfficeAccountsApiV1OfficeMyOfficeAccountGet as getOfficeAccountsApi,
 } from "../client";
 import { AddAccountSchema } from "../schemas/actions";
 import { State } from "./state";
@@ -70,10 +70,8 @@ export async function getAgentAccounts(initial: string) {
   });
 }
 
-export const getOfficeAccountsCached = cache(async (officeId: string) => {
+export const getOfficeAccountsCached = cache(async () => {
   return withToken(async () => {
-    return await getOfficeAccountsApi({
-      officeId,
-    });
+    return await getOfficeAccountsApi();
   });
 });

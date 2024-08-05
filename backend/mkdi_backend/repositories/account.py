@@ -5,12 +5,12 @@ from mkdi_backend.config import settings
 from mkdi_backend.models.Account import Account
 from mkdi_backend.models.Agent import Agent
 from mkdi_backend.models.models import KcUser
-from mkdi_backend.models.office import Office
+from mkdi_backend.models.office import Office, OfficeWallet
 from mkdi_backend.utils.database import CommitMode, managed_tx_method
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol
 from sqlmodel import Session, and_, func
-from sqlalchemy import select, case
+from sqlalchemy import select, case, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -105,7 +105,16 @@ class AccountRepository:
         Returns:
             list[Account]: A list of accounts associated with the office.
         """
-        return self.db.query(Account).filter(Account.owner_id == office_id).all()
+        return self.db.scalars(
+            select(Account)
+            .where(Account.office_id == office_id)
+            .filter(
+                or_(
+                    Account.type == protocol.AccountType.FUND,
+                    Account.type == protocol.AccountType.OFFICE,
+                )
+            )
+        ).all()
 
     def get_owner_accounts(self, owner_id: str) -> list[Account]:
         """
@@ -192,6 +201,12 @@ class AccountRepository:
                 .one()
             )
 
+            wallet_balance_sum = self.db.execute(
+                select(func.sum(OfficeWallet.trading_balance)).where(
+                    OfficeWallet.office_id == office_id
+                )
+            ).scalar()
+
             # Convert None to 0 if there are no positive accounts or no fund account
             positive_balance_sum = positive_balance_sum or 0
             fund_balance = fund_balance or 0
@@ -201,7 +216,9 @@ class AccountRepository:
             )
 
             # Check the invariant
-            invariant_check = Decimal(positive_balance_sum) - Decimal(fund_balance)
+            invariant_check = Decimal(positive_balance_sum) - Decimal(
+                fund_balance + wallet_balance_sum
+            )
             logger.debug(f"Invariant difference: {invariant_check}")
             # whe should accept a small difference due to floating point precision
 

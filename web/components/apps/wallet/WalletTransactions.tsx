@@ -1,19 +1,27 @@
 "use client";
-import { OfficeResponse, OfficeWalletResponse, TransactionState, WalletTradingResponse } from "@/lib/client";
-import { Badge, MantineColor, NumberFormatter } from "@mantine/core";
+import {
+  AccountResponse,
+  OfficeResponse,
+  OfficeWalletResponse,
+  TransactionState,
+  WalletTradingResponse,
+} from "@/lib/client";
+import { Badge, Group, MantineColor, NumberFormatter, Tooltip } from "@mantine/core";
 import { MantineReactTable, MRT_ColumnDef, useMantineReactTable } from "mantine-react-table";
 import { useMemo } from "react";
 import { NewTrade } from "./NewTrade";
 import { getCryptoPrefix, getStateBadge } from "@/lib/utils";
 import { formatDistanceToNowStrict } from "date-fns";
+import { PayTrade } from "./PaymentTrade";
 
 interface Props {
   office: OfficeResponse;
   wallet: OfficeWalletResponse;
   tradings: WalletTradingResponse[];
+  officeAccounts: AccountResponse[];
 }
 
-export function WalletTransactions({ office, wallet, tradings }: Props) {
+export function WalletTransactions({ office, wallet, tradings, officeAccounts }: Props) {
   const getReviewBadgeColor = (type: string): MantineColor => {
     switch (type) {
       case "BUY":
@@ -66,13 +74,19 @@ export function WalletTransactions({ office, wallet, tradings }: Props) {
         },
       },
       {
-        header: "Daily Rate",
+        header: "Daily Rate ",
         accessorKey: "daily_rate",
         enableEditing: false,
+        Cell: ({ cell }) => (
+          <NumberFormatter value={cell.getValue() as number} thousandSeparator="," decimalScale={3} />
+        ),
       },
       {
-        header: "Trading Rate",
+        header: "Trading Rate ",
         accessorKey: "trading_rate",
+        Cell: ({ cell }) => (
+          <NumberFormatter value={cell.getValue() as number} thousandSeparator="," decimalScale={3} />
+        ),
       },
       {
         header: "Date",
@@ -105,8 +119,39 @@ export function WalletTransactions({ office, wallet, tradings }: Props) {
   const table = useMantineReactTable({
     columns,
     data: tradings,
+    enableEditing: true,
+
     renderTopToolbarCustomActions: () => {
-      return <NewTrade office={office} walletID={wallet.walletID} />;
+      return (
+        <Group>
+          <NewTrade office={office} walletID={wallet.walletID} />
+          <Badge variant="dot" color="pink" size="lg">
+            Pendings :{" "}
+            <NumberFormatter
+              thousandSeparator=","
+              prefix={getCryptoPrefix(wallet.crypto_currency)}
+              value={tradings.filter((t) => t.state === "PENDING").reduce((acc, t) => acc + t.amount, 0)}
+            />
+          </Badge>
+          <Badge variant="dot" color="cyan" size="lg">
+            PAID :{" "}
+            <NumberFormatter
+              thousandSeparator=","
+              prefix={getCryptoPrefix(wallet.crypto_currency)}
+              value={tradings.filter((t) => t.state === "PAID").reduce((acc, t) => acc + t.amount, 0)}
+            />
+          </Badge>
+        </Group>
+      );
+    },
+    renderRowActions: ({ row }) => {
+      return (
+        <Group gap="xs">
+          <Tooltip label="Pay">
+            <PayTrade accounts={officeAccounts} trade={row.original as WalletTradingResponse} wallet={wallet} />
+          </Tooltip>
+        </Group>
+      );
     },
     initialState: {
       density: "xs",

@@ -26,20 +26,14 @@ def open_account(
 
 
 @router.get(
-    "/office/{office_id}account", status_code=200, response_model=list[protocol.AccountResponse]
+    "/office/myOffice/account", status_code=200, response_model=list[protocol.AccountResponse]
 )
 def get_office_accounts(
     *,
     db: Session = Depends(get_db),
     user: Annotated[KcUser, Security(check_authorization, scopes=[])],
-    office_id: str,
 ) -> list[protocol.AccountResponse]:
-    if user.office_id != office_id and not hasSufficientPermissions(user.roles, ["org_admin"]):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User does not have enough permissions to access this resource.",
-        )
-    return AccountRepository(db).get_office_accounts(office_id)
+    return AccountRepository(db).get_office_accounts(user.office_id)
 
 
 @router.get("/agent/{agent_initial}/account", response_model=list[protocol.AccountResponse])

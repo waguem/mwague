@@ -72,7 +72,7 @@ export function NewTrade({ walletID, office }: { walletID: string; office: Offic
   };
   return (
     <>
-      <Button size="compact-md" onClick={open}>
+      <Button variant="gradient" size="compact-md" onClick={open}>
         <ActionIcon>
           <IconGitPullRequest size={18} />
         </ActionIcon>
