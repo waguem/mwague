@@ -10,7 +10,7 @@ export default async function OfficeAccountsPage({
   };
 }) {
   const officePromise = getOfficeCached(params.slug);
-  const accountsPromise = getOfficeAccountsCached(params.slug);
+  const accountsPromise = getOfficeAccountsCached();
 
   const [office, accounts] = await Promise.all([officePromise, accountsPromise]);
   const hasFund = accounts.some((account: any) => account.type === "FUND");
