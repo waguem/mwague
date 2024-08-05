@@ -5,6 +5,7 @@ from typing import List
 import secrets
 import string
 from mkdi_backend.models.Account import Account
+from mkdi_backend.models.Activity import Activity
 from mkdi_backend.models.Activity import FundCommit
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.models.transactions.transactions import Deposit, TransactionWithDetails
@@ -74,7 +75,11 @@ class DepositTransaction(AbstractTransaction):
 
         self.db.add(receiver_account)
         self.db.add(fund)
-
+        self.activity = self.db.scalar(
+            select(Activity).where(
+                Activity.state == pr.ActivityState.OPEN, Activity.office_id == self.user.office_id
+            )
+        )
         fund_history = self.create_history(fund, transaction)
         self.db.add(fund_history)
         return commits

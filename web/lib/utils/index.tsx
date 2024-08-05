@@ -188,7 +188,7 @@ export const getCryptoIcon = (currency: CryptoCurrency, size: number) => {
   return <IconCurrency size={size} />;
 };
 
-export const getMoneyPrefix = (currency: Currency) => {
+export const getMoneyPrefix = (currency: Currency | undefined) => {
   switch (currency) {
     case "USD":
       return "$";
@@ -203,7 +203,7 @@ export const getMoneyPrefix = (currency: Currency) => {
     case "GNF":
       return "FG";
   }
-  return "";
+  return "$";
 };
 
 export const getCryptoPrefix = (currency: CryptoCurrency) => {

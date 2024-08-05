@@ -91,7 +91,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
             const tr: ForeignEx = cell.row.original.item as ForeignEx;
             const wallet = office.wallets?.find((wallet) => wallet.walletID === tr.wallet_id);
             currency = wallet?.trading_currency!;
-            payment_currency = wallet?.crypto_currency;
+            payment_currency = wallet?.trading_currency;
           }
           return (
             <Group>

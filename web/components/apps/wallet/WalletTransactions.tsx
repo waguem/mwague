@@ -10,9 +10,10 @@ import { Badge, Group, MantineColor, NumberFormatter, Tooltip } from "@mantine/c
 import { MantineReactTable, MRT_ColumnDef, useMantineReactTable } from "mantine-react-table";
 import { useMemo } from "react";
 import { NewTrade } from "./NewTrade";
-import { getCryptoPrefix, getStateBadge } from "@/lib/utils";
+import { getCryptoPrefix, getMoneyPrefix, getStateBadge } from "@/lib/utils";
 import { formatDistanceToNowStrict } from "date-fns";
 import { PayTrade } from "./PaymentTrade";
+import { OfficeCurrency } from "@/lib/types";
 
 interface Props {
   office: OfficeResponse;
@@ -34,6 +35,10 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts }:
         return "gray";
     }
   };
+
+  const currencies: OfficeCurrency[] = office?.currencies as OfficeCurrency[];
+
+  const mainCurrency = currencies.find((c) => c.main);
 
   const columns = useMemo<MRT_ColumnDef<WalletTradingResponse>[]>(
     () => [
@@ -125,6 +130,22 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts }:
       return (
         <Group>
           <NewTrade office={office} walletID={wallet.walletID} />
+          <Badge variant="dot" color="ping" size="lg">
+            Balance:{" "}
+            <NumberFormatter
+              thousandSeparator=","
+              prefix={getCryptoPrefix(wallet.crypto_currency)}
+              decimalScale={3}
+              value={wallet.crypto_balance}
+            />{" "}
+            &harr;{" "}
+            <NumberFormatter
+              thousandSeparator=","
+              prefix={getMoneyPrefix(mainCurrency?.name)}
+              decimalScale={3}
+              value={wallet.trading_balance}
+            />
+          </Badge>
           <Badge variant="dot" color="pink" size="lg">
             Pendings :{" "}
             <NumberFormatter

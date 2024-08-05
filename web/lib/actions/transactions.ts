@@ -55,7 +55,6 @@ export async function addTransaction(prevSate: State, data: FormData): Promise<S
       revalidatePath("/dashboard/office/[slug]/transactions");
       return { message: `${response.type} Transaction ${response.code} added successfully`, status: "success" };
     } catch (e) {
-      console.log(e.body.detail);
       if (e instanceof ApiError) {
         return {
           status: "error",
@@ -119,11 +118,11 @@ export const reviewTransaction = async (prevSate: State, data: ReviewFormData): 
     const reviewInput: TransactionReviewReq = {
       amount: {
         amount: transaction.amount,
-        rate: transaction.rate,
+        rate: transaction.rate ?? 0,
       },
       charges: {
         amount: "charges" in transaction ? transaction.charges : 0,
-        rate: transaction.rate,
+        rate: transaction.rate ?? 0,
       },
       code: transaction.code,
       notes: validation.data.notes,

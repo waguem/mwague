@@ -250,14 +250,14 @@ function ForexView({ transaction, office }: { transaction: ForeignEx; office: Of
         Amount :{" "}
         <NumberFormatter
           thousandSeparator
-          prefix={`${getMoneyPrefix(wallet?.wallet_currency ?? "USD")} `}
+          prefix={`${getMoneyPrefix(wallet?.trading_currency ?? "USD")} `}
           value={transaction.amount}
           decimalScale={3}
         />{" "}
         /{" "}
         <NumberFormatter
           thousandSeparator
-          prefix={`${getMoneyPrefix(wallet?.payment_currency ?? "USD")} `}
+          prefix={`${getMoneyPrefix(wallet?.trading_currency ?? "USD")} `}
           value={transaction.paid}
           decimalScale={3}
         />
