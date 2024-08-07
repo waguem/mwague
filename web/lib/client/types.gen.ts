@@ -74,6 +74,13 @@ export type Body_create_organization_api_v1_organization_post = {
   create_org: CreateOrganizationRequest;
 };
 
+export type BuyRequest = {
+  request_type: "BUY";
+  provider: string;
+};
+
+export type request_type = "BUY";
+
 export type CreateAccountRequest = {
   type: AccountType;
   currency: Currency;
@@ -194,6 +201,13 @@ export type EmployeeResponseComplete = {
   avatar_url?: string;
   office: OfficeResponse;
 };
+
+export type ExchangeRequest = {
+  request_type: "EXCHANGE";
+  walletID: string;
+};
+
+export type request_type2 = "EXCHANGE";
 
 /**
  * Transaction database model
@@ -517,6 +531,14 @@ export type Rate = {
   rate: number;
 };
 
+export type SellRequest = {
+  request_type: "SELL";
+  customer: string;
+  selling_rate: number;
+};
+
+export type request_type3 = "SELL";
+
 /**
  * Transaction database model
  */
@@ -715,6 +737,7 @@ export type WalletTradingRequest = {
   amount: number;
   daily_rate: number;
   trading_rate: number;
+  request: BuyRequest | SellRequest | ExchangeRequest;
 };
 
 export type WalletTradingResponse = {

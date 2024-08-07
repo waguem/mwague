@@ -1,5 +1,6 @@
+import { z } from "zod";
 import { tradeWallet } from "@/lib/actions";
-import { OfficeResponse, TradingType } from "@/lib/client";
+import { OfficeResponse } from "@/lib/client";
 import { getCryptoIcon, getCryptoPrefix, getMoneyIcon, getMoneyPrefix } from "@/lib/utils";
 import {
   ActionIcon,
@@ -21,6 +22,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { IconGitPullRequest, IconSend } from "@tabler/icons-react";
 import { useTransition } from "react";
 import { decodeNotification } from "../notifications/notifications";
+import { TradeWallet, WalletTradeRequest } from "@/lib/schemas";
 
 interface FormInput {
   tradeType: "BUY" | "SELL" | "EXCHANGE";
@@ -29,6 +31,8 @@ interface FormInput {
   amount: number;
   payment_in_main: number;
   payment_in_base: number;
+  exchange_with?: string;
+  exchange_rate?: number;
 }
 export function NewTrade({ walletID, office }: { walletID: string; office: OfficeResponse }) {
   const [opened, { close, open }] = useDisclosure(false);
@@ -38,8 +42,14 @@ export function NewTrade({ walletID, office }: { walletID: string; office: Offic
   const currencies: any[] = office?.currencies as any[];
   const mainCurrency = currencies.find((currency: any) => currency.main);
   const baseCurrency = currencies.find((currency: any) => currency.base);
+  const walletOptions = office?.wallets
+    ?.filter((wallet) => wallet.walletID !== walletID)
+    .map((wallet) => ({
+      value: wallet.walletID,
+      label: wallet.walletID,
+    }));
 
-  const form = useForm({
+  const form = useForm<FormInput>({
     initialValues: {
       tradeType: "BUY",
       daily_rate: baseCurrency?.defaultRate ?? 0,
@@ -47,21 +57,48 @@ export function NewTrade({ walletID, office }: { walletID: string; office: Offic
       payment_in_main: 0,
       payment_in_base: 0,
       amount: 0,
+      exchange_with: "",
+      exchange_rate: 0,
     },
   });
 
+  const exchange_wallet = office?.wallets?.find((wallet) => wallet.walletID === form.values?.exchange_with);
   const trade = async () => {
     try {
-      const response = await tradeWallet(
-        {
-          amount: form.values.amount,
-          daily_rate: form.values.daily_rate,
-          trading_rate: form.values.trading_rate,
-          trading_type: form.values.tradeType as TradingType,
-          walletID: walletID,
-        },
-        `/dashboard/wallet/${walletID}`
-      );
+      let request: WalletTradeRequest;
+      switch (form.values.tradeType) {
+        case "BUY":
+          request = {
+            request_type: "BUY",
+            provider: "Office",
+          };
+          break;
+        case "SELL":
+          request = {
+            request_type: "SELL",
+            customer: "Customer",
+            selling_rate: form.values.trading_rate,
+          };
+          break;
+        case "EXCHANGE":
+          request = {
+            request_type: "EXCHANGE",
+            walletID: form.values.exchange_with ?? "",
+            exchange_rate: Number(form.values.exchange_rate),
+          };
+          break;
+      }
+
+      const data: z.infer<typeof TradeWallet> = {
+        trading_type: form.values.tradeType,
+        amount: form.values.amount,
+        walletID: walletID,
+        daily_rate: form.values.daily_rate,
+        trading_rate: form.values.trading_rate,
+        request: request,
+      };
+
+      const response = await tradeWallet(data, `/dashboard/wallet/${walletID}`);
 
       decodeNotification("Trade Wallet", response);
 
@@ -94,7 +131,7 @@ export function NewTrade({ walletID, office }: { walletID: string; office: Offic
                 data={[
                   { value: "BUY", label: "Buy" },
                   { value: "SELL", label: "Sell" },
-                  { value: "Exchange", label: "Exchange" },
+                  { value: "EXCHANGE", label: "Exchange" },
                 ]}
                 required
                 value={form.values.tradeType}
@@ -139,6 +176,31 @@ export function NewTrade({ walletID, office }: { walletID: string; office: Offic
                 allowNegative={false}
               />
             </Group>
+            {form.values.tradeType === "EXCHANGE" && (
+              <>
+                <Divider my="xs" label="Exchange With" />
+                <Group grow>
+                  <Select
+                    label="to Wallet"
+                    data={walletOptions}
+                    required
+                    value={form.values.exchange_with}
+                    onChange={(value) => form.setFieldValue("exchange_with", value as FormInput["exchange_with"])}
+                  />
+                  <NumberInput
+                    label="Exchange Rate"
+                    required
+                    value={form.values.exchange_rate}
+                    onChange={(value) => form.setFieldValue("exchange_rate", Number(value))}
+                    thousandSeparator=","
+                    decimalScale={4}
+                    allowDecimal
+                    allowNegative={false}
+                    leftSection={getMoneyIcon(exchange_wallet?.trading_currency ?? "USD", 16)}
+                  />
+                </Group>
+              </>
+            )}
             <Divider my="xs" label="Payment" />
             <Group grow>
               <NumberInput
@@ -146,7 +208,7 @@ export function NewTrade({ walletID, office }: { walletID: string; office: Offic
                 leftSection={getMoneyIcon(mainCurrency?.name ?? "USD", 16)}
                 value={form.values.payment_in_main}
                 thousandSeparator=","
-                decimalScale={4}
+                decimalScale={2}
                 allowDecimal
                 allowNegative={false}
               />
@@ -159,6 +221,17 @@ export function NewTrade({ walletID, office }: { walletID: string; office: Offic
                 allowDecimal
                 allowNegative={false}
               />
+              {form.values.tradeType === "EXCHANGE" && form.values.exchange_rate && (
+                <NumberInput
+                  label={exchange_wallet?.trading_currency + " Amount"}
+                  leftSection={getMoneyIcon(baseCurrency?.name ?? "USD", 16)}
+                  value={form.values.amount * form.values.exchange_rate}
+                  thousandSeparator=","
+                  decimalScale={4}
+                  allowDecimal
+                  allowNegative={false}
+                />
+              )}
             </Group>
             <Divider my="xs" label="Summary" />
             <Group grow>
@@ -178,29 +251,59 @@ export function NewTrade({ walletID, office }: { walletID: string; office: Offic
                   <NumberFormatter
                     thousandSeparator={","}
                     prefix={getCryptoPrefix(wallet?.crypto_currency ?? "BTC")}
-                    value={wallet.crypto_balance + form.values.amount}
+                    value={
+                      form.values.tradeType === "BUY"
+                        ? wallet.crypto_balance + form.values.amount
+                        : wallet.crypto_balance - form.values.amount
+                    }
                     decimalScale={4}
                   />
                 </Text>
-                <Text mt="sm" c="dimmed" size="sm">
-                  Trading Payment{" "}
-                  <Text span inherit c="var(--mantine-color-anchor)">
-                    <NumberFormatter
-                      thousandSeparator={","}
-                      prefix={getMoneyPrefix(mainCurrency?.name ?? "BTC")}
-                      value={form.values.payment_in_main}
-                      decimalScale={4}
-                    />{" "}
-                    /{" "}
-                    <NumberFormatter
-                      thousandSeparator={","}
-                      prefix={getMoneyPrefix(baseCurrency?.name ?? "BTC")}
-                      value={form.values.payment_in_base}
-                      decimalScale={4}
-                    />
+                {form.values.tradeType === "BUY" && (
+                  <Text mt="sm" c="dimmed" size="sm">
+                    Trading Payment{" "}
+                    <Text span inherit c="var(--mantine-color-anchor)">
+                      <NumberFormatter
+                        thousandSeparator={","}
+                        prefix={getMoneyPrefix(mainCurrency?.name ?? "BTC")}
+                        value={form.values.payment_in_main}
+                        decimalScale={4}
+                      />{" "}
+                      /{" "}
+                      <NumberFormatter
+                        thousandSeparator={","}
+                        prefix={getMoneyPrefix(baseCurrency?.name ?? "BTC")}
+                        value={form.values.payment_in_base}
+                        decimalScale={4}
+                      />
+                    </Text>
+                    {". "}
                   </Text>
-                  {". "}
-                </Text>
+                )}
+                {form.values.tradeType === "EXCHANGE" && (
+                  <Text mt="sm" c="dimmed" size="sm">
+                    {form.values.exchange_with} In{" "}
+                    <Text span inherit c="var(--mantine-color-anchor)">
+                      <NumberFormatter
+                        thousandSeparator={","}
+                        prefix={getCryptoPrefix(
+                          office?.wallets?.find((wallet) => wallet.walletID === form.values.exchange_with)
+                            ?.crypto_currency ?? "BTC"
+                        )}
+                        value={form.values.payment_in_main}
+                        decimalScale={4}
+                      />{" "}
+                      /{" "}
+                      <NumberFormatter
+                        thousandSeparator={","}
+                        prefix={getMoneyPrefix(baseCurrency?.name ?? "BTC")}
+                        value={form.values.payment_in_base}
+                        decimalScale={4}
+                      />
+                    </Text>
+                    {". "}
+                  </Text>
+                )}
               </Card>
             </Group>
             <Button type="submit" color="blue">

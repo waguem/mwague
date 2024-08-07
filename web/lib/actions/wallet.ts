@@ -29,12 +29,7 @@ export const tradeWallet = async (tradingRequest: TradeWalletReq, path: string) 
 
     // make request
     const response = await tradeWalletApiV1WalletPost({
-      requestBody: {
-        ...validated.data,
-        amount: +validated.data.amount,
-        daily_rate: +validated.data.daily_rate,
-        trading_rate: +validated.data.trading_rate,
-      },
+      requestBody: validated.data,
     });
     console.log(response);
     // revalidatePath

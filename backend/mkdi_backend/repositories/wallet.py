@@ -5,7 +5,7 @@ from mkdi_backend.models.transactions.transactions import WalletTrading, Payment
 from mkdi_backend.models.office import OfficeWallet
 from mkdi_backend.models.Account import Account
 from mkdi_backend.models.Activity import FundCommit, Activity
-from sqlmodel import Session, select
+from sqlmodel import Session, select, or_
 from mkdi_shared.schemas import protocol as pr
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_backend.utils.database import managed_tx_method, CommitMode
@@ -54,6 +54,8 @@ class WalletRepository:
                 message="Wallet not found",
             )
 
+        assert isinstance(request.request, pr.BuyRequest)
+
         trade = WalletTrading(
             walletID=wallet.walletID,
             trading_type=request.trading_type,
@@ -71,14 +73,67 @@ class WalletRepository:
     def sell(self, request: pr.WalletTradingRequest) -> pr.WalletTradingResponse:
         """Sell currency from the wallet."""
 
+    @managed_tx_method(auto_commit=CommitMode.COMMIT)
     def exchange(self, request: pr.WalletTradingRequest) -> pr.WalletTradingResponse:
         """Exchange currency from the wallet to another currency, using a other wallet"""
+        sell_request: pr.SellRequest = request.request
+        assert isinstance(sell_request, pr.ExchangeRequest)
+        wallet = self.get_wallet(request.walletID)
+        exchange_wallet = self.get_wallet(sell_request.walletID)
+
+        if not wallet or not exchange_wallet:
+            raise MkdiError(
+                error_code=MkdiErrorCode.NOT_FOUND,
+                message="Wallet not found",
+            )
+
+        trade = WalletTrading(
+            walletID=wallet.walletID,
+            trading_type=request.trading_type,
+            amount=request.amount,
+            daily_rate=request.daily_rate,
+            trading_rate=request.trading_rate,
+            created_by=self.user.user_db_id,
+            state=pr.TransactionState.PAID,
+            exchange_walletID=exchange_wallet.walletID,
+            exchange_rate=sell_request.exchange_rate,
+        )
+
+        trade.initial_balance = (wallet.crypto_balance + wallet.pending_in) - wallet.pending_out
+
+        self.exchange_wallets(wallet, exchange_wallet, request)
+        # move funds from wallet to exchange_wallet
+        self.db.add(trade)
+        self.db.add(wallet)
+        self.db.add(exchange_wallet)
+        return trade
+
+    def exchange_wallets(
+        self, source: OfficeWallet, destination: OfficeWallet, request: pr.WalletTradingRequest
+    ):
+        assert source.crypto_currency == destination.crypto_currency
+        assert source.crypto_balance >= request.amount
+        assert request.request.exchange_rate > 0
+
+        source_tr = source.trading_balance / source.crypto_balance
+        source_rate = source.value / source.crypto_balance
+
+        value = request.amount * source_rate
+        source.crypto_balance -= request.amount
+        source.value -= value
+        source.trading_balance -= request.amount * source_tr
+
+        destination.crypto_balance += request.amount
+        destination.value += value
+        destination.trading_balance += request.amount * request.request.exchange_rate
 
     def get_wallet_tradings(self, walletID: str) -> List[pr.WalletTradingResponse]:
         """Get wallet tradings."""
         return self.db.scalars(
             select(WalletTrading)
-            .where(WalletTrading.walletID == walletID)
+            .where(
+                or_(WalletTrading.walletID == walletID, WalletTrading.exchange_walletID == walletID)
+            )
             .order_by(WalletTrading.created_at.desc())
         ).all()
 
@@ -125,7 +180,8 @@ class WalletRepository:
         )
         fund.debit(fund_out)
         wallet.crypto_balance += trade.amount
-        wallet.trading_balance += fund_out
+        wallet.value += fund_out
+        wallet.trading_balance += trade.amount * trade.trading_rate
         fund_history = FundCommit(
             v_from=(fund.balance - fund_out),
             variation=fund_out,

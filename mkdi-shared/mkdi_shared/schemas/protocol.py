@@ -443,7 +443,7 @@ class TransactionDB(TransactionBase):
 
 
 class WalletTradingBase(SQLModel):
-    walletID: str
+    walletID: str = SQLModelField(foreign_key="wallets.walletID")
     trading_type: TradingType
     amount: Annotated[Decimal, Field(strict=True, ge=0)]
     daily_rate: Annotated[Decimal, Field(strict=True, gt=0, max_digits=12, decimal_places=6)]
@@ -452,8 +452,25 @@ class WalletTradingBase(SQLModel):
     # this is expressed in the wallet currency
 
 
+class BuyRequest(BaseModel):
+    request_type: Literal["BUY"]
+    provider: str
+
+
+class SellRequest(BaseModel):
+    request_type: Literal["SELL"]
+    customer: str
+    selling_rate: Annotated[Decimal, Field(strict=True, gt=0)]
+
+
+class ExchangeRequest(BaseModel):
+    request_type: Literal["EXCHANGE"]
+    exchange_rate: Annotated[Decimal, Field(strict=True, gt=0)]
+    walletID: str
+
+
 class WalletTradingRequest(WalletTradingBase):
-    pass
+    request: Union[BuyRequest, SellRequest, ExchangeRequest] = Field(discriminator="request_type")
 
 
 class WalletTradingResponse(WalletTradingBase):

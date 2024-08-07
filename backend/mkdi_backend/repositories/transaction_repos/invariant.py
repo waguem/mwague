@@ -100,9 +100,9 @@ def async_managed_invariant_tx_method(
                         logger.info(f"Sys Invariant is Unhealthy after {f.__name__}")
                         await self.db.rollback()
                         continue
-                    
+
                     await self.db.commit()
-                    
+
                     if isinstance(result, SQLModel):
                         logger.info("Refreshing DB")
                         await self.db.refresh(result)
@@ -232,7 +232,7 @@ def managed_invariant_tx_method(
                             logger.info(f"Sys Invariant is Unhealthy after {f.__name__}")
                             self.db.rollback()
                             continue
-                        
+
                         self.db.commit()
                         if isinstance(result, SQLModel):
                             logger.info("Refreshing DB")

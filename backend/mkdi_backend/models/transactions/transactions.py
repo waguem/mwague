@@ -227,6 +227,9 @@ class WalletTrading(pr.WalletTradingBase, table=True):
 
     amount: Decimal = Field(gt=0, nullable=False, max_digits=19, decimal_places=3)
     initial_balance: Decimal = Field(ge=0, nullable=False, max_digits=19, decimal_places=3)
+    exchange_walletID: str = Field(foreign_key="wallets.walletID", nullable=True)
+    account: UUID = Field(foreign_key="accounts.id", nullable=True)
+    exchange_rate: Decimal = Field(gt=0, nullable=True, max_digits=11, decimal_places=6)
 
 
 TransactionWithDetails = Union[

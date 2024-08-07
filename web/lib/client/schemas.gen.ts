@@ -224,6 +224,23 @@ export const $Body_create_organization_api_v1_organization_post = {
   title: "Body_create_organization_api_v1_organization_post",
 } as const;
 
+export const $BuyRequest = {
+  properties: {
+    request_type: {
+      type: "string",
+      enum: ["BUY"],
+      title: "Request Type",
+    },
+    provider: {
+      type: "string",
+      title: "Provider",
+    },
+  },
+  type: "object",
+  required: ["request_type", "provider"],
+  title: "BuyRequest",
+} as const;
+
 export const $CreateAccountRequest = {
   properties: {
     type: {
@@ -637,6 +654,23 @@ export const $EmployeeResponseComplete = {
   type: "object",
   required: ["email", "username", "id", "office_id", "organization_id", "roles", "office"],
   title: "EmployeeResponseComplete",
+} as const;
+
+export const $ExchangeRequest = {
+  properties: {
+    request_type: {
+      type: "string",
+      enum: ["EXCHANGE"],
+      title: "Request Type",
+    },
+    walletID: {
+      type: "string",
+      title: "Walletid",
+    },
+  },
+  type: "object",
+  required: ["request_type", "walletID"],
+  title: "ExchangeRequest",
 } as const;
 
 export const $External = {
@@ -1674,6 +1708,29 @@ export const $Rate = {
   title: "Rate",
 } as const;
 
+export const $SellRequest = {
+  properties: {
+    request_type: {
+      type: "string",
+      enum: ["SELL"],
+      title: "Request Type",
+    },
+    customer: {
+      type: "string",
+      title: "Customer",
+    },
+    selling_rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Selling Rate",
+      strict: true,
+    },
+  },
+  type: "object",
+  required: ["request_type", "customer", "selling_rate"],
+  title: "SellRequest",
+} as const;
+
 export const $Sending = {
   properties: {
     amount: {
@@ -2344,9 +2401,31 @@ export const $WalletTradingRequest = {
       title: "Trading Rate",
       strict: true,
     },
+    request: {
+      oneOf: [
+        {
+          $ref: "#/components/schemas/BuyRequest",
+        },
+        {
+          $ref: "#/components/schemas/SellRequest",
+        },
+        {
+          $ref: "#/components/schemas/ExchangeRequest",
+        },
+      ],
+      title: "Request",
+      discriminator: {
+        propertyName: "request_type",
+        mapping: {
+          BUY: "#/components/schemas/BuyRequest",
+          SELL: "#/components/schemas/SellRequest",
+          EXCHANGE: "#/components/schemas/ExchangeRequest",
+        },
+      },
+    },
   },
   type: "object",
-  required: ["walletID", "trading_type", "amount", "daily_rate", "trading_rate"],
+  required: ["walletID", "trading_type", "amount", "daily_rate", "trading_rate", "request"],
   title: "WalletTradingRequest",
 } as const;
 

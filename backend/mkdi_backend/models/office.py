@@ -83,7 +83,8 @@ class OfficeWallet(CryptoWalletBase, table=True):
     crypto_balance: Decimal = Field(max_digits=19, decimal_places=4, default=0, ge=0)
     # how much balance if was able to get in the trading currency
     trading_balance: Decimal = Field(max_digits=19, decimal_places=4, default=0, ge=0)
-
+    # how much this wallet is worth in the main currency of the office
+    value: Decimal = Field(max_digits=19, decimal_places=4, default=0, ge=0)
     pending_in: ClassVar[Decimal] = hybrid_property(get_pending_in)
     pending_out: ClassVar[Decimal] = hybrid_property(get_pending_out)
 

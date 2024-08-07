@@ -19,6 +19,7 @@ from mkdi_shared.schemas import protocol as pr
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from sqlmodel import select
 
+
 class DepositTransaction(AbstractTransaction):
     """
     Deposit transaction
