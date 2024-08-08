@@ -34,7 +34,7 @@ def async_managed_invariant_tx_method(
         acc_repo = AccountRepository(self.db)
         cor = [
             self.a_has_started_activity(),
-            acc_repo.a_check_invariant(self.user.organization_id, self.user.office_id),
+            acc_repo.a_check_invariant(self.user.office_id),
         ]
 
         return all(await asyncio.gather(*cor))
@@ -158,7 +158,7 @@ def managed_invariant_tx_method(
         acc_repo = AccountRepository(self.db)
         activity_repo = ActivityRepo(self.db)
         return activity_repo.has_started(self.user.office_id) and acc_repo.check_invariant(
-            self.user.organization_id, self.user.office_id
+            self.user.office_id
         )
 
     def decorator(f):

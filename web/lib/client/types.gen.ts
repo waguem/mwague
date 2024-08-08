@@ -204,6 +204,7 @@ export type EmployeeResponseComplete = {
 
 export type ExchangeRequest = {
   request_type: "EXCHANGE";
+  exchange_rate: number;
   walletID: string;
 };
 
@@ -534,7 +535,7 @@ export type Rate = {
 export type SellRequest = {
   request_type: "SELL";
   customer: string;
-  selling_rate: number;
+  currency: Currency;
 };
 
 export type request_type3 = "SELL";

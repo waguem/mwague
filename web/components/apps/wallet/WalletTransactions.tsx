@@ -1,6 +1,7 @@
 "use client";
 import {
   AccountResponse,
+  AgentReponseWithAccounts,
   OfficeResponse,
   OfficeWalletResponse,
   TransactionState,
@@ -14,15 +15,17 @@ import { getCryptoPrefix, getMoneyPrefix, getStateBadge } from "@/lib/utils";
 import { formatDistanceToNowStrict } from "date-fns";
 import { PayTrade } from "./PaymentTrade";
 import { OfficeCurrency } from "@/lib/types";
+import { isArray } from "lodash";
 
 interface Props {
   office: OfficeResponse;
   wallet: OfficeWalletResponse;
   tradings: WalletTradingResponse[];
   officeAccounts: AccountResponse[];
+  agents: AgentReponseWithAccounts[];
 }
 
-export function WalletTransactions({ office, wallet, tradings, officeAccounts }: Props) {
+export function WalletTransactions({ office, wallet, tradings, officeAccounts, agents }: Props) {
   const getReviewBadgeColor = (type: string): MantineColor => {
     switch (type) {
       case "BUY":
@@ -37,6 +40,15 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts }:
   };
 
   const currencies: OfficeCurrency[] = office?.currencies as OfficeCurrency[];
+
+  const agentAccountsOptions = agents
+    ?.filter((agent) => isArray(agent.accounts))
+    .map((agent) => agent.accounts)
+    .flat()
+    .map((account) => ({
+      label: account!.initials,
+      value: account!.initials,
+    }));
 
   const mainCurrency = currencies.find((c) => c.main);
 
@@ -129,7 +141,7 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts }:
     renderTopToolbarCustomActions: () => {
       return (
         <Group>
-          <NewTrade office={office} walletID={wallet.walletID} />
+          <NewTrade agents={agentAccountsOptions} office={office} walletID={wallet.walletID} />
           <Badge variant="dot" color="ping" size="lg">
             Balance:{" "}
             <NumberFormatter

@@ -663,13 +663,19 @@ export const $ExchangeRequest = {
       enum: ["EXCHANGE"],
       title: "Request Type",
     },
+    exchange_rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Exchange Rate",
+      strict: true,
+    },
     walletID: {
       type: "string",
       title: "Walletid",
     },
   },
   type: "object",
-  required: ["request_type", "walletID"],
+  required: ["request_type", "exchange_rate", "walletID"],
   title: "ExchangeRequest",
 } as const;
 
@@ -1719,15 +1725,12 @@ export const $SellRequest = {
       type: "string",
       title: "Customer",
     },
-    selling_rate: {
-      type: "number",
-      exclusiveMinimum: 0,
-      title: "Selling Rate",
-      strict: true,
+    currency: {
+      $ref: "#/components/schemas/Currency",
     },
   },
   type: "object",
-  required: ["request_type", "customer", "selling_rate"],
+  required: ["request_type", "customer", "currency"],
   title: "SellRequest",
 } as const;
 

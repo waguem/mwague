@@ -448,8 +448,6 @@ class WalletTradingBase(SQLModel):
     amount: Annotated[Decimal, Field(strict=True, ge=0)]
     daily_rate: Annotated[Decimal, Field(strict=True, gt=0, max_digits=12, decimal_places=6)]
     trading_rate: Annotated[Decimal, Field(strict=True, gt=0, max_digits=11, decimal_places=6)]
-    # the initial balance of the wallet before the transaction
-    # this is expressed in the wallet currency
 
 
 class BuyRequest(BaseModel):
@@ -460,7 +458,7 @@ class BuyRequest(BaseModel):
 class SellRequest(BaseModel):
     request_type: Literal["SELL"]
     customer: str
-    selling_rate: Annotated[Decimal, Field(strict=True, gt=0)]
+    currency: Currency
 
 
 class ExchangeRequest(BaseModel):

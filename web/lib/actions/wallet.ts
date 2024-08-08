@@ -31,6 +31,7 @@ export const tradeWallet = async (tradingRequest: TradeWalletReq, path: string) 
     const response = await tradeWalletApiV1WalletPost({
       requestBody: validated.data,
     });
+
     console.log(response);
     // revalidatePath
     revalidatePath(path);

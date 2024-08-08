@@ -128,7 +128,7 @@ class AccountRepository:
         """
         return self.db.query(Account).filter(Account.owner_id == owner_id).all()
 
-    async def a_check_invariant(self, org_id: str, office_id: str) -> bool:
+    async def a_check_invariant(self, office_id: str) -> bool:
         """
         Check the invariant for the given organization and office.
 
@@ -187,7 +187,7 @@ class AccountRepository:
             logger.error(f"Error checking invariant: {e}")
             return False
 
-    def check_invariant(self, org_id: str, office_id: str) -> bool:
+    def check_invariant(self, office_id: str) -> bool:
         """
         Check the invariant for the given organization and office.
 
