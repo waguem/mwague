@@ -478,6 +478,9 @@ class WalletTradingResponse(WalletTradingBase):
     created_at: datetime
     reviwed_by: UUID | None
     initial_balance: Annotated[Decimal, Field(strict=True, ge=0)]
+    account: str | None
+    exchange_rate: Annotated[Decimal | None, Field(strict=True, gt=0)]
+    exchange_walletID: str | None
 
 
 class TransactionReviewReq(TransactionRequest):
@@ -513,6 +516,9 @@ class UpdateOffice(BaseModel):
     mainCurrency: Optional[str]
 
 
-# @event.listens_for(TransactionDB.history, "modified")
-# def modified_json(instance, initiator):
-#     print("json value modified:", instance.data)
+class OfficeHealth(BaseModel):
+    """Offic health response."""
+
+    status: Literal["healthy"] | Literal["unhealthy"]
+    invariant: Decimal
+    accounts: List[AccountResponse]

@@ -14,7 +14,6 @@ import { NewTrade } from "./NewTrade";
 import { getCryptoPrefix, getMoneyPrefix, getStateBadge } from "@/lib/utils";
 import { formatDistanceToNowStrict } from "date-fns";
 import { PayTrade } from "./PaymentTrade";
-import { OfficeCurrency } from "@/lib/types";
 import { isArray } from "lodash";
 
 interface Props {
@@ -39,8 +38,6 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
     }
   };
 
-  const currencies: OfficeCurrency[] = office?.currencies as OfficeCurrency[];
-
   const agentAccountsOptions = agents
     ?.filter((agent) => isArray(agent.accounts))
     .map((agent) => agent.accounts)
@@ -50,30 +47,53 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
       value: account!.initials,
     }));
 
-  const mainCurrency = currencies.find((c) => c.main);
-
   const columns = useMemo<MRT_ColumnDef<WalletTradingResponse>[]>(
     () => [
       {
         header: "Type",
         accessorKey: "trading_type",
-        Cell: ({ cell }) => (
-          <Badge variant="outline" color={getReviewBadgeColor(cell.getValue() as string)} size="md">
-            {cell.getValue() as string}
-          </Badge>
+        Cell: ({ cell, row }) => (
+          <>
+            <Badge variant="outline" color={getReviewBadgeColor(cell.getValue() as string)} size="md">
+              {cell.getValue() as string}
+              {cell.getValue() === "EXCHANGE" ? (row?.original?.walletID === wallet?.walletID ? " Out" : " In") : ""}
+            </Badge>
+            {cell.getValue() === "EXCHANGE" && (
+              <>
+                {" "}
+                <Badge variant="outline" color="gray" size="md">
+                  {row.original?.walletID} &harr; {row.original?.exchange_walletID}
+                </Badge>
+              </>
+            )}
+
+            {cell.getValue() === "SELL" && (
+              <>
+                {" "}
+                &harr;{" "}
+                <Badge variant="outline" color="gray" size="md">
+                  {row.original?.account}
+                </Badge>
+              </>
+            )}
+          </>
         ),
       },
       {
         header: "Amount",
         accessorKey: "amount",
-        Cell: ({ cell }) => {
+        Cell: ({ cell, row }) => {
           return (
             <Badge size="md" variant="dot" color="violet">
               <NumberFormatter
                 value={cell.getValue() as number}
                 thousandSeparator=","
                 decimalScale={3}
-                prefix={getCryptoPrefix(wallet.crypto_currency)}
+                prefix={
+                  row.original.trading_type === "SELL"
+                    ? getMoneyPrefix(wallet?.trading_currency)
+                    : getCryptoPrefix(wallet.crypto_currency)
+                }
               />
             </Badge>
           );
@@ -91,18 +111,14 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
         },
       },
       {
-        header: "Daily Rate ",
+        header: "Rates",
         accessorKey: "daily_rate",
         enableEditing: false,
-        Cell: ({ cell }) => (
-          <NumberFormatter value={cell.getValue() as number} thousandSeparator="," decimalScale={3} />
-        ),
-      },
-      {
-        header: "Trading Rate ",
-        accessorKey: "trading_rate",
-        Cell: ({ cell }) => (
-          <NumberFormatter value={cell.getValue() as number} thousandSeparator="," decimalScale={3} />
+        Cell: ({ cell, row }) => (
+          <>
+            <NumberFormatter value={cell.getValue() as number} thousandSeparator="," decimalScale={3} /> /{" "}
+            <NumberFormatter value={row?.original?.trading_rate as number} thousandSeparator="," decimalScale={3} />
+          </>
         ),
       },
       {
@@ -142,7 +158,10 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
       return (
         <Group>
           <NewTrade agents={agentAccountsOptions} office={office} walletID={wallet.walletID} />
-          <Badge variant="dot" color="ping" size="lg">
+          <Badge size="lg" variant="gradient" gradient={{ from: "cyan", to: "pink", deg: 120 }}>
+            {wallet.walletID}
+          </Badge>
+          <Badge variant="dot" color="gray" size="lg">
             Balance:{" "}
             <NumberFormatter
               thousandSeparator=","
@@ -153,25 +172,33 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
             &harr;{" "}
             <NumberFormatter
               thousandSeparator=","
-              prefix={getMoneyPrefix(mainCurrency?.name)}
+              prefix={getMoneyPrefix(wallet?.trading_currency)}
               decimalScale={3}
               value={wallet.trading_balance}
             />
           </Badge>
-          <Badge variant="dot" color="pink" size="lg">
-            Pendings :{" "}
+          <Badge variant="dot" color="teal" size="lg">
+            Buying :{" "}
             <NumberFormatter
               thousandSeparator=","
               prefix={getCryptoPrefix(wallet.crypto_currency)}
-              value={tradings.filter((t) => t.state === "PENDING").reduce((acc, t) => acc + t.amount, 0)}
+              value={tradings.filter((t) => t.trading_type === "BUY").reduce((acc, t) => acc + t.amount, 0)}
+            />
+          </Badge>
+          <Badge variant="dot" color="pink" size="lg">
+            Selling :{" "}
+            <NumberFormatter
+              thousandSeparator=","
+              prefix={getCryptoPrefix(wallet.crypto_currency)}
+              value={tradings.filter((t) => t.trading_type === "SELL").reduce((acc, t) => acc + t.amount, 0)}
             />
           </Badge>
           <Badge variant="dot" color="cyan" size="lg">
-            PAID :{" "}
+            Exchange :{" "}
             <NumberFormatter
               thousandSeparator=","
               prefix={getCryptoPrefix(wallet.crypto_currency)}
-              value={tradings.filter((t) => t.state === "PAID").reduce((acc, t) => acc + t.amount, 0)}
+              value={tradings.filter((t) => t.trading_type === "EXCHANGE").reduce((acc, t) => acc + t.amount, 0)}
             />
           </Badge>
         </Group>

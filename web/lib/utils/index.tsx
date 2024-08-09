@@ -4,12 +4,12 @@ import {
   IconCurrency,
   IconCurrencyDollar,
   IconCurrencyEuro,
-  IconCurrencyRenminbi,
   IconCurrencyDirham,
   IconCurrencyCent,
   IconCurrencyBitcoin,
   IconCurrencyEthereum,
   IconBrandTether,
+  IconCurrencyYen,
 } from "@tabler/icons-react";
 
 export function getFlagEmoji(countryCode: string) {
@@ -167,7 +167,7 @@ export const getMoneyIcon = (currency: Currency, size: number) => {
     case "CFA":
       return <IconCurrency size={size} />;
     case "RMB":
-      return <IconCurrencyRenminbi size={size} />;
+      return <IconCurrencyYen size={size} />;
     case "AED":
       return <IconCurrencyDirham size={size} />;
     case "GNF":

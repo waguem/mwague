@@ -7,7 +7,13 @@ import { notifications } from "@mantine/notifications";
 import { IconBuildingBurjAlArab, IconBuildingWarehouse, IconCheck, IconEdit, IconMapPin2 } from "@tabler/icons-react";
 import { isArray } from "lodash";
 import { useState, useTransition } from "react";
-export default function OfficeInfo({ office }: { office: OfficeResponse }) {
+
+interface Props {
+  HealthCheck: React.ReactNode;
+  office: OfficeResponse;
+}
+
+export default function OfficeInfo({ office, HealthCheck }: Props) {
   const [editing, setEditing] = useState<Record<string, string>>({});
   const [fields, setFields] = useState<Record<string, string | string[]>>({});
   const [pending, startTransition] = useTransition();
@@ -249,7 +255,7 @@ export default function OfficeInfo({ office }: { office: OfficeResponse }) {
             </Grid>
           </Stack>
         </GridCol>
-        <GridCol span={6}>2</GridCol>
+        <GridCol span={6}>{HealthCheck}</GridCol>
       </Grid>
     </div>
   );

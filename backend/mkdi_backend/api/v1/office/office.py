@@ -158,3 +158,17 @@ def get_wallets(
 ) -> List[protocol.OfficeWalletResponse]:
     """return all wallets for an office"""
     return OfficeRepository(db).get_wallets(user.office_id)
+
+
+@router.get(
+    "/organization/health",
+    status_code=200,
+    response_model=protocol.OfficeHealth,
+)
+def get_office_health(
+    *,
+    user: Annotated[KcUser, Security(check_authorization, scopes=[])],
+    db: Session = Depends(get_db),
+) -> protocol.OfficeHealth:
+    """return the health of the office"""
+    return OfficeRepository(db).get_health(user.office_id)

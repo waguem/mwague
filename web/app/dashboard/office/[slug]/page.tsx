@@ -6,11 +6,12 @@ import {
   getOfficeEmployeesApiV1OfficeOfficeIdEmployeeGet as getEmployeesByOfficeId,
 } from "@/lib/client";
 import { redirect } from "next/navigation";
-import { getOfficeCached } from "@/lib/actions";
+import { getOfficeCached, getOfficeHealth } from "@/lib/actions";
 import EmployeesTable from "@/components/apps/office/EmployeesTable";
 import { OfficeCardImage } from "@/components/organizations/office/OfficeCardImage";
 import { Grid, GridCol } from "@mantine/core";
 import Wallets from "@/components/apps/office/Wallets";
+import { HealthCheck } from "@/components/organizations/office/HealthCheck";
 
 async function getEmployees(officeId: string): Promise<EmployeeResponse[]> {
   try {
@@ -35,10 +36,11 @@ export default async function Page({
   // Initiate both requests in parallel
   const officePromise = getOfficeCached(params.slug);
   const employeesPromise = getEmployees(params.slug);
+  const getHealthPromise = getOfficeHealth();
   // get current router path
 
   // Wait for both requests to resolve
-  const [office, employees] = await Promise.all([officePromise, employeesPromise]);
+  const [office, employees, health] = await Promise.all([officePromise, employeesPromise, getHealthPromise]);
 
   if (!office) {
     // redirect to not found page
@@ -54,7 +56,7 @@ export default async function Page({
           </div>
         </GridCol>
         <GridCol span={8}>
-          <OfficeInfo office={office} />
+          <OfficeInfo HealthCheck={<HealthCheck health={health} />} office={office} />
         </GridCol>
       </Grid>
       <EmployeesTable employees={employees} />

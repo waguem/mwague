@@ -446,6 +446,16 @@ export type NoteList = {
   notes?: Array<Note>;
 };
 
+/**
+ * Offic health response.
+ */
+export type OfficeHealth = {
+  status: "healthy" | "unhealthy";
+  fund: number;
+  invariant: number;
+  accounts: Array<AccountResponse>;
+};
+
 export type OfficeResponse = {
   country: string;
   initials: string;
@@ -753,6 +763,9 @@ export type WalletTradingResponse = {
   created_at: string;
   reviwed_by?: string;
   initial_balance: number;
+  account?: string;
+  exchange_rate?: number;
+  exchange_walletID?: string;
 };
 
 export type PingApiV1PingGetResponse = unknown;
@@ -797,6 +810,8 @@ export type CreateWalletApiV1OrganizationOfficeWalletPostData = {
 };
 
 export type CreateWalletApiV1OrganizationOfficeWalletPostResponse = OfficeWalletResponse;
+
+export type GetOfficeHealthApiV1OrganizationHealthGetResponse = OfficeHealth;
 
 export type GetEmployeesApiV1OfficeEmployeeGetResponse = Array<EmployeeResponse>;
 
@@ -1059,6 +1074,16 @@ export type $OpenApiTs = {
          * Validation Error
          */
         422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/organization/health": {
+    get: {
+      res: {
+        /**
+         * Successful Response
+         */
+        200: OfficeHealth;
       };
     };
   };

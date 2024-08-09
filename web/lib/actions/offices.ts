@@ -10,6 +10,7 @@ import {
   Currency,
   CryptoCurrency,
   getMyOfficeApiV1OrganizationMyofficeGet as getMyOfficeApi,
+  getOfficeHealthApiV1OrganizationHealthGet as getOfficeHealthApi,
 } from "@/lib/client";
 import { AddOfficeSchema } from "@/lib/schemas/actions";
 import { revalidatePath } from "next/cache";
@@ -126,5 +127,11 @@ export const createWallet = async (crypto_currency: CryptoCurrency, trading_curr
 export const getMyOffice = async () => {
   return withToken(async () => {
     return await getMyOfficeApi();
+  });
+};
+
+export const getOfficeHealth = async () => {
+  return withToken(async () => {
+    return getOfficeHealthApi();
   });
 };

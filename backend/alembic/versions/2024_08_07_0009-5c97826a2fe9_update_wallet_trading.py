@@ -48,11 +48,11 @@ def upgrade() -> None:
         sa.Column("amount", sa.Numeric(precision=19, scale=3), nullable=False),
         sa.Column("initial_balance", sa.Numeric(precision=19, scale=3), nullable=False),
         sa.Column("exchange_walletID", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
-        sa.Column("account", sqlmodel.sql.sqltypes.GUID(), nullable=True),
+        sa.Column("account", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
         sa.Column("exchange_rate", sa.Numeric(precision=11, scale=6), nullable=True, default=0),
         sa.ForeignKeyConstraint(
             ["account"],
-            ["accounts.id"],
+            ["accounts.initials"],
         ),
         sa.ForeignKeyConstraint(
             ["created_by"],

@@ -95,15 +95,15 @@ export const $AgentReponseWithAccounts = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     phone: {
       type: "string",
@@ -144,15 +144,15 @@ export const $AgentResponse = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     phone: {
       type: "string",
@@ -295,15 +295,15 @@ export const $CreateAgentRequest = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     phone: {
       type: "string",
@@ -371,8 +371,8 @@ export const $CreateOfficeRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     name: {
       type: "string",
@@ -413,8 +413,8 @@ export const $CreateOrganizationRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     org_name: {
       type: "string",
@@ -1443,6 +1443,43 @@ export const $NoteList = {
   title: "NoteList",
 } as const;
 
+export const $OfficeHealth = {
+  properties: {
+    status: {
+      anyOf: [
+        {
+          type: "string",
+          enum: ["healthy"],
+        },
+        {
+          type: "string",
+          enum: ["unhealthy"],
+        },
+      ],
+      title: "Status",
+    },
+    fund: {
+      type: "number",
+      title: "Fund",
+    },
+    invariant: {
+      type: "number",
+      title: "Invariant",
+    },
+    accounts: {
+      items: {
+        $ref: "#/components/schemas/AccountResponse",
+      },
+      type: "array",
+      title: "Accounts",
+    },
+  },
+  type: "object",
+  required: ["status", "fund", "invariant", "accounts"],
+  title: "OfficeHealth",
+  description: "Offic health response.",
+} as const;
+
 export const $OfficeResponse = {
   properties: {
     country: {
@@ -1455,8 +1492,8 @@ export const $OfficeResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     name: {
       type: "string",
@@ -1533,8 +1570,8 @@ export const $OrganizationResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     org_name: {
       type: "string",
@@ -2487,6 +2524,20 @@ export const $WalletTradingResponse = {
       minimum: 0,
       title: "Initial Balance",
       strict: true,
+    },
+    account: {
+      type: "string",
+      title: "Account",
+    },
+    exchange_rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Exchange Rate",
+      strict: true,
+    },
+    exchange_walletID: {
+      type: "string",
+      title: "Exchange Walletid",
     },
   },
   type: "object",

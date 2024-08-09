@@ -3,6 +3,7 @@ from mkdi_backend.models.office import Office, OfficeWallet
 from mkdi_backend.utils.database import CommitMode, managed_tx_method, async_managed_tx_method
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol
+from mkdi_backend.repositories.account import AccountRepository
 from sqlmodel import Session, select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from copy import deepcopy
@@ -165,3 +166,14 @@ class OfficeRepository:
         return self.db.scalars(
             select(OfficeWallet).where(OfficeWallet.office_id == office_id)
         ).all()
+
+    def get_health(self, office_id: str):
+        """return office health"""
+        acc_repo = AccountRepository(self.db)
+        healthy = acc_repo.check_invariant(office_id)
+        accounts = acc_repo.get_all_accounts(office_id)
+        invariant = acc_repo.get_invariant(office_id)
+
+        return protocol.OfficeHealth(
+            status="healthy" if healthy else "unhealthy", accounts=accounts, invariant=invariant
+        )

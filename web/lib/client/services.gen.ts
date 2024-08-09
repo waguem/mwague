@@ -20,6 +20,7 @@ import type {
   GetWalletsApiV1OrganizationOfficeWalletGetResponse,
   CreateWalletApiV1OrganizationOfficeWalletPostData,
   CreateWalletApiV1OrganizationOfficeWalletPostResponse,
+  GetOfficeHealthApiV1OrganizationHealthGetResponse,
   GetEmployeesApiV1OfficeEmployeeGetResponse,
   UpdateOfficeEmployeesApiV1OfficeEmployeePutData,
   UpdateOfficeEmployeesApiV1OfficeEmployeePutResponse,
@@ -294,6 +295,20 @@ export const createWalletApiV1OrganizationOfficeWalletPost = (
     },
   });
 };
+
+/**
+ * Get Office Health
+ * return the health of the office
+ * @returns OfficeHealth Successful Response
+ * @throws ApiError
+ */
+export const getOfficeHealthApiV1OrganizationHealthGet =
+  (): CancelablePromise<GetOfficeHealthApiV1OrganizationHealthGetResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/organization/health",
+    });
+  };
 
 /**
  * Get Employees

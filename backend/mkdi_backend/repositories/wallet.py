@@ -15,71 +15,6 @@ from typing import List
 from datetime import datetime
 from functools import wraps
 
-# from sqlmodel import SQLModel
-# from psycopg2.errors import (
-#     DeadlockDetected,
-#     ExclusionViolation,
-#     SerializationFailure,
-#     UniqueViolation,
-# )
-
-# def managed_tx_invariant(trade_type: pr.TradingType):
-#     def decorator(f):
-#         def check_invariant(self):
-#             acc_repo = AccountRepository(self.db)
-
-#             return acc_repo.check_invariant()
-
-#         def increment_versions(self,accounts:List[Account]):
-#             for account in accounts:
-#                 account.version += 1
-#                 self.db.add(account)
-
-#         @wraps(f)
-#         def wrapped_f(self,*args,**kwargs):
-#             result: SQLModel | None = None
-#             try:
-#                 healthy = check_invariant(self)
-#                 if not healthy:
-#                     raise MkdiError(
-#                         error_code=MkdiErrorCode.UNHEALTHY_INVARIANT,
-#                         message="Invariant violation",
-#                     )
-
-#                 result = f(self,*args,**kwargs)
-
-#                 if isinstance(result,WalletTrading):
-#                     self.db.add(result)
-
-#                 healthy = check_invariant(self)
-#                 if not healthy:
-#                     self.db.rollback()
-#                     raise MkdiError(
-#                         error_code=MkdiErrorCode.UNHEALTHY_INVARIANT,
-#                         message="Invariant violation",
-#                     )
-#                 self.db.commit()
-#                 if isinstance(result,WalletTrading):
-#                     self.db.refresh(result)
-#                 return result
-
-#             except (
-#                 DeadlockDetected,
-#                 ExclusionViolation,
-#                 SerializationFailure,
-#                 UniqueViolation,
-#                 OperationalError,
-#                 PendingRollbackError,
-#             ) as e:
-#                 self.db.rollback()
-#                 raise MkdiError(
-#                     error_code=MkdiErrorCode.INTERNAL,
-#                     message="Database error",
-#                 ) from e
-
-#         return wrapped_f
-#     return decorator
-
 
 class WalletRepository:
     """Wallet repository."""
@@ -137,7 +72,7 @@ class WalletRepository:
         self.db.add(trade)
         return trade
 
-    @managed_tx_method(auto_commit=CommitMode.COMMIT)
+    @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
     def sell(self, request: pr.WalletTradingRequest) -> pr.WalletTradingResponse:
         """Sell currency from the wallet."""
         wallet = self.get_wallet(request.walletID)
@@ -170,7 +105,7 @@ class WalletRepository:
             trading_rate=request.trading_rate,
             created_by=self.user.user_db_id,
             state=pr.TransactionState.PAID,
-            customer=customer.initials,
+            account=customer.initials,
         )
 
         trade.initial_balance = (wallet.crypto_balance + wallet.pending_in) - wallet.pending_out
@@ -219,10 +154,14 @@ class WalletRepository:
                         Account.office_id == self.user.office_id,
                     )
                 )
-                office.debit(benefit_or_lost)
+                if benefit_or_lost > 0:
+                    office.credit(benefit_or_lost)
+                else:
+                    office.debit(benefit_or_lost)
+
                 self.db.add(office)
 
-    @managed_tx_method(auto_commit=CommitMode.COMMIT)
+    @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
     def exchange(self, request: pr.WalletTradingRequest) -> pr.WalletTradingResponse:
         """Exchange currency from the wallet to another currency, using a other wallet"""
         exchange_request: pr.ExchangeRequest = request.request

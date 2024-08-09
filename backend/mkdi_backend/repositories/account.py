@@ -187,6 +187,33 @@ class AccountRepository:
             logger.error(f"Error checking invariant: {e}")
             return False
 
+    def get_invariant(self, office_id: str) -> Decimal:
+
+        positive_balance_sum = self.db.execute(
+            select(
+                func.sum(Account.balance).filter(Account.type != protocol.AccountType.FUND)
+            ).where(Account.office_id == office_id)
+        ).scalar()
+
+        fund_balance = self.db.scalar(
+            select(
+                func.sum(Account.balance).filter(Account.type == protocol.AccountType.FUND)
+            ).where(Account.office_id == office_id)
+        )
+
+        wallet_balance_sum = self.db.execute(
+            select(func.sum(OfficeWallet.value)).where(OfficeWallet.office_id == office_id)
+        ).scalar()
+
+        wallet_balance_sum = wallet_balance_sum or 0
+        # Convert None to 0 if there are no positive accounts or no fund account
+        positive_balance_sum = positive_balance_sum or 0
+
+        fund_balance = fund_balance or 0
+
+        # Check the invariant
+        return Decimal(positive_balance_sum) - Decimal(fund_balance + wallet_balance_sum)
+
     def check_invariant(self, office_id: str) -> bool:
         """
         Check the invariant for the given organization and office.
@@ -234,3 +261,17 @@ class AccountRepository:
         except Exception as e:
             logger.error(f"Error checking invariant: {e}")
             return False
+
+    def get_all_accounts(self, office_id: str) -> list[Account]:
+        """
+        Retrieves all accounts associated with a specific office.
+
+        Args:
+            office_id (str): The ID of the office.
+
+        Returns:
+            list[Account]: A list of accounts associated with the office.
+        """
+        return self.db.scalars(
+            select(Account).where(Account.office_id == office_id).order_by(Account.type)
+        ).all()

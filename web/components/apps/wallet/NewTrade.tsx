@@ -219,7 +219,7 @@ export function NewTrade({ walletID, office, agents }: Props) {
                     decimalScale={4}
                     allowDecimal
                     allowNegative={false}
-                    leftSection={getMoneyIcon(exchange_wallet?.trading_currency ?? "USD", 16)}
+                    leftSection={getMoneyIcon(wallet?.trading_currency ?? "USD", 16)}
                   />
                 </Group>
               </>
