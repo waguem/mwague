@@ -43,7 +43,7 @@ export const decodeNotification = (title: string, response: State, cb: (errors: 
     notifications.show({
       title: title,
       color: "teal",
-      message: `Payment successful`,
+      message: response.message,
       className: "mt-2",
       radius: "md",
       withBorder: true,

@@ -38,7 +38,6 @@ export async function addTransaction(prevSate: State, data: FormData): Promise<S
     if (!resolver) {
       return { message: "Invalid transaction type", status: "error" };
     }
-    debugger;
     const validation = resolver.run(data);
     if ("status" in validation) {
       return {

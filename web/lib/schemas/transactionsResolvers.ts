@@ -74,9 +74,7 @@ const External = zfd.formData({
   amount: zfd.text(zPNumber),
   rate: zfd.text(zPNumber),
   message: zfd.text(z.string().max(255)).optional(),
-  customer_name: zfd.text(z.string().max(255)).optional(),
-  customer_phone: zfd.text(z.string().max(255)).optional(),
-  payment_currency: zCurrency,
+  payment_currency: zCurrency.optional(),
 });
 const Sending = zfd.formData({
   receiver_initials: zfd.text(z.string().max(20)).refine((value) => value.trim() !== ""),
@@ -241,6 +239,7 @@ const ExternalFormResolver: FormResolver = {
   run: (data: FormData) => {
     const parsed = External.safeParse(data);
     const charges = zNumber.safeParse(data.get("charges") as string);
+    console.log("Parsed External ", parsed);
     if (!parsed.success) {
       return {
         status: "error",
@@ -265,10 +264,10 @@ const ExternalFormResolver: FormResolver = {
         sender: parsed.data.sender,
         type: "EXTERNAL",
         payment_currency: parsed.data.payment_currency,
-        customer: {
-          name: parsed.data.customer_name,
-          phone: parsed.data.customer_phone,
-        },
+        // customer: {
+        //   name: parsed.data.customer_name,
+        //   phone: parsed.data.customer_phone,
+        // },
       },
     };
   },

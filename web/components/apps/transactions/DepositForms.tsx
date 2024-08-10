@@ -1,29 +1,23 @@
 "use client";
 
-import ReactSelect from "react-select";
+import { AccountResponse, AgentReponseWithAccounts, OfficeResponse } from "@/lib/client";
+import { currencySymbols, getMoneyIcon, getMoneyPrefix } from "@/lib/utils";
+import { useTransition } from "react";
 
-import { Controller, useForm } from "react-hook-form";
-import { AccountResponse, AgentReponseWithAccounts } from "@/lib/client";
-import { currencyOptions, currencySymbols } from "@/lib/utils";
-import clsx from "clsx";
-import { useCallback, useMemo, useTransition } from "react";
-import IconSend from "@/components/icon/icon-send";
-import { useFormState } from "react-dom";
-import { State } from "@/lib/actions";
+import { useForm } from "@mantine/form";
+import { OfficeCurrency } from "@/lib/types";
+import { Button, Group, NumberInput, Select, Stack, Textarea } from "@mantine/core";
+import { IconLoader, IconSend } from "@tabler/icons-react";
 import { addTransaction } from "@/lib/actions/transactions";
-import IconLoader from "@/components/icon/icon-loader";
-import useResponse from "@/app/hooks/useResponse";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { getResolver } from "@/lib/schemas/transactionsResolvers";
-import { ErrorMessage } from "@hookform/error-message";
-import { DEPOSIT_RESOLVER } from "@/lib/contants";
-
+import { decodeNotification } from "../notifications/notifications";
 interface Props {
   agentWithAccounts: AgentReponseWithAccounts[];
+  office: OfficeResponse;
 }
 
 interface TransactionBase {
   amount: number;
+  convertedAmount: number;
   rate: number;
   currency: string;
   message?: string;
@@ -34,23 +28,27 @@ interface DepositRequestForm extends TransactionBase {
   type: string;
 }
 
-export default function DepositForms({ agentWithAccounts }: Props) {
-  const {
-    register,
-    control,
-    setError,
-    reset,
-    getValues,
-    formState: { errors, isValid, touchedFields },
-  } = useForm<DepositRequestForm>({
-    mode: "all",
-    resolver: zodResolver(getResolver(DEPOSIT_RESOLVER)!.resolver),
-    defaultValues: {
+export default function DepositForms({ agentWithAccounts, office }: Props) {
+  const currencies: OfficeCurrency[] = (office.currencies as OfficeCurrency[]) || [];
+  const mainCurrency = currencies.find((currency) => currency.main);
+  const baseCurrency = currencies.find((currency) => currency.base);
+
+  const form = useForm<DepositRequestForm>({
+    validateInputOnBlur: true,
+    validateInputOnChange: true,
+    initialValues: {
       receiver: "",
       type: "DEPOSIT",
-      currency: "USD",
+      currency: mainCurrency?.name || "",
       amount: 0,
-      rate: 0,
+      convertedAmount: 0,
+      rate: baseCurrency?.defaultRate || 0,
+    },
+    validate: {
+      receiver: (value) => (!value ? "Receiver is required" : undefined),
+      amount: (value) => (value <= 0 ? "Amount must be greater than 0" : undefined),
+      convertedAmount: (value) => (value <= 0 ? "Amount must be greater than 0" : undefined),
+      rate: (value) => (value <= 0 ? "Rate must be greater than 0" : undefined),
     },
   });
 
@@ -63,24 +61,19 @@ export default function DepositForms({ agentWithAccounts }: Props) {
     }));
 
   const [pending, startTransition] = useTransition();
-  const [response, formAction] = useFormState<State, FormData>(addTransaction, null);
 
-  const hiddenInputs = useMemo(() => {
-    return ["type", "currency"].map((item: any, index) => {
-      return <input key={index} type="hidden" {...register(item)} />;
-    });
-  }, [register]);
-
-  const onSuccess = useCallback(async () => {
-    reset();
-  }, [reset]);
-  // revalidate currentPath
-  // register for response notification swal
-  useResponse({
-    response,
-    setError,
-    onSuccess,
-  });
+  const onSubmit = async () => {
+    const data: FormData = new FormData();
+    data.append("receiver", form.values.receiver);
+    data.append("type", form.values.type);
+    data.append("currency", mainCurrency?.name || "");
+    data.append("amount", form.values.amount.toString());
+    data.append("rate", form.values.rate.toString());
+    data.append("message", form.values.message || "");
+    const respsonse = await addTransaction(null, data);
+    decodeNotification("Deposit", respsonse);
+    respsonse?.status === "success" && form.reset();
+  };
 
   if (!accountsOptions) return null;
 
@@ -88,141 +81,92 @@ export default function DepositForms({ agentWithAccounts }: Props) {
     <section className="bg-white dark:bg-gray-900">
       <div className="p-4 w-full lg:py-4">
         <h2 className="mb-4 text-sm font-bold text-gray-900 dark:text-white">Add a Deposit Transaction</h2>
-        <form action={(formData) => startTransition(() => formAction(formData))}>
-          <div className="grid gap-4 sm:grid-cols-3 sm:gap-6">
-            <div className="sm:col-span-1">
-              <label htmlFor="receiver" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                Receiver
-              </label>
-              <Controller
-                name="receiver"
-                control={control}
-                render={({ field: { onChange, onBlur } }) => (
-                  <ReactSelect
-                    id="receiver"
-                    placeholder="Select a option"
-                    options={accountsOptions}
-                    {...register("receiver")}
-                    onChange={(option) => {
-                      onChange(option!.value);
-                    }}
-                    value={accountsOptions.find((option) => option.value === getValues("receiver")) ?? null}
-                    onBlur={onBlur}
-                    className={clsx({
-                      "has-error": errors?.receiver,
-                      "has-success": !errors?.receiver,
-                      dark: true,
-                    })}
-                  />
-                )}
+        <form action={() => startTransition(() => onSubmit())}>
+          <Stack gap={"lg"}>
+            <Group grow>
+              <Select
+                id="receiver"
+                placeholder="Select a option"
+                label="Receiver"
+                key={form.key("receiver")}
+                data={accountsOptions}
+                {...form.getInputProps("receiver")}
+                onChange={(value) => value && form.setFieldValue("receiver", value)}
               />
-              <ErrorMessage
-                render={({ message }) => (
-                  <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                    <span className="font-medium">Oops!</span> {message}
-                  </p>
-                )}
-                errors={errors}
-                name="receiver"
-              />
-            </div>
-            <div className="w-full">
-              <label htmlFor="amount" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                Amount
-              </label>
-              <input
-                id="amount"
-                type="number"
-                {...register("amount", { required: true, valueAsNumber: true })}
-                placeholder="$2999"
-                step={"any"}
-                className={clsx(
-                  "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500",
-                  {
-                    "bg-green-50 border-green-500 text-green-900": touchedFields.amount && !errors.amount,
-                    "bg-red-50 border-red-500 text-red-900": errors.amount,
-                  }
-                )}
-              />
-            </div>
-            <div className="sm:col-span-1">
-              <label htmlFor="currency" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                Currency
-              </label>
-              <Controller
-                name="currency"
-                control={control}
-                render={({ field: { onChange, onBlur } }) => (
-                  <ReactSelect
-                    id="currency"
-                    placeholder="Select a option"
-                    options={currencyOptions}
-                    isDisabled
-                    onChange={(option) => {
-                      onChange(option!.value);
-                    }}
-                    value={currencyOptions.find((option) => option.value === getValues("currency")) ?? null}
-                    onBlur={onBlur}
-                    className={clsx({
-                      "has-error": errors?.receiver,
-                      "has-success": !errors?.receiver,
-                      dark: true,
-                    })}
-                  />
-                )}
-              />
-            </div>
-            <div className="w-full">
-              <label htmlFor="rate" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                Rate 1$ = {getValues("rate")} AED
-              </label>
-              <input
+              <NumberInput
                 id="rate"
-                type="number"
-                {...register("rate", { required: true, valueAsNumber: true })}
-                placeholder="1$=3.67AED"
-                step={"any"}
-                className={clsx(
-                  "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500",
-                  {
-                    "bg-green-50 border-green-500 text-green-900": touchedFields.rate && !errors.rate,
-                    "bg-red-50 border-red-500 text-red-900": errors.rate,
-                  }
-                )}
+                label={"Daily Rate 1 " + getMoneyPrefix(mainCurrency?.name)}
+                placeholder="Enter rate"
+                key={form.key("rate")}
+                {...form.getInputProps("rate")}
+                leftSection={getMoneyIcon(baseCurrency?.name)}
+                required
+                allowDecimal
+                thousandSeparator=","
+                allowNegative={false}
               />
-            </div>
-            <div className="w-full col-span-2">
-              <label htmlFor="message" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                Your message
-              </label>
-              <textarea
-                id="message"
-                rows={1}
-                {...register("message")}
-                className={clsx(
-                  "block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500",
-                  {}
-                )}
+            </Group>
+            <Group grow>
+              <NumberInput
+                id="amount"
+                label={"Amount in " + getMoneyPrefix(mainCurrency?.name)}
+                placeholder="Amount"
+                key={form.key("amount")}
+                {...form.getInputProps("amount")}
+                required
+                allowDecimal
+                leftSection={getMoneyIcon(mainCurrency?.name)}
+                thousandSeparator=","
+                onChange={(value) =>
+                  form.setValues((values) => ({
+                    ...values,
+                    amount: Number(value),
+                    convertedAmount: Number(value) * form.values.rate,
+                  }))
+                }
+                allowNegative={false}
+              />
+              <NumberInput
+                id="convertedAmount"
+                label={"Amount in " + getMoneyPrefix(baseCurrency?.name)}
+                placeholder={"Amount in " + getMoneyPrefix(baseCurrency?.name)}
+                key={form.key("convertedAmount")}
+                {...form.getInputProps("convertedAmount")}
+                required
+                leftSection={getMoneyIcon(baseCurrency?.name)}
+                onChange={(value) =>
+                  form.setValues((values) => ({
+                    ...values,
+                    convertedAmount: Number(value),
+                    amount: Number(value) / form.values.rate,
+                  }))
+                }
+                allowDecimal
+                thousandSeparator=","
+                allowNegative={false}
+              />
+            </Group>
+            <Group grow>
+              <Textarea
+                key={form.key("message")}
+                {...form.getInputProps("message")}
+                label="Your message"
                 placeholder="Leave a comment..."
+                onChange={(event) => form.setFieldValue("message", event.currentTarget.value)}
               />
-            </div>
-            {hiddenInputs}
-            {/* <div className="w-full col-span-2 border-b border-gray-200 dark:border-gray-600" /> */}
-            <div className="w-full col-span-3 flex justify-center">
-              <button
-                disabled={!isValid}
+            </Group>
+            <Group grow>
+              <Button
+                disabled={!form.isValid()}
                 type="submit"
-                className="w-full text-white bg-[#2557D6] hover:bg-[#2557D6]/90 focus:ring-4 focus:ring-[#2557D6]/50 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#2557D6]/50 me-2 mb-2 justify-center"
+                variant="gradient"
+                gradient={{ from: "pink", to: "blue", deg: 120 }}
               >
-                {!pending ? (
-                  <IconSend className="w-4 h-4 me-2 -ms-1 text-white" />
-                ) : (
-                  <IconLoader className="animate-spin me-2 -ms-1 text-white" />
-                )}
+                {!pending ? <IconSend /> : <IconLoader className="animate-spin text-white" />}
                 Send for approval
-              </button>
-            </div>
-          </div>
+              </Button>
+            </Group>
+          </Stack>
         </form>
       </div>
     </section>

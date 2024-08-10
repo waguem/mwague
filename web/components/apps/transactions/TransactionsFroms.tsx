@@ -57,11 +57,11 @@ export default function TransactionsForms({ agentAccounts, activity, office }: P
     if (!activity) return <StartActivityForm office={office} />;
     switch (form) {
       case "INTERNAL":
-        return <InternalForms agentWithAccounts={agentAccounts} />;
+        return <InternalForms office={office} agentWithAccounts={agentAccounts} />;
       case "EXTERNAL":
-        return <ExternalForms agentWithAccounts={agentAccounts} />;
+        return <ExternalForms office={office} agentWithAccounts={agentAccounts} />;
       case "DEPOSIT":
-        return <DepositForms agentWithAccounts={agentAccounts} />;
+        return <DepositForms office={office} agentWithAccounts={agentAccounts} />;
       case "SENDING":
         return <SendingForms agentWithAccounts={agentAccounts} />;
       case "FOREX":

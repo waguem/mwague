@@ -111,7 +111,6 @@ export function NewTrade({ walletID, office, agents }: Props) {
           Number(form.values.trading_rate) > 0 ? form.values.trading_rate : Number(form.values.exchange_rate),
         request: request,
       };
-
       const response = await tradeWallet(data, `/dashboard/wallet/${walletID}`);
 
       decodeNotification("Trade Wallet", response);

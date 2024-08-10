@@ -158,7 +158,7 @@ export const getStateBadge = (state: TransactionState): BadgeProps => {
   }
 };
 
-export const getMoneyIcon = (currency: Currency, size: number) => {
+export const getMoneyIcon = (currency: Currency | undefined, size: number = 16) => {
   switch (currency) {
     case "USD":
       return <IconCurrencyDollar size={size} />;

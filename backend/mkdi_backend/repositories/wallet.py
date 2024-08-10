@@ -124,11 +124,10 @@ class WalletRepository:
     ):
         assert request.trading_rate > 0
         assert wallet.crypto_balance > 0
-        assert wallet.value >= (request.amount / request.trading_rate)
-
         value = request.amount / request.trading_rate  # amount in account currency (USD)
 
         if request.request.currency == wallet.trading_currency:
+            assert wallet.trading_balance >= request.amount
 
             wallet_rate = wallet.crypto_balance / wallet.trading_balance
             value_rate = wallet.value / wallet.crypto_balance
