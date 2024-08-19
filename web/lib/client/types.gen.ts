@@ -451,7 +451,6 @@ export type NoteList = {
  */
 export type OfficeHealth = {
   status: "healthy" | "unhealthy";
-  fund: number;
   invariant: number;
   accounts: Array<AccountResponse>;
 };
@@ -748,6 +747,7 @@ export type WalletTradingRequest = {
   amount: number;
   daily_rate: number;
   trading_rate: number;
+  message?: string;
   request: BuyRequest | SellRequest | ExchangeRequest;
 };
 
@@ -766,6 +766,13 @@ export type WalletTradingResponse = {
   account?: string;
   exchange_rate?: number;
   exchange_walletID?: string;
+  notes?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
 };
 
 export type PingApiV1PingGetResponse = unknown;

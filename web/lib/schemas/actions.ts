@@ -107,7 +107,7 @@ export const AddAgentSchema = zfd.formData({
     zod
       .string()
       .min(3, "Too Short!")
-      .max(20, "Too Long!")
+      .max(64, "Too Long!")
       .regex(/^[a-zA-Z\s]*$/, "Only Alphanumeric Characters are allowed!")
       .refine((value) => value.trim() !== "")
   ),

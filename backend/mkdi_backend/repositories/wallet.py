@@ -57,6 +57,12 @@ class WalletRepository:
             )
 
         assert isinstance(request.request, pr.BuyRequest)
+        buy_request: pr.BuyRequest = request.request
+        provider = self.db.scalar(
+            select(Account).where(
+                Account.initials == buy_request.provider, Account.office_id == self.user.office_id
+            )
+        )
 
         trade = WalletTrading(
             walletID=wallet.walletID,
@@ -66,7 +72,13 @@ class WalletRepository:
             trading_rate=request.trading_rate,
             created_by=self.user.user_db_id,
             state=pr.TransactionState.PENDING,
+            account=provider.initials,
+            notes=[],
         )
+        message = dict()
+        message["date"] = datetime.isoformat(datetime.now())
+        message["message"] = request.message
+        trade.notes.append(message)
 
         trade.initial_balance = (wallet.crypto_balance + wallet.pending_in) - wallet.pending_out
         self.db.add(trade)
@@ -106,7 +118,13 @@ class WalletRepository:
             created_by=self.user.user_db_id,
             state=pr.TransactionState.PAID,
             account=customer.initials,
+            notes=[],
         )
+
+        message = dict()
+        message["date"] = datetime.isoformat(datetime.now())
+        message["message"] = request.message
+        trade.notes.append(message)
 
         trade.initial_balance = (wallet.crypto_balance + wallet.pending_in) - wallet.pending_out
 
@@ -184,7 +202,12 @@ class WalletRepository:
             state=pr.TransactionState.PAID,
             exchange_walletID=exchange_wallet.walletID,
             exchange_rate=exchange_request.exchange_rate,
+            notes=[],
         )
+        message = dict()
+        message["date"] = datetime.isoformat(datetime.now())
+        message["message"] = request.message
+        trade.notes.append(message)
 
         trade.initial_balance = (wallet.crypto_balance + wallet.pending_in) - wallet.pending_out
 

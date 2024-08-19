@@ -1,7 +1,7 @@
 from decimal import Decimal, getcontext
 from typing import Annotated, Mapping, Any, Optional, Union, List, ClassVar
 from uuid import UUID, uuid4
-from sqlalchemy.ext.mutable import MutableDict
+from sqlalchemy.ext.mutable import MutableDict, MutableList
 from pydantic import Field as PydanticField, BaseModel
 from mkdi_shared.schemas import protocol as pr
 from sqlmodel import Field, SQLModel, func
@@ -230,6 +230,10 @@ class WalletTrading(pr.WalletTradingBase, table=True):
     exchange_walletID: str = Field(foreign_key="wallets.walletID", nullable=True)
     account: str = Field(foreign_key="accounts.initials", nullable=True)
     exchange_rate: Decimal = Field(gt=0, nullable=True, max_digits=11, decimal_places=6)
+
+    notes: List[Mapping[Any, Mapping | Any]] = Field(
+        default={}, sa_column=sa.Column(MutableList.as_mutable(pg.JSONB))
+    )
 
 
 TransactionWithDetails = Union[

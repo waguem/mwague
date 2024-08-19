@@ -5,7 +5,7 @@ import { AgentResponse } from "@/lib/client";
 import { agentTypeOptions, countryOptions } from "@/lib/utils";
 import { ActionIcon, Avatar, Box, Button, Group, Tooltip } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconEdit, IconEye, IconUserPlus } from "@tabler/icons-react";
+import { IconEye, IconUserPlus } from "@tabler/icons-react";
 import { MantineReactTable, MRT_ColumnDef, MRT_TableOptions, useMantineReactTable } from "mantine-react-table";
 import { useMemo, useState, useTransition } from "react";
 
@@ -204,14 +204,20 @@ export default function AgentTableMant({ agents }: AgentTableProps) {
     ),
     renderRowActions: ({ row }) => {
       return (
-        <Group justify="center">
-          <Tooltip label="Edit">
-            <ActionIcon color="cyan">
+        <Group gap={"xs"} justify="center">
+          {/* <Tooltip label="Edit">
+            <ActionIcon variant="outline" radius={"md"} color="cyan">
               <IconEdit size={20} />
             </ActionIcon>
-          </Tooltip>
+          </Tooltip> */}
           <Tooltip label="Visit">
-            <ActionIcon color="teal" component="a" href={`/dashboard/agent/${row.original.initials}`}>
+            <ActionIcon
+              variant="outline"
+              radius={"md"}
+              color="gray"
+              component="a"
+              href={`/dashboard/agent/${row.original.initials}`}
+            >
               <IconEye size={20} />
             </ActionIcon>
           </Tooltip>
@@ -240,7 +246,6 @@ function validateAgent(agent: AgentResponse) {
     initials: !/^[a-zA-Z]{2,4}$/.test(agent.initials) ? "Invalid Initials" : undefined,
     name: !/^[a-zA-Z\s]{2,64}$/.test(agent.name) ? "Invalid Name" : undefined,
     email: !validateEmail(agent.email) ? "Invalid Email" : undefined,
-    phone: !/^\d{10,14}$/.test(agent.phone) ? "Invalid Phone" : undefined,
     country: !countryOptions.map(({ value }) => value).includes(agent.country) ? "Invalid Country" : undefined,
   };
 }

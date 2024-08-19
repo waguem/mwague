@@ -468,6 +468,7 @@ class ExchangeRequest(BaseModel):
 
 
 class WalletTradingRequest(WalletTradingBase):
+    message: str | None
     request: Union[BuyRequest, SellRequest, ExchangeRequest] = Field(discriminator="request_type")
 
 
@@ -481,6 +482,8 @@ class WalletTradingResponse(WalletTradingBase):
     account: str | None
     exchange_rate: Annotated[Decimal | None, Field(strict=True, gt=0)]
     exchange_walletID: str | None
+
+    notes: List[Mapping[Any, Mapping | Any]] | None
 
 
 class TransactionReviewReq(TransactionRequest):

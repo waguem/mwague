@@ -33,4 +33,5 @@ export const TradeWallet = z.object({
   daily_rate: zPNumber,
   trading_rate: zPNumber,
   request: WalletTradeRequestSchema,
+  message: z.string().optional(),
 });

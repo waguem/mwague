@@ -95,15 +95,15 @@ export const $AgentReponseWithAccounts = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -144,15 +144,15 @@ export const $AgentResponse = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -295,15 +295,15 @@ export const $CreateAgentRequest = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -371,8 +371,8 @@ export const $CreateOfficeRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     name: {
       type: "string",
@@ -413,8 +413,8 @@ export const $CreateOrganizationRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     org_name: {
       type: "string",
@@ -1458,10 +1458,6 @@ export const $OfficeHealth = {
       ],
       title: "Status",
     },
-    fund: {
-      type: "number",
-      title: "Fund",
-    },
     invariant: {
       type: "number",
       title: "Invariant",
@@ -1475,7 +1471,7 @@ export const $OfficeHealth = {
     },
   },
   type: "object",
-  required: ["status", "fund", "invariant", "accounts"],
+  required: ["status", "invariant", "accounts"],
   title: "OfficeHealth",
   description: "Offic health response.",
 } as const;
@@ -1492,8 +1488,8 @@ export const $OfficeResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     name: {
       type: "string",
@@ -1570,8 +1566,8 @@ export const $OrganizationResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     org_name: {
       type: "string",
@@ -2441,6 +2437,10 @@ export const $WalletTradingRequest = {
       title: "Trading Rate",
       strict: true,
     },
+    message: {
+      type: "string",
+      title: "Message",
+    },
     request: {
       oneOf: [
         {
@@ -2538,6 +2538,18 @@ export const $WalletTradingResponse = {
     exchange_walletID: {
       type: "string",
       title: "Exchange Walletid",
+    },
+    notes: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "Notes",
     },
   },
   type: "object",

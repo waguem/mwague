@@ -15,6 +15,7 @@ import { getCryptoPrefix, getMoneyPrefix, getStateBadge } from "@/lib/utils";
 import { formatDistanceToNowStrict } from "date-fns";
 import { PayTrade } from "./PaymentTrade";
 import { isArray } from "lodash";
+import { HoverMessage } from "./HoverMessage";
 
 interface Props {
   office: OfficeResponse;
@@ -67,7 +68,7 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
               </>
             )}
 
-            {cell.getValue() === "SELL" && (
+            {cell.getValue() !== "EXCHANGE" && (
               <>
                 {" "}
                 &harr;{" "}
@@ -205,11 +206,19 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
       );
     },
     renderRowActions: ({ row }) => {
+      const firstMessage = isArray(row.original.notes) ? row.original.notes[0] : "";
+      console.log(row.original);
+      const message = firstMessage.message;
       return (
         <Group gap="xs">
           <Tooltip label="Pay">
             <PayTrade accounts={officeAccounts} trade={row.original as WalletTradingResponse} wallet={wallet} />
           </Tooltip>
+          {firstMessage && (
+            <Tooltip label="Message">
+              <HoverMessage message={message} />
+            </Tooltip>
+          )}
         </Group>
       );
     },
