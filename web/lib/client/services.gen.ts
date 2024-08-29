@@ -65,6 +65,7 @@ import type {
   GetWalletTradingsApiV1WalletWalletIdTradingsGetResponse,
   PayTradeApiV1WalletTradeTradeIdPayPostData,
   PayTradeApiV1WalletTradeTradeIdPayPostResponse,
+  GetMonthlyReportApiV1OfficeMonthlyReportGetResponse,
 } from "./types.gen";
 
 /**
@@ -829,3 +830,16 @@ export const payTradeApiV1WalletTradeTradeIdPayPost = (
     },
   });
 };
+
+/**
+ * Get Monthly Report
+ * @returns ReportResponse Successful Response
+ * @throws ApiError
+ */
+export const getMonthlyReportApiV1OfficeMonthlyReportGet =
+  (): CancelablePromise<GetMonthlyReportApiV1OfficeMonthlyReportGetResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/office/monthly-report",
+    });
+  };

@@ -527,3 +527,30 @@ class OfficeHealth(BaseModel):
     status: Literal["healthy"] | Literal["unhealthy"]
     invariant: Decimal
     accounts: List[AccountResponse]
+
+
+class ResultType(Enum):
+    """Result type."""
+
+    CHARGE = "CHARGE"
+    BENEFIT = "BENEFIT"
+    LOSS = "LOSS"
+    EXPENSE = "EXPENSE"
+
+
+class OfficeResult(BaseModel):
+    """Office result."""
+
+    result_source: TransactionType
+    amount: Decimal
+    code: str
+    state: TransactionState
+    result_type: ResultType
+    date: date
+    transaction_id: UUID
+
+
+class ReportResponse(BaseModel):
+    """Monthly report response."""
+
+    results: List[OfficeResult]

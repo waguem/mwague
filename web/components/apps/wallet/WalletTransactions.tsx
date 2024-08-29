@@ -206,7 +206,7 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
       );
     },
     renderRowActions: ({ row }) => {
-      const firstMessage = isArray(row.original.notes) ? row.original.notes[0] as any : "";
+      const firstMessage = isArray(row.original.notes) ? (row.original.notes[0] as any) : "";
       const message = firstMessage.message;
       return (
         <Group gap="xs">

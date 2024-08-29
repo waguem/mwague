@@ -11,6 +11,7 @@ import {
   CryptoCurrency,
   getMyOfficeApiV1OrganizationMyofficeGet as getMyOfficeApi,
   getOfficeHealthApiV1OrganizationHealthGet as getOfficeHealthApi,
+  getMonthlyReportApiV1OfficeMonthlyReportGet as getMonthlyReportApi,
 } from "@/lib/client";
 import { AddOfficeSchema } from "@/lib/schemas/actions";
 import { revalidatePath } from "next/cache";
@@ -133,5 +134,11 @@ export const getMyOffice = async () => {
 export const getOfficeHealth = async () => {
   return withToken(async () => {
     return getOfficeHealthApi();
+  });
+};
+
+export const getMonthlyReport = async () => {
+  return withToken(async () => {
+    return await getMonthlyReportApi();
   });
 };

@@ -474,6 +474,19 @@ export type OfficeResponse = {
   wallets?: Array<OfficeWalletResponse>;
 };
 
+/**
+ * Office result.
+ */
+export type OfficeResult = {
+  result_source: TransactionType;
+  amount: number;
+  code: string;
+  state: TransactionState;
+  result_type: ResultType;
+  date: string;
+  transaction_id: string;
+};
+
 export type OfficeWalletResponse = {
   crypto_currency: CryptoCurrency;
   trading_currency: Currency;
@@ -544,6 +557,18 @@ export type Rate = {
   currency: string;
   rate: number;
 };
+
+/**
+ * Monthly report response.
+ */
+export type ReportResponse = {
+  results: Array<OfficeResult>;
+};
+
+/**
+ * Result type.
+ */
+export type ResultType = "CHARGE" | "BENEFIT" | "LOSS" | "EXPENSE";
 
 export type SellRequest = {
   request_type: "SELL";
@@ -959,6 +984,8 @@ export type PayTradeApiV1WalletTradeTradeIdPayPostData = {
 };
 
 export type PayTradeApiV1WalletTradeTradeIdPayPostResponse = PaymentResponse;
+
+export type GetMonthlyReportApiV1OfficeMonthlyReportGetResponse = ReportResponse;
 
 export type $OpenApiTs = {
   "/api/v1/ping": {
@@ -1430,6 +1457,16 @@ export type $OpenApiTs = {
          * Validation Error
          */
         422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/office/monthly-report": {
+    get: {
+      res: {
+        /**
+         * Successful Response
+         */
+        200: ReportResponse;
       };
     };
   };

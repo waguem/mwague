@@ -9,7 +9,6 @@ import { redirect } from "next/navigation";
 import IconFile from "@/components/icon/icon-file";
 import IconRefresh from "@/components/icon/icon-refresh";
 
-import IconMoon from "@/components/icon/icon-moon";
 import { getServerSession } from "next-auth";
 import authOptions from "@/auth.config";
 import IconOpenBook from "@/components/icon/icon-open-book";
@@ -53,11 +52,6 @@ export default async function OfficeLayout({
         name: "Office",
         url: `/dashboard/office/${office.id}`,
         icon: <IconHome className="h-5 w-5" />,
-      },
-      {
-        name: "Activities",
-        url: "#",
-        icon: <IconMoon />,
       },
       {
         name: "Agents",

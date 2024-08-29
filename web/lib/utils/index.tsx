@@ -4,6 +4,7 @@ import {
   AgentType,
   CryptoCurrency,
   Currency,
+  ResultType,
   TransactionState,
   TransactionType,
 } from "../client";
@@ -103,6 +104,21 @@ export const getBadgeType = (tr_type: TransactionType): MantineColor => {
       return "teal";
     case "SENDING":
       return "grape";
+    default:
+      return "gray";
+  }
+};
+
+export const getBadgeTypeFromResult = (result_type: ResultType): MantineColor => {
+  switch (result_type) {
+    case "BENEFIT":
+      return "green";
+    case "EXPENSE":
+      return "red";
+    case "CHARGE":
+      return "dark";
+    case "LOSS":
+      return "orange";
     default:
       return "gray";
   }

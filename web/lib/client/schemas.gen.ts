@@ -1559,6 +1559,42 @@ export const $OfficeResponse = {
   title: "OfficeResponse",
 } as const;
 
+export const $OfficeResult = {
+  properties: {
+    result_source: {
+      $ref: "#/components/schemas/TransactionType",
+    },
+    amount: {
+      type: "number",
+      title: "Amount",
+    },
+    code: {
+      type: "string",
+      title: "Code",
+    },
+    state: {
+      $ref: "#/components/schemas/TransactionState",
+    },
+    result_type: {
+      $ref: "#/components/schemas/ResultType",
+    },
+    date: {
+      type: "string",
+      format: "date",
+      title: "Date",
+    },
+    transaction_id: {
+      type: "string",
+      format: "uuid",
+      title: "Transaction Id",
+    },
+  },
+  type: "object",
+  required: ["result_source", "amount", "code", "state", "result_type", "date", "transaction_id"],
+  title: "OfficeResult",
+  description: "Office result.",
+} as const;
+
 export const $OfficeWalletResponse = {
   properties: {
     crypto_currency: {
@@ -1775,6 +1811,28 @@ export const $Rate = {
   type: "object",
   required: ["currency", "rate"],
   title: "Rate",
+} as const;
+
+export const $ReportResponse = {
+  properties: {
+    results: {
+      items: {
+        $ref: "#/components/schemas/OfficeResult",
+      },
+      type: "array",
+      title: "Results",
+    },
+  },
+  type: "object",
+  required: ["results"],
+  title: "ReportResponse",
+  description: "Monthly report response.",
+} as const;
+
+export const $ResultType = {
+  enum: ["CHARGE", "BENEFIT", "LOSS", "EXPENSE"],
+  title: "ResultType",
+  description: "Result type.",
 } as const;
 
 export const $SellRequest = {

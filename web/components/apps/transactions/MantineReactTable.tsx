@@ -76,7 +76,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
         size: 100,
         enableEditing: true,
         Cell: ({ cell }) => (
-          <NumberFormatter decimalScale={2} prefix="$" thousandSeparator value={cell.getValue() ?? (0 as any)} />
+          <NumberFormatter decimalScale={2} prefix="$" thousandSeparator={","} value={cell.getValue() ?? (0 as any)} />
         ),
       },
       {
