@@ -30,6 +30,7 @@ interface ExternalRequestForm extends TransactionBase {
   currency: Currency;
   customer_phone: string;
   payment_currency: Currency;
+  charge_pencentage: number;
 }
 
 export default function ExternalForms({ agentWithAccounts, office }: Props) {
@@ -51,6 +52,7 @@ export default function ExternalForms({ agentWithAccounts, office }: Props) {
       customer_phone: "",
       rate: baseCurrency?.defaultRate || 0,
       charges: 0,
+      charge_pencentage: 0,
     },
     validate: {
       sender: (value) => (!value ? "Sender is required" : undefined),
@@ -110,6 +112,18 @@ export default function ExternalForms({ agentWithAccounts, office }: Props) {
                 thousandSeparator=","
                 allowNegative={false}
               />
+              <NumberInput
+                id="charge_pencentage"
+                placeholder="Charges Percentage"
+                label="Charges Percentage"
+                key={form.key("charges")}
+                {...form.getInputProps("charge_pencentage")}
+                allowDecimal
+                leftSection="%"
+                max={100}
+                min={0}
+                required
+              />
             </Group>
             <Group grow>
               <NumberInput
@@ -127,6 +141,7 @@ export default function ExternalForms({ agentWithAccounts, office }: Props) {
                     ...values,
                     amount: Number(value),
                     convertedAmount: Number(value) * form.values.rate,
+                    charges : Number(value) * form.values.charge_pencentage / 100
                   }))
                 }
                 allowNegative={false}
@@ -142,6 +157,19 @@ export default function ExternalForms({ agentWithAccounts, office }: Props) {
                 allowDecimal
                 thousandSeparator=","
                 allowNegative={false}
+              />
+              <NumberInput
+                id="charges"
+                label={"Charges in " + getMoneyPrefix(mainCurrency?.name)}
+                placeholder={"Charges in " + getMoneyPrefix(mainCurrency?.name)}
+                key={form.key("charges")}
+                {...form.getInputProps("charges")}
+                required
+                leftSection={getMoneyIcon(mainCurrency?.name)}
+                allowDecimal
+                thousandSeparator=","
+                allowNegative={false}
+                decimalScale={3}
               />
             </Group>
             <Group grow>
