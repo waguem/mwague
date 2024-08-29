@@ -10,7 +10,7 @@ import { MantineReactTable, useMantineReactTable, MRT_TableOptions, type MRT_Col
 import {
   Currency,
   EmployeeResponse,
-  ForeignEx,
+  ForEx,
   OfficeResponse,
   TransactionItem,
   TransactionState,
@@ -86,21 +86,19 @@ const MantineTable = ({ data, office, employees }: Props) => {
         Cell: ({ cell }) => {
           const currencies = office?.currencies as any;
           let currency: Currency = currencies?.find((curr: any) => curr.main)?.name as unknown as Currency;
-          let payment_currency: Currency | undefined = undefined;
+          let fCurrency: Currency = "USD";
           if (cell.row.original.item.type === "FOREX") {
-            const tr: ForeignEx = cell.row.original.item as ForeignEx;
-            const wallet = office.wallets?.find((wallet) => wallet.walletID === tr.wallet_id);
-            currency = wallet?.trading_currency!;
-            payment_currency = wallet?.trading_currency;
+            const tr: ForEx = cell.row.original.item as ForEx;
+            currency = tr.currency;
           }
           return (
             <Group>
               {cell.row.original.item.type === "FOREX" && (
                 <NumberFormatter
                   decimalScale={3}
-                  prefix={`${getMoneyPrefix(payment_currency ?? "USD")}`}
+                  prefix={`${getMoneyPrefix(fCurrency)}`}
                   thousandSeparator
-                  value={(cell.row.original.item as ForeignEx).paid}
+                  value={(cell.row.original.item as ForEx).amount / (cell.row.original.item as ForEx).selling_rate}
                 />
               )}
               <NumberFormatter
@@ -143,14 +141,9 @@ const MantineTable = ({ data, office, employees }: Props) => {
         accessorKey: "item.type",
         header: "Type",
         enableEditing: false,
-        Cell: ({ cell, row }) => (
+        Cell: ({ cell }) => (
           <Badge variant="outline" color={getBadgeType(cell.getValue() as TransactionType)}>
             {cell.getValue() as string}{" "}
-            {cell.getValue() === "FOREX"
-              ? (row.original?.item as ForeignEx).is_buying
-                ? "/ Buying"
-                : "/ Selling"
-              : ""}
           </Badge>
         ),
       },

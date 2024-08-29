@@ -300,24 +300,64 @@ export type ExternalWithPayments = {
   payments?: Array<Payment>;
 };
 
+/**
+ * Une transaction de change est effectué
+ */
+export type ForEx = {
+  amount: number;
+  rate: number;
+  code: string;
+  state: TransactionState;
+  type: TransactionType;
+  created_at?: string;
+  id?: string;
+  office_id: string;
+  org_id: string;
+  created_by: string;
+  reviwed_by?: string;
+  history?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  notes?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  currency: Currency;
+  base_currency: Currency;
+  buying_rate: number;
+  selling_rate: number;
+  provider_account: string;
+  customer_account: string;
+  charge_percentage: number;
+};
+
 export type ForExRequest = {
   type: "FOREX";
-  walletID: string;
-  is_buying: boolean;
+  provider_account: string;
+  customer_account: string;
+  currency: Currency;
+  base_currency: Currency;
   daily_rate: number;
-  account: string;
-  rate: number;
+  buying_rate: number;
+  selling_rate: number;
   amount: number;
 };
 
 export type type3 = "FOREX";
 
 /**
- * Transaction database model
+ * Une transaction de change est effectué
  */
-export type ForeignEx = {
+export type ForExWithPayments = {
   amount: number;
-  rate?: number;
+  rate: number;
   code: string;
   state: TransactionState;
   type: TransactionType;
@@ -341,49 +381,13 @@ export type ForeignEx = {
         }
       | unknown;
   };
-  account: string;
-  paid: number;
-  is_buying: boolean;
-  wallet_id: string;
-  initial_balance_pc: number;
-  initial_balance_wc: number;
-};
-
-/**
- * Transaction database model
- */
-export type ForeignExWithPayments = {
-  amount: number;
-  rate?: number;
-  code: string;
-  state: TransactionState;
-  type: TransactionType;
-  created_at?: string;
-  id?: string;
-  office_id: string;
-  org_id: string;
-  created_by: string;
-  reviwed_by?: string;
-  history?: {
-    [key: string]:
-      | {
-          [key: string]: unknown;
-        }
-      | unknown;
-  };
-  notes?: {
-    [key: string]:
-      | {
-          [key: string]: unknown;
-        }
-      | unknown;
-  };
-  account: string;
-  paid: number;
-  is_buying: boolean;
-  wallet_id: string;
-  initial_balance_pc: number;
-  initial_balance_wc: number;
+  currency: Currency;
+  base_currency: Currency;
+  buying_rate: number;
+  selling_rate: number;
+  provider_account: string;
+  customer_account: string;
+  charge_percentage: number;
   payments?: Array<Payment>;
 };
 
@@ -671,7 +675,7 @@ export type SendingWithPayments = {
 export type TradingType = "BUY" | "SELL" | "EXCHANGE";
 
 export type TransactionItem = {
-  item: Internal | Deposit | Sending | External | ForeignEx;
+  item: Internal | Deposit | Sending | External | ForEx;
 };
 
 export type TransactionRequest = {
@@ -766,13 +770,13 @@ export type WalletTradingResponse = {
   account?: string;
   exchange_rate?: number;
   exchange_walletID?: string;
-  notes?: {
+  notes?: Array<{
     [key: string]:
       | {
           [key: string]: unknown;
         }
       | unknown;
-  };
+  }>;
 };
 
 export type PingApiV1PingGetResponse = unknown;
@@ -921,8 +925,8 @@ export type GetOfficeTransactionsWithDetailsApiV1TransactionCodeGetResponse =
   | Internal
   | Deposit
   | SendingWithPayments
-  | ForeignExWithPayments
-  | ExternalWithPayments;
+  | ExternalWithPayments
+  | ForExWithPayments;
 
 export type UpdateTransactionApiV1TransactionCodePutData = {
   code: string;
@@ -1348,7 +1352,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Internal | Deposit | SendingWithPayments | ForeignExWithPayments | ExternalWithPayments;
+        200: Internal | Deposit | SendingWithPayments | ExternalWithPayments | ForExWithPayments;
         /**
          * Validation Error
          */

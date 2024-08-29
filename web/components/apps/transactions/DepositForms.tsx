@@ -1,7 +1,7 @@
 "use client";
 
-import { AccountResponse, AgentReponseWithAccounts, OfficeResponse } from "@/lib/client";
-import { currencySymbols, getMoneyIcon, getMoneyPrefix } from "@/lib/utils";
+import { AgentReponseWithAccounts, OfficeResponse } from "@/lib/client";
+import { getAccountOptions, getMoneyIcon, getMoneyPrefix } from "@/lib/utils";
 import { useTransition } from "react";
 
 import { useForm } from "@mantine/form";
@@ -52,13 +52,7 @@ export default function DepositForms({ agentWithAccounts, office }: Props) {
     },
   });
 
-  const accountsOptions = agentWithAccounts
-    .map((agent) => agent.accounts!)
-    .flat()
-    .map((account: AccountResponse) => ({
-      label: `${account.initials} ${currencySymbols[account.currency]}`,
-      value: account.initials,
-    }));
+  const accountsOptions = getAccountOptions("AGENT", agentWithAccounts);
 
   const [pending, startTransition] = useTransition();
 

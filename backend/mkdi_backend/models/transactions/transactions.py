@@ -8,7 +8,7 @@ from sqlmodel import Field, SQLModel, func
 import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as pg
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import composite, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
 import dataclasses
 
@@ -89,7 +89,7 @@ class ForExBase(pr.TransactionDB):
     selling_rate: Annotated[Decimal, Field(ge=0)]
     provider_account: str = Field(foreign_key="accounts.initials")
     customer_account: str = Field(foreign_key="accounts.initials")
-
+    charge_percentage: Annotated[Decimal, Field(ge=0, le=100)]
     is_valid: ClassVar[bool] = hybrid_property(lambda cls: cls.buying_rate > cls.selling_rate)
     buying_amount: ClassVar[Decimal] = hybrid_property(lambda cls: cls.amount / cls.buying_rate)
     selling_amount: ClassVar[Decimal] = hybrid_property(lambda cls: cls.amount / cls.selling_rate)
@@ -165,51 +165,6 @@ def get_buyed_amount(cls) -> Decimal:
     return Decimal(cls.amount / cls.wallet_rate) if cls.is_buying else cls.paid
 
 
-class ForeignExBase(pr.TransactionDB):
-    __tablename__ = "foreign_exchanges"
-    id: Optional[UUID] = Field(
-        sa_column=sa.Column(
-            pg.UUID(as_uuid=True),
-            primary_key=True,
-            default=uuid4,
-            server_default=sa.text("gen_random_uuid()"),
-        )
-    )
-
-    """
-    this account reference either the provider account or the customer depending on whether the transaction is a purchase or a sale
-    """
-    account: str = Field(foreign_key="accounts.initials")
-    # this rate can be either a buying rate or a selling rate
-    rate: Decimal = Field(gt=0, default=1, nullable=False, max_digits=10, decimal_places=6)
-    # the amount is always is expressed in the wallet currency
-    amount: Decimal = Field(gt=0, nullable=False, max_digits=19, decimal_places=3)
-    # the paid amount is always expressed in the transaction currency (or payment currency)
-    paid: Decimal = Field(gt=0, nullable=False, max_digits=19, decimal_places=3)
-    # whether the transaction is a purchase or a sale this should never be updated manually in any scenario
-    is_buying: bool = Field(nullable=False)
-    #
-    wallet_id: str = Field(foreign_key="wallets.walletID")
-
-    initial_balance_pc: Decimal = Field(ge=0, nullable=False, max_digits=19, decimal_places=3)
-    initial_balance_wc: Decimal = Field(ge=0, nullable=False, max_digits=19, decimal_places=3)
-
-    wallet_rate: ClassVar[Decimal] = hybrid_property(get_wallet_rate)
-    # thiis amount expres the amount in payment currency at buying time
-    # in other words how much the same amount was worth in the payment currency at the time of the transaction
-    # this is use only when the transaction is a sale
-    buyed: ClassVar[Decimal] = hybrid_property(get_buyed_amount)
-
-
-class ForeignExWithPayments(ForeignExBase, table=False):
-    payments: List[Payment] = PydanticField(default=[])
-
-
-class ForeignEx(ForeignExBase, table=True):
-    def withPayments(self, payments: List[Payment]) -> ForeignExWithPayments:
-        return ForeignExWithPayments(**self.dict(), payments=payments)
-
-
 class WalletTrading(pr.WalletTradingBase, table=True):
     __tablename__ = "wallet_trading"
     id: Optional[UUID] = Field(
@@ -237,5 +192,5 @@ class WalletTrading(pr.WalletTradingBase, table=True):
 
 
 TransactionWithDetails = Union[
-    Internal, Deposit, SendingWithPayments, ForeignExWithPayments, ExternalWithPayments
+    Internal, Deposit, SendingWithPayments, ExternalWithPayments, ForExWithPayments
 ]

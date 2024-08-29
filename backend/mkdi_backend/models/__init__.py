@@ -9,9 +9,9 @@ from .transactions.transactions import (
     Internal,
     Sending,
     External,
-    ForeignEx,
     TransactionWithDetails,
     Payment,
+    ForEx,
 )
 
 __all__ = [
@@ -24,8 +24,8 @@ __all__ = [
     "Internal",
     "Deposit",
     "Sending",
-    "ForeignEx",
     "External",
     "TransactionWithDetails",
     "Payment",
+    "Forex",
 ]

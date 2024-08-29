@@ -292,11 +292,13 @@ class SendingRequest(BaseModel):
 
 class ForExRequest(BaseModel):
     type: Literal["FOREX"]
-    walletID: str
-    is_buying: bool
+    provider_account: str
+    customer_account: str
+    currency: Currency
+    base_currency: Currency
     daily_rate: Annotated[Decimal, Field(strict=True, gt=0)]
-    account: str
-    rate: Annotated[Decimal, Field(strict=True, gt=0)]
+    buying_rate: Annotated[Decimal, Field(strict=True, gt=0)]
+    selling_rate: Annotated[Decimal, Field(strict=True, gt=0)]
     amount: Annotated[Decimal, Field(strict=True, ge=0)]
 
 

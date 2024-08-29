@@ -11,11 +11,11 @@ from mkdi_backend.models import (
     Activity,
     Deposit,
     Internal,
-    ForeignEx,
     Sending,
     External,
     TransactionWithDetails,
     Payment,
+    ForEx,
 )
 
 from mkdi_backend.models.models import KcUser
@@ -164,10 +164,9 @@ class AbstractTransaction(ABC):
             Account | None: The retrieved account if found, otherwise None.
         """
         # select account from db
-        logger.debug(f"Using account {initials}")
         account = (
             self.db.query(Account)
-            .where(Account.initials == initials, Account.type == account_type)
+            .where(Account.initials == initials)
             .filter(Account.office_id == self.user.office_id)
             .one()
         )
@@ -246,14 +245,12 @@ class AbstractTransaction(ABC):
                         error_code=MkdiErrorCode.INVALID_INPUT,
                         message="Invalid transaction request",
                     )
-            logger.debug(f"Reviewing transaction {review}")
 
             if not review:
                 logger.info("Could not find a review function")
                 raise MkdiError(
                     error_code=MkdiErrorCode.INVALID_INPUT, message="Invalid transaction request"
                 )
-            logger.debug(f"Reviewing transaction {transaction}")
 
             transaction = review(transaction)
         except Exception as e:
@@ -370,7 +367,7 @@ class AbstractTransaction(ABC):
             case pr.TransactionType.SENDING:
                 return Sending
             case pr.TransactionType.FOREX:
-                return ForeignEx
+                return ForEx
             case _:
                 raise MkdiError(
                     error_code=MkdiErrorCode.INVALID_INPUT, message="Invalid transaction type"

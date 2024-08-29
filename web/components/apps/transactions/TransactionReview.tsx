@@ -3,7 +3,7 @@ import {
   Currency,
   Deposit,
   External,
-  ForeignEx,
+  ForEx,
   Internal,
   OfficeResponse,
   Sending,
@@ -49,6 +49,7 @@ import { State } from "@/lib/actions";
 import { notifications } from "@mantine/notifications";
 import { getMoneyPrefix } from "@/lib/utils";
 import { formatDistanceToNowStrict } from "date-fns";
+import { OfficeCurrency } from "@/lib/types";
 
 interface Props {
   row: TransactionItem;
@@ -211,9 +212,12 @@ function DepositView({ transaction }: { transaction: Deposit; mainCurrency: Curr
   );
 }
 
-function ForexView({ transaction, office }: { transaction: ForeignEx; office: OfficeResponse }) {
-  const wallet = office.wallets?.find((wallet) => wallet.walletID === transaction.wallet_id);
-
+function ForexView({ transaction, office }: { transaction: ForEx; office: OfficeResponse }) {
+  const currencies: OfficeCurrency[] = (office?.currencies ?? []) as OfficeCurrency[];
+  const mainCurrency = currencies?.find((currency: any) => currency.main);
+  const buying_amount = transaction.amount / transaction.buying_rate;
+  const selling_amount = transaction.amount / transaction.selling_rate;
+  const exchange_benefit = selling_amount - buying_amount;
   return (
     <List
       style={{ marginTop: 5 }}
@@ -236,9 +240,19 @@ function ForexView({ transaction, office }: { transaction: ForeignEx; office: Of
           </ThemeIcon>
         }
       >
-        <Text size="sm">
-          {transaction.is_buying ? "Buying from " : "Selling to"} : {transaction.account}
-        </Text>
+        <Text size="sm">Provider : {transaction.provider_account}</Text>
+      </List.Item>
+      <List.Item
+        style={{
+          marginTop: 5,
+        }}
+        icon={
+          <ThemeIcon color="blue" size={"sm"} radius={"xl"}>
+            <IconUser style={{ width: rem(16), height: rem(16) }} />
+          </ThemeIcon>
+        }
+      >
+        <Text size="sm">Customer : {transaction.customer_account}</Text>
       </List.Item>
       <List.Item
         icon={
@@ -250,45 +264,65 @@ function ForexView({ transaction, office }: { transaction: ForeignEx; office: Of
         Amount :{" "}
         <NumberFormatter
           thousandSeparator
-          prefix={`${getMoneyPrefix(wallet?.trading_currency ?? "USD")} `}
+          prefix={`${getMoneyPrefix(transaction.currency ?? "USD")} `}
           value={transaction.amount}
           decimalScale={3}
         />{" "}
-        /{" "}
+      </List.Item>
+      <List.Item
+        icon={
+          <ThemeIcon color="grape" size={"sm"} radius={"xl"}>
+            <IconCash style={{ width: rem(16), height: rem(16) }} />
+          </ThemeIcon>
+        }
+      >
+        Buying Amount :{" "}
         <NumberFormatter
           thousandSeparator
-          prefix={`${getMoneyPrefix(wallet?.trading_currency ?? "USD")} `}
-          value={transaction.paid}
+          prefix={`${getMoneyPrefix(mainCurrency?.name)} `}
+          value={buying_amount}
           decimalScale={3}
-        />
+        />{" "}
       </List.Item>
       <List.Item
         icon={
-          <ThemeIcon color="cyan" size={"sm"} radius={"xl"}>
-            <IconArrowsExchange style={{ width: rem(16), height: rem(16) }} />
+          <ThemeIcon color="grape" size={"sm"} radius={"xl"}>
+            <IconCash style={{ width: rem(16), height: rem(16) }} />
           </ThemeIcon>
         }
       >
-        {transaction.is_buying ? "Buying" : "Selling"} Rate :{" "}
-        <NumberFormatter thousandSeparator value={transaction.rate ?? 0} decimalScale={5} />
-      </List.Item>
-      <List.Item
-        icon={
-          <ThemeIcon color="cyan" size={"sm"} radius={"xl"}>
-            <IconArrowsExchange style={{ width: rem(16), height: rem(16) }} />
-          </ThemeIcon>
-        }
-      >
-        Wallet Rate :{" "}
+        Selling Amount :{" "}
         <NumberFormatter
           thousandSeparator
-          value={
-            transaction.initial_balance_pc > 0
-              ? Number(transaction.initial_balance_wc / transaction.initial_balance_pc)
-              : 0
-          }
-          decimalScale={5}
-        />
+          prefix={`${getMoneyPrefix(mainCurrency?.name)} `}
+          value={selling_amount}
+          decimalScale={3}
+        />{" "}
+      </List.Item>
+      <List.Item
+        icon={
+          <ThemeIcon color="cyan" size={"sm"} radius={"xl"}>
+            <IconArrowsExchange style={{ width: rem(16), height: rem(16) }} />
+          </ThemeIcon>
+        }
+      >
+        (B/S) Rates : <NumberFormatter thousandSeparator value={transaction.buying_rate ?? 0} decimalScale={5} /> /{" "}
+        <NumberFormatter thousandSeparator value={transaction.selling_rate ?? 0} decimalScale={5} />
+      </List.Item>
+      <List.Item
+        icon={
+          <ThemeIcon color="grape" size={"sm"} radius={"xl"}>
+            <IconCash style={{ width: rem(16), height: rem(16) }} />
+          </ThemeIcon>
+        }
+      >
+        Exchange Benefit :{" "}
+        <NumberFormatter
+          thousandSeparator
+          prefix={`${getMoneyPrefix(mainCurrency?.name)} `}
+          value={exchange_benefit}
+          decimalScale={3}
+        />{" "}
       </List.Item>
     </List>
   );

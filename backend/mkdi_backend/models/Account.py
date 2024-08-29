@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, ClassVar
 from uuid import UUID, uuid4
 
 import sqlalchemy as sa

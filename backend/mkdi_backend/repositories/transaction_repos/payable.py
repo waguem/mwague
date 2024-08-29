@@ -100,8 +100,7 @@ class PayableTransaction(AbstractTransaction):
         )
 
         transaction.save_commit(commits)
-        if has_complete:
-            transaction.state = pr.TransactionState.PAID
+        transaction.state = pr.TransactionState.PAID
 
         # create fund history
         self.db.add(transaction)

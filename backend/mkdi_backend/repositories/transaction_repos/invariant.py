@@ -73,27 +73,32 @@ def async_managed_invariant_tx_method(
 
                     result = await f(self, *args, **kwargs)
 
+                    if isinstance(result, List):
+                        for item in result:
+                            self.db.add(item)
+                    elif isinstance(result, SQLModel):
+                        self.db.add(result)
+
                     end_accounts: List[Account] = await self.a_accounts()
                     mismatch = False
                     for index, account in enumerate(end_accounts):
                         if not account:
                             continue
                         logger.info(f"Checking Account {account}")
-                        if account.version != start_accounts[index].version:
+                        # find the associated account in the start_accounts list
+                        other = next((x for x in start_accounts if x.id == account.id), None)
+
+                        if other is None or account.version != other.version:
                             logger.info("Version Mismatch Detected")
                             logger.info(f"Before version : {start_accounts[index].version}")
                             logger.info(f"After version : {account.version}")
                             mismatch = True
                             break
+
                     if mismatch:
                         await self.db.rollback()
                         retry_exhausted = False
-
-                    if isinstance(result, List):
-                        for item in result:
-                            self.db.add(item)
-                    elif isinstance(result, SQLModel):
-                        self.db.add(result)
+                        continue
 
                     healthy = await check_invariant(self)
                     if not healthy:

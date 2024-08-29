@@ -46,7 +46,7 @@ export async function addTransaction(prevSate: State, data: FormData): Promise<S
         errors: validation.errors,
       };
     }
-
+    console.log(validation);
     try {
       const response = await requestTransactionApi({
         requestBody: validation,
@@ -55,6 +55,7 @@ export async function addTransaction(prevSate: State, data: FormData): Promise<S
       return { message: `${response.type} Transaction ${response.code} added successfully`, status: "success" };
     } catch (e) {
       if (e instanceof ApiError) {
+        console.log(e.body);
         return {
           status: "error",
           message: e.message,

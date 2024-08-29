@@ -13,8 +13,8 @@ from mkdi_backend.models.transactions.transactions import (
     Internal,
     External,
     Sending,
+    ForEx,
     TransactionWithDetails,
-    ForeignEx,
 )
 from mkdi_backend.repositories.transaction_repos import (
     deposit,
@@ -266,17 +266,15 @@ class TransactionRepository:
                 .order_by(Internal.created_at.desc())
             )
             forex_stm = (
-                select(ForeignEx)
-                .where(ForeignEx.office_id == office_id)
-                .order_by(ForeignEx.created_at.desc())
+                select(ForEx).where(ForEx.office_id == office_id).order_by(ForEx.created_at.desc())
             )
+
             async with TaskGroup() as tg:
                 deposit_task = tg.create_task(session1.execute(deposit_stm))
                 external_task = tg.create_task(session2.execute(external_stm))
                 sending_task = tg.create_task(session3.execute(sending_stm))
                 internal_task = tg.create_task(session4.execute(internal_stm))
                 forex_task = tg.create_task(session5.execute(forex_stm))
-
                 deposits, externals, sendings, internals, forexs = (
                     await deposit_task,
                     await external_task,

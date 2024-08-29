@@ -8,7 +8,7 @@ from mkdi_backend.repositories.transaction_repos.invariant import (
     CommitMode,
 )
 from mkdi_backend.repositories.transaction_repos.payable import PayableTransaction
-from mkdi_backend.models.transactions.transactions import Payment, ForeignEx
+from mkdi_backend.models.transactions.transactions import Payment, ForEx as ForeignEx
 from mkdi_backend.models.Account import Account
 from mkdi_backend.models.office import OfficeWallet
 from mkdi_shared.schemas import protocol as pr
@@ -72,39 +72,40 @@ class ForExTransaction(PayableTransaction):
         user_input: pr.ForExRequest = self.get_inputs().data
 
         assert isinstance(user_input, pr.ForExRequest)
-        assert user_input.account is not None
 
-        account = self.db.scalar(
+        provider_account = self.db.scalar(
             select(Account)
-            .where(Account.initials == user_input.account)
+            .where(Account.initials == user_input.provider_account)
             .where(Account.office_id == user.office_id)
         )
-        wallet = self.db.scalar(
-            select(OfficeWallet)
-            .where(OfficeWallet.walletID == user_input.walletID)
-            .where(OfficeWallet.office_id == user.office_id)
+
+        customer = self.db.scalar(
+            select(Account)
+            .where(Account.initials == user_input.customer_account)
+            .where(Account.office_id == user.office_id)
         )
-        assert account is not None
-        assert wallet is not None
+
+        assert provider_account is not None
+        assert customer is not None
 
         forEx = ForeignEx(
-            account=account.initials,
+            currency=user_input.currency,
+            base_currency=user_input.base_currency,
+            provider_account=provider_account.initials,
+            customer_account=customer.initials,
             amount=user_input.amount,
-            paid=Decimal(user_input.amount / user_input.rate),
             code=self.generate_code("FX"),
-            currency=wallet.crypto_currency,
-            is_buying=user_input.is_buying,
-            rate=user_input.rate,
-            wallet_id=user_input.walletID,
+            rate=user_input.daily_rate,
+            buying_rate=user_input.buying_rate,
+            selling_rate=user_input.selling_rate,
             state=pr.TransactionState.REVIEW,
             history={"history": []},
             office_id=user.office_id,
+            charge_percentage=0,
             org_id=user.organization_id,
             type=pr.TransactionType.FOREX,
             created_by=user.user_db_id,
         )
-        forEx.initial_balance_pc = wallet.paid
-        forEx.initial_balance_wc = wallet.buyed
 
         self.db.add(forEx)
         return forEx
@@ -112,50 +113,11 @@ class ForExTransaction(PayableTransaction):
     @managed_tx_method(auto_commit=CommitMode.COMMIT)
     def approve(self, transaction: ForeignEx) -> ForeignEx:
         """approve the transaction"""
-
-        if not transaction.is_buying:
-            return self.approve_selling(transaction)
         # for buying the transaction this is payable so it goes pending first and wait for payment
         transaction.state = pr.TransactionState.PENDING
         transaction.reviwed_by = self.user.user_db_id
         self.db.add(transaction)
         return transaction
-
-    def approve_selling(self, transaction: ForeignEx) -> ForeignEx:
-        """approve a buying transaction"""
-        assert transaction.is_buying is False
-
-        # selling a foreingEx transaction, the commit is directly done.
-        # from the customer account to the office account
-        # the office wallet is decresed by the sold amount
-        # the transaction state is PAID. the exchange benefit is moved to the office account
-        # if there are any charges they are also moved to the office account
-        # the customer account will debited by the selling amount + extra charges
-        # the office account will be credited by the exchange benefit + extra charges
-        # the wallet is updated with the new balance
-
-        transaction.state = pr.TransactionState.PENDING
-        transaction.reviwed_by = self.user.user_db_id
-        self.db.add(transaction)
-        return transaction
-
-    def commit_selling(self, transaction: ForeignEx) -> List[pr.TransactionCommit]:
-        office = self.db.scalar(
-            select(Account)
-            .where(Account.type == pr.AccountType.OFFICE)
-            .where(Account.office_id == self.user.office_id)
-        )
-        wallet = self.db.scalar(
-            select(OfficeWallet)
-            .where(OfficeWallet.walletID == transaction.wallet_id)
-            .where(OfficeWallet.office_id == self.user.office_id)
-        )
-        account = self.db.scalar(
-            select(Account)
-            .where(Account.initials == transaction.account)
-            .where(Account.office_id == self.user.office_id)
-        )
-        assert wallet is not None
 
     async def a_accounts(self, customer_account=None) -> List[Account]:
         session = self.db
@@ -166,7 +128,6 @@ class ForExTransaction(PayableTransaction):
         if request is None and customer_account is None:
             tr: ForeignEx = self.transaction
             customer_account = tr.customer_account
-            provider_account = tr.provider_account
 
         condition = or_(
             Account.initials == customer_account,

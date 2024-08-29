@@ -3,8 +3,8 @@
 import ReactSelect from "react-select";
 
 import { Controller, useForm } from "react-hook-form";
-import { $PaymentMethod, AccountResponse, AgentReponseWithAccounts, Currency } from "@/lib/client";
-import { currencyOptions, currencySymbols } from "@/lib/utils";
+import { $PaymentMethod, AgentReponseWithAccounts, Currency } from "@/lib/client";
+import { currencyOptions, getAccountOptions } from "@/lib/utils";
 import clsx from "clsx";
 import { useCallback, useMemo, useTransition } from "react";
 import IconSend from "@/components/icon/icon-send";
@@ -63,13 +63,7 @@ export default function SendingForms({ agentWithAccounts }: Props) {
     },
   });
 
-  const accountsOptions = agentWithAccounts
-    .map((agent) => agent.accounts!)
-    .flat()
-    .map((account: AccountResponse) => ({
-      label: `${account.initials} ${currencySymbols[account.currency]}`,
-      value: account.initials,
-    }));
+  const accountsOptions = getAccountOptions("AGENT", agentWithAccounts);
 
   const paymentMethodOptions = $PaymentMethod.enum.map((item) => ({
     label: item,

@@ -60,7 +60,7 @@ export const Internal = zfd.formData({
   receiver: zfd.text(z.string().max(20)).refine((value) => value.trim() !== ""),
   amount: zfd.text(zPNumber),
   rate: zfd.text(zPNumber),
-  message: zfd.text(z.string().max(255)),
+  message: zfd.text(z.string().max(1024)),
 });
 
 const Deposit = zfd.formData({
@@ -73,7 +73,7 @@ const External = zfd.formData({
   sender: zfd.text(z.string().max(20)).refine((value) => value.trim() !== ""),
   amount: zfd.text(zPNumber),
   rate: zfd.text(zPNumber),
-  message: zfd.text(z.string().max(255)).optional(),
+  message: zfd.text(z.string().max(1024)).optional(),
   payment_currency: zCurrency.optional(),
 });
 const Sending = zfd.formData({
@@ -90,15 +90,19 @@ const Sending = zfd.formData({
   receiver_name: zfd.text(z.string().max(255)).optional(),
   receiver_phone: zfd.text(z.string().max(255)).optional(),
 });
+
 const ForEx = zfd.formData({
-  walletID: zfd.text(z.string().max(10)).refine((value) => value.trim() !== ""),
-  is_buying: z.enum(["true", "false"]),
+  provider_account: zfd.text(z.string().max(20)).refine((value) => value.trim() !== ""),
+  customer_account: zfd.text(z.string().max(20)).refine((value) => value.trim() !== ""),
+  base_currency: zCurrency,
+  currency: zCurrency,
   daily_rate: zfd.text(zPNumber),
-  account: zfd.text(z.string().max(10)).refine((value) => value.trim() !== ""),
-  rate: zfd.text(zPNumber),
+  buying_rate: zfd.text(zPNumber),
+  selling_rate: zfd.text(zPNumber),
   amount: zfd.text(zPNumber),
-  message: zfd.text(z.string().max(255)).optional(),
+  message: zfd.text(z.string().max(1024)).optional(),
 });
+
 export type Data = InternalRequest | DepositRequest;
 export interface FormResolver {
   resolver: z.ZodSchema<any>;
@@ -273,6 +277,46 @@ const ExternalFormResolver: FormResolver = {
   },
 };
 
+// const ForexFromResolver: FormResolver = {
+//   resolver: ForEx,
+//   run: (data: FormData) => {
+//     const parsed = ForEx.safeParse(data);
+//     const charges = 0;
+//     if (!parsed.success) {
+//       return {
+//         status: "error",
+//         error: "Invalid transaction data",
+//         errors: parsed.error.errors.map((error) => ({
+//           path: error.path.join("."),
+//           message: error.message,
+//         })),
+//       };
+//     }
+//     console.log("Parsed Forex ", parsed);
+
+//     return {
+//       amount: {
+//         amount: +parsed.data.amount,
+//         rate: +parsed.data.rate,
+//       },
+//       currency: data.get("currency") as string,
+//       charges: {
+//         amount: charges,
+//         rate: +parsed.data.daily_rate,
+//       },
+//       data: {
+//         type: "FOREX",
+//         walletID: parsed.data.walletID,
+//         is_buying: parsed.data.is_buying === "true",
+//         daily_rate: +parsed.data.daily_rate,
+//         account: parsed.data.account,
+//         rate: +parsed.data.rate,
+//         amount: +parsed.data.amount,
+//       },
+//     };
+//   },
+// };
+
 const ForexFromResolver: FormResolver = {
   resolver: ForEx,
   run: (data: FormData) => {
@@ -288,12 +332,11 @@ const ForexFromResolver: FormResolver = {
         })),
       };
     }
-    console.log("Parsed Forex ", parsed);
 
     return {
       amount: {
         amount: +parsed.data.amount,
-        rate: +parsed.data.rate,
+        rate: +parsed.data.daily_rate,
       },
       currency: data.get("currency") as string,
       charges: {
@@ -302,16 +345,19 @@ const ForexFromResolver: FormResolver = {
       },
       data: {
         type: "FOREX",
-        walletID: parsed.data.walletID,
-        is_buying: parsed.data.is_buying === "true",
+        provider_account: parsed.data.provider_account,
+        customer_account: parsed.data.customer_account,
+        currency: parsed.data.currency,
+        base_currency: parsed.data.base_currency,
         daily_rate: +parsed.data.daily_rate,
-        account: parsed.data.account,
-        rate: +parsed.data.rate,
+        buying_rate: +parsed.data.buying_rate,
+        selling_rate: +parsed.data.selling_rate,
         amount: +parsed.data.amount,
       },
     };
   },
 };
+
 const resolverRegistry: Record<string, FormResolver> = {
   INTERNAL: InternalFormResolver,
   DEPOSIT: DepositFormResolver,

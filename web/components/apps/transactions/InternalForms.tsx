@@ -1,7 +1,7 @@
 "use client";
 
-import { AccountResponse, AgentReponseWithAccounts, OfficeResponse } from "@/lib/client";
-import { currencySymbols, getMoneyIcon } from "@/lib/utils";
+import { AgentReponseWithAccounts, OfficeResponse } from "@/lib/client";
+import { getAccountOptions, getMoneyIcon } from "@/lib/utils";
 import { useTransition } from "react";
 import { addTransaction } from "@/lib/actions/transactions";
 import { OfficeCurrency } from "@/lib/types";
@@ -74,14 +74,7 @@ export default function InternalForms({ agentWithAccounts, office }: Props) {
     },
   });
 
-  const accountsOptions = agentWithAccounts
-    .map((agent) => agent.accounts!)
-    .flat()
-    .map((account: AccountResponse) => ({
-      label: `${account.initials} ${currencySymbols[account.currency]}`,
-      value: account.initials,
-    }));
-
+  const accountsOptions = getAccountOptions("AGENT", agentWithAccounts);
   const [pending, startTransition] = useTransition();
 
   const onSubmit = async () => {
@@ -95,12 +88,22 @@ export default function InternalForms({ agentWithAccounts, office }: Props) {
       data.append("rate", form.values.rate.toString());
       data.append("charges", form.values.charges.toString());
       form.values.message && data.append("message", form.values.message);
+
       const response = await addTransaction(null, data);
       decodeNotification("Internal Transaction", response);
-      form.reset();
+      form.setValues({
+        sender: "",
+        receiver: "",
+        type: "INTERNAL",
+        currency: mainCurrency?.name || "",
+        amount: 0,
+        convertedAmount: 0,
+        rate: baseCurrency?.defaultRate || 0,
+        charges: 0,
+      });
     } catch (e) {}
   };
-  console.log("Values : ", form.values);
+
   return (
     <section className="bg-white dark:bg-gray-900">
       <div className="p-4 w-full lg:py-4">
@@ -205,6 +208,7 @@ export default function InternalForms({ agentWithAccounts, office }: Props) {
                 id="message"
                 label="Your message"
                 rows={2}
+                required
                 value={form.values.message}
                 onChange={(event) => form.setFieldValue("message", event.currentTarget.value)}
                 placeholder="Leave a comment..."

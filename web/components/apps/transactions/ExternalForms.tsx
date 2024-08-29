@@ -1,7 +1,7 @@
 "use client";
 
-import { AccountResponse, AgentReponseWithAccounts, Currency, OfficeResponse } from "@/lib/client";
-import { currencySymbols, getMoneyIcon, getMoneyPrefix } from "@/lib/utils";
+import { AgentReponseWithAccounts, Currency, OfficeResponse } from "@/lib/client";
+import { getAccountOptions, getMoneyIcon, getMoneyPrefix } from "@/lib/utils";
 import { useTransition } from "react";
 import { addTransaction } from "@/lib/actions/transactions";
 import { useForm as useMantineForm } from "@mantine/form";
@@ -60,14 +60,7 @@ export default function ExternalForms({ agentWithAccounts, office }: Props) {
     },
   });
 
-  const accountsOptions = agentWithAccounts
-    .map((agent) => agent.accounts!)
-    .flat()
-    .map((account: AccountResponse) => ({
-      label: `${account.initials} ${currencySymbols[account.currency]}`,
-      value: account.initials,
-    }));
-
+  const accountsOptions = getAccountOptions("AGENT", agentWithAccounts);
   const [pending, startTransition] = useTransition();
 
   const onSubmit = async () => {

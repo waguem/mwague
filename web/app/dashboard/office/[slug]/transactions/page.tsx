@@ -8,6 +8,7 @@ import { getCurrentActivity } from "@/lib/actions/activity";
 export default async function Transactions({ params }: { params: { slug: string } }) {
   const transactions: TransactionItem[] = await getMyOfficeTransactions();
   const agentAccounts = await getMyOfficeAgents();
+  console.log(agentAccounts[0]);
   const activity = await getCurrentActivity();
   const office = await getOfficeCached(params.slug);
   const employees = await getEmployeesCached(params.slug);

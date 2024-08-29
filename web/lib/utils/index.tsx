@@ -1,5 +1,12 @@
 import { BadgeVariant, MantineColor, MantineGradient } from "@mantine/core";
-import { CryptoCurrency, Currency, TransactionState, TransactionType } from "../client";
+import {
+  AgentReponseWithAccounts,
+  AgentType,
+  CryptoCurrency,
+  Currency,
+  TransactionState,
+  TransactionType,
+} from "../client";
 import {
   IconCurrency,
   IconCurrencyDollar,
@@ -216,4 +223,16 @@ export const getCryptoPrefix = (currency: CryptoCurrency) => {
       return "₮";
   }
   return "";
+};
+
+export const getAccountOptions = (type: AgentType, agents: AgentReponseWithAccounts[]) => {
+  return agents
+    .filter((agent) => agent.accounts && agent.type === type)
+    .map((agent) => {
+      return agent.accounts!.map((account) => ({
+        label: `${agent.name} ${account.currency}`,
+        value: account.initials,
+      }));
+    })
+    .flat();
 };
