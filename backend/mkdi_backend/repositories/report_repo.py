@@ -23,12 +23,12 @@ class ReportRepository:
         internals = self._get_model_result(Internal, office_id, start_date, end_date)
         externals = self._get_model_result(External, office_id, start_date, end_date)
         sending = self._get_model_result(Sending, office_id, start_date, end_date)
-        # forex = self._get_model_result(ForEx,office_id,start_date,end_date)
+        forex = self._get_forex_result(office_id, start_date, end_date)
 
         report.results.extend(internals)
         report.results.extend(externals)
         report.results.extend(sending)
-        # report.results.extend(forex)
+        report.results.extend(forex)
 
         return report
 
@@ -42,7 +42,6 @@ class ReportRepository:
         transactions = self.db.scalars(
             select(model)
             .where(model.charges > 0)
-            .where(model.state == protocol.TransactionState.PAID)
             .where(model.office_id == office_id)
             .where(model.created_at >= start_date)
             .where(model.created_at <= end_date)
@@ -61,5 +60,30 @@ class ReportRepository:
                     state=transaction.state,
                 ),
                 transactions,
+            )
+        )
+
+    def _get_forex_result(self, office_id: str, start_date: datetime, end_date: datetime):
+        resulst = self.db.scalars(
+            select(ForEx)
+            .where((ForEx.selling_amount - ForEx.buying_amount) > 0)
+            .where(ForEx.created_at >= start_date)
+            .where(ForEx.created_at <= end_date)
+            .where(ForEx.office_id == office_id)
+            .order_by(ForEx.created_at)
+        ).all()
+
+        return list(
+            map(
+                lambda transaction: protocol.OfficeResult(
+                    result_source=transaction.type,
+                    result_type=protocol.ResultType.BENEFIT,
+                    amount=transaction.forex_result,
+                    code=transaction.code,
+                    transaction_id=transaction.id,
+                    date=transaction.created_at,
+                    state=transaction.state,
+                ),
+                resulst,
             )
         )

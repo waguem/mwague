@@ -282,10 +282,6 @@ class ExternalRequest(BaseModel):
 class SendingRequest(BaseModel):
     type: Literal["SENDING"]
     receiver_initials: str
-    customer_sender: Optional[CustomerDetails] = None
-    customer_receiver: Optional[CustomerDetails] = None
-    bid_rate: Annotated[Decimal, Field(strict=True, gt=0)]
-    offer_rate: Annotated[Decimal, Field(strict=True, gt=0)]
     payment_method: PaymentMethod
     payment_currency: Currency
 

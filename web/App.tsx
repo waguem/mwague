@@ -21,13 +21,13 @@ function App({ children }: PropsWithChildren) {
   const { initLocale } = getTranslation();
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
-    dispatch(toggleTheme(localStorage.getItem("theme") || themeConfig.theme));
-    dispatch(toggleMenu(localStorage.getItem("menu") || themeConfig.menu));
-    dispatch(toggleLayout(localStorage.getItem("layout") || themeConfig.layout));
-    dispatch(toggleRTL(localStorage.getItem("rtlClass") || themeConfig.rtlClass));
-    dispatch(toggleAnimation(localStorage.getItem("animation") || themeConfig.animation));
-    dispatch(toggleNavbar(localStorage.getItem("navbar") || themeConfig.navbar));
-    dispatch(toggleSemidark(localStorage.getItem("semidark") || themeConfig.semidark));
+    dispatch(toggleTheme(themeConfig.theme));
+    dispatch(toggleMenu(themeConfig.menu));
+    dispatch(toggleLayout(themeConfig.layout));
+    dispatch(toggleRTL(themeConfig.rtlClass));
+    dispatch(toggleAnimation(themeConfig.animation));
+    dispatch(toggleNavbar(themeConfig.navbar));
+    dispatch(toggleSemidark(themeConfig.semidark));
     // locale
     initLocale(themeConfig.locale);
     setIsLoading(false);

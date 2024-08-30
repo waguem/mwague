@@ -141,7 +141,7 @@ export default function ExternalForms({ agentWithAccounts, office }: Props) {
                     ...values,
                     amount: Number(value),
                     convertedAmount: Number(value) * form.values.rate,
-                    charges : Number(value) * form.values.charge_pencentage / 100
+                    charges: (Number(value) * form.values.charge_pencentage) / 100,
                   }))
                 }
                 allowNegative={false}

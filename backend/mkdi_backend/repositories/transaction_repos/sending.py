@@ -118,12 +118,6 @@ class SendingTransaction(PayableTransaction):
             state=pr.TransactionState.REVIEW,
             charges=self.get_charges(),
             rate=self.get_rate(),
-            bid_rate=user_input.bid_rate,
-            offer_rate=user_input.offer_rate,
-            customer_sender=user_input.customer_sender.dict() if user_input.customer_sender else {},
-            customer_receiver=(
-                user_input.customer_receiver.dict() if user_input.customer_receiver else {}
-            ),
             created_by=user.user_db_id,
             history={"history": []},
             notes={"notes": []},

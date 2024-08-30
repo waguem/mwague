@@ -35,6 +35,7 @@ import { payTransaction } from "@/lib/actions/transactions";
 
 import { PaymentRequest } from "@/lib/schemas/actions";
 import { decodeNotification } from "../notifications/notifications";
+import { generateReceipt } from "@/lib/pdf/generator";
 interface PayTransactionProps {
   row: any;
   opened: boolean;
@@ -134,7 +135,12 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
               </ActionIcon>
             </Tooltip>
             <Tooltip label="Download Receipt" position="left">
-              <ActionIcon size="sm" variant="gradient" gradient={{ from: "teal", to: "pink", deg: 130 }}>
+              <ActionIcon
+                onClick={() => generateReceipt(item)}
+                size="sm"
+                variant="gradient"
+                gradient={{ from: "teal", to: "pink", deg: 130 }}
+              >
                 <IconReceipt size={12} />
               </ActionIcon>
             </Tooltip>

@@ -63,7 +63,7 @@ export default function TransactionsForms({ agentAccounts, activity, office }: P
       case "DEPOSIT":
         return <DepositForms office={office} agentWithAccounts={agentAccounts} />;
       case "SENDING":
-        return <SendingForms agentWithAccounts={agentAccounts} />;
+        return <SendingForms office={office} agentWithAccounts={agentAccounts} />;
       case "FOREX":
         return <ForexForms office={office} agentWithAccounts={agentAccounts} />;
       default:

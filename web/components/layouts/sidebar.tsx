@@ -12,9 +12,6 @@ import { usePathname } from "next/navigation";
 import { getTranslation } from "@/i18n";
 import Image from "next/image";
 import SignOutButton from "../auth/signOut";
-import IconWirehouse from "../icon/icon-wirehouse";
-import IconSettings from "../icon/icon-settings";
-import IconMenuChat from "../icon/menu/icon-menu-chat";
 
 const CollapsibleLogo = ({ menu }: { menu: string }) => {
   return (
@@ -118,37 +115,6 @@ const Sidebar = () => {
                   </div>
                 </Link>
               </li>
-              <li className="nav-item">
-                <Link href={"#"} className="group">
-                  <div className="flex items-center">
-                    <IconMenuChat className="shrink-0 h-5 w-4 group-hover:!text-primary" />
-                    <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">
-                      {t("Activity")}
-                    </span>
-                  </div>
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link href={`/dashboard/organization`} className="group">
-                  <div className="flex items-center">
-                    <IconWirehouse className="shrink-0 h-5 w-4 group-hover:!text-primary" />
-                    <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">
-                      {t("My Organization")}
-                    </span>
-                  </div>
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link href={`/dashboard/organization`} className="group">
-                  <div className="flex items-center">
-                    <IconSettings className="shrink-0 h-5 w-4 group-hover:!text-primary" />
-                    <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">
-                      {t("settings")}
-                    </span>
-                  </div>
-                </Link>
-              </li>
-
               <li className="menu nav-item">
                 <SignOutButton />
               </li>

@@ -1,9 +1,13 @@
 "use client";
 import { OfficeResponse, OfficeResult, TransactionState } from "@/lib/client";
 import { getBadgeType, getBadgeTypeFromResult, getStateBadge } from "@/lib/utils";
-import { Badge, NumberFormatter } from "@mantine/core";
-import { MantineReactTable, MRT_ColumnDef, useMantineReactTable } from "mantine-react-table";
+import { ActionIcon, Badge, Box, Button, Group, NumberFormatter, Tooltip } from "@mantine/core";
+import { useClipboard } from "@mantine/hooks";
+import { IconCopy, IconDownload } from "@tabler/icons-react";
+import { MantineReactTable, MRT_ColumnDef, MRT_Row, useMantineReactTable } from "mantine-react-table";
 import { useMemo } from "react";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 interface Props {
   data: OfficeResult[];
@@ -11,6 +15,7 @@ interface Props {
 }
 const ResultTable = ({ data }: Props) => {
   const memoizedData = useMemo(() => data, [data]);
+  const clipboard = useClipboard({ timeout: 500 });
 
   const columns = useMemo<MRT_ColumnDef<OfficeResult>[]>(
     () => [
@@ -63,11 +68,44 @@ const ResultTable = ({ data }: Props) => {
       {
         header: "Code",
         accessorKey: "code",
-        Cell: ({ cell }) => <div>{cell.getValue() as string}</div>,
+        Cell: ({ cell }) => (
+          <Group>
+            <Badge variant="dot" color="cyan">
+              {cell.getValue() as string}
+            </Badge>
+            <Tooltip label="Copy code" position="left">
+              <ActionIcon size={20} variant="outline">
+                <IconCopy
+                  size={16}
+                  onClick={() => {
+                    clipboard.copy(cell.getValue() as string);
+                  }}
+                />
+              </ActionIcon>
+            </Tooltip>
+          </Group>
+        ),
       },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
+
+  const handleExportRows = (rows: MRT_Row<OfficeResult>[]) => () => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("Office Results", 10, 10);
+    doc.setFontSize(12);
+    const tableData = rows.map((row) => Object.values(row.original));
+    const tableHeaders = columns.map((c) => c.header);
+    autoTable(doc, {
+      head: [tableHeaders],
+      body: tableData,
+      startY: 40,
+    });
+
+    doc.save("result_table.pdf");
+  };
 
   const table = useMantineReactTable({
     columns,
@@ -77,6 +115,18 @@ const ResultTable = ({ data }: Props) => {
     },
     paginationDisplayMode: "pages",
     data: memoizedData,
+    renderTopToolbarCustomActions: ({ table }) => (
+      <Box>
+        <Button
+          onClick={handleExportRows(table.getPrePaginationRowModel().rows)}
+          leftSection={<IconDownload size={16} />}
+          size="xs"
+          variant="outline"
+        >
+          Export to PDF
+        </Button>
+      </Box>
+    ),
   });
 
   return <MantineReactTable table={table} />;

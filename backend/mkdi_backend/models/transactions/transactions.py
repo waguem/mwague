@@ -62,19 +62,9 @@ class SendingBase(pr.TransactionDB):
 
     receiver_initials: str = Field(foreign_key="accounts.initials")
 
-    bid_rate: Decimal
-    offer_rate: Decimal
     method: pr.PaymentMethod
     payment_currency: pr.Currency
     charges: Annotated[Decimal, Field(ge=0)]
-
-    customer_sender: Mapping[Any, Mapping | Any] = Field(
-        default={}, sa_column=sa.Column(MutableDict.as_mutable(pg.JSONB))
-    )
-
-    customer_receiver: Mapping[Any, Mapping | Any] = Field(
-        default={}, sa_column=sa.Column(MutableDict.as_mutable(pg.JSONB))
-    )
 
 
 class ForExBase(pr.TransactionDB):

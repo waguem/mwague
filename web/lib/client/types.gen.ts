@@ -608,34 +608,14 @@ export type Sending = {
       | unknown;
   };
   receiver_initials: string;
-  bid_rate: number;
-  offer_rate: number;
   method: PaymentMethod;
   payment_currency: Currency;
   charges: number;
-  customer_sender?: {
-    [key: string]:
-      | {
-          [key: string]: unknown;
-        }
-      | unknown;
-  };
-  customer_receiver?: {
-    [key: string]:
-      | {
-          [key: string]: unknown;
-        }
-      | unknown;
-  };
 };
 
 export type SendingRequest = {
   type: "SENDING";
   receiver_initials: string;
-  customer_sender?: CustomerDetails;
-  customer_receiver?: CustomerDetails;
-  bid_rate: number;
-  offer_rate: number;
   payment_method: PaymentMethod;
   payment_currency: Currency;
 };
@@ -672,25 +652,9 @@ export type SendingWithPayments = {
       | unknown;
   };
   receiver_initials: string;
-  bid_rate: number;
-  offer_rate: number;
   method: PaymentMethod;
   payment_currency: Currency;
   charges: number;
-  customer_sender?: {
-    [key: string]:
-      | {
-          [key: string]: unknown;
-        }
-      | unknown;
-  };
-  customer_receiver?: {
-    [key: string]:
-      | {
-          [key: string]: unknown;
-        }
-      | unknown;
-  };
   payments?: Array<Payment>;
 };
 

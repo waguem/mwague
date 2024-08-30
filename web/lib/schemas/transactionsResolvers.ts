@@ -80,15 +80,9 @@ const Sending = zfd.formData({
   receiver_initials: zfd.text(z.string().max(20)).refine((value) => value.trim() !== ""),
   amount: zfd.text(zPNumber),
   rate: zfd.text(zPNumber),
-  bid_rate: zfd.text(zPNumber),
-  offer_rate: zfd.text(zPNumber),
   message: zfd.text(z.string().max(255)).optional(),
   payment_currency: zCurrency,
   payment_method: z.enum(["CASH", "BANK", "MOBILE", "OTHER"]),
-  sender_name: zfd.text(z.string().max(255)).optional(),
-  sender_phone: zfd.text(z.string().max(255)).optional(),
-  receiver_name: zfd.text(z.string().max(255)).optional(),
-  receiver_phone: zfd.text(z.string().max(255)).optional(),
 });
 
 const ForEx = zfd.formData({
@@ -222,16 +216,6 @@ const SendingFormResolver: FormResolver = {
       data: {
         type: "SENDING",
         receiver_initials: parsed.data.receiver_initials,
-        customer_sender: {
-          name: parsed.data.sender_name,
-          phone: parsed.data.sender_phone,
-        },
-        customer_receiver: {
-          name: parsed.data.receiver_name,
-          phone: parsed.data.receiver_phone,
-        },
-        bid_rate: +parsed.data.bid_rate,
-        offer_rate: +parsed.data.offer_rate,
         payment_currency: parsed.data.payment_currency,
         payment_method: parsed.data.payment_method,
       },

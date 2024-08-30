@@ -95,15 +95,15 @@ export const $AgentReponseWithAccounts = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     phone: {
       type: "string",
@@ -144,15 +144,15 @@ export const $AgentResponse = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     phone: {
       type: "string",
@@ -295,15 +295,15 @@ export const $CreateAgentRequest = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     email: {
       type: "string",
       maxLength: 128,
       title: "Email",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     phone: {
       type: "string",
@@ -371,8 +371,8 @@ export const $CreateOfficeRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     name: {
       type: "string",
@@ -413,8 +413,8 @@ export const $CreateOrganizationRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     org_name: {
       type: "string",
@@ -1518,8 +1518,8 @@ export const $OfficeResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     name: {
       type: "string",
@@ -1632,8 +1632,8 @@ export const $OrganizationResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     org_name: {
       type: "string",
@@ -1940,14 +1940,6 @@ export const $Sending = {
       type: "string",
       title: "Receiver Initials",
     },
-    bid_rate: {
-      type: "number",
-      title: "Bid Rate",
-    },
-    offer_rate: {
-      type: "number",
-      title: "Offer Rate",
-    },
     method: {
       $ref: "#/components/schemas/PaymentMethod",
     },
@@ -1958,32 +1950,6 @@ export const $Sending = {
       type: "number",
       minimum: 0,
       title: "Charges",
-    },
-    customer_sender: {
-      additionalProperties: {
-        anyOf: [
-          {
-            type: "object",
-          },
-          {},
-        ],
-      },
-      type: "object",
-      title: "Customer Sender",
-      default: {},
-    },
-    customer_receiver: {
-      additionalProperties: {
-        anyOf: [
-          {
-            type: "object",
-          },
-          {},
-        ],
-      },
-      type: "object",
-      title: "Customer Receiver",
-      default: {},
     },
   },
   type: "object",
@@ -1997,8 +1963,6 @@ export const $Sending = {
     "org_id",
     "created_by",
     "receiver_initials",
-    "bid_rate",
-    "offer_rate",
     "method",
     "payment_currency",
     "charges",
@@ -2018,24 +1982,6 @@ export const $SendingRequest = {
       type: "string",
       title: "Receiver Initials",
     },
-    customer_sender: {
-      $ref: "#/components/schemas/CustomerDetails",
-    },
-    customer_receiver: {
-      $ref: "#/components/schemas/CustomerDetails",
-    },
-    bid_rate: {
-      type: "number",
-      exclusiveMinimum: 0,
-      title: "Bid Rate",
-      strict: true,
-    },
-    offer_rate: {
-      type: "number",
-      exclusiveMinimum: 0,
-      title: "Offer Rate",
-      strict: true,
-    },
     payment_method: {
       $ref: "#/components/schemas/PaymentMethod",
     },
@@ -2044,7 +1990,7 @@ export const $SendingRequest = {
     },
   },
   type: "object",
-  required: ["type", "receiver_initials", "bid_rate", "offer_rate", "payment_method", "payment_currency"],
+  required: ["type", "receiver_initials", "payment_method", "payment_currency"],
   title: "SendingRequest",
 } as const;
 
@@ -2133,14 +2079,6 @@ export const $SendingWithPayments = {
       type: "string",
       title: "Receiver Initials",
     },
-    bid_rate: {
-      type: "number",
-      title: "Bid Rate",
-    },
-    offer_rate: {
-      type: "number",
-      title: "Offer Rate",
-    },
     method: {
       $ref: "#/components/schemas/PaymentMethod",
     },
@@ -2151,32 +2089,6 @@ export const $SendingWithPayments = {
       type: "number",
       minimum: 0,
       title: "Charges",
-    },
-    customer_sender: {
-      additionalProperties: {
-        anyOf: [
-          {
-            type: "object",
-          },
-          {},
-        ],
-      },
-      type: "object",
-      title: "Customer Sender",
-      default: {},
-    },
-    customer_receiver: {
-      additionalProperties: {
-        anyOf: [
-          {
-            type: "object",
-          },
-          {},
-        ],
-      },
-      type: "object",
-      title: "Customer Receiver",
-      default: {},
     },
     payments: {
       items: {
@@ -2198,8 +2110,6 @@ export const $SendingWithPayments = {
     "org_id",
     "created_by",
     "receiver_initials",
-    "bid_rate",
-    "offer_rate",
     "method",
     "payment_currency",
     "charges",
