@@ -105,7 +105,8 @@ export const OfficeFundDetail = ({ commits }: Props) => {
         accessorKey: "description",
       },
     ],
-    [table]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
   );
   const table = useMantineReactTable({
     data: memoizedCommits,
