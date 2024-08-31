@@ -46,7 +46,7 @@ export async function addTransaction(prevSate: State, data: FormData): Promise<S
         errors: validation.errors,
       };
     }
-    console.log(validation);
+
     try {
       const response = await requestTransactionApi({
         requestBody: validation,

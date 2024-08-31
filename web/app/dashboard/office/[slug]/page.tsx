@@ -8,8 +8,7 @@ import {
 import { redirect } from "next/navigation";
 import { getOfficeCached, getOfficeHealth } from "@/lib/actions";
 import EmployeesTable from "@/components/apps/office/EmployeesTable";
-import { OfficeCardImage } from "@/components/organizations/office/OfficeCardImage";
-import { Grid, GridCol } from "@mantine/core";
+import { Grid, Space } from "@mantine/core";
 import Wallets from "@/components/apps/office/Wallets";
 import { HealthCheck } from "@/components/organizations/office/HealthCheck";
 
@@ -50,16 +49,13 @@ export default async function Page({
   return (
     <div>
       <Grid className="mb-5 gap-5">
-        <GridCol span={4}>
-          <div className="panel h-full">
-            <OfficeCardImage office={office} />
-          </div>
-        </GridCol>
-        <GridCol span={8}>
-          <OfficeInfo HealthCheck={<HealthCheck health={health} />} office={office} />
-        </GridCol>
+        <OfficeInfo HealthCheck={<HealthCheck health={health} />} office={office} />
       </Grid>
+      <Space h="xl" />
       <EmployeesTable employees={employees} />
+      <Space h="xl" />
+      <Space h="xl" />
+
       <Wallets office={office} />
     </div>
   );

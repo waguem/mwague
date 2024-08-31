@@ -3,11 +3,13 @@ from mkdi_backend.models.office import Office, OfficeWallet
 from mkdi_backend.utils.database import CommitMode, managed_tx_method, async_managed_tx_method
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol
+from mkdi_backend.models.Activity import FundCommit, Activity
 from mkdi_backend.repositories.account import AccountRepository
 from sqlmodel import Session, select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from copy import deepcopy
 from typing import List
+from datetime import datetime, timedelta
 
 
 class OfficeRepository:
@@ -177,3 +179,39 @@ class OfficeRepository:
         return protocol.OfficeHealth(
             status="healthy" if healthy else "unhealthy", accounts=accounts, invariant=invariant
         )
+
+    def _get_start_of_day(self, today: datetime):
+        return today.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    def _get_end_of_day(self, today: datetime):
+        return today.replace(hour=23, minute=59, second=59)
+
+    def get_daily_fund_commits(
+        self, office_id: str, start_date_str: str, end_date_str: str
+    ) -> List[FundCommit]:
+        today = datetime.now()
+        date_format = "%Y-%m-%dT%H:%M:%S.%fZ"
+        if start_date_str is None:
+            start = today
+        else:
+            # the date has this format 2024-07-31T22:00:00.000Z
+            start = datetime.strptime(start_date_str, date_format)
+
+        if end_date_str is None:
+            end = today
+        else:
+            end = datetime.strptime(end_date_str, date_format)
+
+        start_date = self._get_start_of_day(start)
+        end_date = self._get_end_of_day(end)
+
+        fund_commits = self.db.scalars(
+            select(FundCommit, Activity)
+            .join(Activity)
+            .where(Activity.office_id == office_id)
+            .where(FundCommit.date >= start_date)
+            .where(FundCommit.date <= end_date)
+            .order_by(FundCommit.date)
+        ).all()
+
+        return fund_commits

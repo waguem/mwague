@@ -1289,6 +1289,42 @@ export const $ForExWithPayments = {
   description: "Une transaction de change est effectué",
 } as const;
 
+export const $FundCommit = {
+  properties: {
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    v_from: {
+      type: "number",
+      title: "V From",
+    },
+    variation: {
+      type: "number",
+      title: "Variation",
+    },
+    date: {
+      type: "string",
+      format: "date-time",
+      title: "Date",
+    },
+    description: {
+      type: "string",
+      maxLength: 128,
+      title: "Description",
+    },
+    activity_id: {
+      type: "string",
+      format: "uuid",
+      title: "Activity Id",
+    },
+  },
+  type: "object",
+  required: ["v_from", "variation", "description", "activity_id"],
+  title: "FundCommit",
+} as const;
+
 export const $HTTPValidationError = {
   properties: {
     detail: {
@@ -1440,21 +1476,17 @@ export const $InternalRequest = {
 
 export const $Note = {
   properties: {
-    content: {
+    date: {
       type: "string",
-      title: "Content",
+      title: "Date",
     },
-    created_by: {
+    message: {
       type: "string",
-      title: "Created By",
-    },
-    created_at: {
-      type: "string",
-      title: "Created At",
+      title: "Message",
     },
   },
   type: "object",
-  required: ["content", "created_by", "created_at"],
+  required: ["date", "message"],
   title: "Note",
 } as const;
 
@@ -2163,6 +2195,10 @@ export const $TransactionRequest = {
     charges: {
       $ref: "#/components/schemas/Amount",
     },
+    message: {
+      type: "string",
+      title: "Message",
+    },
     transaction_type: {
       $ref: "#/components/schemas/TransactionType",
     },
@@ -2255,6 +2291,10 @@ export const $TransactionReviewReq = {
     },
     charges: {
       $ref: "#/components/schemas/Amount",
+    },
+    message: {
+      type: "string",
+      title: "Message",
     },
     transaction_type: {
       $ref: "#/components/schemas/TransactionType",

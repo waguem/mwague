@@ -14,6 +14,8 @@ router = APIRouter()
 def get_monthly_report(
     *,
     user: Annotated[KcUser, Security(check_authorization, scopes=["org_admin"])],
+    start_date: str | None = None,
+    end_date: str | None = None,
     db: Session = Depends(get_db),
 ) -> protocol.ReportResponse:
-    return ReportRepository(db).get_monthly_report(user.office_id)
+    return ReportRepository(db).get_monthly_report(user.office_id, start_date, end_date)

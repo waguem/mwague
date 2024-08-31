@@ -391,6 +391,15 @@ export type ForExWithPayments = {
   payments?: Array<Payment>;
 };
 
+export type FundCommit = {
+  id?: string;
+  v_from: number;
+  variation: number;
+  date?: string;
+  description: string;
+  activity_id: string;
+};
+
 export type HTTPValidationError = {
   detail?: Array<ValidationError>;
 };
@@ -441,9 +450,8 @@ export type InternalRequest = {
 export type type4 = "INTERNAL";
 
 export type Note = {
-  content: string;
-  created_by: string;
-  created_at: string;
+  date: string;
+  message: string;
 };
 
 export type NoteList = {
@@ -671,6 +679,7 @@ export type TransactionRequest = {
   currency?: Currency;
   amount: Amount;
   charges?: Amount;
+  message?: string;
   transaction_type?: TransactionType;
   data?: InternalRequest | DepositRequest | ExternalRequest | SendingRequest | ForExRequest;
 };
@@ -690,6 +699,7 @@ export type TransactionReviewReq = {
   currency?: Currency;
   amount: Amount;
   charges?: Amount;
+  message?: string;
   transaction_type?: TransactionType;
   data?: InternalRequest | DepositRequest | ExternalRequest | SendingRequest | ForExRequest;
   code: string;
@@ -812,6 +822,13 @@ export type CreateWalletApiV1OrganizationOfficeWalletPostData = {
 export type CreateWalletApiV1OrganizationOfficeWalletPostResponse = OfficeWalletResponse;
 
 export type GetOfficeHealthApiV1OrganizationHealthGetResponse = OfficeHealth;
+
+export type GetFundCommitsApiV1OrganizationMyofficeFundCommitsGetData = {
+  endDate?: string;
+  startDate?: string;
+};
+
+export type GetFundCommitsApiV1OrganizationMyofficeFundCommitsGetResponse = Array<FundCommit>;
 
 export type GetEmployeesApiV1OfficeEmployeeGetResponse = Array<EmployeeResponse>;
 
@@ -948,6 +965,11 @@ export type PayTradeApiV1WalletTradeTradeIdPayPostData = {
 };
 
 export type PayTradeApiV1WalletTradeTradeIdPayPostResponse = PaymentResponse;
+
+export type GetMonthlyReportApiV1OfficeMonthlyReportGetData = {
+  endDate?: string;
+  startDate?: string;
+};
 
 export type GetMonthlyReportApiV1OfficeMonthlyReportGetResponse = ReportResponse;
 
@@ -1086,6 +1108,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: OfficeHealth;
+      };
+    };
+  };
+  "/api/v1/organization/myoffice/fund_commits": {
+    get: {
+      req: GetFundCommitsApiV1OrganizationMyofficeFundCommitsGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<FundCommit>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
       };
     };
   };
@@ -1426,11 +1463,16 @@ export type $OpenApiTs = {
   };
   "/api/v1/office/monthly-report": {
     get: {
+      req: GetMonthlyReportApiV1OfficeMonthlyReportGetData;
       res: {
         /**
          * Successful Response
          */
         200: ReportResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
       };
     };
   };

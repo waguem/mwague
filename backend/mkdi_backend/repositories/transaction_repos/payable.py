@@ -83,7 +83,7 @@ class PayableTransaction(AbstractTransaction):
                 message="Payment amount exceeds transaction amount",
             )
         # create a payment
-        payment = Payment(
+        payment_db = Payment(
             amount=payment.amount,
             transaction_id=transaction.id,
             transaction_type=payment.payment_type,
@@ -91,9 +91,17 @@ class PayableTransaction(AbstractTransaction):
             notes={"notes": []},
             paid_by=self.user.user_db_id,
         )
-        payment.payment_date = datetime.datetime.now()
+        # add payment notes
+        message = dict()
+        message["date"] = datetime.datetime.isoformat(datetime.datetime.now())
+        message["message"] = payment.notes
+        message["customer_name"] = payment.customer.name
+        message["customer_phone"] = payment.customer.phone
+        payment_db.notes["notes"].append(message)
+
+        payment_db.payment_date = datetime.datetime.now()
         # commit payment
-        has_complete = (paid + payment.amount) == transaction.amount
+        has_complete = (paid + payment_db.amount) == transaction.amount
 
         commits, fund_history = await self.a_commit(
             payment.amount, transaction, has_complete=has_complete
@@ -106,4 +114,4 @@ class PayableTransaction(AbstractTransaction):
         self.db.add(transaction)
         self.db.add(fund_history)
 
-        return payment
+        return payment_db

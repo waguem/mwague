@@ -11,6 +11,7 @@ from mkdi_backend.api.deps import (
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.repositories.office import OfficeRepository
 from mkdi_shared.schemas import protocol
+from mkdi_backend.models.Activity import FundCommit
 from sqlmodel import Session
 
 router = APIRouter()
@@ -172,3 +173,15 @@ def get_office_health(
 ) -> protocol.OfficeHealth:
     """return the health of the office"""
     return OfficeRepository(db).get_health(user.office_id)
+
+
+@router.get("/organization/myoffice/fund_commits", status_code=200, response_model=List[FundCommit])
+def get_fund_commits(
+    *,
+    user: Annotated[KcUser, Security(check_authorization, scopes=["office_admin"])],
+    start_date: str | None = None,
+    end_date: str | None = None,
+    db: Session = Depends(get_db),
+) -> List[FundCommit]:
+    """return all daily fund commits for an office"""
+    return OfficeRepository(db).get_daily_fund_commits(user.office_id, start_date, end_date)

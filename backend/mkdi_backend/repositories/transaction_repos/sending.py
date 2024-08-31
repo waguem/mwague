@@ -125,6 +125,10 @@ class SendingTransaction(PayableTransaction):
             method=user_input.payment_method,
             receiver_initials=user_input.receiver_initials,
         )
+        message = dict()
+        message["date"] = datetime.datetime.isoformat(datetime.datetime.now())
+        message["message"] = self.get_inputs().message
+        sending.notes["notes"].append(message)
 
         self.db.add(sending)
 

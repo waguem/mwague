@@ -150,6 +150,7 @@ const InternalFormResolver: FormResolver = {
         rate: +parsed.data.rate,
       },
       currency: data.get("currency") as string,
+      message: parsed.data.message,
       data: {
         sender: parsed.data.sender,
         receiver: parsed.data.receiver,
@@ -180,6 +181,7 @@ const DepositFormResolver: FormResolver = {
         rate: +parsed.data.rate,
       },
       currency: data.get("currency") as string,
+      message: parsed.data.message,
       data: {
         receiver: parsed.data.receiver,
         type: "DEPOSIT",
@@ -209,6 +211,7 @@ const SendingFormResolver: FormResolver = {
         rate: +parsed.data.rate,
       },
       currency: data.get("currency") as string,
+      message: parsed.data.message,
       charges: {
         amount: charges.data ? +charges.data : 0,
         rate: +parsed.data.rate,
@@ -248,6 +251,7 @@ const ExternalFormResolver: FormResolver = {
         amount: charges.data ? +charges.data : 0,
         rate: +parsed.data.rate,
       },
+      message: parsed.data.message,
       data: {
         sender: parsed.data.sender,
         type: "EXTERNAL",
@@ -327,6 +331,7 @@ const ForexFromResolver: FormResolver = {
         amount: charges,
         rate: +parsed.data.daily_rate,
       },
+      message: parsed.data.message,
       data: {
         type: "FOREX",
         provider_account: parsed.data.provider_account,

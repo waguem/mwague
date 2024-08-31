@@ -1,18 +1,24 @@
-import AccountList from "@/components/apps/accounts/AccountList";
 import AddAgentAccountForm from "@/components/apps/accounts/AddAccountForm";
-import { getOfficeAccountsCached, getOfficeCached } from "@/lib/actions";
+import { OfficeFundDetail } from "@/components/apps/accounts/OfficeFundDetail";
+import { getDailyFundCommits, getOfficeAccountsCached, getOfficeCached } from "@/lib/actions";
+import { Box, Stack } from "@mantine/core";
 
 export default async function OfficeAccountsPage({
   params,
+  searchParams,
 }: {
   params: {
     slug: string;
   };
+  searchParams?: {
+    from: string;
+    to: string;
+  };
 }) {
   const officePromise = getOfficeCached(params.slug);
   const accountsPromise = getOfficeAccountsCached();
-
-  const [office, accounts] = await Promise.all([officePromise, accountsPromise]);
+  const fundCommitsPromise = getDailyFundCommits(searchParams?.from, searchParams?.to);
+  const [office, accounts, fundCommits] = await Promise.all([officePromise, accountsPromise, fundCommitsPromise]);
   const hasFund = accounts.some((account: any) => account.type === "FUND");
   const hasOffice = accounts.some((account: any) => account.type === "OFFICE");
   return (
@@ -22,7 +28,12 @@ export default async function OfficeAccountsPage({
           <AddAgentAccountForm initials={office.initials} type={hasFund ? "OFFICE" : "FUND"} />
         )}
       </div>
-      <AccountList accounts={accounts} />
+
+      <Box>
+        <Stack gap="md">
+          <OfficeFundDetail commits={fundCommits} office={office} />
+        </Stack>
+      </Box>
     </div>
   );
 }

@@ -1,13 +1,14 @@
 "use client";
 import { OfficeResponse, OfficeResult, TransactionState } from "@/lib/client";
 import { getBadgeType, getBadgeTypeFromResult, getStateBadge } from "@/lib/utils";
-import { ActionIcon, Badge, Box, Button, Group, NumberFormatter, Tooltip } from "@mantine/core";
+import { ActionIcon, Badge, Button, Group, NumberFormatter, Tooltip } from "@mantine/core";
 import { useClipboard } from "@mantine/hooks";
 import { IconCopy, IconDownload } from "@tabler/icons-react";
 import { MantineReactTable, MRT_ColumnDef, MRT_Row, useMantineReactTable } from "mantine-react-table";
 import { useMemo } from "react";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import DateRangePicker from "@/components/layouts/date-range-picker";
 
 interface Props {
   data: OfficeResult[];
@@ -16,7 +17,6 @@ interface Props {
 const ResultTable = ({ data }: Props) => {
   const memoizedData = useMemo(() => data, [data]);
   const clipboard = useClipboard({ timeout: 500 });
-
   const columns = useMemo<MRT_ColumnDef<OfficeResult>[]>(
     () => [
       {
@@ -116,16 +116,18 @@ const ResultTable = ({ data }: Props) => {
     paginationDisplayMode: "pages",
     data: memoizedData,
     renderTopToolbarCustomActions: ({ table }) => (
-      <Box>
+      <Group gap="xs">
+        <DateRangePicker />
         <Button
           onClick={handleExportRows(table.getPrePaginationRowModel().rows)}
           leftSection={<IconDownload size={16} />}
           size="xs"
           variant="outline"
+          radius="md"
         >
           Export to PDF
         </Button>
-      </Box>
+      </Group>
     ),
   });
 

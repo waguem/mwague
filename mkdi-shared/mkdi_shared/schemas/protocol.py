@@ -315,6 +315,7 @@ class TransactionRequest(BaseModel):
     currency: Currency | None
     amount: Amount
     charges: Amount | None
+    message: str | None
     transaction_type: Optional[TransactionType] = None
     data: Optional[
         Union[InternalRequest, DepositRequest, ExternalRequest, SendingRequest, ForExRequest]
@@ -350,9 +351,8 @@ class CreateOfficeRequest(OfficeBase):
 
 
 class Note(BaseModel):
-    content: str
-    created_by: str
-    created_at: str
+    date: str
+    message: str
 
 
 class NoteList(BaseModel):
@@ -550,3 +550,10 @@ class ReportResponse(BaseModel):
     """Monthly report response."""
 
     results: List[OfficeResult]
+
+
+class DateRange(BaseModel):
+    """Date range."""
+
+    start_date: datetime
+    end_date: datetime

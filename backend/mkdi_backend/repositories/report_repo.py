@@ -12,13 +12,25 @@ class ReportRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def get_monthly_report(self, office_id: str) -> protocol.ReportResponse:
+    def get_monthly_report(
+        self, office_id: str, start_date_str: str, end_date_str: str
+    ) -> protocol.ReportResponse:
         # This is a dummy implementation
         report = protocol.ReportResponse(results=[])
 
         today = datetime.now()
-        start_date = self._first_day_of_month(today)
-        end_date = self._last_day_of_month(today)
+
+        date_format = "%Y-%m-%dT%H:%M:%S.%fZ"
+
+        if not start_date_str:
+            start_date = self._first_day_of_month(today)
+        else:
+            start_date = self._start_of_day(datetime.strptime(start_date_str, date_format))
+
+        if not end_date_str:
+            end_date = self._last_day_of_month(today)
+        else:
+            end_date = self._end_of_day(datetime.strptime(end_date_str, date_format))
 
         internals = self._get_model_result(Internal, office_id, start_date, end_date)
         externals = self._get_model_result(External, office_id, start_date, end_date)
@@ -31,6 +43,12 @@ class ReportRepository:
         report.results.extend(forex)
 
         return report
+
+    def _start_of_day(self, date):
+        return date.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    def _end_of_day(self, date):
+        return date.replace(hour=23, minute=59, second=59)
 
     def _first_day_of_month(self, date):
         return date.replace(day=1)

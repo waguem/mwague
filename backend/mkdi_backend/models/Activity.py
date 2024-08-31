@@ -1,6 +1,6 @@
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, Annotated
 from uuid import UUID, uuid4
 
 import sqlalchemy as sa
@@ -23,7 +23,8 @@ class FundCommit(SQLModel, table=True):
 
     v_from: Decimal
     variation: Decimal
-    date: date
+    date: Annotated[datetime, Field(default_factory=datetime.now)]
+
     description: str = Field(max_length=128, nullable=True)
     activity_id: UUID = Field(foreign_key="activities.id")
     activity: "Activity" = Relationship(back_populates="fundcommits")  # type: ignore

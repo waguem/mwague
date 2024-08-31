@@ -21,6 +21,8 @@ import type {
   CreateWalletApiV1OrganizationOfficeWalletPostData,
   CreateWalletApiV1OrganizationOfficeWalletPostResponse,
   GetOfficeHealthApiV1OrganizationHealthGetResponse,
+  GetFundCommitsApiV1OrganizationMyofficeFundCommitsGetData,
+  GetFundCommitsApiV1OrganizationMyofficeFundCommitsGetResponse,
   GetEmployeesApiV1OfficeEmployeeGetResponse,
   UpdateOfficeEmployeesApiV1OfficeEmployeePutData,
   UpdateOfficeEmployeesApiV1OfficeEmployeePutResponse,
@@ -65,6 +67,7 @@ import type {
   GetWalletTradingsApiV1WalletWalletIdTradingsGetResponse,
   PayTradeApiV1WalletTradeTradeIdPayPostData,
   PayTradeApiV1WalletTradeTradeIdPayPostResponse,
+  GetMonthlyReportApiV1OfficeMonthlyReportGetData,
   GetMonthlyReportApiV1OfficeMonthlyReportGetResponse,
 } from "./types.gen";
 
@@ -310,6 +313,31 @@ export const getOfficeHealthApiV1OrganizationHealthGet =
       url: "/api/v1/organization/health",
     });
   };
+
+/**
+ * Get Fund Commits
+ * return all daily fund commits for an office
+ * @param data The data for the request.
+ * @param data.startDate
+ * @param data.endDate
+ * @returns FundCommit Successful Response
+ * @throws ApiError
+ */
+export const getFundCommitsApiV1OrganizationMyofficeFundCommitsGet = (
+  data: GetFundCommitsApiV1OrganizationMyofficeFundCommitsGetData = {}
+): CancelablePromise<GetFundCommitsApiV1OrganizationMyofficeFundCommitsGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/organization/myoffice/fund_commits",
+    query: {
+      start_date: data.startDate,
+      end_date: data.endDate,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
 
 /**
  * Get Employees
@@ -833,13 +861,24 @@ export const payTradeApiV1WalletTradeTradeIdPayPost = (
 
 /**
  * Get Monthly Report
+ * @param data The data for the request.
+ * @param data.startDate
+ * @param data.endDate
  * @returns ReportResponse Successful Response
  * @throws ApiError
  */
-export const getMonthlyReportApiV1OfficeMonthlyReportGet =
-  (): CancelablePromise<GetMonthlyReportApiV1OfficeMonthlyReportGetResponse> => {
-    return __request(OpenAPI, {
-      method: "GET",
-      url: "/api/v1/office/monthly-report",
-    });
-  };
+export const getMonthlyReportApiV1OfficeMonthlyReportGet = (
+  data: GetMonthlyReportApiV1OfficeMonthlyReportGetData = {}
+): CancelablePromise<GetMonthlyReportApiV1OfficeMonthlyReportGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/office/monthly-report",
+    query: {
+      start_date: data.startDate,
+      end_date: data.endDate,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
