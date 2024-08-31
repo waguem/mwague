@@ -77,7 +77,8 @@ class ExternalTransaction(PayableTransaction):
             v_from=(fund.balance + commited_amount),
             variation=commited_amount,
             activity_id=activity["id"],
-            description="External Transaction",
+            description=f"External {transaction.code}",
+            is_out=True,
             date=datetime.datetime.now(),
         )
         return commits, fund_history

@@ -1296,6 +1296,10 @@ export const $FundCommit = {
       format: "uuid",
       title: "Id",
     },
+    is_out: {
+      type: "boolean",
+      title: "Is Out",
+    },
     v_from: {
       type: "number",
       title: "V From",
@@ -1321,7 +1325,7 @@ export const $FundCommit = {
     },
   },
   type: "object",
-  required: ["v_from", "variation", "description", "activity_id"],
+  required: ["is_out", "v_from", "variation", "description", "activity_id"],
   title: "FundCommit",
 } as const;
 

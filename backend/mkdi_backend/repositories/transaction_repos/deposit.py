@@ -55,7 +55,8 @@ class DepositTransaction(AbstractTransaction):
             variation=transaction.amount,
             activity_id=self.activity.id,
             date=datetime.now(),
-            description="Deposit",
+            is_out=False,
+            description=f"Deposit {transaction.code}",
         )
 
     def commit(self, transaction: Deposit):

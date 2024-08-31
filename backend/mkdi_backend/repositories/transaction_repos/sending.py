@@ -64,7 +64,8 @@ class SendingTransaction(PayableTransaction):
             v_from=(fund.balance - commited_amount),
             variation=commited_amount,
             activity_id=activity["id"],
-            description="Sending Transaction",
+            description=f"Sending {transaction.code}",
+            is_out=False,
             date=datetime.datetime.now(),
         )
         return commits, fund_history

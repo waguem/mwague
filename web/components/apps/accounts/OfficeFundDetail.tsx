@@ -6,6 +6,7 @@ import { MantineReactTable, MRT_ColumnDef, useMantineReactTable } from "mantine-
 import { useMemo } from "react";
 import { isArray } from "lodash";
 import DateRangePicker from "@/components/layouts/date-range-picker";
+import { IconArrowDown, IconArrowUp } from "@tabler/icons-react";
 interface Props {
   office: OfficeResponse;
   commits: FundCommit[];
@@ -29,17 +30,70 @@ export const OfficeFundDetail = ({ commits }: Props) => {
         ),
       },
       {
-        header: "Balance",
-        accessorKey: "v_from",
-        Cell: ({ cell }) => (
-          <Badge variant="dot" color="cyan">
-            <NumberFormatter decimalScale={2} prefix={"$"} value={cell.getValue() as number} thousandSeparator />
+        header: "Fund In",
+        accessorKey: "variation",
+        id: "fund_in",
+        Cell: ({ cell, row }) => (
+          <>
+            {!row.original.is_out ? (
+              <Badge variant="dot" color="teal">
+                <NumberFormatter decimalScale={2} prefix={"$"} value={cell.getValue() as number} thousandSeparator />
+              </Badge>
+            ) : (
+              <Badge variant="dot" color="red">
+                <IconArrowDown color="red" size={12} />
+              </Badge>
+            )}
+          </>
+        ),
+        Footer: () => (
+          <Badge variant="outline" color="blue" size="lg">
+            Total &#8658; {""}
+            <NumberFormatter
+              prefix="$"
+              decimalScale={2}
+              thousandSeparator
+              value={table
+                .getFilteredRowModel()
+                .rows.reduce((acc, row) => acc + (row?.original?.is_out ? 0 : (row.original.variation as number)), 0)}
+            />
           </Badge>
         ),
       },
       {
-        header: "Amount",
+        header: "Fund Out",
         accessorKey: "variation",
+        id: "fund_out",
+        Cell: ({ cell, row }) => (
+          <>
+            {row.original.is_out ? (
+              <Badge variant="dot" color="red">
+                <NumberFormatter decimalScale={2} prefix={"$"} value={cell.getValue() as number} thousandSeparator />
+              </Badge>
+            ) : (
+              <Badge variant="dot" color="teal">
+                <IconArrowUp color="teal" size={12} />
+              </Badge>
+            )}
+          </>
+        ),
+        Footer: () => (
+          <Badge variant="outline" color="blue" size="lg">
+            Total &#8658; {""}
+            <NumberFormatter
+              prefix="$"
+              decimalScale={2}
+              thousandSeparator
+              value={table
+                .getFilteredRowModel()
+                .rows.reduce((acc, row) => acc + (row?.original?.is_out ? (row.original.variation as number) : 0), 0)}
+            />
+          </Badge>
+        ),
+      },
+      {
+        header: "Balance",
+        accessorKey: "v_from",
         Cell: ({ cell }) => (
           <Badge variant="dot" color="cyan">
             <NumberFormatter decimalScale={2} prefix={"$"} value={cell.getValue() as number} thousandSeparator />
@@ -51,7 +105,7 @@ export const OfficeFundDetail = ({ commits }: Props) => {
         accessorKey: "description",
       },
     ],
-    []
+    [table]
   );
   const table = useMantineReactTable({
     data: memoizedCommits,

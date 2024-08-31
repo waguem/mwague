@@ -8,6 +8,7 @@ import sqlalchemy.dialects.postgresql as pg
 from mkdi_shared.schemas.protocol import ActivityBase
 from pydantic import Field as PydanticField
 from sqlmodel import JSON, Field, Relationship, SQLModel
+from enum import Enum
 
 
 class FundCommit(SQLModel, table=True):
@@ -20,6 +21,8 @@ class FundCommit(SQLModel, table=True):
             server_default=sa.text("gen_random_uuid()"),
         )
     )
+
+    is_out: bool
 
     v_from: Decimal
     variation: Decimal

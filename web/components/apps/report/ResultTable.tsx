@@ -9,6 +9,7 @@ import { useMemo } from "react";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import DateRangePicker from "@/components/layouts/date-range-picker";
+import { formatDate, formatDistanceToNowStrict } from "date-fns";
 
 interface Props {
   data: OfficeResult[];
@@ -34,7 +35,20 @@ const ResultTable = ({ data }: Props) => {
         header: "Amount",
         accessorKey: "amount",
         Cell: ({ cell }) => (
-          <NumberFormatter decimalScale={2} prefix="$" thousandSeparator="," value={cell.getValue() as number} />
+          <Badge variant="dot" color="cyan">
+            <NumberFormatter decimalScale={2} prefix="$" thousandSeparator value={cell.getValue() as number} />
+          </Badge>
+        ),
+        Footer: () => (
+          <Badge variant="outline" color="blue" size="lg">
+            Total &#8658; {""}
+            <NumberFormatter
+              prefix="$"
+              decimalScale={2}
+              thousandSeparator
+              value={table.getFilteredRowModel().rows.reduce((acc, row) => acc + (row.original.amount as number), 0)}
+            />
+          </Badge>
         ),
       },
       {
@@ -54,7 +68,14 @@ const ResultTable = ({ data }: Props) => {
       {
         header: "Date",
         accessorKey: "date",
-        Cell: ({ cell }) => <div>{cell.getValue() as string}</div>,
+        Cell: ({ cell }) => (
+          <Group>
+            {formatDate(new Date(cell.getValue() as string), "MMM dd")}
+            <Badge variant="dot" color="gray">
+              {formatDistanceToNowStrict(new Date(cell.getValue() as string))}
+            </Badge>
+          </Group>
+        ),
       },
       {
         header: "Source",

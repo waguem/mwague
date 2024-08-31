@@ -47,6 +47,19 @@ const MantineTable = ({ data, office, employees }: Props) => {
     return ["EXTERNAL", "FOREX", "SENDING"].includes(type);
   };
 
+  const reduceChargeItems = (acc: number, row: any) => {
+    if (row.original.item.charges === undefined) return acc;
+    return acc + (row.original.item.charges as number);
+  };
+
+  const reduceAmountItems = (acc: number, row: any) => {
+    // flat out the amount if it is a forex transaction
+    if (row.original.item.type === "FOREX") {
+      return acc + (row.original.item as ForEx).amount / (row.original.item as ForEx).selling_rate;
+    }
+    return acc + (row.original.item.amount as number);
+  };
+
   //should be memoized or stable
   const columns = useMemo<MRT_ColumnDef<TransactionItem>[]>(
     () => [
@@ -77,6 +90,17 @@ const MantineTable = ({ data, office, employees }: Props) => {
         enableEditing: true,
         Cell: ({ cell }) => (
           <NumberFormatter decimalScale={2} prefix="$" thousandSeparator={","} value={cell.getValue() ?? (0 as any)} />
+        ),
+        Footer: () => (
+          <Badge variant="outline" color="blue" size="lg">
+            Total &#8658; {""}
+            <NumberFormatter
+              prefix="$"
+              decimalScale={2}
+              thousandSeparator
+              value={table.getFilteredRowModel().rows.reduce(reduceChargeItems, 0)}
+            />
+          </Badge>
         ),
       },
       {
@@ -121,6 +145,17 @@ const MantineTable = ({ data, office, employees }: Props) => {
             });
           },
         },
+        Footer: () => (
+          <Badge variant="outline" color="blue" size="lg">
+            Total &#8658; {""}
+            <NumberFormatter
+              prefix="$"
+              decimalScale={2}
+              thousandSeparator
+              value={table.getFilteredRowModel().rows.reduce(reduceAmountItems, 0)}
+            />
+          </Badge>
+        ),
       },
       {
         accessorKey: "item.state", //normal accessorKey

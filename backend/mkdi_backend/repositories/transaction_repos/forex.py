@@ -62,7 +62,8 @@ class ForExTransaction(PayableTransaction):
             v_from=(fund.balance + amount),
             variation=amount,
             activity_id=activity["id"],
-            description="Forex Transaction",
+            description=f"Forex {transaction.code}",
+            is_out=True,
             date=datetime.datetime.now(),
         )
         return commits, fund_history

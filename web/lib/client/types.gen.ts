@@ -393,6 +393,7 @@ export type ForExWithPayments = {
 
 export type FundCommit = {
   id?: string;
+  is_out: boolean;
   v_from: number;
   variation: number;
   date?: string;

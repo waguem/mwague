@@ -297,7 +297,8 @@ class WalletRepository:
             v_from=(fund.balance - fund_out),
             variation=fund_out,
             activity_id=activity.id,
-            description="Trade Payment",
+            description=f"Wallet Trade {trade.walletID}",
+            is_out=True,  # out
             date=datetime.now(),
         )
 
