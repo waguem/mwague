@@ -9,6 +9,14 @@ const nextConfig = {
   images: {
     domains: ["source.unsplash.com", "images.unsplash.com", "unsplash.com"],
   },
+  experimental: {
+    optimizePackageImports: [
+      '@mantine/core', 
+      '@mantine/hooks',
+      '@mantine/dates',
+      '@mantine/notifications'
+    ],
+  }
 };
 
 module.exports = nextConfig;

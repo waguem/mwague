@@ -1,31 +1,10 @@
-import { cache, Fragment } from "react";
-import { getOfficeAgents } from "@/lib/actions";
 import AgentTableMant from "@/components/apps/agents/AgentTable";
+import { getMyAgents } from "@/lib/actions";
 
-const getAgents = cache(async (officeId: string) => {
-  let response: Awaited<ReturnType<typeof getOfficeAgents>> = [];
-  try {
-    return await getOfficeAgents(officeId);
-  } catch (e) {
-    console.error(e);
-  }
-  return response;
-});
+export default async function AgentPage() {
+  const agents = await getMyAgents();
 
-export default async function AgentPage({
-  params,
-}: {
-  params: {
-    slug: string;
-  };
-}) {
-  const agents = await getAgents(params.slug);
-
-  return (
-    <Fragment>
-      <AgentTableMant agents={agents} />
-    </Fragment>
-  );
+  return <AgentTableMant agents={agents} />;
 }
 
 export const revalidate = 60 * 60 * 3;

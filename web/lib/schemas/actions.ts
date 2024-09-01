@@ -106,7 +106,7 @@ export const AddAgentSchema = zfd.formData({
   name: zfd.text(
     zod
       .string()
-      .min(3, "Too Short!")
+      .min(2, "Too Short!")
       .max(64, "Too Long!")
       .regex(/^[a-zA-Z\s]*$/, "Only Alphanumeric Characters are allowed!")
       .refine((value) => value.trim() !== "")
@@ -123,12 +123,6 @@ export const AddAgentSchema = zfd.formData({
   type: zod.enum(["AGENT", "SUPPLIER"]),
   country: zfd.text(zod.string()),
   phone: zfd.text(zod.string()),
-  email: zfd.text(
-    zod
-      .string()
-      .email("Invalid Email")
-      .refine((value) => value.trim() !== "")
-  ),
   // office_id is optional string
   office_id: zfd.text(zod.string().optional()),
 });

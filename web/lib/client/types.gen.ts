@@ -37,7 +37,6 @@ export type ActivityState = "OPEN" | "CLOSED" | "PAUSED";
 export type AgentReponseWithAccounts = {
   name: string;
   initials: string;
-  email: string;
   phone: string;
   country: string;
   type: AgentType;
@@ -47,7 +46,6 @@ export type AgentReponseWithAccounts = {
 export type AgentResponse = {
   name: string;
   initials: string;
-  email: string;
   phone: string;
   country: string;
   type: AgentType;
@@ -96,7 +94,6 @@ export type CreateActivityRequest = {
 export type CreateAgentRequest = {
   name: string;
   initials: string;
-  email: string;
   phone: string;
   country: string;
   type: AgentType;

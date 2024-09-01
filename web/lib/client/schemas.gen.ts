@@ -98,13 +98,6 @@ export const $AgentReponseWithAccounts = {
       unique: true,
       nullable: false,
     },
-    email: {
-      type: "string",
-      maxLength: 128,
-      title: "Email",
-      unique: true,
-      nullable: false,
-    },
     phone: {
       type: "string",
       maxLength: 16,
@@ -130,7 +123,7 @@ export const $AgentReponseWithAccounts = {
     },
   },
   type: "object",
-  required: ["name", "initials", "email", "phone", "country", "type"],
+  required: ["name", "initials", "phone", "country", "type"],
   title: "AgentReponseWithAccounts",
 } as const;
 
@@ -144,13 +137,6 @@ export const $AgentResponse = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
-      nullable: false,
-    },
-    email: {
-      type: "string",
-      maxLength: 128,
-      title: "Email",
       unique: true,
       nullable: false,
     },
@@ -171,7 +157,7 @@ export const $AgentResponse = {
     },
   },
   type: "object",
-  required: ["name", "initials", "email", "phone", "country", "type"],
+  required: ["name", "initials", "phone", "country", "type"],
   title: "AgentResponse",
 } as const;
 
@@ -298,13 +284,6 @@ export const $CreateAgentRequest = {
       unique: true,
       nullable: false,
     },
-    email: {
-      type: "string",
-      maxLength: 128,
-      title: "Email",
-      unique: true,
-      nullable: false,
-    },
     phone: {
       type: "string",
       maxLength: 16,
@@ -322,7 +301,7 @@ export const $CreateAgentRequest = {
     },
   },
   type: "object",
-  required: ["name", "initials", "email", "phone", "country", "type"],
+  required: ["name", "initials", "phone", "country", "type"],
   title: "CreateAgentRequest",
 } as const;
 

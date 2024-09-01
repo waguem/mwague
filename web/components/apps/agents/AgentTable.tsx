@@ -1,75 +1,64 @@
 "use client";
 import { getDefaultMRTOptions } from "@/components/mantine";
 import { addAgent } from "@/lib/actions";
-import { AgentResponse } from "@/lib/client";
+import { AgentReponseWithAccounts, AgentType } from "@/lib/client";
 import { agentTypeOptions, countryOptions } from "@/lib/utils";
-import { ActionIcon, Avatar, Box, Button, Group, Tooltip } from "@mantine/core";
-import { notifications } from "@mantine/notifications";
-import { IconEye, IconUserPlus } from "@tabler/icons-react";
+import { ActionIcon, Badge, Button, Group, NumberFormatter, Tooltip } from "@mantine/core";
+import { IconArrowRight, IconDownload, IconUserPlus } from "@tabler/icons-react";
 import { MantineReactTable, MRT_ColumnDef, MRT_TableOptions, useMantineReactTable } from "mantine-react-table";
 import { useMemo, useState, useTransition } from "react";
+import { decodeNotification } from "../notifications/notifications";
+import { isArray } from "lodash";
+import CreateAccount from "../accounts/CreateAccount";
 
 interface AgentTableProps {
-  agents: AgentResponse[];
+  agents: AgentReponseWithAccounts[];
 }
-const options = getDefaultMRTOptions<AgentResponse>();
+const options = getDefaultMRTOptions<AgentReponseWithAccounts>();
 
 export default function AgentTableMant({ agents }: AgentTableProps) {
   const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
 
   const [isCreating, startTransition] = useTransition();
   //keep track of rows that have been edited
-  const [editedAgents, setEditedAgents] = useState<Record<string, AgentResponse>>({});
+  const [editedAgents, setEditedAgents] = useState<Record<string, AgentReponseWithAccounts>>({});
 
-  const handleNewAgent: MRT_TableOptions<AgentResponse>["onCreatingRowSave"] = async ({ values, exitCreatingMode }) => {
-    const create = async (agent: AgentResponse) => {
+  const handleNewAgent: MRT_TableOptions<AgentReponseWithAccounts>["onCreatingRowSave"] = async ({
+    values,
+    exitCreatingMode,
+  }) => {
+    const create = async (agent: AgentReponseWithAccounts) => {
       const response = await addAgent(null, agent as any);
-      if (response?.status === "success") {
-        // show notification
-        notifications.show({
-          message: response.message,
-          color: "teal",
-          withBorder: true,
-          title: "Success",
-          withCloseButton: true,
-          autoClose: 2000,
-        });
-      } else if (response?.status === "error") {
-        // show error for all found erros
-        response.errors?.forEach((error: any) => {
-          notifications.show({
-            message: error.message,
-            color: "red",
-            title: "Error",
-            withBorder: true,
-            withCloseButton: true,
-            autoClose: 5000,
-          });
-        });
-      }
+      decodeNotification("New Agent", response);
     };
-
-    const newValidationErrors = validateAgent(values);
-    if (Object.values(newValidationErrors).some((error) => !!error)) {
-      console.log("Couldn't submit data with Error : ", newValidationErrors);
-      setValidationErrors(newValidationErrors);
-      return;
-    }
 
     startTransition(() => create(values));
 
     exitCreatingMode();
   };
 
-  const columns = useMemo<MRT_ColumnDef<AgentResponse>[]>(
+  const columns = useMemo<MRT_ColumnDef<AgentReponseWithAccounts>[]>(
     () => [
       {
         accessorKey: "initials",
         header: "Initials",
-        Cell: ({ cell }) => (
-          <Box>
-            <Avatar key={cell.id} name={cell.getValue() as string} color="initials" />
-          </Box>
+        Cell: ({ cell, row }) => (
+          <Group>
+            <Tooltip label="Visit">
+              <Button
+                variant="outline"
+                radius={"md"}
+                color="cyan"
+                size="xs"
+                component="a"
+                href={`/dashboard/agent/${row.original.initials}`}
+              >
+                page
+                <IconArrowRight size={16} />
+              </Button>
+            </Tooltip>
+            {cell.getValue() as string}
+          </Group>
         ),
         enableEditing: true,
         mantineEditTextInputProps: ({ cell, row }) => ({
@@ -106,24 +95,6 @@ export default function AgentTableMant({ agents }: AgentTableProps) {
           error: validationErrors?.[cell.id],
           onBlur: (event) => {
             const validationError = !/^[a-zA-Z\s]{2,64}$/.test(event.currentTarget.value) ? "Invalid Name" : undefined;
-            setValidationErrors({
-              ...validationErrors,
-              [cell.id]: validationError,
-            });
-          },
-        }),
-      },
-      {
-        accessorKey: "email",
-        header: "Email",
-        enableEditing: true,
-        mantineEditTextInputProps: ({ cell }) => ({
-          type: "email",
-          required: true,
-          error: validationErrors?.[cell.id],
-          onBlur: (event) => {
-            const validationError = !validateEmail(event.currentTarget.value) ? "Invalid Email" : undefined;
-            console.log("Validation Email ", validationError);
             setValidationErrors({
               ...validationErrors,
               [cell.id]: validationError,
@@ -176,6 +147,35 @@ export default function AgentTableMant({ agents }: AgentTableProps) {
         mantineEditSelectProps: ({}) => ({
           data: agentTypeOptions,
         }),
+        Cell: ({ cell }) => {
+          return (
+            <Badge variant="dot" color={(cell.getValue() as AgentType) == "AGENT" ? "teal" : "indigo"} size="md">
+              {cell.getValue() as string}
+            </Badge>
+          );
+        },
+      },
+      {
+        header: "Accounts",
+        accessorKey: "accounts",
+        enableEditing: false,
+        sortingFn: (rowA, rowB) => {
+          const balanceA = rowA.original.accounts?.reduce((acc, account) => acc + account.balance, 0) ?? 0;
+          const balanceB = rowB.original.accounts?.reduce((acc, account) => acc + account.balance, 0) ?? 0;
+          return balanceA > balanceB ? -1 : 1;
+        },
+        Cell: ({ row }) => {
+          let balance = 0;
+          if (isArray(row.original.accounts)) {
+            balance = row.original.accounts?.reduce((acc, account) => acc + account.balance, 0) ?? 0;
+          }
+
+          return (
+            <Badge variant="dot" color={balance >= 0 ? "cyan" : "red"} size="md">
+              <NumberFormatter thousandSeparator decimalScale={2} prefix="$" value={balance} />
+            </Badge>
+          );
+        },
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -186,7 +186,7 @@ export default function AgentTableMant({ agents }: AgentTableProps) {
     ...options,
     columns,
     enableRowActions: false,
-    getRowId: (row) => row.email,
+    getRowId: (row) => row.initials,
     createDisplayMode: "row",
     editDisplayMode: "row",
     data: agents,
@@ -205,24 +205,27 @@ export default function AgentTableMant({ agents }: AgentTableProps) {
     renderRowActions: ({ row }) => {
       return (
         <Group gap={"xs"} justify="center">
-          {/* <Tooltip label="Edit">
-            <ActionIcon variant="outline" radius={"md"} color="cyan">
-              <IconEdit size={20} />
-            </ActionIcon>
-          </Tooltip> */}
-          <Tooltip label="Visit">
-            <ActionIcon
-              variant="outline"
-              radius={"md"}
-              color="gray"
-              component="a"
-              href={`/dashboard/agent/${row.original.initials}`}
-            >
-              <IconEye size={20} />
+          {row.original.accounts?.length === 0 && (
+            <Tooltip label="Create account">
+              <CreateAccount owner_initials={row.original.initials} />
+            </Tooltip>
+          )}
+          <Tooltip label="Download Report">
+            <ActionIcon variant="outline" size={"md"} radius={"md"} color="gray">
+              <IconDownload size={16} />
             </ActionIcon>
           </Tooltip>
         </Group>
       );
+    },
+    initialState: {
+      density: "xs",
+      sorting: [
+        {
+          id: "accounts",
+          desc: false,
+        },
+      ],
     },
     state: {
       isLoading: false,
@@ -231,21 +234,4 @@ export default function AgentTableMant({ agents }: AgentTableProps) {
     },
   });
   return <MantineReactTable table={table} />;
-}
-
-const validateEmail = (email: string) =>
-  !!email.length &&
-  email
-    .toLowerCase()
-    .match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    );
-
-function validateAgent(agent: AgentResponse) {
-  return {
-    initials: !/^[a-zA-Z]{2,4}$/.test(agent.initials) ? "Invalid Initials" : undefined,
-    name: !/^[a-zA-Z\s]{2,64}$/.test(agent.name) ? "Invalid Name" : undefined,
-    email: !validateEmail(agent.email) ? "Invalid Email" : undefined,
-    country: !countryOptions.map(({ value }) => value).includes(agent.country) ? "Invalid Country" : undefined,
-  };
 }

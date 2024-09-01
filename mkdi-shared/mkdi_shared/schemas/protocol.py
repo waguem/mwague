@@ -150,7 +150,6 @@ class PaymentResponse(PaymentBase):
 class AgentBase(SQLModel):
     name: str
     initials: str = Field(nullable=False, max_length=4, unique=True)
-    email: str = Field(nullable=False, max_length=128, unique=True)
     phone: str = Field(nullable=False, max_length=16)
     country: str = Field(nullable=False, max_length=64)
     type: AgentType
