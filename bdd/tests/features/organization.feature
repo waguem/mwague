@@ -101,14 +101,14 @@ Feature: Organization and Office Management
 
         Examples:
             | username     | password  | role         | data                                                                                                    |
-            | wagueAdmin   | waguepass | office_admin | {"name":"Guanzu","initials":"GZ","email":"guanzu@gmail.com","phone":"+91565894","country":"Senegal"}    |
-            | wagueAdmin   | waguepass | office_admin | {"name":"Mamadou","initials":"MD","email":"mamadou@gmail.com","phone":"+91565894","country":"Mali"}     |
+            | wagueAdmin   | waguepass | office_admin | {"name":"Guanzu","initials":"GZ","phone":"+91565894","country":"Senegal"}    |
+            | wagueAdmin   | waguepass | office_admin | {"name":"Mamadou","initials":"MD","phone":"+91565894","country":"Mali"}     |
 
-            | botoreAdmin  | botorepass | office_admin | {"name":"Aissatou","initials":"AST","email":"aissatou@gmail.com","phone":"+91565894","country":"Mali"}  |
-            | botoreAdmin  | botorepass | office_admin | {"name":"Omar","initials":"OM","email":"omar@gmail.com","phone":"+91565894","country":"Guinea"}         |
+            | botoreAdmin  | botorepass | office_admin | {"name":"Aissatou","initials":"AST","phone":"+91565894","country":"Mali"}  |
+            | botoreAdmin  | botorepass | office_admin | {"name":"Omar","initials":"OM","phone":"+91565894","country":"Guinea"}         |
 
-            | samAdmin     | sampass   | office_admin | {"name":"Alice","initials":"AL","email":"alice@gmail.com","phone":"+91565894","country":"France"}       |
-            | samAdmin     | sampass   | office_admin | {"name":"Bob", "initials":"BOB","email":"bob@gmail.com","phone":"+91565894","country":"Burkina Faso"}   |
+            | samAdmin     | sampass   | office_admin | {"name":"Alice","initials":"AL","phone":"+91565894","country":"France"}       |
+            | samAdmin     | sampass   | office_admin | {"name":"Bob", "initials":"BOB","phone":"+91565894","country":"Burkina Faso"}   |
 
 
     @create_agent

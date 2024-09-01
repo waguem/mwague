@@ -10,7 +10,7 @@ const nextConfig = {
     domains: ["source.unsplash.com", "images.unsplash.com", "unsplash.com"],
   },
   experimental: {
-    optimizePackageImports: ["@mantine/core", "@mantine/hooks", "@mantine/dates", "@mantine/notifications"],
+    optimizePackageImports: ["@mantine/core", "@mantine/hooks", "@mantine/dates"],
   },
 };
 
