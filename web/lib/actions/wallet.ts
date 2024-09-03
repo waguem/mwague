@@ -28,11 +28,10 @@ export const tradeWallet = async (tradingRequest: TradeWalletReq, path: string) 
     }
 
     // make request
-    const response = await tradeWalletApiV1WalletPost({
+    await tradeWalletApiV1WalletPost({
       requestBody: validated.data,
     });
 
-    console.log(response);
     // revalidatePath
     revalidatePath(path);
 
@@ -53,10 +52,9 @@ export const getWalletTradings = async (walletID: string) => {
 
 export const payTrade = async (walletID: string, tradeID: string) => {
   return withToken(async () => {
-    const response = await payTradeApiV1WalletTradeTradeIdPayPost({
+    await payTradeApiV1WalletTradeTradeIdPayPost({
       tradeId: tradeID,
     });
-    console.log(response);
     revalidatePath(`/dashboard/wallet/${walletID}`);
     return {
       status: "success",

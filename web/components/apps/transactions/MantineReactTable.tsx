@@ -5,7 +5,7 @@ import "mantine-react-table/styles.css"; //make sure MRT styles were imported in
 import { useMemo, useState, useTransition } from "react";
 import { NumberFormatter, Badge, ActionIcon, Box, Tooltip, Group, Avatar } from "@mantine/core";
 import { IconEyeCheck, IconEdit, IconCash } from "@tabler/icons-react";
-import { formatDistanceToNowStrict } from "date-fns";
+import { formatDate, formatDistanceToNowStrict } from "date-fns";
 import { MantineReactTable, useMantineReactTable, MRT_TableOptions, type MRT_ColumnDef } from "mantine-react-table";
 import {
   Currency,
@@ -17,7 +17,7 @@ import {
   TransactionType,
 } from "@/lib/client";
 import TransactionReview from "./TransactionReview";
-import { getBadgeType, getMoneyPrefix, getStateBadge } from "@/lib/utils";
+import { getBadgeType, getMoneyPrefix, getStateBadge, formDateToMyLocal } from "@/lib/utils";
 import PayTransaction from "./PayTransaction";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -59,7 +59,6 @@ const MantineTable = ({ data, office, employees }: Props) => {
     }
     return acc + (row.original.item.amount as number);
   };
-
   //should be memoized or stable
   const columns = useMemo<MRT_ColumnDef<TransactionItem>[]>(
     () => [
@@ -116,21 +115,25 @@ const MantineTable = ({ data, office, employees }: Props) => {
             currency = tr.currency;
           }
           return (
-            <Group>
+            <Group gap={"xs"}>
               {cell.row.original.item.type === "FOREX" && (
-                <NumberFormatter
-                  decimalScale={3}
-                  prefix={`${getMoneyPrefix(fCurrency)}`}
-                  thousandSeparator
-                  value={(cell.row.original.item as ForEx).amount / (cell.row.original.item as ForEx).selling_rate}
-                />
+                <Badge variant="dot" color="gray" size="md">
+                  <NumberFormatter
+                    decimalScale={3}
+                    prefix={`${getMoneyPrefix(fCurrency)}`}
+                    thousandSeparator
+                    value={(cell.row.original.item as ForEx).amount / (cell.row.original.item as ForEx).selling_rate}
+                  />
+                </Badge>
               )}
-              <NumberFormatter
-                decimalScale={2}
-                prefix={`${getMoneyPrefix(currency)}`}
-                thousandSeparator
-                value={cell.getValue() as string}
-              />
+              <Badge variant="dot" color="cyan" size="md">
+                <NumberFormatter
+                  decimalScale={2}
+                  prefix={`${getMoneyPrefix(currency)}`}
+                  thousandSeparator
+                  value={cell.getValue() as string}
+                />
+              </Badge>
             </Group>
           );
         },
@@ -186,13 +189,19 @@ const MantineTable = ({ data, office, employees }: Props) => {
         accessorKey: "item.created_at",
         enableEditing: false,
         header: "Date",
+        sortingFn: (rowA, rowB) => {
+          return new Date(rowA.original.item?.created_at ?? "").getTime() >
+            new Date(rowB.original.item?.created_at ?? "").getTime()
+            ? -1
+            : 1;
+        },
         Cell: ({ cell }) => (
-          <Group>
-            <Badge color="gray" size="sm" style={{ marginLeft: 0 }}>
-              {formatDistanceToNowStrict(new Date(cell.getValue() as string), {
-                addSuffix: true,
-                roundingMethod: "ceil",
-              })}
+          <Group gap={"xs"}>
+            <Badge variant="dot" color="gray" size="md">
+              {formatDate(cell.getValue() as string, "MMM dd")}
+            </Badge>
+            <Badge variant="dot" color="pink" size="sm" style={{ marginLeft: 0 }}>
+              {formatDistanceToNowStrict(formDateToMyLocal(cell.getValue() as string), { addSuffix: true })}
             </Badge>
           </Group>
         ),
@@ -245,6 +254,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
     editDisplayMode: "row", // ('modal', 'cell', 'table', and 'custom' are also available)
     initialState: {
       density: "xs",
+      sorting: [{ id: "item.created_at", desc: false }],
     },
     onEditingRowSave: handleEditTransaction,
     renderRowActions: ({ row }) => (
@@ -253,13 +263,13 @@ const MantineTable = ({ data, office, employees }: Props) => {
           <ActionIcon
             color="green"
             variant="outline"
-            radius={"xl"}
+            radius={"md"}
             onClick={() => {
               setReviewing(row.index);
               openReview();
             }}
           >
-            <IconEyeCheck size={20} />
+            <IconEyeCheck size={18} />
           </ActionIcon>
         </Tooltip>
         {(row.getValue("item.state") === "REVIEW" || row.getValue("item.state") === "REJECTED") && (
@@ -267,12 +277,12 @@ const MantineTable = ({ data, office, employees }: Props) => {
             <ActionIcon
               color="red"
               variant="outline"
-              radius={"xl"}
+              radius={"md"}
               onClick={() => {
                 table.setEditingRow(row);
               }}
             >
-              <IconEdit size={20} />
+              <IconEdit size={18} />
             </ActionIcon>
           </Tooltip>
         )}
@@ -282,19 +292,20 @@ const MantineTable = ({ data, office, employees }: Props) => {
             <ActionIcon
               color="cyan"
               variant="outline"
-              radius={"xl"}
+              radius={"md"}
               onClick={() => {
                 setPaying(row.index);
                 open();
               }}
             >
-              <IconCash size={20} />
+              <IconCash size={18} />
             </ActionIcon>
           </Tooltip>
         )}
       </Box>
     ),
     data, //must be memoized or stable (useState, useMemo, defined outside of this component, etc.)
+
     state: {
       isSaving: pending,
     },
@@ -305,7 +316,13 @@ const MantineTable = ({ data, office, employees }: Props) => {
 
   return (
     <>
-      <TransactionReview row={data[revewing]} close={closeReview} opened={reviewOpened} office={office} />
+      <TransactionReview
+        row={data[revewing]}
+        close={closeReview}
+        opened={reviewOpened}
+        office={office}
+        getEmployee={getAvatarGroup}
+      />
       <PayTransaction
         row={data[paying]?.item}
         close={close}
@@ -321,7 +338,6 @@ const MantineTable = ({ data, office, employees }: Props) => {
 export default MantineTable;
 
 function validateTransaction(transaction: any) {
-  console.log(transaction);
   return {
     amount: !(Number(transaction["item.amount"]) && +transaction["item.amount"] > 0) ? "Amount is Required" : "",
   };

@@ -26,7 +26,6 @@ export default function OfficeInfo({ office, HealthCheck }: Props) {
           data[n] = fields[n];
         }
       }
-      console.log("Data", data);
       if (Object.keys(data).length === 0) {
         return;
       }
@@ -82,7 +81,6 @@ export default function OfficeInfo({ office, HealthCheck }: Props) {
   };
 
   const handleBtnClick = (fields: string | string[]) => {
-    console.log(fields);
     if (!isArray(fields)) {
       if (editing[fields]) {
         startTransition(() => saveEdit(fields));

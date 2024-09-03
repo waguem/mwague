@@ -2,7 +2,8 @@
 
 from typing import List
 import random
-import datetime
+
+from datetime import datetime
 import string
 
 from sqlalchemy.ext.asyncio.session import AsyncSession
@@ -19,6 +20,7 @@ from mkdi_backend.repositories.transaction_repos.invariant import (
 from mkdi_backend.utils.database import CommitMode
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol as pr
+import json
 
 
 class ExternalTransaction(PayableTransaction):
@@ -79,7 +81,7 @@ class ExternalTransaction(PayableTransaction):
             activity_id=activity["id"],
             description=f"External {transaction.code}",
             is_out=True,
-            date=datetime.datetime.now(),
+            date=datetime.now(),
         )
         return commits, fund_history
 
@@ -164,8 +166,16 @@ class ExternalTransaction(PayableTransaction):
             customer=user_input.customer.dict() if user_input.customer else {},
             created_by=user.user_db_id,
             history={"history": []},
-            notes={"notes": []},
         )
+
+        notes = []
+        message = dict()
+        message["date"] = datetime.isoformat(datetime.now())
+        message["message"] = self.get_inputs().message
+        message["type"] = "REQUEST"
+        message["user"] = user.user_db_id
+        notes.append(message)
+        external.notes = json.dumps(notes)
 
         self.db.add(external)
 

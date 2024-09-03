@@ -112,7 +112,6 @@ export default function AgentTableMant({ agents }: AgentTableProps) {
           error: validationErrors?.[cell.id],
           onBlur: (event) => {
             const validationError = !/^\d{10,14}$/.test(event.currentTarget.value) ? "Invalid Phone" : undefined;
-            console.log(validationErrors);
             setValidationErrors({
               ...validationErrors,
               [cell.id]: validationError,

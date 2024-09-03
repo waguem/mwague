@@ -41,10 +41,9 @@ const Sidebar = () => {
       return oldValue === value ? "" : value;
     });
   };
-
+  console.log(toggleMenu);
   useEffect(() => {
     const selector = document.querySelector('.sidebar ul a[href="' + window.location.pathname + '"]');
-    console.log(toggleMenu);
     if (selector) {
       selector.classList.add("active");
       const ul: any = selector.closest("ul.sub-menu");

@@ -25,6 +25,7 @@ from mkdi_shared.schemas import protocol as pr
 from mkdi_backend.repositories.transaction_repos.invariant import has_activity_started
 
 from sqlmodel import Session, select
+import json
 
 
 class AbstractTransaction(ABC):
@@ -251,6 +252,17 @@ class AbstractTransaction(ABC):
                 raise MkdiError(
                     error_code=MkdiErrorCode.INVALID_INPUT, message="Invalid transaction request"
                 )
+
+            user_input: pr.TransactionReviewReq = self.get_inputs()
+            note = user_input.notes or ""
+            message = dict()
+            notes = json.loads(transaction.notes)
+            message["date"] = datetime.isoformat(datetime.now())
+            message["message"] = note
+            message["type"] = "REVIEW"
+            message["user"] = self.user.user_db_id
+            notes.append(message)
+            transaction.notes = json.dumps(notes)
 
             transaction = review(transaction)
         except Exception as e:

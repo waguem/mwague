@@ -352,6 +352,8 @@ class CreateOfficeRequest(OfficeBase):
 class Note(BaseModel):
     date: str
     message: str
+    type: str
+    user: str | None
 
 
 class NoteList(BaseModel):
@@ -369,7 +371,7 @@ class TransactionBase(SQLModel):
 
 class TransactionResponse(TransactionBase):
     charges: Annotated[Decimal, Field(strict=True, ge=0)] | None
-    notes: NoteList
+    notes: str | None
 
 
 class TransactionDB(TransactionBase):
@@ -393,9 +395,7 @@ class TransactionDB(TransactionBase):
         default={}, sa_column=sa.Column(MutableDict.as_mutable(pg.JSONB))
     )
 
-    notes: Mapping[Any, Mapping | Any] = SQLModelField(
-        default={}, sa_column=sa.Column(MutableDict.as_mutable(pg.JSONB))
-    )
+    notes: str = Field(default="[]", nullable=False)
 
     def to_response(self) -> TransactionResponse:
         return TransactionResponse(**self.dict())

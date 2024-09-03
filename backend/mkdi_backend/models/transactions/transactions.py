@@ -130,10 +130,6 @@ class Sending(SendingBase, table=True):
         return SendingWithPayments(**self.dict(), payments=payments)
 
 
-class TransactionItem(BaseModel):
-    item: Union[Internal, Deposit, Sending, ForEx, External]
-
-
 class Rate(SQLModel):
     quotient: Decimal
     divider: Decimal

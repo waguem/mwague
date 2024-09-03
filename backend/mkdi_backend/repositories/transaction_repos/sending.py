@@ -3,7 +3,7 @@
 from typing import List
 import random
 import string
-import datetime
+from datetime import datetime
 
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from sqlalchemy import select, or_, and_
@@ -16,6 +16,7 @@ from mkdi_backend.utils.database import CommitMode
 from mkdi_backend.models.Activity import FundCommit
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol as pr
+import json
 
 
 class SendingTransaction(PayableTransaction):
@@ -66,7 +67,7 @@ class SendingTransaction(PayableTransaction):
             activity_id=activity["id"],
             description=f"Sending {transaction.code}",
             is_out=False,
-            date=datetime.datetime.now(),
+            date=datetime.now(),
         )
         return commits, fund_history
 
@@ -126,11 +127,16 @@ class SendingTransaction(PayableTransaction):
             method=user_input.payment_method,
             receiver_initials=user_input.receiver_initials,
         )
-        message = dict()
-        message["date"] = datetime.datetime.isoformat(datetime.datetime.now())
-        message["message"] = self.get_inputs().message
-        sending.notes["notes"].append(message)
 
+        notes = []
+        message = dict()
+        message["date"] = datetime.isoformat(datetime.now())
+        message["message"] = self.get_inputs().message
+        message["type"] = "REQUEST"
+        message["user"] = user.user_db_id
+        notes.append(message)
+
+        sending.notes = json.dumps(notes)
         self.db.add(sending)
 
         return sending

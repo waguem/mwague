@@ -172,7 +172,7 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
             allowNegative={false}
             decimalScale={5}
             value={form.values.buyingRate}
-            leftSection={getMoneyIcon(baseCurrency?.name, 16)}
+            leftSection={getMoneyIcon(form.values.currency, 16)}
             onChange={(value) => form.setFieldValue("buyingRate", Number(value))}
             thousandSeparator=","
           />
@@ -183,7 +183,7 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
             required
             allowNegative={false}
             value={form.values.sellingRate}
-            leftSection={getMoneyIcon(baseCurrency?.name, 16)}
+            leftSection={getMoneyIcon(form.values.currency, 16)}
             onChange={(value) => {
               form.setValues({
                 ...form.values,

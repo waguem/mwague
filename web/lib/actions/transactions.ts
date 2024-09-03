@@ -55,7 +55,6 @@ export async function addTransaction(prevSate: State, data: FormData): Promise<S
       return { message: `${response.type} Transaction ${response.code} added successfully`, status: "success" };
     } catch (e) {
       if (e instanceof ApiError) {
-        console.log(e.body);
         return {
           status: "error",
           message: e.message,
@@ -81,8 +80,6 @@ export const reviewTransaction = async (prevSate: State, data: ReviewFormData): 
   return withToken(async () => {
     const validation = TransactionReviewResolver.safeParse(data);
     const { officeId } = data;
-    console.log(data);
-
     if (!validation.success) {
       return { message: "Invalid review data", status: "error" };
     }
@@ -156,7 +153,6 @@ export const payTransaction = async (officeId: string, data: PaymentRequest): Pr
   return withToken(async () => {
     const validation = PaymentResolver.safeParse(data);
     if (!validation.success) {
-      console.log(validation.error);
       return {
         status: "error",
         message: "Invalid payment data",

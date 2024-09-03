@@ -504,17 +504,10 @@ export const $Deposit = {
       default: {},
     },
     notes: {
-      additionalProperties: {
-        anyOf: [
-          {
-            type: "object",
-          },
-          {},
-        ],
-      },
-      type: "object",
+      type: "string",
       title: "Notes",
-      default: {},
+      default: "[]",
+      nullable: false,
     },
     owner_initials: {
       type: "string",
@@ -727,17 +720,10 @@ export const $External = {
       default: {},
     },
     notes: {
-      additionalProperties: {
-        anyOf: [
-          {
-            type: "object",
-          },
-          {},
-        ],
-      },
-      type: "object",
+      type: "string",
       title: "Notes",
-      default: {},
+      default: "[]",
+      nullable: false,
     },
     sender_initials: {
       type: "string",
@@ -871,17 +857,10 @@ export const $ExternalWithPayments = {
       default: {},
     },
     notes: {
-      additionalProperties: {
-        anyOf: [
-          {
-            type: "object",
-          },
-          {},
-        ],
-      },
-      type: "object",
+      type: "string",
       title: "Notes",
-      default: {},
+      default: "[]",
+      nullable: false,
     },
     sender_initials: {
       type: "string",
@@ -1000,17 +979,10 @@ export const $ForEx = {
       default: {},
     },
     notes: {
-      additionalProperties: {
-        anyOf: [
-          {
-            type: "object",
-          },
-          {},
-        ],
-      },
-      type: "object",
+      type: "string",
       title: "Notes",
-      default: {},
+      default: "[]",
+      nullable: false,
     },
     currency: {
       $ref: "#/components/schemas/Currency",
@@ -1195,17 +1167,10 @@ export const $ForExWithPayments = {
       default: {},
     },
     notes: {
-      additionalProperties: {
-        anyOf: [
-          {
-            type: "object",
-          },
-          {},
-        ],
-      },
-      type: "object",
+      type: "string",
       title: "Notes",
-      default: {},
+      default: "[]",
+      nullable: false,
     },
     currency: {
       $ref: "#/components/schemas/Currency",
@@ -1391,17 +1356,10 @@ export const $Internal = {
       default: {},
     },
     notes: {
-      additionalProperties: {
-        anyOf: [
-          {
-            type: "object",
-          },
-          {},
-        ],
-      },
-      type: "object",
+      type: "string",
       title: "Notes",
-      default: {},
+      default: "[]",
+      nullable: false,
     },
     sender_initials: {
       type: "string",
@@ -1467,25 +1425,18 @@ export const $Note = {
       type: "string",
       title: "Message",
     },
-  },
-  type: "object",
-  required: ["date", "message"],
-  title: "Note",
-} as const;
-
-export const $NoteList = {
-  properties: {
-    notes: {
-      items: {
-        $ref: "#/components/schemas/Note",
-      },
-      type: "array",
-      title: "Notes",
-      default: [],
+    type: {
+      type: "string",
+      title: "Type",
+    },
+    user: {
+      type: "string",
+      title: "User",
     },
   },
   type: "object",
-  title: "NoteList",
+  required: ["date", "message", "type"],
+  title: "Note",
 } as const;
 
 export const $OfficeHealth = {
@@ -1939,17 +1890,10 @@ export const $Sending = {
       default: {},
     },
     notes: {
-      additionalProperties: {
-        anyOf: [
-          {
-            type: "object",
-          },
-          {},
-        ],
-      },
-      type: "object",
+      type: "string",
       title: "Notes",
-      default: {},
+      default: "[]",
+      nullable: false,
     },
     receiver_initials: {
       type: "string",
@@ -2078,17 +2022,10 @@ export const $SendingWithPayments = {
       default: {},
     },
     notes: {
-      additionalProperties: {
-        anyOf: [
-          {
-            type: "object",
-          },
-          {},
-        ],
-      },
-      type: "object",
+      type: "string",
       title: "Notes",
-      default: {},
+      default: "[]",
+      nullable: false,
     },
     receiver_initials: {
       type: "string",
@@ -2161,9 +2098,16 @@ export const $TransactionItem = {
       ],
       title: "Item",
     },
+    notes: {
+      items: {
+        $ref: "#/components/schemas/Note",
+      },
+      type: "array",
+      title: "Notes",
+    },
   },
   type: "object",
-  required: ["item"],
+  required: ["item", "notes"],
   title: "TransactionItem",
 } as const;
 
@@ -2256,11 +2200,12 @@ export const $TransactionResponse = {
       title: "Charges",
     },
     notes: {
-      $ref: "#/components/schemas/NoteList",
+      type: "string",
+      title: "Notes",
     },
   },
   type: "object",
-  required: ["amount", "rate", "code", "state", "type", "notes"],
+  required: ["amount", "rate", "code", "state", "type"],
   title: "TransactionResponse",
 } as const;
 

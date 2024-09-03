@@ -8,6 +8,7 @@ from mkdi_backend.models.Agent import Agent
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.models.transactions.transaction_item import TransactionItem
 from mkdi_backend.dbmanager import sessionmanager
+import json
 from mkdi_backend.models.transactions.transactions import (
     Deposit,
     Internal,
@@ -231,7 +232,8 @@ class TransactionRepository:
         result = []
         for collection in items:
             for item in collection.scalars().all():
-                result.append(TransactionItem(item=item))
+                notes = json.loads(item.notes) if len(item.notes) > 0 else []
+                result.append(TransactionItem(item=item, notes=notes))
 
         return result
 
@@ -283,7 +285,7 @@ class TransactionRepository:
                     await forex_task,
                 )
 
-                return self._collect_transactions(deposits, externals, sendings, internals, forexs)
+                return self._collect_transactions(deposits, externals, sendings, forexs, internals)
 
     async def get_office_transactions(self, user: KcUser) -> List[pr.TransactionResponse]:
         fields = list(pr.TransactionDB.__fields__.keys())

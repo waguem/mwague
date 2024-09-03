@@ -16,9 +16,10 @@ from mkdi_backend.models.Activity import FundCommit
 
 from decimal import Decimal
 from sqlmodel import select, or_, and_
-import datetime
+from datetime import datetime
 import random
 import string
+import json
 
 
 class ForExTransaction(PayableTransaction):
@@ -64,7 +65,7 @@ class ForExTransaction(PayableTransaction):
             activity_id=activity["id"],
             description=f"Forex {transaction.code}",
             is_out=True,
-            date=datetime.datetime.now(),
+            date=datetime.now(),
         )
         return commits, fund_history
 
@@ -107,6 +108,16 @@ class ForExTransaction(PayableTransaction):
             type=pr.TransactionType.FOREX,
             created_by=user.user_db_id,
         )
+
+        notes = []
+        message = dict()
+        message["date"] = datetime.isoformat(datetime.now())
+        message["message"] = self.get_inputs().message
+        message["type"] = "REQUEST"
+        message["user"] = user.user_db_id
+        notes.append(message)
+
+        forEx.notes = json.dumps(notes)
 
         self.db.add(forEx)
         return forEx

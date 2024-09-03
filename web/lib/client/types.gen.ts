@@ -161,13 +161,7 @@ export type Deposit = {
         }
       | unknown;
   };
-  notes?: {
-    [key: string]:
-      | {
-          [key: string]: unknown;
-        }
-      | unknown;
-  };
+  notes?: string;
   owner_initials: string;
 };
 
@@ -229,13 +223,7 @@ export type External = {
         }
       | unknown;
   };
-  notes?: {
-    [key: string]:
-      | {
-          [key: string]: unknown;
-        }
-      | unknown;
-  };
+  notes?: string;
   sender_initials: string;
   charges: number;
   customer?: {
@@ -278,13 +266,7 @@ export type ExternalWithPayments = {
         }
       | unknown;
   };
-  notes?: {
-    [key: string]:
-      | {
-          [key: string]: unknown;
-        }
-      | unknown;
-  };
+  notes?: string;
   sender_initials: string;
   charges: number;
   customer?: {
@@ -319,13 +301,7 @@ export type ForEx = {
         }
       | unknown;
   };
-  notes?: {
-    [key: string]:
-      | {
-          [key: string]: unknown;
-        }
-      | unknown;
-  };
+  notes?: string;
   currency: Currency;
   base_currency: Currency;
   buying_rate: number;
@@ -371,13 +347,7 @@ export type ForExWithPayments = {
         }
       | unknown;
   };
-  notes?: {
-    [key: string]:
-      | {
-          [key: string]: unknown;
-        }
-      | unknown;
-  };
+  notes?: string;
   currency: Currency;
   base_currency: Currency;
   buying_rate: number;
@@ -424,13 +394,7 @@ export type Internal = {
         }
       | unknown;
   };
-  notes?: {
-    [key: string]:
-      | {
-          [key: string]: unknown;
-        }
-      | unknown;
-  };
+  notes?: string;
   sender_initials: string;
   receiver_initials: string;
   charges: number;
@@ -450,10 +414,8 @@ export type type4 = "INTERNAL";
 export type Note = {
   date: string;
   message: string;
-};
-
-export type NoteList = {
-  notes?: Array<Note>;
+  type: string;
+  user?: string;
 };
 
 /**
@@ -606,13 +568,7 @@ export type Sending = {
         }
       | unknown;
   };
-  notes?: {
-    [key: string]:
-      | {
-          [key: string]: unknown;
-        }
-      | unknown;
-  };
+  notes?: string;
   receiver_initials: string;
   method: PaymentMethod;
   payment_currency: Currency;
@@ -650,13 +606,7 @@ export type SendingWithPayments = {
         }
       | unknown;
   };
-  notes?: {
-    [key: string]:
-      | {
-          [key: string]: unknown;
-        }
-      | unknown;
-  };
+  notes?: string;
   receiver_initials: string;
   method: PaymentMethod;
   payment_currency: Currency;
@@ -671,6 +621,7 @@ export type TradingType = "BUY" | "SELL" | "EXCHANGE";
 
 export type TransactionItem = {
   item: Internal | Deposit | Sending | External | ForEx;
+  notes: Array<Note>;
 };
 
 export type TransactionRequest = {
@@ -690,7 +641,7 @@ export type TransactionResponse = {
   type: TransactionType;
   created_at?: string;
   charges?: number;
-  notes: NoteList;
+  notes?: string;
 };
 
 export type TransactionReviewReq = {

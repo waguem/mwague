@@ -51,7 +51,6 @@ const EmployeesTable = ({ employees }: Props) => {
         });
       });
     }
-    console.log("reseting rows");
     setEditedRows({});
   };
 

@@ -252,3 +252,8 @@ export const getAccountOptions = (type: AgentType, agents: AgentReponseWithAccou
     })
     .flat();
 };
+
+export const formDateToMyLocal = (date: string) => {
+  const userTimeZoneOffset = new Date().getTimezoneOffset();
+  return new Date(new Date(date).getTime() + userTimeZoneOffset * 60 * 1000);
+};

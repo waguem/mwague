@@ -95,11 +95,8 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
         type: data.type,
         code: data.code,
       });
-
-      console.log(data);
       setTransaction(data);
     }
-    console.log("fetching transaction");
 
     if (row?.code && row?.type) {
       setTransaction(undefined);
@@ -156,7 +153,6 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
       </Table.Tr>
     );
   }
-  console.log(form.isValid());
   return (
     <Drawer
       overlayProps={{ backgroundOpacity: 0.5, blur: 4 }}

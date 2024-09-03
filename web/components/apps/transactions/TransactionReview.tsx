@@ -2,6 +2,7 @@
 import {
   Currency,
   Deposit,
+  EmployeeResponse,
   External,
   ForEx,
   Internal,
@@ -11,6 +12,7 @@ import {
   TransactionType,
 } from "@/lib/client";
 import { useEffect, useTransition } from "react";
+
 import {
   List,
   ThemeIcon,
@@ -26,6 +28,9 @@ import {
   Box,
   LoadingOverlay,
   Loader,
+  Alert,
+  Avatar,
+  Tooltip,
 } from "@mantine/core";
 import {
   IconCash,
@@ -48,7 +53,6 @@ import { useFormState } from "react-dom";
 import { State } from "@/lib/actions";
 import { notifications } from "@mantine/notifications";
 import { getMoneyPrefix } from "@/lib/utils";
-import { formatDistanceToNowStrict } from "date-fns";
 import { OfficeCurrency } from "@/lib/types";
 
 interface Props {
@@ -56,6 +60,7 @@ interface Props {
   opened: boolean;
   office: OfficeResponse;
   close: () => void;
+  getEmployee: (users: string[]) => EmployeeResponse[]; // eslint-disable-line
 }
 
 type ReviewInput = {
@@ -376,7 +381,7 @@ function SendingView({ transaction }: { transaction: Sending; mainCurrency: Curr
   );
 }
 
-export default function TransactionReview({ row, opened, close, office }: Props) {
+export default function TransactionReview({ row, opened, close, office, getEmployee }: Props) {
   const { register, reset, setValue, getValues } = useForm<ReviewInput>({
     mode: "all",
     resolver: zodResolver(TransactionReviewResolver),
@@ -464,6 +469,10 @@ export default function TransactionReview({ row, opened, close, office }: Props)
       break;
   }
 
+  const requestMessage = row?.notes?.find((note) => note.type === "REQUEST");
+  const reviewMessage = row?.notes?.find((note) => note.type === "REVIEW");
+  const requester = getEmployee([requestMessage?.user ?? ""]);
+  const reviewer = getEmployee([reviewMessage?.user ?? ""]);
   return (
     <Drawer
       overlayProps={{ backgroundOpacity: 0.5, blur: 4 }}
@@ -483,15 +492,16 @@ export default function TransactionReview({ row, opened, close, office }: Props)
         />
         <Timeline active={0} bulletSize={24} lineWidth={2}>
           <Timeline.Item bullet={<IconGitBranch size={12} />} title="Transaction Request">
-            <Text c="dimmed" size="sm">
-              transaction was created{" "}
-              {row?.item?.created_at
-                ? formatDistanceToNowStrict(new Date(row?.item?.created_at), {
-                    addSuffix: true,
-                    roundingMethod: "ceil",
-                  })
-                : ""}
-            </Text>
+            <Space h={10} />
+            <Alert title="Message" icon={<IconMessageDots size={14} />}>
+              <Group>
+                <Tooltip label={requester?.length >= 1 ? requester[0].username : "Requester"}>
+                  <Avatar src={requester?.length >= 1 ? requester[0].avatar_url : ""} />
+                </Tooltip>
+                {row?.notes?.find((note) => note.type === "REQUEST")?.message ?? "Transaction request"}
+              </Group>
+            </Alert>
+            <Space h={10} />
             <Text size="xs" mt={4}></Text>
             {row?.item && (
               <View
@@ -556,6 +566,17 @@ export default function TransactionReview({ row, opened, close, office }: Props)
                   </Button>
                 </Group>
               </form>
+            )}
+            <Space h={10} />
+            {reviewMessage && (
+              <Alert title="Message" icon={<IconMessageDots size={14} />}>
+                <Group>
+                  <Tooltip label={reviewer?.length >= 1 ? reviewer[0].username : "Reviewer"}>
+                    <Avatar src={reviewer?.length >= 1 ? reviewer[0].avatar_url : ""} />
+                  </Tooltip>
+                  {reviewMessage?.message ?? "Transaction has been reviewed"}
+                </Group>
+              </Alert>
             )}
           </Timeline.Item>
         </Timeline>

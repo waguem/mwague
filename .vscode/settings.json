@@ -1,15 +1,4 @@
 {
-  "python.analysis.extraPaths": [
-    "${workspaceFolder}/mkdi-shared",
-    "./mkdi-shared"
-  ],
-  "python.analysis.exclude": [
-    "${workspaceFolder}/backend/migrations",
-    "${workspaceFolder}/bdd",
-    "${workspaceFolder}/gen/python-client/"
-  ],
-  "prettier.singleQuote": false,
-  "eslint.workingDirectories": ["./web", "./docs"],
   "python.testing.pytestArgs": ["backend/tests", "mkdi-shared/tests"],
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": true,
@@ -19,5 +8,6 @@
     "**/.git": true,
     "**/*.pyc": { "when": "$(basename).py" },
     "**/__pycache__": true
-  }
+  },
+  "workbench.colorCustomizations": { "editorUnnecessaryCode.border": "#e47070" }
 }

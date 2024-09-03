@@ -18,6 +18,7 @@ from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol as pr
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from sqlmodel import select
+import json
 
 
 class DepositTransaction(AbstractTransaction):
@@ -105,8 +106,18 @@ class DepositTransaction(AbstractTransaction):
             rate=self.get_rate(),
             state=pr.TransactionState.REVIEW,
             type=pr.TransactionType.DEPOSIT,
-            notes={"notes": []},
         )
+
+        notes = []
+        message = dict()
+        message["date"] = datetime.isoformat(datetime.now())
+        message["message"] = self.get_inputs().message
+        message["type"] = "REQUEST"
+        message["user"] = user.user_db_id
+        notes.append(message)
+
+        deposit.notes = json.dumps(notes)
+
         self.db.add(deposit)
         return deposit
 

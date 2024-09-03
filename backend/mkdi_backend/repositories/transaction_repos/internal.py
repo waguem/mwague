@@ -2,7 +2,6 @@
 
 from datetime import datetime
 from typing import List
-
 from mkdi_backend.models.Account import Account
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.models.transactions.transactions import Internal
@@ -11,6 +10,8 @@ from mkdi_backend.repositories.transaction_repos.invariant import managed_invari
 from mkdi_backend.utils.database import CommitMode
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol as pr
+
+import json
 
 
 class InternalTransaction(AbstractTransaction):
@@ -115,8 +116,17 @@ class InternalTransaction(AbstractTransaction):
             receiver_initials=receiver.initials,
             created_by=user.user_db_id,
             history={"history": []},
-            notes={"notes": []},
         )
+        # load notes from internal
+        notes = []
+        message = dict()
+        message["date"] = datetime.isoformat(datetime.now())
+        message["message"] = self.get_inputs().message
+        message["type"] = "REQUEST"
+        message["user"] = user.user_db_id
+        notes.append(message)
+
+        internal.notes = json.dumps(notes)
 
         self.db.add(internal)
 

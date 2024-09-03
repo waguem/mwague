@@ -230,7 +230,6 @@ const ExternalFormResolver: FormResolver = {
   run: (data: FormData) => {
     const parsed = External.safeParse(data);
     const charges = zNumber.safeParse(data.get("charges") as string);
-    console.log("Parsed External ", parsed);
     if (!parsed.success) {
       return {
         status: "error",
