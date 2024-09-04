@@ -10,6 +10,7 @@ from mkdi_backend.repositories.transaction_repos.invariant import managed_invari
 from mkdi_backend.utils.database import CommitMode
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol as pr
+from sqlalchemy import or_, select
 
 import json
 
@@ -45,21 +46,18 @@ class InternalTransaction(AbstractTransaction):
         if not hasattr(transaction, "amount") or not hasattr(transaction, "charges"):
             raise ValueError("Transaction must have 'amount' and 'charges' attributes")
         commits = []
-        accounts = self.accounts()
+
+        accounts = self.accounts(transaction.sender_initials, transaction.receiver_initials)
+
         if len(accounts) < 2:
             raise MkdiError(
                 error_code=MkdiErrorCode.INVALID_INPUT, message="Insufficient accounts available"
             )
 
         # Assuming accounts are in a list where the last two are sender and receiver
-        office = None
-        if len(accounts) == 3:
-            office = (
-                accounts.pop()
-            )  # Use the last account as the office account without removing it
-
-        receiver = accounts.pop()
-        sender = accounts.pop()
+        office = next((a for a in accounts if a.type == pr.AccountType.OFFICE), None)
+        sender = next((a for a in accounts if a.initials == transaction.sender_initials), None)
+        receiver = next((a for a in accounts if a.initials == transaction.receiver_initials), None)
 
         # Check if an office account should be used
 
@@ -72,6 +70,7 @@ class InternalTransaction(AbstractTransaction):
         # Validate transaction amount and charges
         amount = transaction.amount
         charges = transaction.charges
+
         if amount <= 0 or charges < 0:
             raise ValueError("Transaction amount must be positive and charges cannot be negative")
 
@@ -82,8 +81,12 @@ class InternalTransaction(AbstractTransaction):
 
         # Handle charges if an office account is used
         if office and charges > 0:
-            commits.append(office.credit(charges))
             commits.append(sender.debit(charges))
+            # what if the office was the receiver ? then
+            if receiver.id == office.id:
+                commits.append(receiver.credit(charges))
+            else:
+                commits.append(office.credit(charges))
 
         return commits
 
@@ -96,12 +99,10 @@ class InternalTransaction(AbstractTransaction):
         assert user_input.sender is not None
         assert user_input.sender != user_input.receiver
 
-        accounts = self.accounts()
+        accounts = self.accounts(sender=user_input.sender, receiver=user_input.receiver)
 
-        if len(accounts) == 3:
-            _ = accounts.pop()
-
-        receiver, sender = accounts.pop(), accounts.pop()
+        sender = next((a for a in accounts if a.initials == user_input.sender), None)
+        receiver = next((a for a in accounts if a.initials == user_input.receiver), None)
 
         internal = Internal(
             amount=self.get_amount(),
@@ -158,16 +159,26 @@ class InternalTransaction(AbstractTransaction):
             sender = tr.sender_initials
             receiver = tr.receiver_initials
 
-        accounts = [
-            self.use_account(sender or request.sender),
-            self.use_account(receiver or request.receiver),
-        ]
+        accounts = self.db.scalars(
+            select(Account)
+            .where(or_(Account.initials == sender, Account.initials == receiver))
+            .filter(Account.office_id == self.user.office_id)
+        ).all()
+
+        # if the office is the sender then no charges will be applied
+        sender = next((a for a in accounts if a.initials == sender), None)
+        receiver = next((a for a in accounts if a.initials == receiver), None)
+        assert sender is not None
+
+        if sender.type == pr.AccountType.OFFICE:
+            assert self.get_charges() == 0
+        elif receiver.type != pr.AccountType.OFFICE:
+            office = self.db.scalars(
+                select(Account).where(Account.type == pr.AccountType.OFFICE)
+            ).one()
+            accounts.append(office)
 
         # if there are charges, add the office account
-
-        if self.get_charges() > 0:
-            office_account, _ = self.use_office_accounts()
-            accounts.append(office_account)
 
         return accounts
 

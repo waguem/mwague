@@ -246,7 +246,7 @@ export const getAccountOptions = (type: AgentType, agents: AgentReponseWithAccou
     .filter((agent) => agent.accounts && agent.type === type)
     .map((agent) => {
       return agent.accounts!.map((account) => ({
-        label: `${agent.name} ${account.currency}`,
+        label: `[${account.type}]  ${account.initials} ${agent.name} ${account.currency} `,
         value: account.initials,
       }));
     })

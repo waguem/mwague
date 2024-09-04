@@ -1,6 +1,6 @@
 "use client";
 
-import { AgentReponseWithAccounts, OfficeResponse } from "@/lib/client";
+import { AccountResponse, AgentReponseWithAccounts, OfficeResponse } from "@/lib/client";
 import { getAccountOptions, getMoneyIcon } from "@/lib/utils";
 import { useTransition } from "react";
 import { addTransaction } from "@/lib/actions/transactions";
@@ -13,6 +13,7 @@ import { IconLoader, IconSend } from "@tabler/icons-react";
 interface Props {
   agentWithAccounts: AgentReponseWithAccounts[];
   office: OfficeResponse;
+  officeAccounts: AccountResponse[];
 }
 
 interface TransactionBase {
@@ -30,7 +31,7 @@ interface InternalRequestForm extends TransactionBase {
   charges: number;
 }
 
-export default function InternalForms({ agentWithAccounts, office }: Props) {
+export default function InternalForms({ agentWithAccounts, office, officeAccounts }: Props) {
   const currencies: OfficeCurrency[] = (office.currencies as OfficeCurrency[]) || [];
   const mainCurrency = currencies.find((currency) => currency.main);
   const baseCurrency = currencies.find((currency) => currency.base);
@@ -75,6 +76,14 @@ export default function InternalForms({ agentWithAccounts, office }: Props) {
   });
 
   const accountsOptions = getAccountOptions("AGENT", agentWithAccounts);
+  const officeAccountsOptions = officeAccounts
+    ?.filter((ac) => ac.type === "OFFICE")
+    .map((account) => ({ value: account.initials, label: `[${account.type}] ${account.initials}` }));
+  // merge the two options
+  if (officeAccountsOptions.length > 0) {
+    accountsOptions.push(...officeAccountsOptions);
+  }
+
   const [pending, startTransition] = useTransition();
 
   const onSubmit = async () => {

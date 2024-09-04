@@ -1,6 +1,4 @@
 "use server";
-import "server-only";
-
 import { AddAgentSchema } from "../schemas/actions";
 import { State } from "./state";
 import { withToken } from "./withToken";

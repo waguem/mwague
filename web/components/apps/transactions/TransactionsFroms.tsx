@@ -5,7 +5,7 @@ import IconCashBanknotes from "@/components/icon/icon-cash-banknotes";
 import IconSend from "@/components/icon/icon-send";
 import IconBox from "@/components/icon/icon-box";
 import IconBolt from "@/components/icon/icon-bolt";
-import { ActivityResponse, OfficeResponse, TransactionType } from "@/lib/client";
+import { AccountResponse, ActivityResponse, OfficeResponse, TransactionType } from "@/lib/client";
 import InternalForms from "./InternalForms";
 import ExternalForms from "./ExternalForms";
 import DepositForms from "./DepositForms";
@@ -14,12 +14,13 @@ import StartActivityForm from "../activity/StartActivityForm";
 import ForexForms from "./ForexForms";
 
 interface Props {
+  officeAccounts: AccountResponse[];
   office: OfficeResponse;
   agentAccounts: any[];
   activity: ActivityResponse;
 }
 
-export default function TransactionsForms({ agentAccounts, activity, office }: Props) {
+export default function TransactionsForms({ agentAccounts, activity, office, officeAccounts }: Props) {
   const [form, setForm] = useState<TransactionType>("INTERNAL");
   const navItems: {
     name: string;
@@ -57,7 +58,7 @@ export default function TransactionsForms({ agentAccounts, activity, office }: P
     if (!activity) return <StartActivityForm office={office} />;
     switch (form) {
       case "INTERNAL":
-        return <InternalForms office={office} agentWithAccounts={agentAccounts} />;
+        return <InternalForms officeAccounts={officeAccounts} office={office} agentWithAccounts={agentAccounts} />;
       case "EXTERNAL":
         return <ExternalForms office={office} agentWithAccounts={agentAccounts} />;
       case "DEPOSIT":

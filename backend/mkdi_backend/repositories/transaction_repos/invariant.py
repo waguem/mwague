@@ -211,7 +211,8 @@ def managed_invariant_tx_method(
                                 continue
 
                             logger.info(f"Checking Account {account}")
-                            if account.version != start_accounts[index].version:
+                            other = next((x for x in start_accounts if x.id == account.id), None)
+                            if account.version != other.version:
                                 # cancel version update
                                 logger.info("Version Mismatch Detected")
                                 logger.info(f"Before version : {start_accounts[index].version}")
@@ -222,6 +223,7 @@ def managed_invariant_tx_method(
                         if mismatch:
                             self.db.rollback()
                             retry_exhausted = False
+                            continue
 
                         if isinstance(result, List):
                             for item in result:
