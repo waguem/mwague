@@ -97,9 +97,9 @@ class SendingTransaction(PayableTransaction):
         accounts = self.accounts()
         payer = next((x for x in accounts if x.initials == user_input.receiver_initials), None)
         office = self.db.scalar(
-            select(Account)
-                .where(Account.type == pr.AccountType.OFFICE,
-                Account.owner_id == user.office_id)
+            select(Account).where(
+                Account.type == pr.AccountType.OFFICE, Account.owner_id == user.office_id
+            )
         )
 
         if payer is None:
@@ -110,7 +110,7 @@ class SendingTransaction(PayableTransaction):
 
         sending = Sending(
             amount=self.get_amount(),
-            code=self.generate_code(office.initials,office.counter if office.counter else 0),    
+            code=self.generate_code(office.initials, office.counter if office.counter else 0),
             office_id=user.office_id,
             org_id=user.organization_id,
             type=pr.TransactionType.SENDING,
@@ -126,13 +126,13 @@ class SendingTransaction(PayableTransaction):
         )
 
         notes = []
-        notes = self.update_notes(notes, "REQUEST",self.get_inputs().message)
+        notes = self.update_notes(notes, "REQUEST", self.get_inputs().message)
         sending.notes = json.dumps(notes)
 
         office.counter = office.counter + 1 if office.counter else 1
-        self.db.add(sending)    
-        self.db.add(office) 
-        
+        self.db.add(sending)
+        self.db.add(office)
+
         return sending
 
     @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)

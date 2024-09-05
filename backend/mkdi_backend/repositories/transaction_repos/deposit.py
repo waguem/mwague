@@ -85,7 +85,7 @@ class DepositTransaction(AbstractTransaction):
         deposit = Deposit(
             owner_initials=account.initials,
             amount=self.get_amount(),
-            code=self.generate_code(account.initials,account.counter if account.counter else 0),
+            code=self.generate_code(account.initials, account.counter if account.counter else 0),
             created_at=datetime.now(),
             created_by=user.user_db_id,
             office_id=user.office_id,
@@ -96,10 +96,10 @@ class DepositTransaction(AbstractTransaction):
         )
 
         notes = []
-        notes = self.update_notes(notes,"REQUEST",self.get_inputs().message)
+        notes = self.update_notes(notes, "REQUEST", self.get_inputs().message)
         deposit.notes = json.dumps(notes)
         account.counter = account.counter + 1 if account.counter else 1
-        
+
         self.db.add(deposit)
         self.db.add(account)
         return deposit

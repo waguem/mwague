@@ -28,7 +28,6 @@ class ExternalTransaction(PayableTransaction):
     External Transaction
     """
 
-
     def validate_review(self):
         """validate the review request for the transaction"""
         request: pr.TransactionReviewReq = self.get_inputs()
@@ -139,10 +138,9 @@ class ExternalTransaction(PayableTransaction):
         accounts = self.accounts()
 
         office = self.db.scalar(
-            select(Account)
-            .where(
-                Account.type == pr.AccountType.OFFICE,
-                Account.owner_id == user.office_id)
+            select(Account).where(
+                Account.type == pr.AccountType.OFFICE, Account.owner_id == user.office_id
+            )
         )
 
         if len(accounts) == 2:
@@ -164,8 +162,8 @@ class ExternalTransaction(PayableTransaction):
             created_by=user.user_db_id,
             history={"history": []},
         )
-        notes=[]
-        notes = self.update_notes(notes,"REQUEST",self.get_inputs().message)
+        notes = []
+        notes = self.update_notes(notes, "REQUEST", self.get_inputs().message)
         external.notes = json.dumps(notes)
         office.counter = office.counter + 1 if office.counter else 1
         self.db.add(external)

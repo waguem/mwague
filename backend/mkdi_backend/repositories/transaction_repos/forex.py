@@ -25,8 +25,6 @@ import json
 class ForExTransaction(PayableTransaction):
     """Foreign Exchange Transaction"""
 
-  
-
     async def a_commit(
         self, amount, transaction: ForeignEx, has_complete=False
     ) -> List[pr.TransactionCommit]:
@@ -108,11 +106,11 @@ class ForExTransaction(PayableTransaction):
         )
 
         notes = []
-        notes = self.update_notes(notes, "REQUEST",self.get_inputs().message)
+        notes = self.update_notes(notes, "REQUEST", self.get_inputs().message)
 
         forEx.notes = json.dumps(notes)
         office.counter = office.counter + 1 if office.counter else 1
-        
+
         self.db.add(forEx)
         self.db.add(office)
         return forEx

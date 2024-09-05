@@ -3,7 +3,7 @@ import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css"; //if using mantine date picker features
 import "mantine-react-table/styles.css"; //make sure MRT styles were imported in your app root (once)
 import { useMemo, useState, useTransition } from "react";
-import { NumberFormatter, Badge, ActionIcon, Box, Tooltip, Group, Avatar } from "@mantine/core";
+import { NumberFormatter, Badge, ActionIcon, Box, Tooltip, Group, Avatar, NumberInput } from "@mantine/core";
 import { IconEyeCheck, IconEdit, IconCash } from "@tabler/icons-react";
 import { formatDate, formatDistanceToNowStrict } from "date-fns";
 import { MantineReactTable, useMantineReactTable, MRT_TableOptions, type MRT_ColumnDef } from "mantine-react-table";
@@ -23,6 +23,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { updateTransaction } from "@/lib/actions/transactions";
 import { decodeNotification } from "../notifications/notifications";
+import { HoverMessages } from "../wallet/HoverMessage";
 
 interface Props {
   data: TransactionItem[];
@@ -32,7 +33,7 @@ interface Props {
 
 const MantineTable = ({ data, office, employees }: Props) => {
   const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
-
+  const [editingRow, setEditingRow] = useState<TransactionItem | undefined>(undefined);
   const [revewing, setReviewing] = useState<number>(-1);
   const [paying, setPaying] = useState<number>(-1);
   const [opened, { open, close }] = useDisclosure(false);
@@ -159,31 +160,49 @@ const MantineTable = ({ data, office, employees }: Props) => {
             />
           </Badge>
         ),
+        Edit: ({ cell, row }) => (
+          <NumberInput
+            decimalScale={2}
+            prefix="$"
+            thousandSeparator
+            value={cell.getValue() as number}
+            onChange={(value) =>
+              setEditingRow({
+                ...row.original,
+                item: {
+                  ...row.original.item,
+                  amount: value as number,
+                },
+              })
+            }
+          />
+        ),
       },
       {
         accessorKey: "item.state", //normal accessorKey
         header: "State",
-        size: 50,
+        size: 150,
         enableEditing: false,
-        Cell: ({ cell }) => {
+        Cell: ({ cell, row }) => {
           const state: TransactionState = cell.getValue() as TransactionState;
           const badgeConfig = getStateBadge(state);
           return (
-            <Badge size="md" {...badgeConfig}>
-              {state}
-            </Badge>
+            <Group gap={"xs"}>
+              <Badge variant="outline" color={getBadgeType(row.original.item.type as TransactionType)}>
+                {row.original.item.type as string}{" "}
+              </Badge>
+              <Badge size="md" {...badgeConfig}>
+                {state}
+              </Badge>
+            </Group>
           );
         },
       },
       {
-        accessorKey: "item.type",
-        header: "Type",
+        accessorKey: "item.notes",
+        header: "Description",
         enableEditing: false,
-        Cell: ({ cell }) => (
-          <Badge variant="outline" color={getBadgeType(cell.getValue() as TransactionType)}>
-            {cell.getValue() as string}{" "}
-          </Badge>
-        ),
+        Cell: ({ row }) => <HoverMessages messages={row.original.notes as any} />,
       },
       {
         accessorKey: "item.created_at",
@@ -237,6 +256,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
     const asyncUpdate = async (values: any) => {
       const response = await updateTransaction(office.id, {
         ...values,
+        amount: editingRow?.item.amount,
       });
       decodeNotification("Update Transaction", response);
     };
@@ -305,7 +325,6 @@ const MantineTable = ({ data, office, employees }: Props) => {
       </Box>
     ),
     data, //must be memoized or stable (useState, useMemo, defined outside of this component, etc.)
-
     state: {
       isSaving: pending,
     },

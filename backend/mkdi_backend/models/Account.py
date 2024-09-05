@@ -24,7 +24,7 @@ class Account(AccountBase, table=True):
     is_open: bool = Field(default=True)
     version: int = Field(default=1)
 
-    counter: int = Field(default=0,nullable=True)
+    counter: int = Field(default=0, nullable=True)
 
     created_by: UUID = Field(foreign_key="employees.id")
 

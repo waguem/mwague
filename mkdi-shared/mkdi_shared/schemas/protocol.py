@@ -432,7 +432,6 @@ class TransactionDB(TransactionBase):
             )
 
         self.amount = request.amount.amount
-        self.rate = request.amount.rate
         if hasattr(self, "charges") and request.charges:
             setattr(self, "charges", request.charges.amount)
 

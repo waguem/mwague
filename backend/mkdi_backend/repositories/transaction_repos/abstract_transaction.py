@@ -256,7 +256,7 @@ class AbstractTransaction(ABC):
             user_input: pr.TransactionReviewReq = self.get_inputs()
             note = user_input.notes or ""
             notes = json.loads(transaction.notes)
-            self.update_notes(notes, "REVIEW",note)
+            self.update_notes(notes, "REVIEW", note)
             transaction.notes = json.dumps(notes)
 
             transaction = review(transaction)
@@ -408,15 +408,15 @@ class AbstractTransaction(ABC):
         # compete from here
         return transaction_with_details
 
-    def generate_code(self, initial,counter) -> str:
+    def generate_code(self, initial, counter) -> str:
         """generate a unique code for the internal transaction"""
         now = datetime.now()
-        month = now.strftime('%m')
-        day = now.strftime('%d')
-        year = now.strftime('%y')
+        month = now.strftime("%m")
+        day = now.strftime("%d")
+        year = now.strftime("%y")
         return f"{initial}{month}{day}{year}{counter+1:03}"
 
-    def update_notes(self,notes,type,note):
+    def update_notes(self, notes, type, note):
         """create a note"""
         message = dict()
         message["date"] = datetime.isoformat(datetime.now())

@@ -12,6 +12,8 @@ class TransactionItem(BaseModel):
     @root_validator
     def extract_notes(cls, values):
         item = values.get("item")
+        if not item:
+            return values
         notes = json.loads(item.notes) if len(item.notes) > 0 else []
         values["notes"] = notes
 
