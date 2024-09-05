@@ -1,6 +1,6 @@
 "use client";
 import { OfficeResponse, OfficeResult, TransactionState } from "@/lib/client";
-import { getBadgeType, getBadgeTypeFromResult, getStateBadge } from "@/lib/utils";
+import { formDateToMyLocal, getBadgeType, getBadgeTypeFromResult, getStateBadge } from "@/lib/utils";
 import { ActionIcon, Badge, Button, Group, NumberFormatter, Tooltip } from "@mantine/core";
 import { useClipboard } from "@mantine/hooks";
 import { IconCopy, IconDownload } from "@tabler/icons-react";
@@ -72,7 +72,7 @@ const ResultTable = ({ data }: Props) => {
           <Group>
             {formatDate(new Date(cell.getValue() as string), "MMM dd")}
             <Badge variant="dot" color="gray">
-              {formatDistanceToNowStrict(new Date(cell.getValue() as string))}
+              {formatDistanceToNowStrict(formDateToMyLocal(cell.getValue() as string), { addSuffix: true })}
             </Badge>
           </Group>
         ),
@@ -112,7 +112,8 @@ const ResultTable = ({ data }: Props) => {
     []
   );
 
-  const handleExportRows = (rows: MRT_Row<OfficeResult>[]) => () => {
+  const handleExportRows = (rows: MRT_Row<OfficeResult>[]) => {
+    console.log(rows);
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text("Office Results", 10, 10);
@@ -140,7 +141,7 @@ const ResultTable = ({ data }: Props) => {
       <Group gap="xs">
         <DateRangePicker />
         <Button
-          onClick={handleExportRows(table.getPrePaginationRowModel().rows)}
+          onClick={() => handleExportRows(table.getPrePaginationRowModel().rows)}
           leftSection={<IconDownload size={16} />}
           size="xs"
           variant="outline"

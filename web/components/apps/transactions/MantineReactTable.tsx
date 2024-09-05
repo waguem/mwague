@@ -307,7 +307,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
           </Tooltip>
         )}
 
-        {isPayable(row.getValue("item.type")) && (
+        {isPayable(row.original.item.type) && (
           <Tooltip label="Pay Transaction">
             <ActionIcon
               color="cyan"

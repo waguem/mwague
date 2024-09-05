@@ -540,7 +540,7 @@ class OfficeResult(BaseModel):
     code: str
     state: TransactionState
     result_type: ResultType
-    date: date
+    date: datetime
     transaction_id: UUID
 
 
