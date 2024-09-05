@@ -28,16 +28,6 @@ class ExternalTransaction(PayableTransaction):
     External Transaction
     """
 
-    def generate_code(self, initial):
-        """generate a unique code for the internal transaction"""
-        random_part = "".join(
-            random.choices(string.ascii_letters + string.digits, k=10 - len(initial))
-        )
-        code = f"{initial}{random_part}".upper()
-        from loguru import logger
-
-        logger.info(f"Generated code: {code}")
-        return code
 
     def validate_review(self):
         """validate the review request for the transaction"""
@@ -148,6 +138,13 @@ class ExternalTransaction(PayableTransaction):
 
         accounts = self.accounts()
 
+        office = self.db.scalar(
+            select(Account)
+            .where(
+                Account.type == pr.AccountType.OFFICE,
+                Account.owner_id == user.office_id)
+        )
+
         if len(accounts) == 2:
             _ = accounts.pop()
 
@@ -155,7 +152,7 @@ class ExternalTransaction(PayableTransaction):
 
         external = External(
             amount=self.get_amount(),
-            code=self.generate_code(sender.initials),
+            code=self.generate_code(office.initials, office.counter if office.counter else 0),
             office_id=user.office_id,
             org_id=user.organization_id,
             type=pr.TransactionType.EXTERNAL,
@@ -167,18 +164,12 @@ class ExternalTransaction(PayableTransaction):
             created_by=user.user_db_id,
             history={"history": []},
         )
-
-        notes = []
-        message = dict()
-        message["date"] = datetime.isoformat(datetime.now())
-        message["message"] = self.get_inputs().message
-        message["type"] = "REQUEST"
-        message["user"] = user.user_db_id
-        notes.append(message)
+        notes=[]
+        notes = self.update_notes(notes,"REQUEST",self.get_inputs().message)
         external.notes = json.dumps(notes)
-
+        office.counter = office.counter + 1 if office.counter else 1
         self.db.add(external)
-
+        self.db.add(office)
         return external
 
     @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)

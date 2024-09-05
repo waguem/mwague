@@ -19,11 +19,6 @@ class InternalTransaction(AbstractTransaction):
     """
     Internal Transaction
     """
-
-    def generate_code(self, initial):
-        """generate a unique code for the internal transaction"""
-        return f"{initial}{datetime.now().strftime('H%M%S')}"
-
     def validate_review(self):
         """validate the review request for the transaction"""
         request: pr.TransactionReviewReq = self.get_inputs()
@@ -106,7 +101,7 @@ class InternalTransaction(AbstractTransaction):
 
         internal = Internal(
             amount=self.get_amount(),
-            code=self.generate_code(sender.initials),
+            code=self.generate_code(sender.initials,sender.counter if sender.counter else 0),
             office_id=user.office_id,
             org_id=user.organization_id,
             type=pr.TransactionType.INTERNAL,
@@ -120,17 +115,12 @@ class InternalTransaction(AbstractTransaction):
         )
         # load notes from internal
         notes = []
-        message = dict()
-        message["date"] = datetime.isoformat(datetime.now())
-        message["message"] = self.get_inputs().message
-        message["type"] = "REQUEST"
-        message["user"] = user.user_db_id
-        notes.append(message)
-
+        notes = self.update_notes(notes, "REQUEST",self.get_inputs().message)
         internal.notes = json.dumps(notes)
 
+        sender.counter = sender.counter + 1 if sender.counter else 1
         self.db.add(internal)
-
+        self.db.add(sender) # update the counter
         return internal
 
     @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
@@ -172,9 +162,9 @@ class InternalTransaction(AbstractTransaction):
 
         if sender.type == pr.AccountType.OFFICE:
             assert self.get_charges() == 0
-        elif receiver.type != pr.AccountType.OFFICE:
+        elif receiver.type != pr.AccountType.OFFICE and self.get_charges() > 0:
             office = self.db.scalars(
-                select(Account).where(Account.type == pr.AccountType.OFFICE)
+                select(Account).where(Account.type == pr.AccountType.OFFICE, Account.office_id == self.user.office_id)
             ).one()
             accounts.append(office)
 

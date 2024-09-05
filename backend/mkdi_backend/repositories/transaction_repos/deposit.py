@@ -26,19 +26,6 @@ class DepositTransaction(AbstractTransaction):
     Deposit transaction
     """
 
-    def generate_code(self, initials):
-        # Define the length of the random string
-        random_string_length = 8  # You can adjust the length as needed
-
-        # Generate a secure random string using letters and digits
-        random_string = "".join(
-            secrets.choice(string.ascii_letters + string.digits)
-            for _ in range(random_string_length)
-        )
-
-        # Return the formatted unique code
-        return f"{initials}-{random_string}".upper()
-
     def validate_review(self):
         """validate the review inputs"""
         request: pr.TransactionReviewReq = self.get_inputs()
@@ -98,7 +85,7 @@ class DepositTransaction(AbstractTransaction):
         deposit = Deposit(
             owner_initials=account.initials,
             amount=self.get_amount(),
-            code=self.generate_code(account.initials),
+            code=self.generate_code(account.initials,account.counter if account.counter else 0),
             created_at=datetime.now(),
             created_by=user.user_db_id,
             office_id=user.office_id,
@@ -109,16 +96,12 @@ class DepositTransaction(AbstractTransaction):
         )
 
         notes = []
-        message = dict()
-        message["date"] = datetime.isoformat(datetime.now())
-        message["message"] = self.get_inputs().message
-        message["type"] = "REQUEST"
-        message["user"] = user.user_db_id
-        notes.append(message)
-
+        notes = self.update_notes(notes,"REQUEST",self.get_inputs().message)
         deposit.notes = json.dumps(notes)
-
+        account.counter = account.counter + 1 if account.counter else 1
+        
         self.db.add(deposit)
+        self.db.add(account)
         return deposit
 
     @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)

@@ -25,13 +25,7 @@ import json
 class ForExTransaction(PayableTransaction):
     """Foreign Exchange Transaction"""
 
-    def generate_code(self, initial):
-        """generate a unique code for the internal transaction"""
-        random_part = "".join(
-            random.choices(string.ascii_letters + string.digits, k=10 - len(initial))
-        )
-        code = f"{initial}{random_part}".upper()
-        return code
+  
 
     async def a_commit(
         self, amount, transaction: ForeignEx, has_complete=False
@@ -80,7 +74,11 @@ class ForExTransaction(PayableTransaction):
             .where(Account.initials == user_input.provider_account)
             .where(Account.office_id == user.office_id)
         )
-
+        office = self.db.scalar(
+            select(Account)
+            .where(Account.type == pr.AccountType.OFFICE)
+            .where(Account.office_id == user.office_id)
+        )
         customer = self.db.scalar(
             select(Account)
             .where(Account.initials == user_input.customer_account)
@@ -96,7 +94,7 @@ class ForExTransaction(PayableTransaction):
             provider_account=provider_account.initials,
             customer_account=customer.initials,
             amount=user_input.amount,
-            code=self.generate_code("FX"),
+            code=self.generate_code(office.initials, office.counter if office.counter else 0),
             rate=user_input.daily_rate,
             buying_rate=user_input.buying_rate,
             selling_rate=user_input.selling_rate,
@@ -110,16 +108,13 @@ class ForExTransaction(PayableTransaction):
         )
 
         notes = []
-        message = dict()
-        message["date"] = datetime.isoformat(datetime.now())
-        message["message"] = self.get_inputs().message
-        message["type"] = "REQUEST"
-        message["user"] = user.user_db_id
-        notes.append(message)
+        notes = self.update_notes(notes, "REQUEST",self.get_inputs().message)
 
         forEx.notes = json.dumps(notes)
-
+        office.counter = office.counter + 1 if office.counter else 1
+        
         self.db.add(forEx)
+        self.db.add(office)
         return forEx
 
     @managed_tx_method(auto_commit=CommitMode.COMMIT)

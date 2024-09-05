@@ -24,14 +24,6 @@ class SendingTransaction(PayableTransaction):
     Sending Transaction
     """
 
-    def generate_code(self, initial):
-        """generate a unique code for the internal transaction"""
-        random_part = "".join(
-            random.choices(string.ascii_letters + string.digits, k=10 - len(initial))
-        )
-        code = f"{initial}{random_part}".upper()
-        return code
-
     async def a_commit(
         self, commited_amount, transaction: Sending, has_complete=False
     ) -> List[pr.TransactionCommit]:
@@ -104,6 +96,11 @@ class SendingTransaction(PayableTransaction):
 
         accounts = self.accounts()
         payer = next((x for x in accounts if x.initials == user_input.receiver_initials), None)
+        office = self.db.scalar(
+            select(Account)
+                .where(Account.type == pr.AccountType.OFFICE,
+                Account.owner_id == user.office_id)
+        )
 
         if payer is None:
             raise MkdiError(
@@ -113,7 +110,7 @@ class SendingTransaction(PayableTransaction):
 
         sending = Sending(
             amount=self.get_amount(),
-            code=self.generate_code(payer.initials),
+            code=self.generate_code(office.initials,office.counter if office.counter else 0),    
             office_id=user.office_id,
             org_id=user.organization_id,
             type=pr.TransactionType.SENDING,
@@ -129,16 +126,13 @@ class SendingTransaction(PayableTransaction):
         )
 
         notes = []
-        message = dict()
-        message["date"] = datetime.isoformat(datetime.now())
-        message["message"] = self.get_inputs().message
-        message["type"] = "REQUEST"
-        message["user"] = user.user_db_id
-        notes.append(message)
-
+        notes = self.update_notes(notes, "REQUEST",self.get_inputs().message)
         sending.notes = json.dumps(notes)
-        self.db.add(sending)
 
+        office.counter = office.counter + 1 if office.counter else 1
+        self.db.add(sending)    
+        self.db.add(office) 
+        
         return sending
 
     @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
