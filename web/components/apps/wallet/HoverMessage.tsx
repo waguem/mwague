@@ -24,15 +24,18 @@ export function HoverMessage({ message }: Props) {
 interface Message {
   message: string;
   date: string;
-  user_id: string;
+  user: string;
   type: "REQUEST" | "REVIEW" | "PAYMENT";
 }
 interface MessagesProps {
   messages: Message[];
+  notesType?: "TRANSACTION" | "PAYMENT";
 }
 
-export function HoverMessages({ messages }: MessagesProps) {
-  const messageRequest = messages.find((message) => message.type === "REQUEST");
+export function HoverMessages({ messages, notesType = "TRANSACTION" }: MessagesProps) {
+  const messageRequest = messages.find((message) =>
+    notesType == "TRANSACTION" ? message.type === "REQUEST" : message.type === "PAYMENT"
+  );
   return (
     <HoverCard width={500} shadow="md">
       <HoverCard.Target>

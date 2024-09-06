@@ -27,5 +27,5 @@ __all__ = [
     "External",
     "TransactionWithDetails",
     "Payment",
-    "Forex",
+    "ForEx",
 ]

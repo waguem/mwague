@@ -95,6 +95,9 @@ class PayableTransaction(AbstractTransaction):
         message = dict()
         message["date"] = datetime.datetime.isoformat(datetime.datetime.now())
         message["message"] = payment.notes
+        message["type"] = "PAYMENT"
+        message["user"] = self.user.user_db_id
+
         message["customer_name"] = payment.customer.name
         message["customer_phone"] = payment.customer.phone
         payment_db.notes["notes"].append(message)

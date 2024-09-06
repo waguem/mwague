@@ -26,8 +26,8 @@ import {
   IconCancel,
   IconCurrencyDirham,
   IconCurrencyDollar,
+  IconDownload,
   IconHandGrab,
-  IconReceipt,
   IconSend,
 } from "@tabler/icons-react";
 import { useForm } from "@mantine/form";
@@ -35,7 +35,9 @@ import { payTransaction } from "@/lib/actions/transactions";
 
 import { PaymentRequest } from "@/lib/schemas/actions";
 import { decodeNotification } from "../notifications/notifications";
-import { generateReceipt } from "@/lib/pdf/generator";
+import { generateReceipt, Receipt } from "@/lib/pdf/generator";
+import { HoverMessages } from "../wallet/HoverMessage";
+import { TransactionType } from "@/lib/client";
 interface PayTransactionProps {
   row: any;
   opened: boolean;
@@ -109,38 +111,54 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
   let rows = transaction?.payments?.map((item: any) => {
     // const selected = selection.includes(item.id);
     const payerProfile = getAvatarGroup([item.paid_by])[0];
+    const getAccount = () => {
+      switch (row.type as TransactionType) {
+        case "DEPOSIT":
+          return row.owner_initials;
+        case "SENDING":
+          return row.receiver_initials;
+        case "FOREX":
+          return row.provider_account;
+        case "EXTERNAL":
+          return row.sender_initials;
+      }
+    };
+    const getReceipt = (): Receipt => {
+      const message = item.notes["notes"].find((message: any) => message.type === "PAYMENT");
+      return {
+        amount: item.amount,
+        description: message.message,
+        account: getAccount(),
+        code: row.code,
+      };
+    };
     return (
       <Table.Tr key={item.id}>
-        <Table.Td>{item.payment_date}</Table.Td>
         <Table.Td>
-          <Group gap="sm" justify="left">
-            <Avatar size={26} src={payerProfile.avatar_url} radius={26} />
-            {payerProfile.username}
+          <Group justify="left">
+            <Badge size="sm" color={item.state == 1 ? "teal" : "red"} variant="outline">
+              {item.state == 1 ? "Paid" : "Cancelled"}
+            </Badge>
+            <HoverMessages notesType="PAYMENT" messages={item.notes ? item.notes["notes"] : []} />
           </Group>
         </Table.Td>
         <Table.Td>
           <NumberFormatter decimalScale={2} prefix="$" thousandSeparator value={item.amount} />
         </Table.Td>
         <Table.Td>
-          <Group justify="left">
-            <Badge size="sm" color={item.state == 1 ? "teal" : "red"} variant="outline">
-              {item.state == 1 ? "Paid" : "Cancelled"}
-            </Badge>
+          <Group gap="sm" justify="left">
             <Tooltip label="Cancel" position="left">
-              <ActionIcon size="sm" variant="gradient" gradient={{ from: "red", to: "pink", deg: 100 }}>
-                <IconCancel size={12} />
+              <ActionIcon size="md" variant="outline" color="red" radius={"md"}>
+                <IconCancel size={16} />
               </ActionIcon>
             </Tooltip>
             <Tooltip label="Download Receipt" position="left">
-              <ActionIcon
-                onClick={() => generateReceipt(item)}
-                size="sm"
-                variant="gradient"
-                gradient={{ from: "teal", to: "pink", deg: 130 }}
-              >
-                <IconReceipt size={12} />
+              <ActionIcon onClick={() => generateReceipt(getReceipt())} size="md" variant="outline" radius={"md"}>
+                <IconDownload size={16} />
               </ActionIcon>
             </Tooltip>
+            <Avatar size={26} src={payerProfile.avatar_url} radius={26} />
+            {payerProfile.username}
           </Group>
         </Table.Td>
       </Table.Tr>
@@ -265,10 +283,9 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
         <Table verticalSpacing="sm" withTableBorder highlightOnHover>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>Date</Table.Th>
+              <Table.Th>Description</Table.Th>
+              <Table.Th>Amount</Table.Th>
               <Table.Th>Cashier</Table.Th>
-              <Table.Th>Payment</Table.Th>
-              <Table.Th>State</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>{rows}</Table.Tbody>
