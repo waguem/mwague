@@ -1,7 +1,18 @@
 import { z } from "zod";
 import { tradeWallet } from "@/lib/actions";
 import { Currency, OfficeResponse } from "@/lib/client";
-import { ActionIcon, Button, Group, Loader, LoadingOverlay, Modal, Stack, Textarea } from "@mantine/core";
+import {
+  ActionIcon,
+  Badge,
+  Button,
+  Group,
+  Loader,
+  LoadingOverlay,
+  Modal,
+  NumberFormatter,
+  Stack,
+  Textarea,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { IconGitPullRequest, IconMessage2, IconSend } from "@tabler/icons-react";
@@ -102,7 +113,21 @@ export function NewTrade({ walletID, office, agents }: Props) {
       }
     } catch (e) {}
   };
+  const getTradeResult = () => {
+    if (form.values.tradeType !== "SELL") {
+      return 0;
+    }
+    // how much the amount that we are selling might worth when we buyed it.
+    // basically we spent wallet.trading_balance to buy wallet.crypto_balance
 
+    const walletRate = wallet.crypto_balance / wallet.trading_balance;
+    const valueRate = wallet.value / wallet.crypto_balance;
+
+    const amount_in_crypto = form.values.amount * walletRate;
+    const sellingCost = amount_in_crypto * valueRate;
+    const selling = form.values?.exchange_rate ? form.values.amount / form.values.exchange_rate : 0;
+    return selling - sellingCost;
+  };
   const getForm = () => {
     switch (form.values.tradeType) {
       case "BUY":
@@ -121,7 +146,39 @@ export function NewTrade({ walletID, office, agents }: Props) {
         </ActionIcon>
         New Trade
       </Button>
-      <Modal centered onClose={close} opened={opened} title={wallet?.crypto_currency + " Trading"} size="xl">
+      <Modal
+        centered
+        onClose={close}
+        opened={opened}
+        title={
+          <Group>
+            <IconGitPullRequest size={20} />
+            Wallet Rate:
+            <Badge size="lg" variant="dot" color="violet" radius={"md"}>
+              <NumberFormatter
+                value={wallet?.crypto_balance ? wallet?.trading_balance / wallet?.crypto_balance : 0}
+                thousandSeparator
+                decimalScale={6}
+              />{" "}
+              /{" "}
+              <NumberFormatter
+                value={wallet?.value ? wallet?.crypto_balance / wallet?.value : 0}
+                thousandSeparator
+                decimalScale={6}
+              />
+            </Badge>
+            {form.values.tradeType === "SELL" && (
+              <>
+                Trade Result :
+                <Badge size="lg" variant="dot" color="teal" radius={"md"}>
+                  <NumberFormatter value={getTradeResult()} thousandSeparator decimalScale={2} />
+                </Badge>
+              </>
+            )}
+          </Group>
+        }
+        size="xl"
+      >
         <LoadingOverlay
           visible={pending}
           loaderProps={{

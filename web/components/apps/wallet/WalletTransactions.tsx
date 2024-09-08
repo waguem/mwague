@@ -11,11 +11,12 @@ import { Badge, Group, MantineColor, NumberFormatter, Tooltip } from "@mantine/c
 import { MantineReactTable, MRT_ColumnDef, useMantineReactTable } from "mantine-react-table";
 import { useMemo } from "react";
 import { NewTrade } from "./NewTrade";
-import { getCryptoPrefix, getMoneyPrefix, getStateBadge } from "@/lib/utils";
-import { formatDistanceToNowStrict } from "date-fns";
+import { formDateToMyLocal, getCryptoPrefix, getMoneyPrefix, getStateBadge } from "@/lib/utils";
+import { formatDate, formatDistanceToNowStrict } from "date-fns";
 import { PayTrade } from "./PaymentTrade";
 import { isArray } from "lodash";
 import { HoverMessage } from "./HoverMessage";
+import { TradingDetail } from "./TradingDetail";
 
 interface Props {
   office: OfficeResponse;
@@ -51,8 +52,46 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
   const columns = useMemo<MRT_ColumnDef<WalletTradingResponse>[]>(
     () => [
       {
+        header: "Code",
+        accessorKey: "code",
+        size: 100,
+      },
+      {
+        header: "Amount",
+        accessorKey: "amount",
+        Cell: ({ cell, row }) => {
+          return (
+            <Group>
+              <Badge size="md" variant="dot" color="violet">
+                <NumberFormatter
+                  value={cell.getValue() as number}
+                  thousandSeparator=","
+                  decimalScale={3}
+                  prefix={
+                    row.original.trading_type === "SELL"
+                      ? getMoneyPrefix(wallet?.trading_currency)
+                      : getCryptoPrefix(wallet.crypto_currency)
+                  }
+                />
+              </Badge>
+              <Badge variant="dot">
+                <NumberFormatter
+                  value={row.original.trading_rate}
+                  thousandSeparator=","
+                  decimalScale={3}
+                  prefix={"$"}
+                />{" "}
+                /{" "}
+                <NumberFormatter value={row.original.daily_rate} thousandSeparator="," decimalScale={3} prefix={"$"} />
+              </Badge>
+            </Group>
+          );
+        },
+      },
+      {
         header: "Type",
         accessorKey: "trading_type",
+        size: 100,
         Cell: ({ cell, row }) => (
           <>
             <Badge variant="outline" color={getReviewBadgeColor(cell.getValue() as string)} size="md">
@@ -81,69 +120,53 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
         ),
       },
       {
-        header: "Amount",
-        accessorKey: "amount",
-        Cell: ({ cell, row }) => {
-          return (
-            <Badge size="md" variant="dot" color="violet">
-              <NumberFormatter
-                value={cell.getValue() as number}
-                thousandSeparator=","
-                decimalScale={3}
-                prefix={
-                  row.original.trading_type === "SELL"
-                    ? getMoneyPrefix(wallet?.trading_currency)
-                    : getCryptoPrefix(wallet.crypto_currency)
-                }
-              />
-            </Badge>
-          );
-        },
-      },
-      {
         header: "State",
         accessorKey: "state",
-        Cell: ({ cell }) => {
+        Cell: ({ cell, row }) => {
+          const firstMessage = isArray(row.original.notes) ? (row.original.notes[0] as any) : "";
+          const message = firstMessage.message;
           return (
-            <Badge size="md" {...getStateBadge(cell.getValue() as TransactionState)}>
-              {cell.getValue() as string}
-            </Badge>
+            <Group>
+              <Badge size="md" {...getStateBadge(cell.getValue() as TransactionState)}>
+                {cell.getValue() as string}
+              </Badge>
+              {firstMessage && (
+                <Tooltip label="Message">
+                  <HoverMessage show message={message} />
+                </Tooltip>
+              )}
+            </Group>
           );
         },
-      },
-      {
-        header: "Rates",
-        accessorKey: "daily_rate",
-        enableEditing: false,
-        Cell: ({ cell, row }) => (
-          <>
-            <NumberFormatter value={cell.getValue() as number} thousandSeparator="," decimalScale={3} /> /{" "}
-            <NumberFormatter value={row?.original?.trading_rate as number} thousandSeparator="," decimalScale={3} />
-          </>
-        ),
       },
       {
         header: "Date",
         accessorKey: "created_at",
         Cell: ({ cell }) => (
-          <Badge variant="dot" color="gray" size="sm" style={{ marginLeft: 0 }}>
-            {formatDistanceToNowStrict(new Date(cell.getValue() as string), {
-              addSuffix: true,
-              roundingMethod: "ceil",
-            })}
-          </Badge>
+          <Group>
+            <Badge>{formatDate(cell.getValue(), "dd MMM")}</Badge>
+            <Badge variant="dot" color="gray" size="sm" style={{ marginLeft: 0 }}>
+              {formatDistanceToNowStrict(formDateToMyLocal(cell.getValue() as string), {
+                addSuffix: true,
+                roundingMethod: "ceil",
+              })}
+            </Badge>
+          </Group>
         ),
       },
       {
         header: "Balance",
-        accessorKey: "initial_balance",
+        accessorKey: "wallet_crypto",
+        size: 100,
         Cell: ({ cell }) => (
-          <NumberFormatter
-            value={cell.getValue() as number}
-            thousandSeparator=","
-            decimalScale={3}
-            prefix={getCryptoPrefix(wallet.crypto_currency)}
-          />
+          <Badge variant="dot" size="md" radius={"md"}>
+            <NumberFormatter
+              value={cell.getValue() as number}
+              thousandSeparator=","
+              decimalScale={3}
+              prefix={getCryptoPrefix(wallet.crypto_currency)}
+            />
+          </Badge>
         ),
       },
     ],
@@ -154,7 +177,7 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
     columns,
     data: tradings,
     enableEditing: true,
-
+    positionActionsColumn: "last",
     renderTopToolbarCustomActions: () => {
       return (
         <Group>
@@ -206,16 +229,14 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
       );
     },
     renderRowActions: ({ row }) => {
-      const firstMessage = isArray(row.original.notes) ? (row.original.notes[0] as any) : "";
-      const message = firstMessage.message;
       return (
         <Group gap="xs">
           <Tooltip label="Pay">
             <PayTrade accounts={officeAccounts} trade={row.original as WalletTradingResponse} wallet={wallet} />
           </Tooltip>
-          {firstMessage && (
-            <Tooltip label="Message">
-              <HoverMessage message={message} />
+          {row.original.trading_type === "SELL" && (
+            <Tooltip label="Show details">
+              <TradingDetail trading={row.original as WalletTradingResponse} />
             </Tooltip>
           )}
         </Group>

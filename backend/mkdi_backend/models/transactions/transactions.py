@@ -151,6 +151,21 @@ def get_buyed_amount(cls) -> Decimal:
     return Decimal(cls.amount / cls.wallet_rate) if cls.is_buying else cls.paid
 
 
+def get_trading_result(cls) -> Decimal:
+    if cls.trading_type != pr.TradingType.SELL:
+        return cls.amount
+    return cls.amount / cls.trading_rate - cls.trading_cost
+
+
+def get_trading_cost(cls) -> Decimal:
+    if cls.trading_type != pr.TradingType.SELL:
+        return cls.amount
+
+    cost_rate = cls.wallet_value / cls.wallet_trading
+
+    return cls.amount * cost_rate
+
+
 class WalletTrading(pr.WalletTradingBase, table=True):
     __tablename__ = "wallet_trading"
     id: Optional[UUID] = Field(
@@ -167,7 +182,18 @@ class WalletTrading(pr.WalletTradingBase, table=True):
     state: pr.TransactionState
 
     amount: Decimal = Field(gt=0, nullable=False, max_digits=19, decimal_places=3)
-    initial_balance: Decimal = Field(ge=0, nullable=False, max_digits=19, decimal_places=3)
+
+    pendings: Decimal = Field(gt=0, nullable=False, max_digits=19, decimal_places=3)
+    wallet_value: Decimal = Field(
+        ge=0, nullable=False, max_digits=19, decimal_places=3
+    )  # ///< what is the rate value of the wallet
+    wallet_crypto: Decimal = Field(
+        ge=0, nullable=False, max_digits=19, decimal_places=3
+    )  # ///< the current rate of the wallet
+    wallet_trading: Decimal = Field(
+        ge=0, nullable=False, max_digits=19, decimal_places=3
+    )  # ///< how much the wallet is worth in wallet currency
+
     exchange_walletID: str = Field(foreign_key="wallets.walletID", nullable=True)
     account: str = Field(foreign_key="accounts.initials", nullable=True)
     exchange_rate: Decimal = Field(gt=0, nullable=True, max_digits=11, decimal_places=6)
@@ -175,6 +201,9 @@ class WalletTrading(pr.WalletTradingBase, table=True):
     notes: List[Mapping[Any, Mapping | Any]] = Field(
         default={}, sa_column=sa.Column(MutableList.as_mutable(pg.JSONB))
     )
+
+    trading_cost: ClassVar[Decimal] = hybrid_property(get_trading_cost)
+    trading_result: ClassVar[Decimal] = hybrid_property(get_trading_result)
 
 
 TransactionWithDetails = Union[

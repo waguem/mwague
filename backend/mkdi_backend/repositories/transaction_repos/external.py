@@ -65,7 +65,7 @@ class ExternalTransaction(PayableTransaction):
             commits.append(office.credit(transaction.charges))
         activity = await self.a_has_started_activity()
         fund_history = FundCommit(
-            v_from=(fund.balance + commited_amount),
+            v_from=(fund.balance),
             variation=commited_amount,
             activity_id=activity["id"],
             description=f"External {transaction.code}",

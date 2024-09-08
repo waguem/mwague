@@ -159,14 +159,41 @@ export default function Wallets({ office }: Props) {
         },
       },
       {
-        header: "Wallet Rate",
+        header: "Wallet Rates",
         accessorKey: "office_id",
         enableEditing: false,
         Cell: ({ row }) => {
           const rate = Number(
             row.original.crypto_balance! > 0 ? row.original.trading_balance! / row.original.crypto_balance! : 0
           );
-          return <NumberFormatter value={rate} decimalScale={6} />;
+          const vRate = Number(row.original.value > 0 ? row.original.crypto_balance! / row.original.value : 0);
+          return (
+            <>
+              <Badge variant="dot" radius={"md"} color="teal">
+                <NumberFormatter value={rate} decimalScale={6} />
+              </Badge>{" "}
+              /{" "}
+              <Badge variant="dot" radius={"md"}>
+                {" "}
+                <NumberFormatter value={vRate} decimalScale={6} />
+              </Badge>
+            </>
+          );
+        },
+      },
+      {
+        header: "Evaluation",
+        accessorKey: "value",
+        enableEditing: false,
+        Cell: ({ cell }) => {
+          return (
+            <NumberFormatter
+              prefix={getMoneyPrefix("USD")}
+              value={cell.getValue() as number}
+              decimalScale={2}
+              thousandSeparator=","
+            />
+          );
         },
       },
     ],

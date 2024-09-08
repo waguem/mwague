@@ -48,11 +48,6 @@ const MantineTable = ({ data, office, employees }: Props) => {
     return ["EXTERNAL", "FOREX", "SENDING"].includes(type);
   };
 
-  const reduceChargeItems = (acc: number, row: any) => {
-    if (row.original.item.charges === undefined) return acc;
-    return acc + (row.original.item.charges as number);
-  };
-
   const reduceAmountItems = (acc: number, row: any) => {
     // flat out the amount if it is a forex transaction
     if (row.original.item.type === "FOREX") {
@@ -67,7 +62,6 @@ const MantineTable = ({ data, office, employees }: Props) => {
         accessorKey: "item.code", //access nested data with dot notation
         header: "Code",
         enableEditing: false,
-        size: 100,
         Cell: ({ cell, row }) => (
           <Group>
             <Avatar.Group spacing="xs">
@@ -84,29 +78,9 @@ const MantineTable = ({ data, office, employees }: Props) => {
         ),
       },
       {
-        accessorKey: "item.charges",
-        header: "Charges",
-        size: 100,
-        enableEditing: true,
-        Cell: ({ cell }) => (
-          <NumberFormatter decimalScale={2} prefix="$" thousandSeparator={","} value={cell.getValue() ?? (0 as any)} />
-        ),
-        Footer: () => (
-          <Badge variant="outline" color="blue" size="lg">
-            Total &#8658; {""}
-            <NumberFormatter
-              prefix="$"
-              decimalScale={2}
-              thousandSeparator
-              value={table.getFilteredRowModel().rows.reduce(reduceChargeItems, 0)}
-            />
-          </Badge>
-        ),
-      },
-      {
         accessorKey: "item.amount",
         header: "Amount",
-        size: 200,
+        size: 120,
         Cell: ({ cell }) => {
           const currencies = office?.currencies as any;
           let currency: Currency = currencies?.find((curr: any) => curr.main)?.name as unknown as Currency;
@@ -181,7 +155,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
       {
         accessorKey: "item.state", //normal accessorKey
         header: "State",
-        size: 150,
+        size: 120,
         enableEditing: false,
         Cell: ({ cell, row }) => {
           const state: TransactionState = cell.getValue() as TransactionState;

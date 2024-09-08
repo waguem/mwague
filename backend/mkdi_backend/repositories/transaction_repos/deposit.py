@@ -39,7 +39,7 @@ class DepositTransaction(AbstractTransaction):
     def create_history(self, fund: Account, transaction: Deposit) -> FundCommit:
         """create a history for a deposit transaction"""
         return FundCommit(
-            v_from=(fund.balance - transaction.amount),
+            v_from=(fund.balance),
             variation=transaction.amount,
             activity_id=self.activity.id,
             date=datetime.now(),

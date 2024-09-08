@@ -1546,7 +1546,7 @@ export const $OfficeResult = {
     },
     date: {
       type: "string",
-      format: "date",
+      format: "date-time",
       title: "Date",
     },
     transaction_id: {
@@ -1581,6 +1581,10 @@ export const $OfficeWalletResponse = {
       type: "number",
       title: "Trading Balance",
     },
+    value: {
+      type: "number",
+      title: "Value",
+    },
     office_id: {
       type: "string",
       format: "uuid",
@@ -1588,7 +1592,15 @@ export const $OfficeWalletResponse = {
     },
   },
   type: "object",
-  required: ["crypto_currency", "trading_currency", "walletID", "crypto_balance", "trading_balance", "office_id"],
+  required: [
+    "crypto_currency",
+    "trading_currency",
+    "walletID",
+    "crypto_balance",
+    "trading_balance",
+    "value",
+    "office_id",
+  ],
   title: "OfficeWalletResponse",
 } as const;
 
@@ -2378,6 +2390,13 @@ export const $ValidationState = {
 
 export const $WalletTradingRequest = {
   properties: {
+    code: {
+      type: "string",
+      maxLength: 16,
+      title: "Code",
+      unique: true,
+      nullable: false,
+    },
     walletID: {
       type: "string",
       title: "Walletid",
@@ -2437,6 +2456,13 @@ export const $WalletTradingRequest = {
 
 export const $WalletTradingResponse = {
   properties: {
+    code: {
+      type: "string",
+      maxLength: 16,
+      title: "Code",
+      unique: true,
+      nullable: false,
+    },
     walletID: {
       type: "string",
       title: "Walletid",
@@ -2485,10 +2511,34 @@ export const $WalletTradingResponse = {
       format: "uuid",
       title: "Reviwed By",
     },
-    initial_balance: {
+    wallet_value: {
       type: "number",
       minimum: 0,
-      title: "Initial Balance",
+      title: "Wallet Value",
+      strict: true,
+    },
+    wallet_crypto: {
+      type: "number",
+      minimum: 0,
+      title: "Wallet Crypto",
+      strict: true,
+    },
+    wallet_trading: {
+      type: "number",
+      minimum: 0,
+      title: "Wallet Trading",
+      strict: true,
+    },
+    trading_cost: {
+      type: "number",
+      minimum: 0,
+      title: "Trading Cost",
+      strict: true,
+    },
+    trading_result: {
+      type: "number",
+      minimum: 0,
+      title: "Trading Result",
       strict: true,
     },
     account: {
@@ -2532,7 +2582,11 @@ export const $WalletTradingResponse = {
     "state",
     "created_by",
     "created_at",
-    "initial_balance",
+    "wallet_value",
+    "wallet_crypto",
+    "wallet_trading",
+    "trading_cost",
+    "trading_result",
   ],
   title: "WalletTradingResponse",
 } as const;

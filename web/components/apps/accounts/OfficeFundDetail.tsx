@@ -1,18 +1,20 @@
 "use client";
-import { FundCommit, OfficeResponse } from "@/lib/client";
-import { Badge, Box, NumberFormatter } from "@mantine/core";
+import { AccountResponse, FundCommit, OfficeResponse } from "@/lib/client";
+import { Badge, Box, Group, NumberFormatter } from "@mantine/core";
 import { formatDistanceToNowStrict } from "date-fns";
 import { MantineReactTable, MRT_ColumnDef, useMantineReactTable } from "mantine-react-table";
 import { useMemo } from "react";
 import { isArray } from "lodash";
 import DateRangePicker from "@/components/layouts/date-range-picker";
 import { IconArrowDown, IconArrowUp } from "@tabler/icons-react";
+import { formDateToMyLocal, getMoneyPrefix } from "@/lib/utils";
 interface Props {
   office: OfficeResponse;
   commits: FundCommit[];
+  fund: AccountResponse;
 }
 
-export const OfficeFundDetail = ({ commits }: Props) => {
+export const OfficeFundDetail = ({ commits, fund }: Props) => {
   const memoizedCommits = useMemo(() => {
     if (!commits || !isArray(commits)) return [];
     return commits.sort((a, b) => new Date(b.date ?? "").getTime() - new Date(a.date ?? "").getTime());
@@ -25,7 +27,7 @@ export const OfficeFundDetail = ({ commits }: Props) => {
         accessorKey: "date",
         Cell: ({ cell }) => (
           <Badge variant="dot" color="dark">
-            {formatDistanceToNowStrict(new Date(cell.getValue() as string))}
+            {formatDistanceToNowStrict(formDateToMyLocal(cell.getValue() as string), { addSuffix: true })}
           </Badge>
         ),
       },
@@ -115,6 +117,19 @@ export const OfficeFundDetail = ({ commits }: Props) => {
       <Box>
         <DateRangePicker />
       </Box>
+    ),
+    renderBottomToolbarCustomActions: () => (
+      <Group>
+        Fund Balance :
+        <Badge size="lg" radius={"md"} variant="filled" color="blue">
+          <NumberFormatter
+            decimalScale={2}
+            thousandSeparator
+            prefix={getMoneyPrefix(fund.currency)}
+            value={fund.balance}
+          />
+        </Badge>
+      </Group>
     ),
   });
   return <MantineReactTable table={table} />;

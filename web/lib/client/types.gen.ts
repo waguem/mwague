@@ -461,6 +461,7 @@ export type OfficeWalletResponse = {
   walletID: string;
   crypto_balance: number;
   trading_balance: number;
+  value: number;
   office_id: string;
 };
 
@@ -694,6 +695,7 @@ export type ValidationError = {
 export type ValidationState = "APPROVED" | "REJECTED" | "CANCELLED";
 
 export type WalletTradingRequest = {
+  code?: string;
   walletID: string;
   trading_type: TradingType;
   amount: number;
@@ -704,6 +706,7 @@ export type WalletTradingRequest = {
 };
 
 export type WalletTradingResponse = {
+  code?: string;
   walletID: string;
   trading_type: TradingType;
   amount: number;
@@ -714,7 +717,11 @@ export type WalletTradingResponse = {
   created_by: string;
   created_at: string;
   reviwed_by?: string;
-  initial_balance: number;
+  wallet_value: number;
+  wallet_crypto: number;
+  wallet_trading: number;
+  trading_cost: number;
+  trading_result: number;
   account?: string;
   exchange_rate?: number;
   exchange_walletID?: string;

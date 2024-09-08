@@ -31,7 +31,11 @@ export default async function OfficeAccountsPage({
 
       <Box>
         <Stack gap="md">
-          <OfficeFundDetail commits={fundCommits} office={office} />
+          <OfficeFundDetail
+            fund={accounts.find((account: any) => account.type === "FUND")}
+            commits={fundCommits}
+            office={office}
+          />
         </Stack>
       </Box>
     </div>

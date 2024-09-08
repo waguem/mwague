@@ -140,6 +140,7 @@ class OfficeWalletResponse(CryptoWalletBase):
     walletID: str
     crypto_balance: Decimal
     trading_balance: Decimal
+    value: Decimal
     office_id: UUID
 
 
@@ -439,6 +440,7 @@ class TransactionDB(TransactionBase):
 
 
 class WalletTradingBase(SQLModel):
+    code: str | None = Field(nullable=False, max_length=16, unique=True)
     walletID: str = SQLModelField(foreign_key="wallets.walletID")
     trading_type: TradingType
     amount: Annotated[Decimal, Field(strict=True, ge=0)]
@@ -474,7 +476,11 @@ class WalletTradingResponse(WalletTradingBase):
     created_by: UUID
     created_at: datetime
     reviwed_by: UUID | None
-    initial_balance: Annotated[Decimal, Field(strict=True, ge=0)]
+    wallet_value: Annotated[Decimal, Field(strict=True, ge=0)]
+    wallet_crypto: Annotated[Decimal, Field(strict=True, ge=0)]
+    wallet_trading: Annotated[Decimal, Field(strict=True, ge=0)]
+    trading_cost: Annotated[Decimal, Field(strict=True, ge=0)]
+    trading_result: Annotated[Decimal, Field(strict=True, ge=0)]
     account: str | None
     exchange_rate: Annotated[Decimal | None, Field(strict=True, gt=0)]
     exchange_walletID: str | None

@@ -45,6 +45,14 @@ class WalletRepository:
         """Get wallet by ID."""
         return self.db.scalar(select(OfficeWallet).where(OfficeWallet.walletID == walletID))
 
+    def _get_office(self, office_id: str) -> Account:
+        """Get office account."""
+        return self.db.scalar(
+            select(Account).where(
+                Account.type == pr.AccountType.OFFICE, Account.office_id == office_id
+            )
+        )
+
     @managed_tx_method(auto_commit=CommitMode.COMMIT)
     def buy(self, request: pr.WalletTradingRequest) -> pr.WalletTradingResponse:
         """Buy currency for the wallet."""
@@ -63,6 +71,7 @@ class WalletRepository:
                 Account.initials == buy_request.provider, Account.office_id == self.user.office_id
             )
         )
+        office = self._get_office(self.user.office_id)
 
         trade = WalletTrading(
             walletID=wallet.walletID,
@@ -75,13 +84,23 @@ class WalletRepository:
             account=provider.initials,
             notes=[],
         )
+        trade.code = self.generate_code(office.initials, office.counter if office.counter else 0)
         message = dict()
         message["date"] = datetime.isoformat(datetime.now())
         message["message"] = request.message
+        message["type"] = "BUY"
+        message["user"] = self.user.user_db_id
         trade.notes.append(message)
 
-        trade.initial_balance = (wallet.crypto_balance + wallet.pending_in) - wallet.pending_out
+        office.counter = office.counter + 1 if office.counter else 1
+
+        trade.pendings = wallet.pending_in - wallet.pending_out
+        trade.wallet_trading = wallet.trading_balance
+        trade.wallet_value = wallet.value
+        trade.wallet_crypto = wallet.crypto_balance
+
         self.db.add(trade)
+        self.db.add(office)
         return trade
 
     @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
@@ -103,6 +122,8 @@ class WalletRepository:
             )
         )
 
+        office = self._get_office(self.user.office_id)
+
         if not customer:
             raise MkdiError(
                 error_code=MkdiErrorCode.NOT_FOUND,
@@ -121,19 +142,29 @@ class WalletRepository:
             notes=[],
         )
 
+        trade.code = self.generate_code(office.initials, office.counter if office.counter else 0)
+
         message = dict()
         message["date"] = datetime.isoformat(datetime.now())
         message["message"] = request.message
+        message["type"] = "SELL"
+        message["user"] = self.user.user_db_id
+
         trade.notes.append(message)
 
-        trade.initial_balance = (wallet.crypto_balance + wallet.pending_in) - wallet.pending_out
+        trade.pendings = wallet.pending_in - wallet.pending_out
+        trade.wallet_trading = wallet.trading_balance
+        trade.wallet_value = wallet.value
+        trade.wallet_crypto = wallet.crypto_balance
 
+        office.counter = office.counter + 1 if office.counter else 1
         # move funds from wallet to customer
         self.sell_to_customer(customer, wallet, request)
 
         self.db.add(trade)
         self.db.add(wallet)
         self.db.add(customer)
+        self.db.add(office)
 
         return trade
 
@@ -148,11 +179,13 @@ class WalletRepository:
             assert wallet.trading_balance >= request.amount
 
             wallet_rate = wallet.crypto_balance / wallet.trading_balance
-            value_rate = wallet.value / wallet.crypto_balance
+            cost_rate = wallet.value / wallet.trading_balance
+
             amount_in_crypto = (
                 request.amount * wallet_rate
             )  # amount in the trading_currency (RMB 35,400 e.g)
-            selling_value = amount_in_crypto * value_rate
+
+            selling_value = request.amount * cost_rate
 
             # charge the customer account by the value
             customer.debit(value)
@@ -191,6 +224,8 @@ class WalletRepository:
                 error_code=MkdiErrorCode.NOT_FOUND,
                 message="Wallet not found",
             )
+        # use office account to generate the code
+        office = self._get_office(self.user.office_id)
 
         trade = WalletTrading(
             walletID=wallet.walletID,
@@ -204,19 +239,28 @@ class WalletRepository:
             exchange_rate=exchange_request.exchange_rate,
             notes=[],
         )
+
+        trade.code = self.generate_code(office.initials, office.counter if office.counter else 0)
         message = dict()
         message["date"] = datetime.isoformat(datetime.now())
         message["message"] = request.message
+        message["type"] = "EXCHANGE"
+        message["user"] = self.user.user_db_id
         trade.notes.append(message)
 
-        trade.initial_balance = (wallet.crypto_balance + wallet.pending_in) - wallet.pending_out
+        trade.pendings = wallet.pending_in - wallet.pending_out
+        trade.wallet_trading = wallet.trading_balance
+        trade.wallet_value = wallet.value
+        trade.wallet_crypto = wallet.crypto_balance
 
         # move funds from wallet to exchange_wallet
         self.exchange_wallets(wallet, exchange_wallet, request)
 
+        office.counter = office.counter + 1 if office.counter else 1
         self.db.add(trade)
         self.db.add(wallet)
         self.db.add(exchange_wallet)
+        self.db.add(office)
         return trade
 
     def exchange_wallets(
@@ -294,10 +338,10 @@ class WalletRepository:
         wallet.value += fund_out
         wallet.trading_balance += trade.amount * trade.trading_rate
         fund_history = FundCommit(
-            v_from=(fund.balance - fund_out),
+            v_from=(fund.balance),
             variation=fund_out,
             activity_id=activity.id,
-            description=f"Wallet Trade {trade.walletID}",
+            description=f"Wallet Trade {trade.walletID} {trade.code}",
             is_out=True,  # out
             date=datetime.now(),
         )
@@ -317,3 +361,11 @@ class WalletRepository:
         self.db.add(trade)
 
         return payment
+
+    def generate_code(self, initial, counter) -> str:
+        """generate a unique code for the internal transaction"""
+        now = datetime.now()
+        month = now.strftime("%m")
+        day = now.strftime("%d")
+        year = now.strftime("%y")
+        return f"{initial}{month}{day}{year}{counter+1:03}"

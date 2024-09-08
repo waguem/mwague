@@ -5,14 +5,26 @@ import { formatDistanceToNowStrict } from "date-fns";
 
 interface Props {
   message: string;
+  show?: boolean;
+  size?: number;
 }
-export function HoverMessage({ message }: Props) {
+export function HoverMessage({ message, size, show = false }: Props) {
   return (
     <HoverCard width={280} shadow="md">
       <HoverCard.Target>
-        <ActionIcon variant="outline" radius={"md"}>
-          <IconMessage2Exclamation size={16} />
-        </ActionIcon>
+        <Group>
+          <ActionIcon variant="outline" radius={"md"}>
+            <IconMessage2Exclamation size={16} />
+          </ActionIcon>
+          {show && message.length && (
+            <Box>
+              <Text size="sm">
+                {message.slice(0, size || 10)}
+                {message.length > (size || 10) ? "..." : ""}
+              </Text>
+            </Box>
+          )}
+        </Group>
       </HoverCard.Target>
       <HoverCard.Dropdown>
         <Text size="sm">{message}</Text>

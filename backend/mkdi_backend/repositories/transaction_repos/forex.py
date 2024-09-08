@@ -52,7 +52,7 @@ class ForExTransaction(PayableTransaction):
         transaction.state = pr.TransactionState.PAID
 
         fund_history = FundCommit(
-            v_from=(fund.balance + amount),
+            v_from=(fund.balance),
             variation=amount,
             activity_id=activity["id"],
             description=f"Forex {transaction.code}",
