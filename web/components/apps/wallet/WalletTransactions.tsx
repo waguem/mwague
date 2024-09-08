@@ -144,7 +144,7 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
         accessorKey: "created_at",
         Cell: ({ cell }) => (
           <Group>
-            <Badge>{formatDate(cell.getValue(), "dd MMM")}</Badge>
+            <Badge>{formatDate(cell.getValue() as string, "dd MMM")}</Badge>
             <Badge variant="dot" color="gray" size="sm" style={{ marginLeft: 0 }}>
               {formatDistanceToNowStrict(formDateToMyLocal(cell.getValue() as string), {
                 addSuffix: true,
