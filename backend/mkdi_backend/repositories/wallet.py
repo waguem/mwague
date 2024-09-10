@@ -155,11 +155,11 @@ class WalletRepository:
         trade.pendings = wallet.pending_in - wallet.pending_out
         trade.wallet_trading = wallet.trading_balance
         trade.wallet_value = wallet.value
-        trade.wallet_crypto = wallet.crypto_balance
 
         office.counter = office.counter + 1 if office.counter else 1
         # move funds from wallet to customer
         self.sell_to_customer(customer, wallet, request)
+        trade.wallet_crypto = wallet.crypto_balance
 
         self.db.add(trade)
         self.db.add(wallet)
@@ -251,10 +251,10 @@ class WalletRepository:
         trade.pendings = wallet.pending_in - wallet.pending_out
         trade.wallet_trading = wallet.trading_balance
         trade.wallet_value = wallet.value
-        trade.wallet_crypto = wallet.crypto_balance
 
         # move funds from wallet to exchange_wallet
         self.exchange_wallets(wallet, exchange_wallet, request)
+        trade.wallet_crypto = wallet.crypto_balance
 
         office.counter = office.counter + 1 if office.counter else 1
         self.db.add(trade)

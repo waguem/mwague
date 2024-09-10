@@ -6,10 +6,9 @@ import { useClipboard } from "@mantine/hooks";
 import { IconCopy, IconDownload } from "@tabler/icons-react";
 import { MantineReactTable, MRT_ColumnDef, MRT_Row, useMantineReactTable } from "mantine-react-table";
 import { useMemo } from "react";
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
 import DateRangePicker from "@/components/layouts/date-range-picker";
 import { formatDate, formatDistanceToNowStrict } from "date-fns";
+import { generateOfficeResultsReport } from "@/lib/pdf/generator";
 
 interface Props {
   data: OfficeResult[];
@@ -68,6 +67,9 @@ const ResultTable = ({ data }: Props) => {
       {
         header: "Date",
         accessorKey: "date",
+        sortingFn: (rowA, rowB) => {
+          return new Date(rowA.original.date).getTime() > new Date(rowB.original.date).getTime() ? 1 : -1;
+        },
         Cell: ({ cell }) => (
           <Group>
             {formatDate(new Date(cell.getValue() as string), "MMM dd")}
@@ -113,20 +115,10 @@ const ResultTable = ({ data }: Props) => {
   );
 
   const handleExportRows = (rows: MRT_Row<OfficeResult>[]) => {
-    console.log(rows);
-    const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text("Office Results", 10, 10);
-    doc.setFontSize(12);
-    const tableData = rows.map((row) => Object.values(row.original));
-    const tableHeaders = columns.map((c) => c.header);
-    autoTable(doc, {
-      head: [tableHeaders],
-      body: tableData,
-      startY: 40,
+    generateOfficeResultsReport({
+      result: rows.map((row) => row.original),
+      office: "Office",
     });
-
-    doc.save("result_table.pdf");
   };
 
   const table = useMantineReactTable({
@@ -134,6 +126,12 @@ const ResultTable = ({ data }: Props) => {
     enableEditing: false,
     initialState: {
       density: "xs",
+      sorting: [
+        {
+          id: "date",
+          desc: true,
+        },
+      ],
     },
     paginationDisplayMode: "pages",
     data: memoizedData,

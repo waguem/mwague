@@ -666,7 +666,7 @@ export type TransactionState = "REVIEW" | "PENDING" | "PAID" | "CANCELLED" | "RE
 /**
  * An enumeration.
  */
-export type TransactionType = "DEPOSIT" | "INTERNAL" | "EXTERNAL" | "SENDING" | "FOREX";
+export type TransactionType = "DEPOSIT" | "INTERNAL" | "EXTERNAL" | "SENDING" | "FOREX" | "TRADING";
 
 /**
  * Update employee list request.

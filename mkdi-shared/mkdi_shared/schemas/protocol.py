@@ -72,6 +72,7 @@ class TransactionType(Enum):
     SENDING = "SENDING"
     # ForEx
     FOREX = "FOREX"
+    TRADING = "TRADING"
 
 
 class Currency(Enum):

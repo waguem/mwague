@@ -220,22 +220,17 @@ const MantineTable = ({ data, office, employees }: Props) => {
 
     setValidationErrors({});
     // go through object values and  remove "item" string from the key
-    // to match the actual transaction object
-    const newValues = Object.fromEntries(
-      Object.entries(values).map(([key, value]) => {
-        return [key.replace("item.", ""), value];
-      })
-    );
+
     // update transaction
-    const asyncUpdate = async (values: any) => {
+    const asyncUpdate = async () => {
       const response = await updateTransaction(office.id, {
-        ...values,
+        ...editingRow?.item,
         amount: editingRow?.item.amount,
       });
       decodeNotification("Update Transaction", response);
     };
 
-    startTransition(() => asyncUpdate(newValues));
+    startTransition(() => asyncUpdate());
 
     table.setEditingRow(null); //exit editing mode
   };

@@ -153,7 +153,7 @@ def get_buyed_amount(cls) -> Decimal:
 
 def get_trading_result(cls) -> Decimal:
     if cls.trading_type != pr.TradingType.SELL:
-        return cls.amount
+        return 0
     return cls.amount / cls.trading_rate - cls.trading_cost
 
 

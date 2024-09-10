@@ -104,6 +104,8 @@ export const getBadgeType = (tr_type: TransactionType): MantineColor => {
       return "teal";
     case "SENDING":
       return "grape";
+    case "TRADING":
+      return "indigo";
     default:
       return "gray";
   }

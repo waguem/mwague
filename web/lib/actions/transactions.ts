@@ -184,7 +184,6 @@ export const payTransaction = async (officeId: string, data: PaymentRequest): Pr
 
 export const updateTransaction = async (officeId: string, data: any): Promise<State> => {
   return withToken(async () => {
-    console.log(data);
     // make sure amount is a positive number and rate a positive number and charge a positive number
     if (data.amount <= 0 || data.rate <= 0 || data.charges < 0) {
       return {

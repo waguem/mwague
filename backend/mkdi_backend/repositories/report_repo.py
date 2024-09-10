@@ -1,7 +1,14 @@
 from mkdi_shared.schemas import protocol
 from sqlmodel import Session
 from typing import List
-from mkdi_backend.models.transactions.transactions import Internal, External, Sending, ForEx
+from mkdi_backend.models.transactions.transactions import (
+    Internal,
+    External,
+    Sending,
+    ForEx,
+    WalletTrading,
+)
+from mkdi_backend.models.office import OfficeWallet
 from sqlmodel.sql.expression import select
 from datetime import timedelta, datetime
 from loguru import logger
@@ -36,11 +43,12 @@ class ReportRepository:
         externals = self._get_model_result(External, office_id, start_date, end_date)
         sending = self._get_model_result(Sending, office_id, start_date, end_date)
         forex = self._get_forex_result(office_id, start_date, end_date)
-
+        tradings = self._get_wallet_trading_result(office_id, start_date, end_date)
         report.results.extend(internals)
         report.results.extend(externals)
         report.results.extend(sending)
         report.results.extend(forex)
+        report.results.extend(tradings)
 
         return report
 
@@ -103,5 +111,31 @@ class ReportRepository:
                     state=transaction.state,
                 ),
                 resulst,
+            )
+        )
+
+    def _get_wallet_trading_result(self, office_id: str, start_date: datetime, end_date: datetime):
+        results = self.db.scalars(
+            select(WalletTrading)
+            .join(OfficeWallet, WalletTrading.walletID == OfficeWallet.walletID)
+            .where(OfficeWallet.office_id == office_id)
+            .where(WalletTrading.created_at >= start_date)
+            .where(WalletTrading.created_at <= end_date)
+            .order_by(WalletTrading.created_at)
+        ).all()
+        # filter the results to keep only those with trading_result != 0
+        results = list(filter(lambda transaction: transaction.trading_result != 0, results))
+        return list(
+            map(
+                lambda transaction: protocol.OfficeResult(
+                    result_source=protocol.TransactionType.TRADING,
+                    result_type=protocol.ResultType.BENEFIT,
+                    amount=transaction.trading_result,
+                    code=transaction.code,
+                    transaction_id=transaction.id,
+                    date=transaction.created_at,
+                    state=transaction.state,
+                ),
+                results,
             )
         )

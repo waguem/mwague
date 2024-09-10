@@ -1,13 +1,14 @@
 "use client";
 import { AccountResponse, FundCommit, OfficeResponse } from "@/lib/client";
-import { Badge, Box, Group, NumberFormatter } from "@mantine/core";
+import { Badge, Button, Group, NumberFormatter } from "@mantine/core";
 import { formatDistanceToNowStrict } from "date-fns";
 import { MantineReactTable, MRT_ColumnDef, useMantineReactTable } from "mantine-react-table";
 import { useMemo } from "react";
 import { isArray } from "lodash";
 import DateRangePicker from "@/components/layouts/date-range-picker";
-import { IconArrowDown, IconArrowUp } from "@tabler/icons-react";
+import { IconArrowDown, IconArrowUp, IconDownload } from "@tabler/icons-react";
 import { formDateToMyLocal, getMoneyPrefix } from "@/lib/utils";
+import { generateFundReport } from "@/lib/pdf/generator";
 interface Props {
   office: OfficeResponse;
   commits: FundCommit[];
@@ -113,10 +114,24 @@ export const OfficeFundDetail = ({ commits, fund }: Props) => {
   const table = useMantineReactTable({
     data: memoizedCommits,
     columns,
-    renderTopToolbarCustomActions: () => (
-      <Box>
+    renderTopToolbarCustomActions: ({ table }) => (
+      <Group>
         <DateRangePicker />
-      </Box>
+        <Button
+          radius={"md"}
+          variant="outline"
+          size="xs"
+          onClick={() =>
+            generateFundReport({
+              commits: table.getPrePaginationRowModel().rows.map((row) => row.original),
+              fund,
+            })
+          }
+        >
+          Export PDF
+          <IconDownload size={20} className="ml-2" />
+        </Button>
+      </Group>
     ),
     renderBottomToolbarCustomActions: () => (
       <Group>
