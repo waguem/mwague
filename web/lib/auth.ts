@@ -33,12 +33,14 @@ export const protectedURIs = [
   new ProtectedURI(/^\/dashboard\/office(\/.*)?$/, ["office_admin"]),
   new ProtectedURI(/^\/dashboard\/wallet(\/.*)?$/, ["office_admin"]),
   new ProtectedURI(/^\/dashboard\/agent(\/.*)?$/, "basic"),
+  new ProtectedURI(/^\/dashboard\/payments$/, "basic"),
   new ProtectedURI(/^\/$/, "basic"),
   // Add more URIs and their roles here
   // new ProtectedURI(/^\/dashboard\/activity$/, "basic"),
   // new ProtectedURI(/^\/dashboard\/activity\/[a-zA-Z]+$/, "basic"),
   // new ProtectedURI(/^\/dashboard\/activity\/[a-zA-Z]{1,9}\/.*$/, "basic"),
   // next internal api urls
+  // add new uri for /payments for everyone
   new ProtectedURI(/^\/api\/.*$/, "basic"),
 ];
 

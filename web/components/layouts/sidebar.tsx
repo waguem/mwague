@@ -4,20 +4,11 @@ import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
 import { toggleSidebar } from "@/store/themeConfigSlice";
 import { IRootState } from "@/store";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import IconCaretsDown from "@/components/icon/icon-carets-down";
-import IconCaretDown from "@/components/icon/icon-caret-down";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import SignOutButton from "../auth/signOut";
-import {
-  IconBuildingWarehouse,
-  IconCashRegister,
-  IconReport,
-  IconSearch,
-  IconTransactionBitcoin,
-  IconWallet,
-} from "@tabler/icons-react";
+import { NavRoute, NavRoutes } from "./NavRoutes";
 
 const CollapsibleLogo = ({ menu }: { menu: string }) => {
   return (
@@ -34,19 +25,13 @@ const CollapsibleLogo = ({ menu }: { menu: string }) => {
     </Link>
   );
 };
-const Sidebar = () => {
+
+const Sidebar = ({ routes }: { routes: NavRoute[] }) => {
   const dispatch = useDispatch();
   const pathname = usePathname();
-  const [currentMenu, setCurrentMenu] = useState<string>("");
   const themeConfig = useSelector((state: IRootState) => state.themeConfig);
   const semidark = useSelector((state: IRootState) => state.themeConfig.semidark);
   const menu = useSelector((state: IRootState) => state.themeConfig.menu);
-  const toggleMenu = (value: string) => {
-    setCurrentMenu((oldValue) => {
-      return oldValue === value ? "" : value;
-    });
-  };
-  console.log(toggleMenu);
   useEffect(() => {
     const selector = document.querySelector('.sidebar ul a[href="' + window.location.pathname + '"]');
     if (selector) {
@@ -84,7 +69,7 @@ const Sidebar = () => {
   return (
     <div className={semidark ? "dark" : ""}>
       <nav
-        className={`sidebar fixed bottom-0 top-0 z-50 h-full min-h-screen w-[180px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] transition-all duration-300 ${
+        className={`sidebar fixed bottom-0 top-0 z-50 h-full min-h-screen w-[220px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] transition-all duration-300 ${
           semidark ? "text-white-dark" : ""
         }`}
       >
@@ -101,98 +86,7 @@ const Sidebar = () => {
             </button>
           </div>
           <PerfectScrollbar className="relative h-[calc(100vh-80px)]">
-            <ul className="relative space-y-0.5 p-4 py-0 font-semibold">
-              <li className="menu nav-item">
-                <Link
-                  href={`/dashboard`}
-                  className={`${currentMenu === "dashboard" ? "active" : ""} nav-link group w-full`}
-                >
-                  <div className="flex items-center">
-                    <IconBuildingWarehouse className="shrink-0 group-hover:!text-primary" />
-                    <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">
-                      Office
-                    </span>
-                  </div>
-                </Link>
-              </li>
-              <li className="menu nav-item">
-                <Link href={`/dashboard`} className={`active nav-link group w-full`}>
-                  <div className="flex items-center">
-                    <IconCashRegister className="shrink-0 group-hover:!text-primary" />
-                    <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">
-                      Payments
-                    </span>
-                  </div>
-                </Link>
-              </li>
-              <li className="menu nav-item">
-                <Link
-                  href={`/dashboard`}
-                  className={`${currentMenu === "dashboard" ? "active" : ""} nav-link group w-full`}
-                >
-                  <div className="flex items-center">
-                    <IconTransactionBitcoin className="shrink-0 group-hover:!text-primary" />
-                    <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">
-                      Transactions
-                    </span>
-                  </div>
-
-                  <div className={currentMenu !== "dashboard" ? "-rotate-90 rtl:rotate-90" : ""}>
-                    <IconCaretDown />
-                  </div>
-                </Link>
-              </li>
-              <li className="menu nav-item">
-                <Link
-                  href={`/dashboard`}
-                  className={`${currentMenu === "dashboard" ? "active" : ""} nav-link group w-full`}
-                >
-                  <div className="flex items-center">
-                    <IconWallet className="shrink-0 group-hover:!text-primary" />
-                    <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">
-                      Wallets
-                    </span>
-                  </div>
-
-                  <div className={currentMenu !== "dashboard" ? "-rotate-90 rtl:rotate-90" : ""}>
-                    <IconCaretDown />
-                  </div>
-                </Link>
-              </li>
-              <li className="menu nav-item">
-                <Link
-                  href={`/dashboard`}
-                  className={`${currentMenu === "dashboard" ? "active" : ""} nav-link group w-full`}
-                >
-                  <div className="flex items-center">
-                    <IconReport className="shrink-0 group-hover:!text-primary" />
-                    <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">
-                      Reports
-                    </span>
-                  </div>
-
-                  <div className={currentMenu !== "dashboard" ? "-rotate-90 rtl:rotate-90" : ""}>
-                    <IconCaretDown />
-                  </div>
-                </Link>
-              </li>
-              <li className="menu nav-item">
-                <Link
-                  href={`/dashboard`}
-                  className={`${currentMenu === "dashboard" ? "active" : ""} nav-link group w-full`}
-                >
-                  <div className="flex items-center">
-                    <IconSearch className="shrink-0 group-hover:!text-primary" />
-                    <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">
-                      Search
-                    </span>
-                  </div>
-                </Link>
-              </li>
-              <li className="menu nav-item">
-                <SignOutButton />
-              </li>
-            </ul>
+            <NavRoutes routes={routes} />
           </PerfectScrollbar>
         </div>
       </nav>
