@@ -5,12 +5,14 @@ from mkdi_backend.models.transactions.transactions import WalletTrading, Payment
 from mkdi_backend.models.office import OfficeWallet
 from mkdi_backend.models.Account import Account
 from mkdi_backend.models.Activity import FundCommit, Activity
+from mkdi_backend.models.Agent import Agent
 from sqlmodel import Session, select, or_
 from mkdi_shared.schemas import protocol as pr
 from mkdi_backend.repositories.account import AccountRepository
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_backend.utils.database import managed_tx_method, CommitMode
 from mkdi_backend.repositories.transaction_repos.invariant import managed_invariant_tx_method
+from mkdi_backend.utils.dateutils import get_month_range
 from typing import List
 from datetime import datetime
 from functools import wraps
@@ -366,6 +368,27 @@ class WalletRepository:
         """generate a unique code for the internal transaction"""
         now = datetime.now()
         month = now.strftime("%m")
-        day = now.strftime("%d")
-        year = now.strftime("%y")
-        return f"{initial}{month}{day}{year}{counter+1:03}"
+        return f"{initial}{month}{counter+1:03}"
+
+    def get_agent_tradings(self, initials, start_date_str: str | None, end_date_str: str | None):
+        accounts = self.db.scalars(
+            select(Account)
+            .join(Agent, Account.owner_id == Agent.id)
+            .where(Agent.initials == initials)
+        ).all()
+
+        initials_list = [account.initials for account in accounts]
+
+        start, end = get_month_range(start_date_str, end_date_str)
+
+        tradings = self.db.scalars(
+            select(WalletTrading)
+            .where(
+                WalletTrading.account.in_(initials_list),
+                WalletTrading.created_at >= start,
+                WalletTrading.created_at <= end,
+            )
+            .order_by(WalletTrading.created_at.desc())
+        ).all()
+
+        return tradings

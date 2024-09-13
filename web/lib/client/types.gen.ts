@@ -860,10 +860,12 @@ export type StartActivityApiV1OfficeActivityPostResponse = ActivityResponse;
 export type GetOfficeTransactionsApiV1OfficeTransactionsGetResponse = Array<TransactionItem>;
 
 export type GetAgentTransactionsApiV1AgentInitialsTransactionsGetData = {
+  endDate?: string;
   initials: string;
+  startDate?: string;
 };
 
-export type GetAgentTransactionsApiV1AgentInitialsTransactionsGetResponse = Array<TransactionResponse>;
+export type GetAgentTransactionsApiV1AgentInitialsTransactionsGetResponse = Array<TransactionItem>;
 
 export type RequestTransactionApiV1TransactionPostData = {
   requestBody: TransactionRequest;
@@ -921,6 +923,14 @@ export type PayTradeApiV1WalletTradeTradeIdPayPostData = {
 };
 
 export type PayTradeApiV1WalletTradeTradeIdPayPostResponse = PaymentResponse;
+
+export type GetAgentTradingsApiV1OfficeAgentInitialsTradingsGetData = {
+  endDate?: string;
+  initials: string;
+  startDate?: string;
+};
+
+export type GetAgentTradingsApiV1OfficeAgentInitialsTradingsGetResponse = Array<WalletTradingResponse>;
 
 export type GetMonthlyReportApiV1OfficeMonthlyReportGetData = {
   endDate?: string;
@@ -1291,7 +1301,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Array<TransactionResponse>;
+        200: Array<TransactionItem>;
         /**
          * Validation Error
          */
@@ -1410,6 +1420,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         201: PaymentResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1office/agent/{initials}/tradings": {
+    get: {
+      req: GetAgentTradingsApiV1OfficeAgentInitialsTradingsGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<WalletTradingResponse>;
         /**
          * Validation Error
          */

@@ -31,6 +31,7 @@ from mkdi_shared.schemas import protocol as pr
 from mkdi_backend.utils.database import CommitMode, managed_tx_method
 from pydantic import ValidationError
 from sqlmodel import Session, or_, select
+from datetime import datetime, timedelta
 
 
 class TransactionRepository:
@@ -50,62 +51,94 @@ class TransactionRepository:
 
         return response
 
-    def get_agent_transactions(self, user: KcUser, initials: str) -> List[pr.TransactionResponse]:
+    def _get_month_range(self, start: str | None, end: str | None):
+        today = datetime.now()
+        date_format = "%Y-%m-%dT%H:%M:%S.%fZ"
+        if not start:
+            # get the first day of the month
+            start_date = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        else:
+            start_date = datetime.strptime(start, date_format).replace(day=1)
+
+        if not end:
+            end_date = today.replace(day=28) + timedelta(days=4)
+        else:
+            end_date = datetime.strptime(end, date_format).replace(day=28) + timedelta(days=4)
+
+        return start_date, end_date
+
+    def get_agent_transactions(
+        self, user: KcUser, initials: str, start_date_str: str, end_date_str: None
+    ) -> List[TransactionItem]:
         """get all transactions for an agent"""
-        fields = list(pr.TransactionDB.__fields__.keys())
 
-        deposit_query = (
-            self.db.query(*list(map(lambda x: getattr(Deposit, x), fields)))
-            .join(Account, Deposit.owner_initials == Account.initials)
+        start_date, end_date = self._get_month_range(start_date_str, end_date_str)
+
+        accounts = self.db.scalars(
+            select(Account, Agent)
             .join(Agent, Agent.id == Account.owner_id)
-            .filter(Agent.initials == initials)
+            .where(Account.office_id == user.office_id)
+            .where(Agent.initials == initials)
+        ).all()
+
+        initials_str = list(map(lambda x: x.initials, accounts))
+
+        deposits = self.db.scalars(
+            select(Deposit)
+            .where(Deposit.office_id == user.office_id)
+            .where(Deposit.owner_initials.in_(initials_str))
+            .where(Deposit.created_at >= start_date)
+            .where(Deposit.created_at <= end_date)
             .order_by(Deposit.created_at.desc())
-        )
-
-        internal_query = (
-            self.db.query(*list(map(lambda x: getattr(Internal, x), fields)))
-            .join(
-                Account,
-                or_(
-                    Internal.sender_initials == Account.initials,
-                    Internal.receiver_initials == Account.initials,
-                ),
-            )
-            .join(Agent, Agent.id == Account.owner_id)
-            .filter(Agent.initials == initials, Agent.office_id == user.office_id)
-            .order_by(Internal.created_at.desc())
-        )
-
-        external_query = (
-            self.db.query(*list(map(lambda x: getattr(External, x), fields)))
-            .join(Account, External.sender_initials == Account.initials)
-            .join(Agent, Agent.id == Account.owner_id)
-            .filter(Agent.initials == initials)
+        ).all()
+        externals = self.db.scalars(
+            select(External)
+            .where(External.office_id == user.office_id)
+            .where(External.sender_initials.in_(initials_str))
+            .where(External.created_at >= start_date)
+            .where(External.created_at <= end_date)
             .order_by(External.created_at.desc())
-        )
-
-        sending_query = (
-            self.db.query(*list(map(lambda x: getattr(Sending, x), fields)))
-            .join(Account, Sending.receiver_initials == Account.initials)
-            .join(Agent, Agent.id == Account.owner_id)
-            .filter(Agent.initials == initials)
+        ).all()
+        sendings = self.db.scalars(
+            select(Sending)
+            .where(Sending.office_id == user.office_id)
+            .where(Sending.receiver_initials.in_(initials_str))
+            .where(Sending.created_at >= start_date)
+            .where(Sending.created_at <= end_date)
             .order_by(Sending.created_at.desc())
-        )
+        ).all()
 
-        combined_query = union_all(deposit_query, internal_query, external_query, sending_query)
-        records = self.db.execute(combined_query).fetchall()
-        # merge the two lists
-        resp = []
-        for record in records:
-            adjusted_record = {}
-            for key, value in dict(record._mapping).items():
-                # remove the prefix from the key
-                # however desposits_create_at will be changed to created_at
-                _, col = key.split("_", 1)
-                adjusted_record[col] = value
-            resp.append(pr.TransactionResponse(**adjusted_record))
+        forexs = self.db.scalars(
+            select(ForEx)
+            .where(ForEx.office_id == user.office_id)
+            .where(ForEx.customer_account.in_(initials_str))
+            .where(ForEx.created_at >= start_date)
+            .where(ForEx.created_at <= end_date)
+            .order_by(ForEx.created_at.desc())
+        ).all()
 
-        return resp
+        internals = self.db.scalars(
+            select(Internal)
+            .where(Internal.office_id == user.office_id)
+            .where(Internal.sender_initials.in_(initials_str))
+            .where(Internal.created_at >= start_date)
+            .where(Internal.created_at <= end_date)
+            .where(
+                or_(
+                    Internal.sender_initials.in_(initials_str),
+                    Internal.receiver_initials.in_(initials_str),
+                )
+            )
+        ).all()
+
+        result = []
+
+        for collection in [internals, deposits, externals, sendings, forexs]:
+            for item in collection:
+                notes = json.loads(item.notes) if len(item.notes) > 0 else []
+                result.append(TransactionItem(item=item, notes=notes))
+
+        return result
 
     def get_concrete_type(self, transaction_type: str) -> AbstractTransaction:
         """return the concrete type for the transaction"""

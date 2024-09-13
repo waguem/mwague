@@ -26,9 +26,13 @@ export const getMyOfficeTransactions = cache(async () => {
   });
 });
 
-export const getAgentTransactions = cache(async (initials: string) => {
+export const getAgentTransactions = cache(async (initials: string, startDate?: string, endDate?: string) => {
   return withToken(async () => {
-    return await getAgentTransactionsApi({ initials });
+    return await getAgentTransactionsApi({
+      initials,
+      endDate,
+      startDate,
+    });
   });
 });
 

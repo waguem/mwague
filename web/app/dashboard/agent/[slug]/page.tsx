@@ -1,7 +1,43 @@
-export default async function AgentPage() {
+import { getEmployeesCached, getMyOffice } from "@/lib/actions";
+import { getAgentTransactions } from "@/lib/actions/transactions";
+import MantineTable from "@/components/apps/transactions/MantineReactTable";
+import { getAgentTradings } from "@/lib/actions/wallet";
+import { TradingsTable } from "@/components/apps/wallet/TradingsTable";
+import { Space, Timeline, TimelineItem, Title } from "@mantine/core";
+import { IconReport, IconTransactionBitcoin } from "@tabler/icons-react";
+import IconBitcoin from "@/components/icon/icon-bitcoin";
+import IconOpenBook from "@/components/icon/icon-open-book";
+import AgentReports from "@/components/apps/agents/AgentReports";
+
+export default async function AgentPage({
+  params,
+  searchParams,
+}: {
+  params: { slug: string };
+  searchParams?: {
+    from: string;
+    to: string;
+  };
+}) {
+  const transactions = await getAgentTransactions(params.slug, searchParams?.from, searchParams?.to);
+  const office = await getMyOffice();
+  const employees = await getEmployeesCached(office.id);
+  const tradings = await getAgentTradings(params.slug, searchParams?.from, searchParams?.to);
   return (
-    <div>
-      <div className="panel mt-5"></div>
-    </div>
+    <Timeline bulletSize={24} lineWidth={1}>
+      <TimelineItem bullet={<IconOpenBook />} title={<Title order={3}>Overview</Title>}></TimelineItem>
+      <TimelineItem bullet={<IconTransactionBitcoin size={12} />} title={<Title order={3}>Transactions</Title>}>
+        <Space h="xl" />
+        <MantineTable office={office} data={transactions} employees={employees} />
+      </TimelineItem>
+      <TimelineItem bullet={<IconBitcoin />} title={<Title order={3}>Tradings</Title>}>
+        <Space h="xl" />
+        <TradingsTable tradings={tradings} />
+      </TimelineItem>
+      <TimelineItem bullet={<IconReport size={12} />} title={<Title order={3}>Reports</Title>}>
+        <Space h="xl" />
+        <AgentReports initials={params.slug} />
+      </TimelineItem>
+    </Timeline>
   );
 }

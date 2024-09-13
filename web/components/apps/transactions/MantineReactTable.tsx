@@ -3,8 +3,8 @@ import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css"; //if using mantine date picker features
 import "mantine-react-table/styles.css"; //make sure MRT styles were imported in your app root (once)
 import { useMemo, useState, useTransition } from "react";
-import { NumberFormatter, Badge, ActionIcon, Box, Tooltip, Group, Avatar, NumberInput } from "@mantine/core";
-import { IconEyeCheck, IconEdit, IconCash } from "@tabler/icons-react";
+import { NumberFormatter, Badge, ActionIcon, Box, Tooltip, Group, Avatar, NumberInput, Button } from "@mantine/core";
+import { IconEyeCheck, IconEdit, IconCash, IconDownload } from "@tabler/icons-react";
 import { formatDate, formatDistanceToNowStrict } from "date-fns";
 import { MantineReactTable, useMantineReactTable, MRT_TableOptions, type MRT_ColumnDef } from "mantine-react-table";
 import {
@@ -24,6 +24,7 @@ import { notifications } from "@mantine/notifications";
 import { updateTransaction } from "@/lib/actions/transactions";
 import { decodeNotification } from "../notifications/notifications";
 import { HoverMessages } from "../wallet/HoverMessage";
+import DateRangePicker from "@/components/layouts/date-range-picker";
 
 interface Props {
   data: TransactionItem[];
@@ -80,7 +81,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
       {
         accessorKey: "item.amount",
         header: "Amount",
-        size: 120,
+        size: 80,
         Cell: ({ cell }) => {
           const currencies = office?.currencies as any;
           let currency: Currency = currencies?.find((curr: any) => curr.main)?.name as unknown as Currency;
@@ -155,7 +156,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
       {
         accessorKey: "item.state", //normal accessorKey
         header: "State",
-        size: 120,
+        size: 160,
         enableEditing: false,
         Cell: ({ cell, row }) => {
           const state: TransactionState = cell.getValue() as TransactionState;
@@ -234,7 +235,9 @@ const MantineTable = ({ data, office, employees }: Props) => {
 
     table.setEditingRow(null); //exit editing mode
   };
-
+  const handleExportRows = (rows: any) => {
+    console.log(rows);
+  };
   const table = useMantineReactTable({
     columns,
     enableEditing: true,
@@ -300,6 +303,20 @@ const MantineTable = ({ data, office, employees }: Props) => {
     mantineTableProps: () => ({
       striped: true,
     }),
+    renderTopToolbarCustomActions: ({ table }) => (
+      <Group gap="xs">
+        <DateRangePicker />
+        <Button
+          onClick={() => handleExportRows(table.getPrePaginationRowModel().rows)}
+          leftSection={<IconDownload size={16} />}
+          size="xs"
+          variant="outline"
+          radius="md"
+        >
+          Export to PDF
+        </Button>
+      </Group>
+    ),
   });
 
   return (
@@ -318,7 +335,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
         officeId={office.id}
         getAvatarGroup={getAvatarGroup}
       />
-      <MantineReactTable table={table} />;
+      <MantineReactTable table={table} />
     </>
   );
 };

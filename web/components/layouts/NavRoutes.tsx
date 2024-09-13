@@ -30,7 +30,7 @@ function NavGroup({ index, route, pathname }: { index: number; route: NavRoute; 
           </span>
         </div>
         {route.children && (
-          <div className={`${pathname !== route.href ? "-rotate-90 rtl:rotate-90" : ""}`}>
+          <div className={`${opened ? "-rotate-90 rtl:rotate-90" : ""}`}>
             <IconCaretDown onClick={() => (opened ? close() : open())} />
           </div>
         )}
@@ -39,13 +39,11 @@ function NavGroup({ index, route, pathname }: { index: number; route: NavRoute; 
         <Collapse in={opened}>
           <ul className="sub-menu">
             {route.children.map((child, index) => (
-              <li key={index} className="nav-item">
-                <Link href={child.href}>
+              <li key={index}>
+                <Link href={child.href} className={`${pathname === route.href ? "active" : ""} nav-link`}>
                   <div className="flex items-center">
                     {child.icon}
-                    <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">
-                      {child.label}
-                    </span>
+                    <span className="ltr:pl-3 rtl:pr-3">{child.label}</span>
                   </div>
                 </Link>
               </li>

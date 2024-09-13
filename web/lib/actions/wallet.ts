@@ -4,6 +4,7 @@ import {
   tradeWalletApiV1WalletPost,
   getWalletTradingsApiV1WalletWalletIdTradingsGet as getWalletTradingsApi,
   payTradeApiV1WalletTradeTradeIdPayPost,
+  getAgentTradingsApiV1OfficeAgentInitialsTradingsGet as getAgentWalletTradingsApi,
 } from "@/lib/client";
 import { withToken } from "./withToken";
 import { TradeWallet } from "@/lib/schemas";
@@ -60,5 +61,15 @@ export const payTrade = async (walletID: string, tradeID: string) => {
       status: "success",
       message: "Trade Paid Successfully",
     };
+  });
+};
+
+export const getAgentTradings = async (initials: string, startDate?: string, endDate?: string) => {
+  return await withToken(async () => {
+    return await getAgentWalletTradingsApi({
+      initials: initials,
+      startDate,
+      endDate,
+    });
   });
 };

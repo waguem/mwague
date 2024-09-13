@@ -67,6 +67,8 @@ import type {
   GetWalletTradingsApiV1WalletWalletIdTradingsGetResponse,
   PayTradeApiV1WalletTradeTradeIdPayPostData,
   PayTradeApiV1WalletTradeTradeIdPayPostResponse,
+  GetAgentTradingsApiV1OfficeAgentInitialsTradingsGetData,
+  GetAgentTradingsApiV1OfficeAgentInitialsTradingsGetResponse,
   GetMonthlyReportApiV1OfficeMonthlyReportGetData,
   GetMonthlyReportApiV1OfficeMonthlyReportGetResponse,
 } from "./types.gen";
@@ -646,7 +648,9 @@ export const getOfficeTransactionsApiV1OfficeTransactionsGet =
  * get all transactions for an agent
  * @param data The data for the request.
  * @param data.initials
- * @returns TransactionResponse Successful Response
+ * @param data.startDate
+ * @param data.endDate
+ * @returns TransactionItem Successful Response
  * @throws ApiError
  */
 export const getAgentTransactionsApiV1AgentInitialsTransactionsGet = (
@@ -657,6 +661,10 @@ export const getAgentTransactionsApiV1AgentInitialsTransactionsGet = (
     url: "/api/v1/agent/{initials}/transactions",
     path: {
       initials: data.initials,
+    },
+    query: {
+      start_date: data.startDate,
+      end_date: data.endDate,
     },
     errors: {
       422: "Validation Error",
@@ -852,6 +860,35 @@ export const payTradeApiV1WalletTradeTradeIdPayPost = (
     url: "/api/v1/wallet/trade/{tradeID}/pay",
     path: {
       tradeID: data.tradeId,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Get Agent Tradings
+ * Get agent tradings
+ * @param data The data for the request.
+ * @param data.initials
+ * @param data.startDate
+ * @param data.endDate
+ * @returns WalletTradingResponse Successful Response
+ * @throws ApiError
+ */
+export const getAgentTradingsApiV1OfficeAgentInitialsTradingsGet = (
+  data: GetAgentTradingsApiV1OfficeAgentInitialsTradingsGetData
+): CancelablePromise<GetAgentTradingsApiV1OfficeAgentInitialsTradingsGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1office/agent/{initials}/tradings",
+    path: {
+      initials: data.initials,
+    },
+    query: {
+      start_date: data.startDate,
+      end_date: data.endDate,
     },
     errors: {
       422: "Validation Error",

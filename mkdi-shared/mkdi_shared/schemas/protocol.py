@@ -11,7 +11,7 @@ from mkdi_shared.exceptions.mkdi_api_error import MkdiErrorCode, MkdiError
 from pydantic import BaseModel, Field
 from sqlmodel import Field as SQLModelField
 from sqlmodel import SQLModel
-from sqlalchemy.ext.mutable import MutableDict
+from sqlalchemy.ext.mutable import MutableDict, MutableList
 
 
 def custom_serializer(obj):
@@ -562,3 +562,17 @@ class DateRange(BaseModel):
 
     start_date: datetime
     end_date: datetime
+
+
+class AccountMonthlyReport(SQLModel):
+    """Account monthly report."""
+
+    account: str  # ///< Account initials
+    start_date: datetime
+    end_date: datetime
+    is_open: bool  # ///< report status
+    start_balance: Decimal
+    end_balance: Decimal
+    report_json: Mapping[Any, Mapping | Any] = SQLModelField(
+        default={}, sa_column=sa.Column(MutableList.as_mutable(pg.JSONB))
+    )

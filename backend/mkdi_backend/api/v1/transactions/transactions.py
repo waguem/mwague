@@ -31,17 +31,19 @@ async def get_office_transactions(
 
 @router.get(
     "/agent/{initials}/transactions",
-    response_model=List[protocol.TransactionResponse],
+    response_model=List[TransactionItem],
     status_code=200,
 )
 def get_agent_transactions(
     *,
     user: Annotated[KcUser, Security(check_authorization, scopes=[])],
     initials: str,
+    start_date: str | None = None,
+    end_date: str | None = None,
     db: Session = Depends(get_db),
-) -> list[protocol.TransactionResponse]:
+) -> list[TransactionItem]:
     """get all transactions for an agent"""
-    return TransactionRepository(db).get_agent_transactions(user, initials)
+    return TransactionRepository(db).get_agent_transactions(user, initials, start_date, end_date)
 
 
 @router.post("/transaction", response_model=protocol.TransactionResponse, status_code=201)

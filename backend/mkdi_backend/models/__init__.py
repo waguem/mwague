@@ -1,4 +1,4 @@
-from .Account import Account
+from .Account import Account, AccountMonthlyReport
 from .Activity import Activity
 from .Agent import Agent
 from .employee import Employee
@@ -20,6 +20,7 @@ __all__ = [
     "Employee",
     "Agent",
     "Account",
+    "AccountMonthlyReport",
     "Activity",
     "Internal",
     "Deposit",

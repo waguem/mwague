@@ -50,3 +50,20 @@ def pay_trade(
 ) -> pr.PaymentResponse:
     """Pay trade"""
     return WalletRepository(db, user).pay_trade(tradeID)
+
+
+@router.get(
+    "office/agent/{initials}/tradings",
+    response_model=List[pr.WalletTradingResponse],
+    status_code=200,
+)
+def get_agent_tradings(
+    *,
+    user: KcUser = Security(check_authorization, scopes=[]),
+    initials: str,
+    start_date: str | None = None,
+    end_date: str | None = None,
+    db: Session = Depends(get_db),
+) -> List[pr.WalletTradingResponse]:
+    """Get agent tradings"""
+    return WalletRepository(db, user).get_agent_tradings(initials, start_date, end_date)

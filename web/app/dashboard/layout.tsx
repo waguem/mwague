@@ -13,7 +13,15 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import UserHeader from "@/components/layouts/UserHeader";
 import { NavRoute } from "@/components/layouts/NavRoutes";
-import { IconBuildingWarehouse, IconCashRegister, IconTransactionBitcoin, IconWallet } from "@tabler/icons-react";
+import {
+  IconBook,
+  IconBuildingWarehouse,
+  IconCashRegister,
+  IconReport,
+  IconTransactionBitcoin,
+  IconUsersGroup,
+  IconWallet,
+} from "@tabler/icons-react";
 import { getMyOffice } from "@/lib/actions";
 import { OfficeResponse } from "@/lib/client";
 
@@ -30,13 +38,33 @@ export default async function DefaultLayout({ children }: { children: React.Reac
   if (!session || !session?.accessToken || !office) {
     redirect("/auth/login");
   }
-
+  const officeRoutesChildren: NavRoute[] = [
+    {
+      href: `/dashboard/office/${office.id}/accounts`,
+      label: "Accounts",
+      permissions: ALLOWED_ROLES,
+      icon: <IconBook size={20} />,
+    },
+    {
+      href: `/dashboard/office/${office.id}/agents`,
+      label: "Agents",
+      permissions: ADMINS,
+      icon: <IconUsersGroup size={20} />,
+    },
+    {
+      href: `/dashboard/office/${office.id}/reports`,
+      label: "Reports",
+      permissions: ADMINS,
+      icon: <IconReport size={20} />,
+    },
+  ];
   const routes: NavRoute[] = makeRoutes(session.user.roles, [
     {
       href: `/dashboard/office/${office.id}`,
       label: "Office",
       icon: <IconBuildingWarehouse size={20} />,
       permissions: ALLOWED_ROLES,
+      children: officeRoutesChildren,
     },
     {
       href: "/dashboard/payments",

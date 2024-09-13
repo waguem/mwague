@@ -412,9 +412,7 @@ class AbstractTransaction(ABC):
         """generate a unique code for the internal transaction"""
         now = datetime.now()
         month = now.strftime("%m")
-        day = now.strftime("%d")
-        year = now.strftime("%y")
-        return f"{initial}{month}{day}{year}{counter+1:03}"
+        return f"{initial}{month}{counter+1:03}"
 
     def update_notes(self, notes, type, note):
         """create a note"""

@@ -30,7 +30,7 @@ const DateRangePicker = () => {
   };
 
   return (
-    <Popover shadow="md" width={300}>
+    <Popover shadow="md" width={420}>
       <Popover.Target>
         <Button variant="outline" size="xs" radius="md" leftSection={<IconCalendar size={16} />}>
           Date
