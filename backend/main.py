@@ -10,6 +10,7 @@ from mkdi_backend.utils.lifespan import lifespan
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol as protocol_schema
 from mkdi_shared.utils import utcnow
+from fastapi_utils.tasks import repeat_every
 
 app = fastapi.FastAPI(
     title=settings.PROJECT_NAME,

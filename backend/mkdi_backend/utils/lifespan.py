@@ -6,11 +6,23 @@ from alembic import command as a_command
 from alembic import config as a_config
 from fastapi import FastAPI
 from loguru import logger
-from mkdi_backend.authproviders import KeycloakAdminHelper
 from mkdi_backend.config import settings
 from mkdi_backend.database import engine
-from mkdi_backend.utils.seed import create_seed_data
 from sqlmodel import Session
+import asyncio
+from datetime import datetime, timedelta
+from mkdi_backend.repositories.report_repo import ReportRepository
+
+
+async def create_account_report():
+    while True:
+        logger.info("Running periodic task")
+        # get the db session
+        with Session(engine) as session:
+            report_repo = ReportRepository(session)
+            report_repo.start_reports()
+
+        await asyncio.sleep(settings.TASK_CREATE_REPORTS_INTERVAL * 60)
 
 
 async def alembic_upgrade():
@@ -41,7 +53,15 @@ async def lifespan(app: FastAPI):
     await alembic_upgrade()
     save_schema(app)
     # seed database
+
+    # start the cron job
+    task = asyncio.create_task(create_account_report())
+
     yield
+
+    task.cancel()
+    # wait for the task to finish
+    await task
 
     logger.info("Closing database connection")
     app.state.db.close()

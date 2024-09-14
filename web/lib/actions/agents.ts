@@ -6,6 +6,10 @@ import {
   createAgentApiV1OfficeAgentPost as createAgentApi,
   getAgentsApiV1OfficeAgentGet as getMyAgentsApi,
   getOfficeAgentsApiV1OfficeOfficeIdAgentGet as getOfficeAgentsApi,
+  AgentReponseWithAccounts,
+  getAgentsApiV1OfficeAgentGet as getMyOfficeAgentsApi,
+  getAgentYearlyReportsApiV1OfficeAgentInitialsMonthlyReportGet as getAgentYearlyReportsApi,
+  GetAgentYearlyReportsApiV1OfficeAgentInitialsMonthlyReportGetResponse as AccountMonthlyReportResponse,
 } from "@/lib/client";
 import { ZodError } from "zod";
 import { ApiError } from "../client";
@@ -82,10 +86,20 @@ export const getMyAgents = cache(async () => {
 });
 
 // import "server-only"
-import { AgentReponseWithAccounts, getAgentsApiV1OfficeAgentGet as getMyOfficeAgentsApi } from "@/lib/client";
 
 export const getMyOfficeAgents = cache((): Promise<AgentReponseWithAccounts[]> => {
   return withToken(async () => {
     return await getMyOfficeAgentsApi();
   });
 });
+
+export const getAgentYearlyReports = cache(
+  async (initials: string, year: number): Promise<AccountMonthlyReportResponse> => {
+    return withToken(async () => {
+      return await getAgentYearlyReportsApi({
+        initials,
+        year,
+      });
+    });
+  }
+);

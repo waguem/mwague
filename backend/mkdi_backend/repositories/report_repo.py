@@ -8,7 +8,12 @@ from mkdi_backend.models.transactions.transactions import (
     ForEx,
     WalletTrading,
 )
-from mkdi_backend.models.office import OfficeWallet
+from mkdi_backend.models.models import KcUser
+
+from mkdi_backend.models.office import OfficeWallet, Office
+from mkdi_backend.models.Account import Account, AccountType, AccountMonthlyReport
+from mkdi_backend.models.Agent import Agent
+
 from sqlmodel.sql.expression import select
 from datetime import timedelta, datetime
 from loguru import logger
@@ -139,3 +144,88 @@ class ReportRepository:
                 results,
             )
         )
+
+    def start_reports(self):
+        """
+        this function will check in the database
+        for every account
+          check if there is an open account report in the db
+          if there is then no action
+          if not create the account report that should start now
+        """
+        from loguru import logger
+
+        logger.info("Starting report cron job")
+
+        # get current month date
+        current_month = datetime.now().replace(day=1, hour=0, minute=0, second=0)
+        # for every office get all accounts
+        offices = self.db.scalars(select(Office)).all()
+
+        for office in offices:
+            #
+
+            accounts = self.db.scalars(
+                select(Account)
+                .where(Account.office_id == office.id)
+                .where(Account.type.in_([AccountType.AGENT, AccountType.SUPPLIER]))
+            ).all()
+
+            for account in accounts:
+
+                self.start_report(account, current_month)
+
+    def start_report(self, account: Account, current_month: datetime):
+        # Get the first day of the next month
+        next_month = (current_month + timedelta(days=32)).replace(day=1, hour=0, minute=0, second=0)
+        try:
+
+            has_report = self.db.scalar(
+                select(AccountMonthlyReport)
+                .where(AccountMonthlyReport.account_id == account.id)
+                .where(AccountMonthlyReport.start_date <= (current_month + timedelta(hours=3)))
+                .where(AccountMonthlyReport.end_date < next_month)
+            )
+
+            if not has_report:
+                # Create a new report if one doesn't exist for the current month
+                logger.info(
+                    f"Creating report for month {current_month.month} for account {account.initials}"
+                )
+                new_report = AccountMonthlyReport(
+                    account_id=account.id,
+                    start_date=current_month,
+                    end_date=next_month - timedelta(days=1),
+                    account=account.initials,
+                    is_open=True,
+                    start_balance=account.balance,
+                    end_balance=account.balance,
+                    report_json=[],
+                    # Add other necessary fields
+                )
+                self.db.add(new_report)
+                self.db.commit()
+        except Exception as e:
+            logger.info(f"Error creating report for account {e}")
+
+    def get_agent_yearly_reports(
+        self, user: KcUser, initials: str, year: int
+    ) -> List[AccountMonthlyReport]:
+        # find the agent accounts
+        accounts = self.db.scalars(
+            select(Account)
+            .join(Agent, Account.owner_id == Agent.id)
+            .where(Agent.initials == initials)
+            .where(Account.office_id == user.office_id)
+            # .where(Account.type == AccountType.AGENT)
+        ).all()
+        initials_list = [account.id for account in accounts]
+
+        reports = self.db.scalars(
+            select(AccountMonthlyReport)
+            .where(AccountMonthlyReport.account_id.in_(initials_list))  # py-line: disable
+            .where(AccountMonthlyReport.start_date >= datetime(year, 1, 1, 0, 0, 0))
+            .where(AccountMonthlyReport.end_date <= datetime(year, 12, 31, 23, 59, 59))
+            # .group_by(AccountMonthlyReport.account_id)
+        ).all()
+        return reports

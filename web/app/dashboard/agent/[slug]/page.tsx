@@ -8,6 +8,7 @@ import { IconReport, IconTransactionBitcoin } from "@tabler/icons-react";
 import IconBitcoin from "@/components/icon/icon-bitcoin";
 import IconOpenBook from "@/components/icon/icon-open-book";
 import AgentReports from "@/components/apps/agents/AgentReports";
+import { getAgentYearlyReports } from "@/lib/actions/agents";
 
 export default async function AgentPage({
   params,
@@ -23,6 +24,7 @@ export default async function AgentPage({
   const office = await getMyOffice();
   const employees = await getEmployeesCached(office.id);
   const tradings = await getAgentTradings(params.slug, searchParams?.from, searchParams?.to);
+  const yearlyReports = await getAgentYearlyReports(params.slug, 2024);
   return (
     <Timeline bulletSize={24} lineWidth={1}>
       <TimelineItem bullet={<IconOpenBook />} title={<Title order={3}>Overview</Title>}></TimelineItem>
@@ -36,7 +38,7 @@ export default async function AgentPage({
       </TimelineItem>
       <TimelineItem bullet={<IconReport size={12} />} title={<Title order={3}>Reports</Title>}>
         <Space h="xl" />
-        <AgentReports initials={params.slug} />
+        <AgentReports reports={yearlyReports} initials={params.slug} />
       </TimelineItem>
     </Timeline>
   );

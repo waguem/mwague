@@ -2,7 +2,7 @@
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum, auto
-from typing import Annotated, Dict, List, Literal, Optional, Union, Mapping, Any
+from typing import Annotated, List, Literal, Optional, Union, Mapping, Any
 from uuid import UUID, uuid4
 import json
 import sqlalchemy as sa
@@ -564,7 +564,7 @@ class DateRange(BaseModel):
     end_date: datetime
 
 
-class AccountMonthlyReport(SQLModel):
+class AccountMonthlyReportBase(SQLModel):
     """Account monthly report."""
 
     account: str  # ///< Account initials

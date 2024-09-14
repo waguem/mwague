@@ -1,11 +1,10 @@
-from decimal import Decimal
-from typing import Optional, ClassVar
+from typing import Optional
 from uuid import UUID, uuid4
 
 import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as pg
-from mkdi_shared.schemas.protocol import AccountBase, AccountType, AccountMonthlyReport
-from sqlmodel import Field, Index
+from mkdi_shared.schemas.protocol import AccountBase, AccountMonthlyReportBase, AccountType
+from sqlmodel import Field
 
 
 class Account(AccountBase, table=True):
@@ -31,7 +30,7 @@ class Account(AccountBase, table=True):
     office_id: UUID = Field(foreign_key="offices.id")
 
 
-class AccountReportTable(AccountMonthlyReport, table=True):
+class AccountMonthlyReport(AccountMonthlyReportBase, table=True):
     __tablename__ = "account_reports"
     id: Optional[UUID] = Field(
         sa_column=sa.Column(

@@ -2,6 +2,7 @@ aiohttp
 alembic==1.13.1
 asyncpg==0.28.0
 fastapi==0.111.0
+fastapi-utils
 httpx==0.24.1
 loguru
 psycopg2-binary
@@ -14,7 +15,6 @@ python-multipart
 SQLAlchemy==2.0.16
 sqlmodel
 uvicorn==0.20.0
-
 # asgiref==3.6.0
 # Celery==5.2.0
 # prometheus-fastapi-instrumentator==5.9.1

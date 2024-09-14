@@ -27,7 +27,6 @@ export const tradeWallet = async (tradingRequest: TradeWalletReq, path: string) 
         })),
       };
     }
-    console.log(validated.data);
     // make request
     await tradeWalletApiV1WalletPost({
       requestBody: validated.data,
