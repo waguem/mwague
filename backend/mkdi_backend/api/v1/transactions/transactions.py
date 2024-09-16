@@ -43,7 +43,9 @@ def get_agent_transactions(
     db: Session = Depends(get_db),
 ) -> list[TransactionItem]:
     """get all transactions for an agent"""
-    return TransactionRepository(db).get_agent_transactions(user, initials, start_date, end_date)
+    return TransactionRepository(db).get_agent_transactions(
+        user.office_id, initials, start_date, end_date
+    )
 
 
 @router.post("/transaction", response_model=protocol.TransactionResponse, status_code=201)

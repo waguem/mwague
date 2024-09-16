@@ -17,6 +17,8 @@ from mkdi_backend.models.Agent import Agent
 from sqlmodel.sql.expression import select
 from datetime import timedelta, datetime
 from loguru import logger
+from mkdi_backend.repositories.transactions import TransactionRepository
+import json
 
 
 class ReportRepository:
@@ -200,7 +202,7 @@ class ReportRepository:
                     is_open=True,
                     start_balance=account.balance,
                     end_balance=account.balance,
-                    report_json=[],
+                    report_json={},
                     # Add other necessary fields
                 )
                 self.db.add(new_report)
@@ -226,6 +228,48 @@ class ReportRepository:
             .where(AccountMonthlyReport.account_id.in_(initials_list))  # py-line: disable
             .where(AccountMonthlyReport.start_date >= datetime(year, 1, 1, 0, 0, 0))
             .where(AccountMonthlyReport.end_date <= datetime(year, 12, 31, 23, 59, 59))
-            # .group_by(AccountMonthlyReport.account_id)
         ).all()
         return reports
+
+    def update_reports(self):
+        offices = self.db.scalars(select(Office)).all()
+
+        for office in offices:
+            #
+            accounts = self.db.scalars(
+                select(Account)
+                .where(Account.office_id == office.id)
+                .where(Account.type.in_([AccountType.AGENT, AccountType.SUPPLIER]))
+            ).all()
+
+            for account in accounts:
+                try:
+                    self.update_report(account)
+                except Exception as e:
+                    logger.info(f"Error updating report for account {e}")
+
+    # @managed_tx_method()
+    def update_report(self, account: Account):
+        # Get the first day of the next month
+        repo = TransactionRepository(self.db)
+        current_month = datetime.now().replace(day=1, hour=0, minute=0, second=0)
+        end_of_month = (current_month + timedelta(days=32)).replace(
+            day=1, hour=0, minute=0, second=0
+        )
+
+        report = repo.get_account_report(account, current_month, end_of_month)
+
+        account_report = self.db.scalar(
+            select(AccountMonthlyReport)
+            .where(AccountMonthlyReport.account_id == account.id)
+            .add_columns(AccountMonthlyReport.is_open == True)
+        )
+
+        if account_report:
+            account_report.end_balance = account.balance
+            account_report.report_json = report
+            account_report.updated_at = datetime.now()
+            self.db.add(account_report)
+            self.db.commit()
+        else:
+            logger.info(f"Report for account {account.initials} not found")

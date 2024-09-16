@@ -1,5 +1,6 @@
 "use client";
 import { AccountMonthlyReport } from "@/lib/client";
+import { genAgentReport } from "@/lib/pdf/generator";
 import { Carousel } from "@mantine/carousel";
 import { ActionIcon, Badge, Card, Group, NumberFormatter, Space, Timeline, Title } from "@mantine/core";
 import { IconDownload, IconPlayerPlay, IconPlayerStop } from "@tabler/icons-react";
@@ -46,7 +47,7 @@ export default function AgentReports({ reports }: { initials: string; reports: A
             </Group>
             <Space h="md" />
             <Group grow>
-              <ActionIcon variant="gradient" size={"lg"} radius={"lg"}>
+              <ActionIcon onClick={() => genAgentReport(report)} variant="gradient" size={"lg"} radius={"lg"}>
                 Download
                 <IconDownload size={20} className="ml-4" />
               </ActionIcon>

@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio.session import AsyncSession
 from asyncio import TaskGroup
 from mkdi_backend.models.Account import Account
 from mkdi_backend.models.Agent import Agent
+from mkdi_backend.models.office import OfficeWallet
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.models.transactions.transaction_item import TransactionItem
 from mkdi_backend.dbmanager import sessionmanager
@@ -16,6 +17,7 @@ from mkdi_backend.models.transactions.transactions import (
     Sending,
     ForEx,
     TransactionWithDetails,
+    WalletTrading,
 )
 from mkdi_backend.repositories.transaction_repos import (
     deposit,
@@ -68,7 +70,7 @@ class TransactionRepository:
         return start_date, end_date
 
     def get_agent_transactions(
-        self, user: KcUser, initials: str, start_date_str: str, end_date_str: None
+        self, office_id: str, initials: str, start_date_str: str, end_date_str: None
     ) -> List[TransactionItem]:
         """get all transactions for an agent"""
 
@@ -77,7 +79,7 @@ class TransactionRepository:
         accounts = self.db.scalars(
             select(Account, Agent)
             .join(Agent, Agent.id == Account.owner_id)
-            .where(Account.office_id == user.office_id)
+            .where(Account.office_id == office_id)
             .where(Agent.initials == initials)
         ).all()
 
@@ -85,7 +87,7 @@ class TransactionRepository:
 
         deposits = self.db.scalars(
             select(Deposit)
-            .where(Deposit.office_id == user.office_id)
+            .where(Deposit.office_id == office_id)
             .where(Deposit.owner_initials.in_(initials_str))
             .where(Deposit.created_at >= start_date)
             .where(Deposit.created_at <= end_date)
@@ -93,7 +95,7 @@ class TransactionRepository:
         ).all()
         externals = self.db.scalars(
             select(External)
-            .where(External.office_id == user.office_id)
+            .where(External.office_id == office_id)
             .where(External.sender_initials.in_(initials_str))
             .where(External.created_at >= start_date)
             .where(External.created_at <= end_date)
@@ -101,7 +103,7 @@ class TransactionRepository:
         ).all()
         sendings = self.db.scalars(
             select(Sending)
-            .where(Sending.office_id == user.office_id)
+            .where(Sending.office_id == office_id)
             .where(Sending.receiver_initials.in_(initials_str))
             .where(Sending.created_at >= start_date)
             .where(Sending.created_at <= end_date)
@@ -110,7 +112,7 @@ class TransactionRepository:
 
         forexs = self.db.scalars(
             select(ForEx)
-            .where(ForEx.office_id == user.office_id)
+            .where(ForEx.office_id == office_id)
             .where(ForEx.customer_account.in_(initials_str))
             .where(ForEx.created_at >= start_date)
             .where(ForEx.created_at <= end_date)
@@ -119,7 +121,7 @@ class TransactionRepository:
 
         internals = self.db.scalars(
             select(Internal)
-            .where(Internal.office_id == user.office_id)
+            .where(Internal.office_id == office_id)
             .where(Internal.sender_initials.in_(initials_str))
             .where(Internal.created_at >= start_date)
             .where(Internal.created_at <= end_date)
@@ -368,3 +370,92 @@ class TransactionRepository:
 
         tr = await transactionImpl.get_a_transaction(tr_type, tr_code, include_payments=True)
         return tr
+
+    def get_account_report(
+        self, account: Account, start_date: datetime, end_date: datetime
+    ) -> dict:
+        office_id: str = account.office_id
+        acc_report = list()
+
+        deposit_stm = (
+            select(Deposit)
+            .where(Deposit.office_id == office_id)
+            .where(Deposit.owner_initials == account.initials)
+            .where(Deposit.created_at >= start_date)
+            .where(Deposit.created_at <= end_date)
+            .order_by(Deposit.created_at.desc())
+        )
+
+        external_stm = (
+            select(External)
+            .where(External.office_id == office_id)
+            .where(External.sender_initials == account.initials)
+            .where(External.created_at >= start_date)
+            .where(External.created_at <= end_date)
+            .order_by(External.created_at.desc())
+        )
+
+        sending_stm = (
+            select(Sending)
+            .where(Sending.office_id == office_id)
+            .where(Sending.receiver_initials == account.initials)
+            .where(Sending.created_at >= start_date)
+            .where(Sending.created_at <= end_date)
+            .order_by(Sending.created_at.desc())
+        )
+
+        internal_stm = (
+            select(Internal)
+            .where(Internal.office_id == office_id)
+            .where(
+                or_(
+                    Internal.sender_initials == account.initials,
+                    Internal.receiver_initials == account.initials,
+                )
+            )
+            .where(Internal.created_at >= start_date)
+            .where(Internal.created_at <= end_date)
+            .order_by(Internal.created_at.desc())
+        )
+
+        forex_stm = (
+            select(ForEx)
+            .where(ForEx.office_id == office_id)
+            .where(ForEx.customer_account == account.initials)
+            .where(ForEx.created_at >= start_date)
+            .where(ForEx.created_at <= end_date)
+            .order_by(ForEx.created_at.desc())
+        )
+        queries = [deposit_stm, external_stm, sending_stm, internal_stm, forex_stm]
+
+        for query in queries:
+            items = self.db.scalars(query).all()
+            for item in items:
+                notes = json.loads(item.notes) if len(item.notes) > 0 else []
+                is_out = item.type in [pr.TransactionType.EXTERNAL, pr.TransactionType.FOREX]
+
+                if not is_out and item.type == pr.TransactionType.INTERNAL:
+                    is_out = item.sender_initials == account.initials
+
+                acc_report.append(TransactionItem(item=item, notes=notes).to_report_item(is_out))
+
+        # get tradings transactions
+        tradings = self.db.scalars(
+            select(WalletTrading)
+            .join(OfficeWallet, WalletTrading.walletID == OfficeWallet.walletID)
+            .where(OfficeWallet.office_id == office_id)
+            .where(WalletTrading.account == account.initials)
+            .where(WalletTrading.created_at >= start_date)
+            .where(WalletTrading.created_at <= end_date)
+            .order_by(WalletTrading.created_at.desc())
+        ).all()
+
+        for trading in tradings:
+            acc_report.append(trading.to_report_item())
+
+        # sort the report by created_at
+        acc_report.sort(key=lambda x: "created_at")
+        # transform the created_at to string
+        for item in acc_report:
+            item["created_at"] = item["created_at"].isoformat()
+        return acc_report

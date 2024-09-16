@@ -157,6 +157,14 @@ def get_trading_result(cls) -> Decimal:
     return cls.amount / cls.trading_rate - cls.trading_cost
 
 
+def get_trading_amount(cls) -> Decimal:
+    if cls.trading_type == pr.TradingType.EXCHANGE:
+        return cls.amount / cls.exchange_rate
+    if cls.trading_type == pr.TradingType.BUY:
+        return cls.amount * (cls.trading_rate / cls.daily_rate)
+    return cls.amount / cls.trading_rate
+
+
 def get_trading_cost(cls) -> Decimal:
     if cls.trading_type != pr.TradingType.SELL:
         return cls.amount
@@ -204,6 +212,22 @@ class WalletTrading(pr.WalletTradingBase, table=True):
 
     trading_cost: ClassVar[Decimal] = hybrid_property(get_trading_cost)
     trading_result: ClassVar[Decimal] = hybrid_property(get_trading_result)
+    trading_amount: ClassVar[Decimal] = hybrid_property(get_trading_amount)
+
+    def to_report_item(self) -> dict:
+
+        request_message = next((note for note in self.notes if note["type"] == "SELL"), None)
+
+        return {
+            "created_at": self.created_at,
+            "amount": str(self.trading_amount),
+            "type": str(pr.TransactionType.TRADING.value),
+            "converted": str(self.trading_amount * self.daily_rate),
+            "code": self.code,
+            "state": str(self.state.value),
+            "description": request_message["message"] if request_message else "",
+            "is_out": self.trading_type == pr.TradingType.SELL,
+        }
 
 
 TransactionWithDetails = Union[

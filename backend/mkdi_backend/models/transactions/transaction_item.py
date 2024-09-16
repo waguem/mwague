@@ -18,3 +18,23 @@ class TransactionItem(BaseModel):
         values["notes"] = notes
 
         return values
+
+    def get_request_message(self) -> str:
+        request = next((note for note in self.notes if note["type"] == "REQUEST"), None)
+        if request:
+            return request["message"]
+        return ""
+
+    def to_report_item(self, is_out: bool = False) -> dict:
+        request_message = self.get_request_message()
+
+        return {
+            "created_at": self.item.created_at,
+            "amount": str(self.item.amount),
+            "type": str(self.item.type.value),
+            "converted": str(self.item.amount * self.item.rate),
+            "code": self.item.code,
+            "state": str(self.item.state.value),
+            "description": request_message,
+            "is_out": is_out,
+        }

@@ -1,6 +1,6 @@
 import jsPDF from "jspdf";
 import { formatDate } from "date-fns";
-import { AccountResponse, FundCommit, OfficeResult } from "../client";
+import { AccountMonthlyReport, AccountResponse, FundCommit, OfficeResult } from "../client";
 import autoTable, { RowInput } from "jspdf-autotable";
 
 const logoBase64 =
@@ -272,4 +272,56 @@ export const generateFundReport = ({ commits, fund }: { commits: FundCommit[]; f
   });
 
   pdf.save(`fund_report_${formatDate(new Date(), "yyyy_MM_dd_H_mm")}.pdf`);
+};
+
+interface ReportItem {
+  created_at: string;
+  code: string;
+  amount: number;
+  converted: number;
+  description: string;
+  is_out: boolean;
+}
+export const genAgentReport = (report: AccountMonthlyReport) => {
+  const pdf = new jsPDF({
+    orientation: "portrait",
+    unit: "cm",
+    // A4 size
+    format: [21.0, 29.7],
+  });
+  pdf.addImage(logoBase64, "PNG", 0.5, 0.5, 0.8, 0.8);
+  pdf.setFontSize(10);
+  pdf.text(formatDate(new Date(), "MMM dd yyyy H:mm"), 17, 1);
+  pdf.setFontSize(14);
+  pdf.text("Agent Monthly Report", 8, 2);
+  pdf.setFontSize(11);
+  pdf.text("Start Date", 1.5, 3);
+  pdf.text(formatDate(new Date(report.start_date), "MMM dd yyyy"), 5, 3);
+  pdf.text("End Date", 1.5, 3.6);
+  pdf.text(formatDate(new Date(report.end_date), "MMM dd yyyy"), 5, 3.6);
+  pdf.text("Account", 1.5, 4.2);
+  pdf.text(report.account, 5, 4.2);
+  pdf.text("Start Balance", 1.5, 4.8);
+  pdf.text(new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(report.start_balance), 5, 4.8);
+  pdf.text("End Balance", 1.5, 5.4);
+  pdf.text(new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(report.end_balance), 5, 5.4);
+
+  const reportData: ReportItem[] = report.report_json as unknown as ReportItem[];
+
+  const headers = ["Date", "Code", "In", "Out", "Description"];
+  const tableData: RowInput[] = reportData.map((item: ReportItem) => [
+    formatDate(item.created_at, "dd H:mm"),
+    item.code,
+    item.is_out ? "" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(item.amount),
+    !item.is_out ? "" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(item.amount),
+    item.description,
+  ]);
+
+  autoTable(pdf, {
+    head: [headers],
+    body: [...tableData],
+    startY: 7,
+  });
+
+  pdf.save(`agent_${report.account}_${formatDate(report.start_date, "MM")}_.pdf`);
 };

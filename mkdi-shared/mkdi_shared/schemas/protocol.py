@@ -8,7 +8,7 @@ import json
 import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as pg
 from mkdi_shared.exceptions.mkdi_api_error import MkdiErrorCode, MkdiError
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, root_validator
 from sqlmodel import Field as SQLModelField
 from sqlmodel import SQLModel
 from sqlalchemy.ext.mutable import MutableDict, MutableList
@@ -564,6 +564,18 @@ class DateRange(BaseModel):
     end_date: datetime
 
 
+class ReportItem(BaseModel):
+    """Report item."""
+
+    created_at: datetime
+    amount: Decimal
+    converted: Decimal
+    type: TransactionType
+    state: TransactionState
+    code: str
+    description: str
+
+
 class AccountMonthlyReportBase(SQLModel):
     """Account monthly report."""
 
@@ -573,6 +585,6 @@ class AccountMonthlyReportBase(SQLModel):
     is_open: bool  # ///< report status
     start_balance: Decimal
     end_balance: Decimal
-    report_json: Mapping[Any, Mapping | Any] = SQLModelField(
+    report_json: List[Mapping[Any, Mapping | Any]] = SQLModelField(
         default={}, sa_column=sa.Column(MutableList.as_mutable(pg.JSONB))
     )

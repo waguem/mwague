@@ -14,6 +14,17 @@ from datetime import datetime, timedelta
 from mkdi_backend.repositories.report_repo import ReportRepository
 
 
+async def update_account_report():
+    while True:
+        logger.info("Running peridic task to update account reports")
+
+        with Session(engine) as session:
+            report_repo = ReportRepository(session)
+            report_repo.update_reports()
+
+        await asyncio.sleep(settings.TASK_UPDATE_REPORTS_INTERVAL * 60)
+
+
 async def create_account_report():
     while True:
         logger.info("Running periodic task")
@@ -56,12 +67,15 @@ async def lifespan(app: FastAPI):
 
     # start the cron job
     task = asyncio.create_task(create_account_report())
+    update_task = asyncio.create_task(update_account_report())
 
     yield
 
     task.cancel()
+    update_task.cancel()
     # wait for the task to finish
     await task
+    await update_task
 
     logger.info("Closing database connection")
     app.state.db.close()

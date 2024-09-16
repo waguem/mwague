@@ -1,10 +1,15 @@
-from typing import Optional
+from typing import Optional, ClassVar
 from uuid import UUID, uuid4
 
 import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as pg
 from mkdi_shared.schemas.protocol import AccountBase, AccountMonthlyReportBase, AccountType
 from sqlmodel import Field
+from datetime import datetime
+from decimal import Decimal
+from mkdi_backend.models.get_account_pendings import get_account_pendings
+from sqlalchemy.ext.hybrid import hybrid_property
+from pydantic import root_validator
 
 
 class Account(AccountBase, table=True):
@@ -42,3 +47,15 @@ class AccountMonthlyReport(AccountMonthlyReportBase, table=True):
     )
 
     account_id: UUID = Field(foreign_key="accounts.id")
+    # last updated at
+    updated_at: datetime = Field(default=datetime.now())
+
+    pendings: ClassVar[Decimal] = hybrid_property(get_account_pendings)
+
+    @root_validator
+    def start_balance(cls, values):
+        if "is_open" in values and values["is_open"]:
+            pendings = get_account_pendings(values["account"])
+            values["end_balance"] = values["end_balance"] - pendings
+
+        return values
