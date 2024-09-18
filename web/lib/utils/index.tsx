@@ -120,7 +120,7 @@ export const getBadgeTypeFromResult = (result_type: ResultType): MantineColor =>
     case "CHARGE":
       return "dark";
     case "LOSS":
-      return "orange";
+      return "red";
     default:
       return "gray";
   }

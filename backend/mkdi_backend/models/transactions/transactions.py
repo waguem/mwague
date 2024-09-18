@@ -152,21 +152,31 @@ def get_buyed_amount(cls) -> Decimal:
 
 
 def get_trading_result(cls) -> Decimal:
+    if cls.state == pr.TransactionState.PENDING:
+        return 0
+
     if cls.trading_type != pr.TradingType.SELL:
         return 0
+
     return cls.amount / cls.trading_rate - cls.trading_cost
 
 
 def get_trading_amount(cls) -> Decimal:
+
     if cls.trading_type == pr.TradingType.EXCHANGE:
         return cls.amount / cls.exchange_rate
+
     if cls.trading_type == pr.TradingType.BUY:
         return cls.amount * (cls.trading_rate / cls.daily_rate)
+
     return cls.amount / cls.trading_rate
 
 
 def get_trading_cost(cls) -> Decimal:
-    if cls.trading_type != pr.TradingType.SELL:
+    if cls.state == pr.TransactionState.PENDING:
+        return 0
+
+    if cls.trading_type != pr.TradingType.SELL or cls.wallet_trading == 0:
         return cls.amount
 
     cost_rate = cls.wallet_value / cls.wallet_trading

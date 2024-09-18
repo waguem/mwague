@@ -5,6 +5,7 @@ import {
   ActionIcon,
   Badge,
   Button,
+  Divider,
   Group,
   Loader,
   LoadingOverlay,
@@ -155,17 +156,22 @@ export function NewTrade({ walletID, office, agents }: Props) {
             <IconGitPullRequest size={20} />
             Wallet Rate:
             <Badge size="lg" variant="dot" color="violet" radius={"md"}>
+              1 {"$"} ={" "}
               <NumberFormatter
-                value={wallet?.crypto_balance ? wallet?.trading_balance / wallet?.crypto_balance : 0}
+                value={wallet?.value ? wallet?.trading_balance / wallet?.value : 0}
                 thousandSeparator
                 decimalScale={6}
               />{" "}
-              /{" "}
+              {wallet?.trading_currency}
+            </Badge>
+            <Badge size="lg" variant="dot" color="teal" radius={"md"}>
+              1 {"$"} ={" "}
               <NumberFormatter
-                value={wallet?.value ? wallet?.crypto_balance / wallet?.value : 0}
+                value={wallet?.crypto_balance ? wallet?.value / wallet?.crypto_balance : 0}
                 thousandSeparator
                 decimalScale={6}
-              />
+              />{" "}
+              {wallet?.crypto_currency}
             </Badge>
             {form.values.tradeType === "SELL" && (
               <>
@@ -177,7 +183,7 @@ export function NewTrade({ walletID, office, agents }: Props) {
             )}
           </Group>
         }
-        size="xl"
+        size="70%"
       >
         <LoadingOverlay
           visible={pending}
@@ -201,6 +207,7 @@ export function NewTrade({ walletID, office, agents }: Props) {
                 }
               />
             </Group>
+            <Divider label="Review" />
             <Button type="submit" color="blue">
               <IconSend size={18} className="mr-1" />
               {form.values.tradeType}

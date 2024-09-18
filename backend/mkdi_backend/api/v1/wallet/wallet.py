@@ -67,3 +67,18 @@ def get_agent_tradings(
 ) -> List[pr.WalletTradingResponse]:
     """Get agent tradings"""
     return WalletRepository(db, user).get_agent_tradings(initials, start_date, end_date)
+
+
+@router.post(
+    "/wallet/trade/{walletID}/commit",
+    response_model=pr.WalletTradingResponse,
+)
+def commit_tradd(
+    *,
+    user: KcUser = Security(check_authorization, scopes=["office_admin"]),
+    walletID: str,
+    commit: pr.CommitTradeRequest,
+    db: Session = Depends(get_db),
+) -> pr.WalletTradingResponse:
+    """Commit trade"""
+    return WalletRepository(db, user).commit_trade(commit)

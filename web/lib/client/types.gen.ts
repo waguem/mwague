@@ -10,15 +10,16 @@ export type AccountMonthlyReport = {
   is_open: boolean;
   start_balance: number;
   end_balance: number;
-  report_json?: {
+  report_json?: Array<{
     [key: string]:
       | {
           [key: string]: unknown;
         }
       | unknown;
-  };
+  }>;
   id?: string;
   account_id: string;
+  updated_at?: string;
 };
 
 export type AccountResponse = {
@@ -99,6 +100,20 @@ export type BuyRequest = {
 };
 
 export type request_type = "BUY";
+
+/**
+ * Commit trade request.
+ */
+export type CommitTradeRequest = {
+  walletID: string;
+  tradeID: string;
+  trading_rate: number;
+  amount: number;
+  trading_cost: number;
+  sold_amount: number;
+  crypto_amount: number;
+  trading_result: number;
+};
 
 export type CreateAccountRequest = {
   type: AccountType;
@@ -953,6 +968,13 @@ export type GetAgentTradingsApiV1OfficeAgentInitialsTradingsGetData = {
 
 export type GetAgentTradingsApiV1OfficeAgentInitialsTradingsGetResponse = Array<WalletTradingResponse>;
 
+export type CommitTraddApiV1WalletTradeWalletIdCommitPostData = {
+  requestBody: CommitTradeRequest;
+  walletId: string;
+};
+
+export type CommitTraddApiV1WalletTradeWalletIdCommitPostResponse = WalletTradingResponse;
+
 export type GetMonthlyReportApiV1OfficeMonthlyReportGetData = {
   endDate?: string;
   startDate?: string;
@@ -1463,6 +1485,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: Array<WalletTradingResponse>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/wallet/trade/{walletID}/commit": {
+    post: {
+      req: CommitTraddApiV1WalletTradeWalletIdCommitPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: WalletTradingResponse;
         /**
          * Validation Error
          */

@@ -33,8 +33,8 @@ const ResultTable = ({ data }: Props) => {
       {
         header: "Amount",
         accessorKey: "amount",
-        Cell: ({ cell }) => (
-          <Badge variant="dot" color="cyan">
+        Cell: ({ cell, row }) => (
+          <Badge variant="dot" color={getBadgeTypeFromResult(row.original.result_type)}>
             <NumberFormatter decimalScale={2} prefix="$" thousandSeparator value={cell.getValue() as number} />
           </Badge>
         ),

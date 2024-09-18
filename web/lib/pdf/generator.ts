@@ -282,6 +282,22 @@ interface ReportItem {
   description: string;
   is_out: boolean;
 }
+
+const getRowHeight = (description: string) => {
+  const text = description.split(" ");
+  const maxLine = 7;
+  let line = 1;
+  let textLine = "";
+  text.forEach((word) => {
+    if (textLine.split(" ").length <= maxLine) {
+      textLine += ` ${word}`;
+    } else {
+      line += 1;
+      textLine = "";
+    }
+  });
+  return line;
+};
 export const genAgentReport = (report: AccountMonthlyReport) => {
   const pdf = new jsPDF({
     orientation: "portrait",
@@ -310,17 +326,24 @@ export const genAgentReport = (report: AccountMonthlyReport) => {
 
   const headers = ["Date", "Code", "In", "Out", "Description"];
   const tableData: RowInput[] = reportData.map((item: ReportItem) => [
-    formatDate(item.created_at, "dd H:mm"),
+    {
+      content: formatDate(item.created_at, "dd"),
+      styles: { minCellHeight: getRowHeight(item.description) },
+    },
     item.code,
     item.is_out ? "" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(item.amount),
     !item.is_out ? "" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(item.amount),
-    item.description,
+    item.description.length <= 3 ? "No Description" : item.description,
   ]);
 
   autoTable(pdf, {
     head: [headers],
     body: [...tableData],
     startY: 7,
+    columnStyles: {
+      0: { cellWidth: 1.1 },
+      1: { cellWidth: 3.2 },
+    },
   });
 
   pdf.save(`agent_${report.account}_${formatDate(report.start_date, "MM")}_.pdf`);

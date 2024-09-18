@@ -5,6 +5,8 @@ import {
   getWalletTradingsApiV1WalletWalletIdTradingsGet as getWalletTradingsApi,
   payTradeApiV1WalletTradeTradeIdPayPost,
   getAgentTradingsApiV1OfficeAgentInitialsTradingsGet as getAgentWalletTradingsApi,
+  commitTraddApiV1WalletTradeWalletIdCommitPost as commitTradeApi,
+  CommitTradeRequest,
 } from "@/lib/client";
 import { withToken } from "./withToken";
 import { TradeWallet } from "@/lib/schemas";
@@ -70,5 +72,21 @@ export const getAgentTradings = async (initials: string, startDate?: string, end
       startDate,
       endDate,
     });
+  });
+};
+
+export const commitTrade = async (request: CommitTradeRequest) => {
+  return withToken(async () => {
+    await commitTradeApi({
+      walletId: request.walletID,
+      requestBody: request,
+    });
+
+    revalidatePath(`/dashboard/wallet/${request.walletID}`);
+
+    return {
+      status: "success",
+      message: "Trade Committed Successfully",
+    };
   });
 };

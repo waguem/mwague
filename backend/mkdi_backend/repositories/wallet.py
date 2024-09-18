@@ -160,7 +160,8 @@ class WalletRepository:
 
         office.counter = office.counter + 1 if office.counter else 1
         # move funds from wallet to customer
-        self.sell_to_customer(customer, wallet, request)
+        # if the requested amount is greater than the trading balance then the trade will be in pending state and no movement is maid
+        self.sell_to_customer(trade, customer, wallet, request)
         trade.wallet_crypto = wallet.crypto_balance
 
         self.db.add(trade)
@@ -171,14 +172,23 @@ class WalletRepository:
         return trade
 
     def sell_to_customer(
-        self, customer: Account, wallet: OfficeWallet, request: pr.WalletTradingRequest
+        self,
+        trade: WalletTrading,
+        customer: Account,
+        wallet: OfficeWallet,
+        request: pr.WalletTradingRequest,
     ):
-        assert request.trading_rate > 0
-        assert wallet.crypto_balance > 0
         value = request.amount / request.trading_rate  # amount in account currency (USD)
 
         if request.request.currency == wallet.trading_currency:
-            assert wallet.trading_balance >= request.amount
+
+            # let's say we have 1000 RMB in the wallet
+            # and the request is to sell 2000 RMB
+            # we can't sell more than what we have in the wallet so we must put the trade in pending and wait until the wallet is funded
+            # hovever the customer account during report generation will show the amount as sold
+            if not wallet.trading_balance >= request.amount:
+                trade.state = pr.TransactionState.PENDING
+                return
 
             wallet_rate = wallet.crypto_balance / wallet.trading_balance
             cost_rate = wallet.value / wallet.trading_balance
@@ -392,3 +402,64 @@ class WalletRepository:
         ).all()
 
         return tradings
+
+    @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
+    def commit_trade(self, commit: pr.CommitTradeRequest) -> pr.WalletTradingResponse:
+        # find the trade
+        trade = self.db.scalar(
+            select(WalletTrading).where(
+                WalletTrading.id == commit.tradeID,
+                WalletTrading.state == pr.TransactionState.PENDING,
+            )
+        )
+        if not trade:
+            raise MkdiError(
+                error_code=MkdiErrorCode.NOT_FOUND,
+                message="Trade not found",
+            )
+        # the trade should be in pending state
+        # find wallet
+        wallet = self.get_wallet(trade.walletID)
+        if not wallet:
+            raise MkdiError(
+                error_code=MkdiErrorCode.NOT_FOUND,
+                message="Wallet not found",
+            )
+        # get the customer_account
+
+        customer = self.db.scalar(
+            select(Account).where(
+                Account.initials == trade.account, Account.office_id == self.user.office_id
+            )
+        )
+        if not customer:
+            raise MkdiError(
+                error_code=MkdiErrorCode.NOT_FOUND,
+                message="Customer not found",
+            )
+
+        office = self._get_office(self.user.office_id)
+
+        trade.wallet_trading = wallet.trading_balance
+        trade.wallet_value = wallet.value
+        trade.pendings = wallet.pending_in - wallet.pending_out
+
+        wallet.trading_balance -= commit.amount
+        wallet.value -= commit.trading_cost
+        wallet.crypto_balance -= commit.crypto_amount
+
+        trade.wallet_crypto = wallet.crypto_balance
+
+        trade.trading_rate = commit.trading_rate
+        trade.amount = commit.amount
+
+        customer.debit(commit.sold_amount)
+
+        office.credit(commit.trading_result)
+
+        trade.state = pr.TransactionState.PAID
+        self.db.add(wallet)
+        self.db.add(trade)
+        self.db.add(customer)
+
+        return trade

@@ -69,6 +69,8 @@ import type {
   PayTradeApiV1WalletTradeTradeIdPayPostResponse,
   GetAgentTradingsApiV1OfficeAgentInitialsTradingsGetData,
   GetAgentTradingsApiV1OfficeAgentInitialsTradingsGetResponse,
+  CommitTraddApiV1WalletTradeWalletIdCommitPostData,
+  CommitTraddApiV1WalletTradeWalletIdCommitPostResponse,
   GetMonthlyReportApiV1OfficeMonthlyReportGetData,
   GetMonthlyReportApiV1OfficeMonthlyReportGetResponse,
   GetAgentYearlyReportsApiV1OfficeAgentInitialsMonthlyReportGetData,
@@ -892,6 +894,32 @@ export const getAgentTradingsApiV1OfficeAgentInitialsTradingsGet = (
       start_date: data.startDate,
       end_date: data.endDate,
     },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Commit Tradd
+ * Commit trade
+ * @param data The data for the request.
+ * @param data.walletId
+ * @param data.requestBody
+ * @returns WalletTradingResponse Successful Response
+ * @throws ApiError
+ */
+export const commitTraddApiV1WalletTradeWalletIdCommitPost = (
+  data: CommitTraddApiV1WalletTradeWalletIdCommitPostData
+): CancelablePromise<CommitTraddApiV1WalletTradeWalletIdCommitPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/wallet/trade/{walletID}/commit",
+    path: {
+      walletID: data.walletId,
+    },
+    body: data.requestBody,
+    mediaType: "application/json",
     errors: {
       422: "Validation Error",
     },

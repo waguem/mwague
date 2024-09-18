@@ -481,7 +481,7 @@ class WalletTradingResponse(WalletTradingBase):
     wallet_crypto: Annotated[Decimal, Field(strict=True, ge=0)]
     wallet_trading: Annotated[Decimal, Field(strict=True, ge=0)]
     trading_cost: Annotated[Decimal, Field(strict=True, ge=0)]
-    trading_result: Annotated[Decimal, Field(strict=True, ge=0)]
+    trading_result: Annotated[Decimal, Field()]
     account: str | None
     exchange_rate: Annotated[Decimal | None, Field(strict=True, gt=0)]
     exchange_walletID: str | None
@@ -588,3 +588,16 @@ class AccountMonthlyReportBase(SQLModel):
     report_json: List[Mapping[Any, Mapping | Any]] = SQLModelField(
         default={}, sa_column=sa.Column(MutableList.as_mutable(pg.JSONB))
     )
+
+
+class CommitTradeRequest(BaseModel):
+    """Commit trade request."""
+
+    walletID: str
+    tradeID: str
+    trading_rate: Decimal
+    amount: Decimal
+    trading_cost: Decimal
+    sold_amount: Decimal
+    crypto_amount: Decimal
+    trading_result: Decimal

@@ -136,7 +136,11 @@ class ReportRepository:
             map(
                 lambda transaction: protocol.OfficeResult(
                     result_source=protocol.TransactionType.TRADING,
-                    result_type=protocol.ResultType.BENEFIT,
+                    result_type=(
+                        protocol.ResultType.BENEFIT
+                        if transaction.trading_result > 0
+                        else protocol.ResultType.LOSS
+                    ),
                     amount=transaction.trading_result,
                     code=transaction.code,
                     transaction_id=transaction.id,

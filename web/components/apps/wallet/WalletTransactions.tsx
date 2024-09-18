@@ -17,6 +17,7 @@ import { PayTrade } from "./PaymentTrade";
 import { isArray } from "lodash";
 import { HoverMessage } from "./HoverMessage";
 import { TradingDetail } from "./TradingDetail";
+import CommitTrade from "./CommitTrade";
 
 interface Props {
   office: OfficeResponse;
@@ -54,7 +55,17 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
       {
         header: "Code",
         accessorKey: "code",
-        size: 100,
+        // size: 150,
+        Cell: ({ cell, row }) => (
+          <Group>
+            <Badge variant="dot" color={getReviewBadgeColor(row.original.trading_type)} size="md">
+              {row.original.trading_type}
+            </Badge>
+            <Badge variant="dot" color={getReviewBadgeColor(row.original.trading_type)} size="md">
+              {cell.getValue() as string}
+            </Badge>
+          </Group>
+        ),
       },
       {
         header: "Amount",
@@ -89,37 +100,6 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
         },
       },
       {
-        header: "Type",
-        accessorKey: "trading_type",
-        size: 100,
-        Cell: ({ cell, row }) => (
-          <>
-            <Badge variant="outline" color={getReviewBadgeColor(cell.getValue() as string)} size="md">
-              {cell.getValue() as string}
-              {cell.getValue() === "EXCHANGE" ? (row?.original?.walletID === wallet?.walletID ? " Out" : " In") : ""}
-            </Badge>
-            {cell.getValue() === "EXCHANGE" && (
-              <>
-                {" "}
-                <Badge variant="outline" color="gray" size="md">
-                  {row.original?.walletID} &harr; {row.original?.exchange_walletID}
-                </Badge>
-              </>
-            )}
-
-            {cell.getValue() !== "EXCHANGE" && (
-              <>
-                {" "}
-                &harr;{" "}
-                <Badge variant="outline" color="gray" size="md">
-                  {row.original?.account}
-                </Badge>
-              </>
-            )}
-          </>
-        ),
-      },
-      {
         header: "State",
         accessorKey: "state",
         Cell: ({ cell, row }) => {
@@ -144,7 +124,7 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
         accessorKey: "created_at",
         Cell: ({ cell }) => (
           <Group>
-            <Badge>{formatDate(cell.getValue() as string, "dd MMM")}</Badge>
+            <Badge variant="dot">{formatDate(cell.getValue() as string, "dd MMM")}</Badge>
             <Badge variant="dot" color="gray" size="sm" style={{ marginLeft: 0 }}>
               {formatDistanceToNowStrict(formDateToMyLocal(cell.getValue() as string), {
                 addSuffix: true,
@@ -152,21 +132,6 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
               })}
             </Badge>
           </Group>
-        ),
-      },
-      {
-        header: "Balance",
-        accessorKey: "wallet_crypto",
-        size: 100,
-        Cell: ({ cell }) => (
-          <Badge variant="dot" size="md" radius={"md"}>
-            <NumberFormatter
-              value={cell.getValue() as number}
-              thousandSeparator=","
-              decimalScale={3}
-              prefix={getCryptoPrefix(wallet.crypto_currency)}
-            />
-          </Badge>
         ),
       },
     ],
@@ -199,7 +164,8 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
               prefix={getMoneyPrefix(wallet?.trading_currency)}
               decimalScale={3}
               value={wallet.trading_balance}
-            />
+            />{" "}
+            &harr; <NumberFormatter thousandSeparator="," prefix={"$"} decimalScale={3} value={wallet.value} />
           </Badge>
           <Badge variant="dot" color="teal" size="lg">
             Buying :{" "}
@@ -231,20 +197,30 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
     renderRowActions: ({ row }) => {
       return (
         <Group gap="xs">
-          <Tooltip label="Pay">
-            <PayTrade accounts={officeAccounts} trade={row.original as WalletTradingResponse} wallet={wallet} />
-          </Tooltip>
-          {row.original.trading_type === "SELL" && (
-            <Tooltip label="Show details">
-              <TradingDetail trading={row.original as WalletTradingResponse} />
+          {row.original.trading_type === "BUY" && (
+            <Tooltip label="Pay">
+              <PayTrade accounts={officeAccounts} trade={row.original as WalletTradingResponse} wallet={wallet} />
             </Tooltip>
           )}
+
+          {row.original.trading_type === "SELL" && (
+            <CommitTrade trade={row.original as WalletTradingResponse} wallet={wallet} />
+          )}
+          <Tooltip label="Show details">
+            <TradingDetail trading={row.original as WalletTradingResponse} />
+          </Tooltip>
         </Group>
       );
     },
     initialState: {
       density: "xs",
       showColumnFilters: false,
+      sorting: [
+        {
+          id: "created_at",
+          desc: true,
+        },
+      ],
     },
   });
   return (
