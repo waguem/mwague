@@ -84,14 +84,3 @@ repos:
             --write,
             # --ignore-path=./website/.prettierignore,
           ]
-
-  - repo: local
-    hooks:
-      - id: next-lint-website
-        name: Lint website
-        files: ^web/
-        exclude: ^web/node_modules/ | ^web/pnpm-lock.yaml
-        types_or: [javascript, jsx, ts, tsx]
-        language: node
-        pass_filenames: false
-        entry: web/next-lint.js
