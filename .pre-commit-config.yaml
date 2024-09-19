@@ -79,12 +79,14 @@ repos:
     rev: v2.7.1
     hooks:
       - id: prettier
-        exclude: ^web/node_modules/|^web/pnpm-lock.yaml
         args: [
-            --prose-wrap=always,
-            --write,
-            # --ignore-path=./website/.prettierignore,
-          ]
+
+          --prose-wrap=always,
+          --write,
+          --config=./web/.prettierrc,
+          --ignore-path=./web/.prettierignore
+        ]
+        files: ^web/.*\.(js|jsx|ts|tsx|json)$
 
   - repo: local
     hooks:
