@@ -7,9 +7,9 @@ import {
   TransactionState,
   WalletTradingResponse,
 } from "@/lib/client";
-import { Badge, Group, MantineColor, NumberFormatter, Tooltip } from "@mantine/core";
+import { ActionIcon, Badge, Button, Group, MantineColor, NumberFormatter, Tooltip } from "@mantine/core";
 import { MantineReactTable, MRT_ColumnDef, useMantineReactTable } from "mantine-react-table";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { NewTrade } from "./NewTrade";
 import { formDateToMyLocal, getCryptoPrefix, getMoneyPrefix, getStateBadge } from "@/lib/utils";
 import { formatDate, formatDistanceToNowStrict } from "date-fns";
@@ -18,6 +18,9 @@ import { isArray } from "lodash";
 import { HoverMessage } from "./HoverMessage";
 import { TradingDetail } from "./TradingDetail";
 import CommitTrade from "./CommitTrade";
+import { IconCheck, IconCopy, IconDownload } from "@tabler/icons-react";
+import { useClipboard } from "@mantine/hooks";
+import { exportTradingData } from "@/lib/pdf/generator";
 
 interface Props {
   office: OfficeResponse;
@@ -28,6 +31,7 @@ interface Props {
 }
 
 export function WalletTransactions({ office, wallet, tradings, officeAccounts, agents }: Props) {
+  const clipboard = useClipboard({ timeout: 500 });
   const getReviewBadgeColor = (type: string): MantineColor => {
     switch (type) {
       case "BUY":
@@ -56,16 +60,31 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
         header: "Code",
         accessorKey: "code",
         // size: 150,
-        Cell: ({ cell, row }) => (
-          <Group>
-            <Badge variant="dot" color={getReviewBadgeColor(row.original.trading_type)} size="md">
-              {row.original.trading_type}
-            </Badge>
-            <Badge variant="dot" color={getReviewBadgeColor(row.original.trading_type)} size="md">
-              {cell.getValue() as string}
-            </Badge>
-          </Group>
-        ),
+        Cell: ({ cell, row }) => {
+          const [copied, setCopied] = useState(false);
+
+          const handleCopyClick = () => {
+            clipboard.copy(cell.getValue() as string);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000); // Reset after 0.5 seconds
+          };
+
+          return (
+            <Group>
+              <Tooltip label="Copy code" position="left">
+                <ActionIcon onClick={handleCopyClick} size={20} variant="outline">
+                  {copied ? <IconCheck color="teal" size={16} /> : <IconCopy size={16} />}
+                </ActionIcon>
+              </Tooltip>
+              <Badge variant="dot" color={getReviewBadgeColor(row.original.trading_type)} size="md">
+                {cell.getValue() as string}
+              </Badge>
+              <Badge variant="dot" color={getReviewBadgeColor(row.original.trading_type)} size="md">
+                {row.original.trading_type}
+              </Badge>
+            </Group>
+          );
+        },
       },
       {
         header: "Amount",
@@ -143,30 +162,25 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
     data: tradings,
     enableEditing: true,
     positionActionsColumn: "last",
-    renderTopToolbarCustomActions: () => {
+    renderTopToolbarCustomActions: ({ table }) => {
       return (
         <Group>
           <NewTrade agents={agentAccountsOptions} office={office} walletID={wallet.walletID} />
-          <Badge size="lg" variant="gradient" gradient={{ from: "cyan", to: "pink", deg: 120 }}>
-            {wallet.walletID}
-          </Badge>
-          <Badge variant="dot" color="gray" size="lg">
-            Balance:{" "}
-            <NumberFormatter
-              thousandSeparator=","
-              prefix={getCryptoPrefix(wallet.crypto_currency)}
-              decimalScale={3}
-              value={wallet.crypto_balance}
-            />{" "}
-            &harr;{" "}
-            <NumberFormatter
-              thousandSeparator=","
-              prefix={getMoneyPrefix(wallet?.trading_currency)}
-              decimalScale={3}
-              value={wallet.trading_balance}
-            />{" "}
-            &harr; <NumberFormatter thousandSeparator="," prefix={"$"} decimalScale={3} value={wallet.value} />
-          </Badge>
+          <Tooltip label="Export Data to pdf">
+            <Button
+              onClick={() =>
+                exportTradingData(
+                  wallet,
+                  table.getPrePaginationRowModel().rows.map((row) => row.original)
+                )
+              }
+              variant="gradient"
+              size="xs"
+              leftSection={<IconDownload size={16} />}
+            >
+              Export to PDF
+            </Button>
+          </Tooltip>
           <Badge variant="dot" color="teal" size="lg">
             Buying :{" "}
             <NumberFormatter

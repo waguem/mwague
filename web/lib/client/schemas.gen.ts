@@ -58,7 +58,7 @@ export const $AccountMonthlyReport = {
       type: "string",
       format: "date-time",
       title: "Updated At",
-      default: "2024-09-18T08:10:24.452379",
+      default: "2024-09-19T09:35:47.151395",
     },
   },
   type: "object",
@@ -2652,11 +2652,15 @@ export const $WalletTradingResponse = {
       title: "Trading Cost",
       strict: true,
     },
-    trading_result: {
+    trading_crypto: {
       type: "number",
       minimum: 0,
-      title: "Trading Result",
+      title: "Trading Crypto",
       strict: true,
+    },
+    trading_result: {
+      type: "number",
+      title: "Trading Result",
     },
     account: {
       type: "string",
@@ -2703,6 +2707,7 @@ export const $WalletTradingResponse = {
     "wallet_crypto",
     "wallet_trading",
     "trading_cost",
+    "trading_crypto",
     "trading_result",
   ],
   title: "WalletTradingResponse",

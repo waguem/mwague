@@ -481,6 +481,7 @@ class WalletTradingResponse(WalletTradingBase):
     wallet_crypto: Annotated[Decimal, Field(strict=True, ge=0)]
     wallet_trading: Annotated[Decimal, Field(strict=True, ge=0)]
     trading_cost: Annotated[Decimal, Field(strict=True, ge=0)]
+    trading_crypto: Annotated[Decimal, Field(strict=True, ge=0)]
     trading_result: Annotated[Decimal, Field()]
     account: str | None
     exchange_rate: Annotated[Decimal | None, Field(strict=True, gt=0)]

@@ -184,6 +184,22 @@ def get_trading_cost(cls) -> Decimal:
     return cls.amount * cost_rate
 
 
+def get_trading_crypto(cls) -> Decimal:
+
+    if cls.trading_type == pr.TradingType.SELL:
+        # let's image we sold 10 000 RMB
+        # how much those 10 000 RMB are worth in wallet currency "USDT"
+        # let's image the wallet was valued 100 000 USDT for 721 500 RMB, then the rate is 0.1386
+        # so the 10 000 RMB are worth 1386.00 USDT
+        if cls.state == pr.TransactionState.PENDING:
+            return 0
+        wallet_crypto_rate = cls.wallet_crypto / cls.wallet_trading
+
+        return cls.amount * wallet_crypto_rate
+
+    return cls.amount
+
+
 class WalletTrading(pr.WalletTradingBase, table=True):
     __tablename__ = "wallet_trading"
     id: Optional[UUID] = Field(
@@ -223,6 +239,7 @@ class WalletTrading(pr.WalletTradingBase, table=True):
     trading_cost: ClassVar[Decimal] = hybrid_property(get_trading_cost)
     trading_result: ClassVar[Decimal] = hybrid_property(get_trading_result)
     trading_amount: ClassVar[Decimal] = hybrid_property(get_trading_amount)
+    trading_crypto: ClassVar[Decimal] = hybrid_property(get_trading_crypto)
 
     def to_report_item(self) -> dict:
 

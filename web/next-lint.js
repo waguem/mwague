@@ -10,7 +10,7 @@ async function npmLint() {
   let npmInstall;
   let npmRunLint;
   try {
-    npmInstall = await spawnSync("pnpm", ["add"], spawnOption);
+    npmInstall = await spawnSync("pnpm", ["add", "."], spawnOption);
     if (npmInstall.status !== 0) {
       process.exit(npmInstall.status);
     }

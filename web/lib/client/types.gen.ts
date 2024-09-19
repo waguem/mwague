@@ -757,6 +757,7 @@ export type WalletTradingResponse = {
   wallet_crypto: number;
   wallet_trading: number;
   trading_cost: number;
+  trading_crypto: number;
   trading_result: number;
   account?: string;
   exchange_rate?: number;
