@@ -1,6 +1,9 @@
 from typing import Annotated, List
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Security, status
+from sqlmodel import Session
+
+from mkdi_shared.schemas import protocol
 from mkdi_backend.api.deps import (
     check_authorization,
     get_db,
@@ -8,11 +11,10 @@ from mkdi_backend.api.deps import (
     AsyncDBSessionDep,
     hasSufficientPermissions,
 )
+
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.repositories.office import OfficeRepository
-from mkdi_shared.schemas import protocol
 from mkdi_backend.models.Activity import FundCommit
-from sqlmodel import Session
 
 router = APIRouter()
 
@@ -21,7 +23,7 @@ router = APIRouter()
 def create_office(
     *,
     user: Annotated[KcUser, Security(check_authorization, scopes=["org_admin"])],
-    create_office: Annotated[protocol.CreateOfficeRequest, Body(embed=True)],
+    request: Annotated[protocol.CreateOfficeRequest, Body(embed=True)],
     db: Session = Depends(get_db),
 ) -> protocol.OfficeResponse:
     """
@@ -29,14 +31,14 @@ def create_office(
 
     Args:
         user: The authenticated user making the request.
-        create_office: The request payload containing the details of the office to be created.
+        request: The request payload containing the details of the office to be created.
         db: The database session.
 
     Returns:
         The response containing the created office details.
 
     """
-    return OfficeRepository(db).create(create_office, organization_id=user.organization_id)
+    return OfficeRepository(db).create(request, organization_id=user.organization_id)
 
 
 @router.get("/organization/office", status_code=200, response_model=List[protocol.OfficeResponse])

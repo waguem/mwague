@@ -1,14 +1,16 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Security, status
-from loguru import logger
-from mkdi_backend.api.deps import check_authorization, get_db, hasSufficientPermissions
+
+from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
+from mkdi_shared.schemas import protocol
+
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.repositories.account import AccountRepository
 from mkdi_backend.repositories.agent import AgentRepository
-from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
-from mkdi_shared.schemas import protocol
 from sqlmodel import Session
+from mkdi_backend.api.deps import check_authorization, get_db
+
+from fastapi import APIRouter, Depends, Security
 
 router = APIRouter()
 
@@ -17,10 +19,10 @@ router = APIRouter()
 def open_account(
     *,
     user: Annotated[KcUser, Security(check_authorization, scopes=["office_admin"])],
-    input: protocol.CreateAccountRequest,
+    user_input: protocol.CreateAccountRequest,
     db: Session = Depends(get_db),
 ) -> protocol.AccountResponse:
-    account = AccountRepository(db).open_account(auth_user=user, input=input)
+    account = AccountRepository(db).open_account(auth_user=user, input=user_input)
 
     return account
 

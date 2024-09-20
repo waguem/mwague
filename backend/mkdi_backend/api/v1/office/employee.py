@@ -1,15 +1,17 @@
+"""Employee API endpoints."""
+
 from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, Security
+from sqlmodel import Session
+
 from mkdi_backend.api.deps import check_authorization, get_db, AsyncDBSessionDep
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.repositories.employee import EmployeeRepository
 from mkdi_shared.schemas import protocol
-from sqlmodel import Session
+
 
 router = APIRouter()
-
-from loguru import logger
 
 
 @router.post("/office/employee", response_model=protocol.EmployeeResponse, status_code=201)

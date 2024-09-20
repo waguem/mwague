@@ -1,9 +1,15 @@
+"""Report API for office users."""
+
 from typing import Annotated, List
-from fastapi import APIRouter, Depends, HTTPException, Security, status
+
+from fastapi import APIRouter, Depends, Security
+from sqlmodel import Session
+
+from mkdi_shared.schemas import protocol
+
 from mkdi_backend.api.deps import check_authorization, get_db
 from mkdi_backend.models.models import KcUser
-from mkdi_shared.schemas import protocol
-from sqlmodel import Session
+
 from mkdi_backend.models.Account import AccountMonthlyReport
 from mkdi_backend.repositories.report_repo import ReportRepository
 

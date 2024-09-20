@@ -2,15 +2,16 @@
 
 from typing import Annotated, List
 
+from sqlmodel import Session
 from fastapi import APIRouter, Depends, Security
+
 from mkdi_backend.api.deps import check_authorization, get_db, AsyncDBSessionDep
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.models.transactions.transaction_item import TransactionItem
 from mkdi_backend.repositories.transactions import TransactionRepository
 from mkdi_backend.models.transactions.transactions import TransactionWithDetails
 from mkdi_shared.schemas import protocol
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import Session
+
 
 router = APIRouter()
 

@@ -1,11 +1,15 @@
+"""Agent API endpoints."""
+
 from typing import Annotated, List
 
-from fastapi import APIRouter, Depends, HTTPException, Security, status
-from mkdi_backend.api.deps import check_authorization, get_db
+from fastapi import APIRouter, Depends, Security
+from sqlmodel import Session
+
+from mkdi_shared.schemas import protocol
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.repositories.agent import AgentRepository
-from mkdi_shared.schemas import protocol
-from sqlmodel import Session
+from mkdi_backend.api.deps import check_authorization, get_db
+
 
 router = APIRouter()
 

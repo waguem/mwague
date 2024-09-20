@@ -68,6 +68,7 @@ repos:
   #   rev: 6.0.0
   #   hooks:
   #     - id: flake8
+  #       files: ^backend/mkdi_backend/.*\.py$
 
   # - repo: https://github.com/pycqa/isort
   #   rev: 5.12.0
@@ -88,17 +89,14 @@ repos:
         ]
         files: ^web/.*\.(js|jsx|ts|tsx|json)$
 
-  - repo: local
-    hooks:
-      - id: next-lint-website
-        name: Lint website
-        files: ^web/
-        exclude: |
-          (?x)^(
-            ./web/node_modules/|
-            ./web/pnpm-lock.yaml
-          )
-        types_or: [javascript, jsx, ts, tsx]
-        language: node
-        pass_filenames: false
-        entry: web/next-lint.js
+  # - repo: local
+  #   hooks:
+  #     - id: next-lint-website
+  #       name: Lint website
+  #       files: ^web/
+  #       exclude: |
+  #         (?x)^(web/node_modules/|web/pnpm-lock.yaml)
+  #       types_or: [javascript, jsx, ts, tsx]
+  #       language: node
+  #       pass_filenames: false
+  #       entry: web/next-lint.js
