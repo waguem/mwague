@@ -94,9 +94,9 @@ repos:
         name: Lint website
         files: ^web/
         exclude: |
-          (?x)(
-            ^web/node_modules/|
-            ^web/pnpm-lock.yaml
+          (?x)^(
+            ./web/node_modules/|
+            ./web/pnpm-lock.yaml
           )
         types_or: [javascript, jsx, ts, tsx]
         language: node
