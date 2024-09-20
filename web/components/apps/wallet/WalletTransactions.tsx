@@ -11,7 +11,7 @@ import { ActionIcon, Badge, Button, Group, MantineColor, NumberFormatter, Toolti
 import { MantineReactTable, MRT_ColumnDef, useMantineReactTable } from "mantine-react-table";
 import { useMemo, useState } from "react";
 import { NewTrade } from "./NewTrade";
-import { formDateToMyLocal, getCryptoPrefix, getMoneyPrefix, getStateBadge } from "@/lib/utils";
+import { getCryptoPrefix, getMoneyPrefix, getStateBadge } from "@/lib/utils";
 import { formatDate, formatDistanceToNowStrict } from "date-fns";
 import { PayTrade } from "./PaymentTrade";
 import { isArray } from "lodash";
@@ -145,7 +145,7 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
           <Group>
             <Badge variant="dot">{formatDate(cell.getValue() as string, "dd MMM")}</Badge>
             <Badge variant="dot" color="gray" size="sm" style={{ marginLeft: 0 }}>
-              {formatDistanceToNowStrict(formDateToMyLocal(cell.getValue() as string), {
+              {formatDistanceToNowStrict(cell.getValue() as string, {
                 addSuffix: true,
                 roundingMethod: "ceil",
               })}

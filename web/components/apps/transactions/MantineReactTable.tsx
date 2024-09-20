@@ -17,7 +17,7 @@ import {
   TransactionType,
 } from "@/lib/client";
 import TransactionReview from "./TransactionReview";
-import { getBadgeType, getMoneyPrefix, getStateBadge, formDateToMyLocal } from "@/lib/utils";
+import { getBadgeType, getMoneyPrefix, getStateBadge } from "@/lib/utils";
 import PayTransaction from "./PayTransaction";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -195,7 +195,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
               {formatDate(cell.getValue() as string, "MMM dd")}
             </Badge>
             <Badge variant="dot" color="pink" size="sm" style={{ marginLeft: 0 }}>
-              {formatDistanceToNowStrict(formDateToMyLocal(cell.getValue() as string), { addSuffix: true })}
+              {formatDistanceToNowStrict(new Date(cell.getValue() as string), { addSuffix: true })}
             </Badge>
           </Group>
         ),

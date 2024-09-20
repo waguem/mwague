@@ -150,6 +150,9 @@ importers:
         specifier: ^2.0.2
         version: 2.0.2(zod@3.23.8)
     devDependencies:
+      '@date-fns/utc':
+        specifier: ^2.1.0
+        version: 2.1.0
       '@hey-api/openapi-ts':
         specifier: ^0.46.2
         version: 0.46.2(typescript@5.4.5)
@@ -227,6 +230,9 @@ packages:
   '@babel/types@7.24.5':
     resolution: {integrity: sha512-6mQNsaLeXTw0nxYUYu+NSa4Hx4BlF1x1x8/PMFbiR+GBSr+2DkECc69b8hgy2frEodNcvPffeH8YfWd3LI6jhQ==}
     engines: {node: '>=6.9.0'}
+
+  '@date-fns/utc@2.1.0':
+    resolution: {integrity: sha512-176grgAgU2U303rD2/vcOmNg0kGPbhzckuH1TEP2al7n0AQipZIy9P15usd2TKQCG1g+E1jX/ZVQSzs4sUDwgA==}
 
   '@emnapi/runtime@1.2.0':
     resolution: {integrity: sha512-bV21/9LQmcQeCPEg3BDFtvwL6cwiTMksYNWQQ4KOxCZikEGalWtenoZ0wCiukJINlGCIi2KXx01g4FoH/LxpzQ==}
@@ -2992,6 +2998,8 @@ snapshots:
       '@babel/helper-string-parser': 7.24.1
       '@babel/helper-validator-identifier': 7.24.5
       to-fast-properties: 2.0.0
+
+  '@date-fns/utc@2.1.0': {}
 
   '@emnapi/runtime@1.2.0':
     dependencies:

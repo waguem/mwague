@@ -74,7 +74,7 @@ export default function TransactionsForms({ agentAccounts, activity, office, off
   return (
     <Fragment>
       <div
-        className={`panel dark:gray-50 absolute z-10 hidden h-full w-[250px] max-w-full flex-none space-y-3 overflow-hidden p-4 ltr:rounded-r-none rtl:rounded-l-none xl:relative xl:block xl:h-auto ltr:xl:rounded-r-md rtl:xl:rounded-l-md`}
+        className={`panel dark:gray-50 border absolute z-10 hidden h-full w-[250px] max-w-full flex-none space-y-3 overflow-hidden p-4 ltr:rounded-r-none rtl:rounded-l-none xl:relative xl:block xl:h-auto ltr:xl:rounded-r-md rtl:xl:rounded-l-md`}
       >
         <div className="space-y-1">
           {navItems.map((item, index) => (
@@ -97,7 +97,7 @@ export default function TransactionsForms({ agentAccounts, activity, office, off
           ))}
         </div>
       </div>
-      <div className="panel h-full flex-1 overflow-x-hidden p-0">{getContent(form)}</div>
+      <div className="panel h-full flex-1 overflow-x-hidden p-0 border">{getContent(form)}</div>
     </Fragment>
   );
 }

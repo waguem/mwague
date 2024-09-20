@@ -3,7 +3,7 @@ import { TransactionState, WalletTradingResponse } from "@/lib/client";
 import { Badge, Group, MantineColor, NumberFormatter, Tooltip } from "@mantine/core";
 import { MantineReactTable, MRT_ColumnDef, useMantineReactTable } from "mantine-react-table";
 import { useMemo } from "react";
-import { formDateToMyLocal, getStateBadge } from "@/lib/utils";
+import { getStateBadge } from "@/lib/utils";
 import { formatDate, formatDistanceToNowStrict } from "date-fns";
 import { isArray } from "lodash";
 import { HoverMessage } from "./HoverMessage";
@@ -119,7 +119,7 @@ export function TradingsTable({ tradings }: Props) {
           <Group>
             <Badge>{formatDate(cell.getValue() as string, "dd MMM")}</Badge>
             <Badge variant="dot" color="gray" size="sm" style={{ marginLeft: 0 }}>
-              {formatDistanceToNowStrict(formDateToMyLocal(cell.getValue() as string), {
+              {formatDistanceToNowStrict(cell.getValue() as string, {
                 addSuffix: true,
                 roundingMethod: "ceil",
               })}

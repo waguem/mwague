@@ -38,6 +38,9 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
       BACKUP_DIR: /backup
+      # set UTC timezone
+      TZ: ETC/UTC
+      PGTZ: ETC/UTC
 
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]

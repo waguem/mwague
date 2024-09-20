@@ -1,17 +1,14 @@
 import { getOfficeApiV1OrganizationOfficeOfficeIdGet as getOfficeById, OfficeResponse } from "@/lib/client";
 
 import InnerPageNavigation from "@/components/layouts/InnerPageNavigation";
-import IconHome from "@/components/icon/icon-home";
-import IconUsersGroup from "@/components/icon/icon-users-group";
+
 import { setApiToken } from "@/app/hooks/useApi";
 
 import { redirect } from "next/navigation";
-import IconFile from "@/components/icon/icon-file";
-import IconRefresh from "@/components/icon/icon-refresh";
 
 import { getServerSession } from "next-auth";
 import authOptions from "@/auth.config";
-import IconOpenBook from "@/components/icon/icon-open-book";
+import { IconCashRegister, IconHome2, IconReport, IconTransactionDollar, IconUsersGroup } from "@tabler/icons-react";
 
 async function getOffice(slug: string): Promise<OfficeResponse | null> {
   try {
@@ -44,14 +41,14 @@ export default async function OfficeLayout({
   const getNavigationItems = (office: OfficeResponse) => {
     let items = [
       {
-        name: "Transactions",
-        url: `/dashboard/office/${office.id}/transactions`,
-        icon: <IconRefresh />,
-      },
-      {
         name: "Office",
         url: `/dashboard/office/${office.id}`,
-        icon: <IconHome className="h-5 w-5" />,
+        icon: <IconHome2 className="h-5 w-5" />,
+      },
+      {
+        name: "Transactions",
+        url: `/dashboard/office/${office.id}/transactions`,
+        icon: <IconTransactionDollar size={18} />,
       },
       {
         name: "Agents",
@@ -61,15 +58,15 @@ export default async function OfficeLayout({
       {
         name: "Reports",
         url: `/dashboard/office/${office.id}/reports`,
-        icon: <IconFile className="h-5 w-5" />,
+        icon: <IconReport className="h-5 w-5" />,
       },
     ];
 
     if (session?.user?.roles.includes("office_admin")) {
       items.push({
-        name: "Accounts",
+        name: "Fund",
         url: `/dashboard/office/${office.id}/accounts`,
-        icon: <IconOpenBook className="h-5 w-5" />,
+        icon: <IconCashRegister className="h-5 w-5" />,
       });
     }
 

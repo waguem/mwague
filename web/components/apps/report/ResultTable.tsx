@@ -1,6 +1,6 @@
 "use client";
 import { OfficeResponse, OfficeResult, TransactionState } from "@/lib/client";
-import { formDateToMyLocal, getBadgeType, getBadgeTypeFromResult, getStateBadge } from "@/lib/utils";
+import { getBadgeType, getBadgeTypeFromResult, getStateBadge } from "@/lib/utils";
 import { ActionIcon, Badge, Button, Group, NumberFormatter, Tooltip } from "@mantine/core";
 import { useClipboard } from "@mantine/hooks";
 import { IconCopy, IconDownload } from "@tabler/icons-react";
@@ -74,7 +74,7 @@ const ResultTable = ({ data }: Props) => {
           <Group>
             {formatDate(new Date(cell.getValue() as string), "MMM dd")}
             <Badge variant="dot" color="gray">
-              {formatDistanceToNowStrict(formDateToMyLocal(cell.getValue() as string), { addSuffix: true })}
+              {formatDistanceToNowStrict(cell.getValue() as string, { addSuffix: true })}
             </Badge>
           </Group>
         ),

@@ -1,4 +1,3 @@
-import { formDateToMyLocal } from "@/lib/utils";
 import { ActionIcon, Avatar, Badge, Box, Group, HoverCard, Text, Timeline } from "@mantine/core";
 import { IconMessage2Exclamation } from "@tabler/icons-react";
 import { formatDistanceToNowStrict } from "date-fns";
@@ -71,7 +70,7 @@ export function HoverMessages({ messages, notesType = "TRANSACTION" }: MessagesP
               title={
                 <Group grow>
                   <Badge size="xs" variant="dot" color="gray">
-                    {formatDistanceToNowStrict(formDateToMyLocal(message.date), { addSuffix: true })}
+                    {formatDistanceToNowStrict(message.date, { addSuffix: true })}
                   </Badge>
                   <Box>{message.type}</Box>
                 </Group>

@@ -7,7 +7,7 @@ import { useMemo } from "react";
 import { isArray } from "lodash";
 import DateRangePicker from "@/components/layouts/date-range-picker";
 import { IconArrowDown, IconArrowUp, IconDownload } from "@tabler/icons-react";
-import { formDateToMyLocal, getMoneyPrefix } from "@/lib/utils";
+import { getMoneyPrefix } from "@/lib/utils";
 import { generateFundReport } from "@/lib/pdf/generator";
 interface Props {
   office: OfficeResponse;
@@ -28,7 +28,7 @@ export const OfficeFundDetail = ({ commits, fund }: Props) => {
         accessorKey: "date",
         Cell: ({ cell }) => (
           <Badge variant="dot" color="dark">
-            {formatDistanceToNowStrict(formDateToMyLocal(cell.getValue() as string), { addSuffix: true })}
+            {formatDistanceToNowStrict(cell.getValue() as string, { addSuffix: true })}
           </Badge>
         ),
       },

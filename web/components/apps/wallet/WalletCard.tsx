@@ -7,7 +7,7 @@ interface Props {
 }
 export default function WalletCard({ wallet }: Props) {
   return (
-    <Card shadow="md" radius="md">
+    <Card withBorder shadow="sm" radius="md">
       <Grid>
         <GridCol span={4}>
           <Stack>
