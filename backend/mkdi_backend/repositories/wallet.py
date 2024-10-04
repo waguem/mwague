@@ -181,8 +181,7 @@ class WalletRepository:
         request: pr.WalletTradingRequest,
     ):
         benefit_or_lost = 0
-        office = self._get_office(self.user.office_id) 
-
+        office = self._get_office(self.user.office_id)
 
         if request.request.currency == wallet.trading_currency:
 
@@ -213,15 +212,15 @@ class WalletRepository:
             wallet.trading_balance -= request.amount
 
             # charge this lost to the office
-            
+
         elif request.request.currency == wallet.crypto_currency:
             # this is the case were we are selling the crypto currency,
-            # the amount is in the crypto currency 
+            # the amount is in the crypto currency
             if not wallet.crypto_balance >= request.amount:
                 trade.state = pr.TransactionState.PENDING
                 return
             # let's say the wallet is 10000 USDT with valuation 10019.08 USD and 36770 AED
-            # we are trying to sell 5000 USDT at the rate of 1USDT = 3.678 AED 
+            # we are trying to sell 5000 USDT at the rate of 1USDT = 3.678 AED
             # how much 5000 USDT cost at buying time ?
             # the wallet rate is 10019.08 / 10000 = 1.001908
             # the cost rate is 36770 / 10000 = 3.677
@@ -296,7 +295,7 @@ class WalletRepository:
         trade.wallet_crypto = wallet.crypto_balance
 
         # move funds from wallet to exchange_wallet
-        self.exchange_wallets(wallet, exchange_wallet, office,request)
+        self.exchange_wallets(wallet, exchange_wallet, office, request)
 
         office.counter = office.counter + 1 if office.counter else 1
         self.db.add(trade)
@@ -306,13 +305,15 @@ class WalletRepository:
         return trade
 
     def exchange_wallets(
-        self, source: OfficeWallet, destination: OfficeWallet, office: Account, request: pr.WalletTradingRequest,
+        self,
+        source: OfficeWallet,
+        destination: OfficeWallet,
+        office: Account,
+        request: pr.WalletTradingRequest,
     ):
         assert source.crypto_currency == destination.crypto_currency
         assert source.crypto_balance >= request.amount
         assert request.request.exchange_rate > 0
-
-
 
         source_tr = source.trading_balance / source.crypto_balance
         source_rate = source.value / source.crypto_balance
@@ -324,11 +325,11 @@ class WalletRepository:
         source.trading_balance -= request.amount * source_tr
 
         destination.crypto_balance += request.amount
-        
+
         exchange_value = request.amount * (request.trading_rate / request.daily_rate)
-        
+
         delta = exchange_value - value
-        
+
         office.credit(delta)
 
         destination.value += exchange_value

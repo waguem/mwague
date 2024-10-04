@@ -149,7 +149,7 @@ class OfficeRepository:
         )
 
         # create a new wallet
-        
+
         wallet = OfficeWallet(
             office_id=office_id,
             crypto_currency=data.crypto_currency,
@@ -157,7 +157,11 @@ class OfficeRepository:
             walletID=str(uuid4()),
             wallet_name=data.wallet_name,
             initials=data.initials,
-            wallet_type=protocol.WalletType.SIMPLE if data.crypto_currency == protocol.CryptoCurrency.NA else protocol.WalletType.CRYPTO
+            wallet_type=(
+                protocol.WalletType.SIMPLE
+                if data.crypto_currency == protocol.CryptoCurrency.NA
+                else protocol.WalletType.CRYPTO
+            ),
         )
 
         self.db.add(wallet)

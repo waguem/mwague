@@ -89,18 +89,17 @@ const ResultTable = ({ data }: Props) => {
         ),
       },
       {
-        header:"Tag",
-        accessorKey:"tag",
-        Cell:({cell})=>(
+        header: "Tag",
+        accessorKey: "tag",
+        Cell: ({ cell }) => (
           <Fragment>
-            {
-              (cell.getValue() as string) && 
+            {(cell.getValue() as string) && (
               <Badge variant="outline" color={"gray"}>
                 {cell.getValue() as string}{" "}
-              </Badge>    
-            }
+              </Badge>
+            )}
           </Fragment>
-        )
+        ),
       },
       {
         header: "Code",

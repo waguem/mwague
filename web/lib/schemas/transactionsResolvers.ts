@@ -95,7 +95,7 @@ const ForEx = zfd.formData({
   selling_rate: zfd.text(zPNumber),
   amount: zfd.text(zPNumber),
   message: zfd.text(z.string().max(1024)).optional(),
-  tag: zfd.text(z.string())
+  tag: zfd.text(z.string()),
 });
 
 export type Data = InternalRequest | DepositRequest;
@@ -342,7 +342,7 @@ const ForexFromResolver: FormResolver = {
         buying_rate: +parsed.data.buying_rate,
         selling_rate: +parsed.data.selling_rate,
         amount: +parsed.data.amount,
-        tag: parsed.data.tag
+        tag: parsed.data.tag,
       },
     };
   },

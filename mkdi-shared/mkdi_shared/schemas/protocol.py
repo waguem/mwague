@@ -88,7 +88,7 @@ class CryptoCurrency(Enum):
     BITCOINT = "BTC"
     ETHEREUM = "ETH"
     USDT = "USDT"  # Tether
-    NA="NA"
+    NA = "NA"
 
 
 class TradingType(Enum):
@@ -125,9 +125,12 @@ class PaymentBase(SQLModel):
         default={}, sa_column=sa.Column(MutableDict.as_mutable(pg.JSONB))
     )
 
+
 class WalletType(Enum):
-    CRYPTO="CRYPTO"
-    SIMPLE="SIMPLE"
+    CRYPTO = "CRYPTO"
+    SIMPLE = "SIMPLE"
+
+
 class CryptoWalletBase(SQLModel):
     # the crypto currency used in the wallet to buy
     # the trading currency
@@ -297,7 +300,7 @@ class ForExRequest(BaseModel):
     type: Literal["FOREX"]
     provider_account: str
     customer_account: str
-    tag             : str
+    tag: str
     currency: Currency
     base_currency: Currency
     daily_rate: Annotated[Decimal, Field(strict=True, gt=0)]

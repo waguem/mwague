@@ -20,7 +20,6 @@ from loguru import logger
 from mkdi_backend.repositories.transactions import TransactionRepository
 
 
-
 class ReportRepository:
 
     def __init__(self, db: Session):
@@ -116,7 +115,7 @@ class ReportRepository:
                     transaction_id=transaction.id,
                     date=transaction.created_at,
                     state=transaction.state,
-                    tag=transaction.tag
+                    tag=transaction.tag,
                 ),
                 resulst,
             )
@@ -146,7 +145,7 @@ class ReportRepository:
                     code=transaction.code,
                     transaction_id=transaction.id,
                     date=transaction.created_at,
-                    state=transaction.state
+                    state=transaction.state,
                 ),
                 results,
             )

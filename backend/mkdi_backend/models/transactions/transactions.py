@@ -185,7 +185,7 @@ def get_trading_cost(cls) -> Decimal:
         # when we are buying, we are buying crypto currency and using wallet trading currency
         # buying cost is the amount of crypto currency in office currency
         # buying cost = trading_rate / daily_rate
-        br = cls.trading_rate / cls.daily_rate 
+        br = cls.trading_rate / cls.daily_rate
         return cls.amount * br
 
     if cls.trading_type == pr.TradingType.EXCHANGE:
@@ -194,7 +194,6 @@ def get_trading_cost(cls) -> Decimal:
         value_rate = cls.wallet_value / cls.wallet_crypto
         return cls.amount * value_rate
 
-    
     cost_rate = cls.wallet_value / cls.wallet_trading
 
     return cls.amount * cost_rate
@@ -259,7 +258,7 @@ class WalletTrading(pr.WalletTradingBase, table=True):
     trading_result: ClassVar[Decimal] = hybrid_property(get_trading_result)
     trading_amount: ClassVar[Decimal] = hybrid_property(get_trading_amount)
     trading_crypto: ClassVar[Decimal] = hybrid_property(get_trading_crypto)
-    
+
     def to_report_item(self) -> dict:
 
         request_message = next((note for note in self.notes if note["type"] == "SELL"), None)

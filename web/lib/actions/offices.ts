@@ -100,7 +100,12 @@ export const updateOfficeInfo = async (officeId: string, data: Record<string, st
   });
 };
 
-export const createWallet = async (initials:string, wallet_name:string,crypto_currency: CryptoCurrency, trading_currency: Currency) => {
+export const createWallet = async (
+  initials: string,
+  wallet_name: string,
+  crypto_currency: CryptoCurrency,
+  trading_currency: Currency
+) => {
   return withToken(async () => {
     const isValid = zCryptoCurrency.safeParse(crypto_currency) && zCurrency.safeParse(trading_currency);
     if (!isValid) {
@@ -115,7 +120,7 @@ export const createWallet = async (initials:string, wallet_name:string,crypto_cu
         crypto_currency,
         trading_currency,
         initials,
-        wallet_name
+        wallet_name,
       },
     });
 

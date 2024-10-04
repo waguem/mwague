@@ -49,7 +49,7 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
       intermeditateByingRate: 0,
       mainCurrency: mainCurrency?.name,
       message: "",
-      tag: "ALI PAY"
+      tag: "ALI PAY",
     },
     mode: "controlled",
     validate: {
@@ -80,7 +80,7 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
     data.append("amount", form.values.amountInBuyedCurrency.toString());
     data.append("message", form.values.message);
     data.append("type", "FOREX");
-    data.append("tag",form.values.tag);
+    data.append("tag", form.values.tag);
     const response = await addTransaction(null, data);
 
     decodeNotification("Forex Transaction", response, (errors) => {
@@ -129,13 +129,9 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
           <Select
             label="Tag"
             placeholder="Select a Tag"
-            value={form.values.tag}  
-            onChange={(value)=> form.setFieldValue("tag",value as string)}
-            data={[
-              "ALI PAY",
-              'TT RMB',
-              "BANK TT"
-            ]}    
+            value={form.values.tag}
+            onChange={(value) => form.setFieldValue("tag", value as string)}
+            data={["ALI PAY", "TT RMB", "BANK TT"]}
           />
           <NumberInput
             id="dailyRate"

@@ -91,7 +91,6 @@ export function NewTrade({ walletID, office, agents }: Props) {
             request_type: "EXCHANGE",
             walletID: form.values.exchange_with ?? "",
             exchange_rate: Number(form.values.exchange_rate),
-
           };
           break;
       }
@@ -123,16 +122,15 @@ export function NewTrade({ walletID, office, agents }: Props) {
     const valueRate = wallet.value / wallet.crypto_balance;
 
     let selling = form.values?.exchange_rate ? form.values.amount / form.values.exchange_rate : 0;
-    
-    if(wallet.crypto_currency === wallet.crypto_currency){
-      // USDT selling 
-      const sellingCost = form.values.amount *  wallet.value / wallet.crypto_balance;
-      selling = form.values.amount * (form.values.trading_rate! / form.values.daily_rate)
-      return selling - sellingCost; 
+
+    if (wallet.crypto_currency === wallet.crypto_currency) {
+      // USDT selling
+      const sellingCost = (form.values.amount * wallet.value) / wallet.crypto_balance;
+      selling = form.values.amount * (form.values.trading_rate! / form.values.daily_rate);
+      return selling - sellingCost;
     }
     // how much the amount that we are selling might worth when we buyed it.
     // basically we spent wallet.trading_balance to buy wallet.crypto_balance
-
 
     const amount_in_crypto = form.values.amount * walletRate;
     const sellingCost = amount_in_crypto * valueRate;
