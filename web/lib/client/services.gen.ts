@@ -166,7 +166,7 @@ export const getOrgOfficesApiV1OrganizationOfficeGet =
  *
  * Args:
  * user: The authenticated user making the request.
- * create_office: The request payload containing the details of the office to be created.
+ * request: The request payload containing the details of the office to be created.
  * db: The database session.
  *
  * Returns:

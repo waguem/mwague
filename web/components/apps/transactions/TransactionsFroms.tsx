@@ -48,9 +48,14 @@ export default function TransactionsForms({ agentAccounts, activity, office, off
       icon: IconSend,
     },
     {
-      name: "ForEx",
+      name: "Foreign Exchange",
       form: "FOREX",
       icon: IconBolt,
+    },
+    {
+      name: "Bank TT",
+      form: "FOREX",
+      icon: IconCashBanknotes,
     },
   ];
 

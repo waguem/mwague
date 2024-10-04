@@ -52,6 +52,8 @@ export const countryList = [
   { value: "United Arab Emirates", label: "United Arab Emirates", code: "AE" },
   { value: "Mozambique", label: "Mozambique", code: "MZ" },
   { value: "Senegal", label: "Senegal", code: "SN" },
+  { value: "Angola", label: "Angola", code: "AO" },
+  { value: "Congo", label: "Congo", code: "CG" },
 ];
 
 export const countryOptions = countryList.map((option) => ({
@@ -77,6 +79,7 @@ export const cryptoCurrencyOptions = [
   { value: "BITCOIN", label: "BTC" },
   { value: "ETHERIUM", label: "ETH" },
   { value: "USDT", label: "USDT" },
+  { value: "NA", label: "SIMPLE" },
 ];
 
 /**

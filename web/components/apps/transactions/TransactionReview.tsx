@@ -44,6 +44,7 @@ import {
   IconX,
   IconCheck,
   IconArrowsExchange,
+  IconTag,
 } from "@tabler/icons-react";
 import { useForm } from "react-hook-form";
 import { ReviewFormData, reviewTransaction } from "@/lib/actions/transactions";
@@ -273,6 +274,15 @@ function ForexView({ transaction, office }: { transaction: ForEx; office: Office
           value={transaction.amount}
           decimalScale={3}
         />{" "}
+      </List.Item>
+      <List.Item
+        icon={
+          <ThemeIcon color="grape" size={"sm"} radius={"xl"}>
+            <IconTag size={16} />
+          </ThemeIcon>
+        }
+      >
+        Tag : {transaction.tag}
       </List.Item>
       <List.Item
         icon={

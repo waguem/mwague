@@ -85,8 +85,9 @@ export default async function DefaultLayout({ children }: { children: React.Reac
       permissions: ADMINS,
       children: office.wallets?.map((wallet) => ({
         href: `/dashboard/wallet/${wallet.walletID}`,
-        label: wallet.walletID,
+        label: `${wallet.crypto_currency}-${wallet.trading_currency}`,
         permissions: ADMINS,
+        badge: wallet.wallet_type as string
       })),
     },
   ]);

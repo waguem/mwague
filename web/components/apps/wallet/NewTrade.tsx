@@ -91,6 +91,7 @@ export function NewTrade({ walletID, office, agents }: Props) {
             request_type: "EXCHANGE",
             walletID: form.values.exchange_with ?? "",
             exchange_rate: Number(form.values.exchange_rate),
+
           };
           break;
       }
@@ -100,8 +101,7 @@ export function NewTrade({ walletID, office, agents }: Props) {
         amount: form.values.amount,
         walletID: walletID,
         daily_rate: form.values.daily_rate,
-        trading_rate:
-          Number(form.values.trading_rate) > 0 ? form.values.trading_rate : Number(form.values.exchange_rate),
+        trading_rate: form.values.trading_rate,
         request: request,
         message: form.values.message,
       };
@@ -118,15 +118,24 @@ export function NewTrade({ walletID, office, agents }: Props) {
     if (form.values.tradeType !== "SELL") {
       return 0;
     }
-    // how much the amount that we are selling might worth when we buyed it.
-    // basically we spent wallet.trading_balance to buy wallet.crypto_balance
 
     const walletRate = wallet.crypto_balance / wallet.trading_balance;
     const valueRate = wallet.value / wallet.crypto_balance;
 
+    let selling = form.values?.exchange_rate ? form.values.amount / form.values.exchange_rate : 0;
+    
+    if(wallet.crypto_currency === wallet.crypto_currency){
+      // USDT selling 
+      const sellingCost = form.values.amount *  wallet.value / wallet.crypto_balance;
+      selling = form.values.amount * (form.values.trading_rate! / form.values.daily_rate)
+      return selling - sellingCost; 
+    }
+    // how much the amount that we are selling might worth when we buyed it.
+    // basically we spent wallet.trading_balance to buy wallet.crypto_balance
+
+
     const amount_in_crypto = form.values.amount * walletRate;
     const sellingCost = amount_in_crypto * valueRate;
-    const selling = form.values?.exchange_rate ? form.values.amount / form.values.exchange_rate : 0;
     return selling - sellingCost;
   };
   const getForm = () => {
@@ -165,13 +174,13 @@ export function NewTrade({ walletID, office, agents }: Props) {
               {wallet?.trading_currency}
             </Badge>
             <Badge size="lg" variant="dot" color="teal" radius={"md"}>
-              1 {"$"} ={" "}
+              1 {wallet?.crypto_currency} ={" "}
               <NumberFormatter
                 value={wallet?.crypto_balance ? wallet?.value / wallet?.crypto_balance : 0}
                 thousandSeparator
                 decimalScale={6}
               />{" "}
-              {wallet?.crypto_currency}
+              {"$"}
             </Badge>
             {form.values.tradeType === "SELL" && (
               <>

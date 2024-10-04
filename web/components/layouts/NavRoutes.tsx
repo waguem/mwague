@@ -9,6 +9,7 @@ import { Badge, Collapse } from "@mantine/core";
 export interface NavRoute {
   label: string;
   icon?: React.ReactNode;
+  badge?: string;
   href: string;
   permissions: string[];
   children?: NavRoute[];
@@ -24,9 +25,10 @@ function NavGroup({ index, route, pathname }: { index: number; route: NavRoute; 
           {route.icon}
           <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">
             {route.label}
+            { route.badge &&
             <Badge className="ml-2" size="xs" variant="outline" color="gray">
-              New
-            </Badge>
+              {route.badge}
+            </Badge>}
           </span>
         </div>
         {route.children && (
@@ -43,7 +45,13 @@ function NavGroup({ index, route, pathname }: { index: number; route: NavRoute; 
                 <Link href={child.href} className={`${pathname === route.href ? "active" : ""} nav-link`}>
                   <div className="flex items-center">
                     {child.icon}
-                    <span className="ltr:pl-3 rtl:pr-3">{child.label}</span>
+                    <span className="ltr:pl-3 rtl:pr-3">
+                      {child.label}
+                      { child.badge &&
+                      <Badge className="ml-2" size="xs" variant="outline" color="gray">
+                        {child.badge}
+                      </Badge>}
+                    </span>
                   </div>
                 </Link>
               </li>

@@ -131,8 +131,8 @@ export const AddAccountSchema = zfd.formData({
   initials: zfd.text(
     zod
       .string()
-      .min(4, "Too Short!")
-      .max(4, "Too Long!")
+      .min(2, "Too Short!")
+      .max(6, "Too Long!")
       .regex(/^[a-zA-Z\s]*$/, "Only Alphanumeric Characters are allowed!")
       .refine((value) => value.trim() !== "")
   ),

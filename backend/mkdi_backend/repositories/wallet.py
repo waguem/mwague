@@ -84,6 +84,7 @@ class WalletRepository:
             created_by=self.user.user_db_id,
             state=pr.TransactionState.PENDING,
             account=provider.initials,
+            currency=wallet.crypto_currency,
             notes=[],
         )
         trade.code = self.generate_code(office.initials, office.counter if office.counter else 0)
@@ -141,6 +142,7 @@ class WalletRepository:
             created_by=self.user.user_db_id,
             state=pr.TransactionState.PAID,
             account=customer.initials,
+            currency=request.request.currency,
             notes=[],
         )
 
@@ -178,7 +180,9 @@ class WalletRepository:
         wallet: OfficeWallet,
         request: pr.WalletTradingRequest,
     ):
-        value = request.amount / request.trading_rate  # amount in account currency (USD)
+        benefit_or_lost = 0
+        office = self._get_office(self.user.office_id) 
+
 
         if request.request.currency == wallet.trading_currency:
 
@@ -193,11 +197,13 @@ class WalletRepository:
             wallet_rate = wallet.crypto_balance / wallet.trading_balance
             cost_rate = wallet.value / wallet.trading_balance
 
+            value = request.amount / request.trading_rate  # amount in account currency (USD)
+            selling_value = request.amount * cost_rate
+            benefit_or_lost = value - selling_value
+
             amount_in_crypto = (
                 request.amount * wallet_rate
             )  # amount in the trading_currency (RMB 35,400 e.g)
-
-            selling_value = request.amount * cost_rate
 
             # charge the customer account by the value
             customer.debit(value)
@@ -206,22 +212,45 @@ class WalletRepository:
             wallet.value -= selling_value
             wallet.trading_balance -= request.amount
 
-            benefit_or_lost = value - selling_value
             # charge this lost to the office
+            
+        elif request.request.currency == wallet.crypto_currency:
+            # this is the case were we are selling the crypto currency,
+            # the amount is in the crypto currency 
+            if not wallet.crypto_balance >= request.amount:
+                trade.state = pr.TransactionState.PENDING
+                return
+            # let's say the wallet is 10000 USDT with valuation 10019.08 USD and 36770 AED
+            # we are trying to sell 5000 USDT at the rate of 1USDT = 3.678 AED 
+            # how much 5000 USDT cost at buying time ?
+            # the wallet rate is 10019.08 / 10000 = 1.001908
+            # the cost rate is 36770 / 10000 = 3.677
 
-            if benefit_or_lost != 0:
-                office = self.db.scalar(
-                    select(Account).where(
-                        Account.type == pr.AccountType.OFFICE,
-                        Account.office_id == self.user.office_id,
-                    )
-                )
-                if benefit_or_lost > 0:
-                    office.credit(benefit_or_lost)
-                else:
-                    office.debit(benefit_or_lost)
+            # at buying time
+            # the amount in the wallet currency is 5000 * 1.001908 = 5009.54 USD
+            # the amount in the trading currency is 5000 * 3.677 = 18385 AED
 
-                self.db.add(office)
+            # at selling time
+            # selling rate is 3.678 and USD AED rate is 3.67 so the rate USDT USD is 1.0019
+            wallet_rate = wallet.value / wallet.crypto_balance
+            cost_rate = wallet.trading_balance / wallet.crypto_balance
+
+            amount_in_trading = request.amount * cost_rate
+            selling_value = request.amount * wallet_rate
+            selling_rate = request.trading_rate / request.daily_rate
+            sold = request.amount * selling_rate
+
+            benefit_or_lost = sold - selling_value
+
+            # charge the customer account by the value
+            customer.debit(sold)
+            wallet.crypto_balance -= request.amount
+            wallet.value -= selling_value
+            wallet.trading_balance -= amount_in_trading
+
+        if benefit_or_lost != 0:
+            office.credit(benefit_or_lost)
+            self.db.add(office)
 
     @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
     def exchange(self, request: pr.WalletTradingRequest) -> pr.WalletTradingResponse:
@@ -249,6 +278,7 @@ class WalletRepository:
             state=pr.TransactionState.PAID,
             exchange_walletID=exchange_wallet.walletID,
             exchange_rate=exchange_request.exchange_rate,
+            currency=wallet.crypto_currency,
             notes=[],
         )
 
@@ -266,7 +296,7 @@ class WalletRepository:
         trade.wallet_crypto = wallet.crypto_balance
 
         # move funds from wallet to exchange_wallet
-        self.exchange_wallets(wallet, exchange_wallet, request)
+        self.exchange_wallets(wallet, exchange_wallet, office,request)
 
         office.counter = office.counter + 1 if office.counter else 1
         self.db.add(trade)
@@ -276,22 +306,33 @@ class WalletRepository:
         return trade
 
     def exchange_wallets(
-        self, source: OfficeWallet, destination: OfficeWallet, request: pr.WalletTradingRequest
+        self, source: OfficeWallet, destination: OfficeWallet, office: Account, request: pr.WalletTradingRequest,
     ):
         assert source.crypto_currency == destination.crypto_currency
         assert source.crypto_balance >= request.amount
         assert request.request.exchange_rate > 0
 
+
+
         source_tr = source.trading_balance / source.crypto_balance
         source_rate = source.value / source.crypto_balance
 
         value = request.amount * source_rate
-        source.crypto_balance -= request.amount
         source.value -= value
+
+        source.crypto_balance -= request.amount
         source.trading_balance -= request.amount * source_tr
 
         destination.crypto_balance += request.amount
-        destination.value += value
+        
+        exchange_value = request.amount * (request.trading_rate / request.daily_rate)
+        
+        delta = exchange_value - value
+        
+        office.credit(delta)
+
+        destination.value += exchange_value
+
         destination.trading_balance += request.amount * request.request.exchange_rate
 
     def get_wallet_tradings(self, walletID: str) -> List[pr.WalletTradingResponse]:

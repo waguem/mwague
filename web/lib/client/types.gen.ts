@@ -87,7 +87,7 @@ export type Amount = {
 };
 
 export type Body_create_office_api_v1_organization_office_post = {
-  create_office: CreateOfficeRequest;
+  request: CreateOfficeRequest;
 };
 
 export type Body_create_organization_api_v1_organization_post = {
@@ -153,6 +153,9 @@ export type CreateOfficeRequest = {
 export type CreateOfficeWalletRequest = {
   crypto_currency: CryptoCurrency;
   trading_currency: Currency;
+  wallet_name?: string;
+  initials?: string;
+  wallet_type?: WalletType;
 };
 
 export type CreateOrganizationRequest = {
@@ -163,7 +166,7 @@ export type CreateOrganizationRequest = {
 /**
  * An enumeration.
  */
-export type CryptoCurrency = "BTC" | "ETH" | "USDT";
+export type CryptoCurrency = "BTC" | "ETH" | "USDT" | "NA";
 
 /**
  * An enumeration.
@@ -344,6 +347,7 @@ export type ForEx = {
   selling_rate: number;
   provider_account: string;
   customer_account: string;
+  tag: string;
   charge_percentage: number;
 };
 
@@ -351,6 +355,7 @@ export type ForExRequest = {
   type: "FOREX";
   provider_account: string;
   customer_account: string;
+  tag: string;
   currency: Currency;
   base_currency: Currency;
   daily_rate: number;
@@ -390,6 +395,7 @@ export type ForExWithPayments = {
   selling_rate: number;
   provider_account: string;
   customer_account: string;
+  tag: string;
   charge_percentage: number;
   payments?: Array<Payment>;
 };
@@ -485,6 +491,7 @@ export type OfficeResult = {
   result_source: TransactionType;
   amount: number;
   code: string;
+  tag?: string;
   state: TransactionState;
   result_type: ResultType;
   date: string;
@@ -494,6 +501,9 @@ export type OfficeResult = {
 export type OfficeWalletResponse = {
   crypto_currency: CryptoCurrency;
   trading_currency: Currency;
+  wallet_name?: string;
+  initials?: string;
+  wallet_type?: WalletType;
   walletID: string;
   crypto_balance: number;
   trading_balance: number;
@@ -578,7 +588,7 @@ export type ResultType = "CHARGE" | "BENEFIT" | "LOSS" | "EXPENSE";
 export type SellRequest = {
   request_type: "SELL";
   customer: string;
-  currency: Currency;
+  currency: Currency | CryptoCurrency;
 };
 
 export type request_type3 = "SELL";
@@ -757,6 +767,7 @@ export type WalletTradingResponse = {
   wallet_crypto: number;
   wallet_trading: number;
   trading_cost: number;
+  trading_amount: number;
   trading_crypto: number;
   trading_result: number;
   account?: string;
@@ -770,6 +781,11 @@ export type WalletTradingResponse = {
       | unknown;
   }>;
 };
+
+/**
+ * An enumeration.
+ */
+export type WalletType = "CRYPTO" | "SIMPLE";
 
 export type PingApiV1PingGetResponse = unknown;
 

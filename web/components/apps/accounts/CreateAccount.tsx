@@ -27,7 +27,7 @@ export default function CreateAccount({ owner_initials }: Props) {
       type: "",
     },
     validate: {
-      initials: (value) => (value.length < 3 ? "Initials must be at least 3 characters" : null),
+      initials: (value) => (value.length == 0 ? "Initials must be at least 1 character" : null),
       currency: (value) => (!value ? "Currency is required" : null),
       type: (value) => (!value ? "Account Type is required" : null),
     },

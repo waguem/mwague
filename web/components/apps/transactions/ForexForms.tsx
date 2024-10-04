@@ -1,6 +1,6 @@
 import { AgentReponseWithAccounts, Currency, OfficeResponse } from "@/lib/client";
 import { currencyOptions, getAccountOptions } from "@/lib/utils";
-import { Group, NumberInput, Select, Stack, Avatar, Button, LoadingOverlay, Textarea } from "@mantine/core";
+import { Group, NumberInput, Select, Stack, Avatar, Button, LoadingOverlay, Textarea, TagsInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconCurrencyDirham, IconCurrencyDollar, IconLoader, IconMessage, IconSend } from "@tabler/icons-react";
 import { useTransition } from "react";
@@ -26,6 +26,7 @@ interface FormInputs {
   amountInMainCurrency: number;
   dailyRate: number;
   message: string;
+  tag: string;
 }
 
 export default function ForexForms({ agentWithAccounts, office }: Props) {
@@ -48,6 +49,7 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
       intermeditateByingRate: 0,
       mainCurrency: mainCurrency?.name,
       message: "",
+      tag: "ALI PAY"
     },
     mode: "controlled",
     validate: {
@@ -78,6 +80,7 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
     data.append("amount", form.values.amountInBuyedCurrency.toString());
     data.append("message", form.values.message);
     data.append("type", "FOREX");
+    data.append("tag",form.values.tag);
     const response = await addTransaction(null, data);
 
     decodeNotification("Forex Transaction", response, (errors) => {
@@ -122,6 +125,17 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
             value={form.values.account}
             onChange={(value) => form.setFieldValue("account", value as any)}
             required
+          />
+          <Select
+            label="Tag"
+            placeholder="Select a Tag"
+            value={form.values.tag}  
+            onChange={(value)=> form.setFieldValue("tag",value as string)}
+            data={[
+              "ALI PAY",
+              'TT RMB',
+              "BANK TT"
+            ]}    
           />
           <NumberInput
             id="dailyRate"

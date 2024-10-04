@@ -85,8 +85,12 @@ class OfficeWallet(CryptoWalletBase, table=True):
     trading_balance: Decimal = Field(max_digits=19, decimal_places=4, default=0, ge=0)
     # how much this wallet is worth in the main currency of the office
     value: Decimal = Field(max_digits=19, decimal_places=4, default=0, ge=0)
+    
+    initials: str = Field(nullable=True,max_length=16)
+    
     pending_in: ClassVar[Decimal] = hybrid_property(get_pending_in)
     pending_out: ClassVar[Decimal] = hybrid_property(get_pending_out)
 
     office_id: UUID = Field(foreign_key="offices.id")
     office: Office = Relationship(back_populates="wallets")  # type: ignore
+

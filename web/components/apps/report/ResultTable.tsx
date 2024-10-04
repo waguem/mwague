@@ -5,7 +5,7 @@ import { ActionIcon, Badge, Button, Group, NumberFormatter, Tooltip } from "@man
 import { useClipboard } from "@mantine/hooks";
 import { IconCopy, IconDownload } from "@tabler/icons-react";
 import { MantineReactTable, MRT_ColumnDef, MRT_Row, useMantineReactTable } from "mantine-react-table";
-import { useMemo } from "react";
+import { Fragment, useMemo } from "react";
 import DateRangePicker from "@/components/layouts/date-range-picker";
 import { formatDate, formatDistanceToNowStrict } from "date-fns";
 import { generateOfficeResultsReport } from "@/lib/pdf/generator";
@@ -84,9 +84,23 @@ const ResultTable = ({ data }: Props) => {
         accessorKey: "result_source",
         Cell: ({ cell }) => (
           <Badge variant="outline" color={getBadgeType(cell.getValue() as any)}>
-            {cell.getValue() as string}{" "}
+            {cell.getValue() as string}
           </Badge>
         ),
+      },
+      {
+        header:"Tag",
+        accessorKey:"tag",
+        Cell:({cell})=>(
+          <Fragment>
+            {
+              (cell.getValue() as string) && 
+              <Badge variant="outline" color={"gray"}>
+                {cell.getValue() as string}{" "}
+              </Badge>    
+            }
+          </Fragment>
+        )
       },
       {
         header: "Code",

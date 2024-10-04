@@ -9,7 +9,7 @@ import {
 } from "@/lib/client";
 import { ActionIcon, Badge, Button, Group, MantineColor, NumberFormatter, Tooltip } from "@mantine/core";
 import { MantineReactTable, MRT_ColumnDef, useMantineReactTable } from "mantine-react-table";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { NewTrade } from "./NewTrade";
 import { getCryptoPrefix, getMoneyPrefix, getStateBadge } from "@/lib/utils";
 import { formatDate, formatDistanceToNowStrict } from "date-fns";
@@ -44,7 +44,7 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
         return "gray";
     }
   };
-
+  const [pending,startTransition] = useTransition()
   const agentAccountsOptions = agents
     ?.filter((agent) => isArray(agent.accounts))
     .map((agent) => agent.accounts)
@@ -53,25 +53,28 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
       label: account!.initials,
       value: account!.initials,
     }));
+  
 
   const columns = useMemo<MRT_ColumnDef<WalletTradingResponse>[]>(
     () => [
       {
         header: "Code",
         accessorKey: "code",
-        // size: 150,
+        size: 220,
         Cell: ({ cell, row }) => {
           const [copied, setCopied] = useState(false);
 
           const handleCopyClick = () => {
-            clipboard.copy(cell.getValue() as string);
+            const message =isArray(row.original.notes) ? row.original.notes[0].message : ""
+            const msg = `${wallet.wallet_name}\n${(+row.original.amount.toFixed(2)).toLocaleString()}${getMoneyPrefix(wallet.trading_currency)}\n${(+row.original.trading_amount.toFixed(2)).toLocaleString()}$\nCODE : ${row.original.code}\n${message}`
+            clipboard.copy(msg);
             setCopied(true);
             setTimeout(() => setCopied(false), 2000); // Reset after 0.5 seconds
           };
 
           return (
             <Group>
-              <Tooltip label="Copy code" position="left">
+              <Tooltip label="Copy Transaction" position="left">
                 <ActionIcon onClick={handleCopyClick} size={20} variant="outline">
                   {copied ? <IconCheck color="teal" size={16} /> : <IconCopy size={16} />}
                 </ActionIcon>
@@ -89,34 +92,54 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
       {
         header: "Amount",
         accessorKey: "amount",
+        size: 100,
         Cell: ({ cell, row }) => {
           return (
-            <Group>
-              <Badge size="md" variant="dot" color="violet">
-                <NumberFormatter
-                  value={cell.getValue() as number}
-                  thousandSeparator=","
-                  decimalScale={3}
-                  prefix={
-                    row.original.trading_type === "SELL"
-                      ? getMoneyPrefix(wallet?.trading_currency)
-                      : getCryptoPrefix(wallet.crypto_currency)
-                  }
-                />
-              </Badge>
-              <Badge variant="dot">
-                <NumberFormatter
-                  value={row.original.trading_rate}
-                  thousandSeparator=","
-                  decimalScale={3}
-                  prefix={"$"}
-                />{" "}
-                /{" "}
-                <NumberFormatter value={row.original.daily_rate} thousandSeparator="," decimalScale={3} prefix={"$"} />
-              </Badge>
-            </Group>
+            <Badge radius={"sm"} size="md" variant="dot" color="violet">
+              <NumberFormatter
+                value={cell.getValue() as number}
+                thousandSeparator=","
+                decimalScale={3}
+                prefix={
+                  row.original.trading_type === "SELL"
+                    ? getMoneyPrefix(wallet?.trading_currency)
+                    : getCryptoPrefix(wallet.crypto_currency)
+                }
+              />
+            </Badge>
           );
         },
+      },
+      {
+        header: "Crypto",
+        accessorKey: "trading_crypto",
+        size: 100,
+        Cell: ({ cell }) => (
+          <Badge size="md" radius={"sm"} variant="dot" color="violet">
+            <NumberFormatter
+              value={cell.getValue() as number}
+              thousandSeparator=","
+              decimalScale={3}
+              prefix={getCryptoPrefix(wallet.crypto_currency)}
+            />
+          </Badge>
+        ),
+      },
+      {
+        header: `Cost`,
+        accessorKey: "trading_cost",
+        size: 100,
+        Cell: ({ cell }) => (
+          <Badge radius={"sm"} size="md" variant="dot" color="violet">
+            <NumberFormatter
+              value={cell.getValue() as number}
+              thousandSeparator=","
+              decimalScale={3}
+              prefix={"$"}
+            />
+          </Badge>
+        )
+          
       },
       {
         header: "State",
@@ -141,9 +164,10 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
       {
         header: "Date",
         accessorKey: "created_at",
+        size: 100,
         Cell: ({ cell }) => (
           <Group>
-            <Badge variant="dot">{formatDate(cell.getValue() as string, "dd MMM")}</Badge>
+            {/* <Badge variant="dot">{formatDate(cell.getValue() as string, "dd MMM")}</Badge> */}
             <Badge variant="dot" color="gray" size="sm" style={{ marginLeft: 0 }}>
               {formatDistanceToNowStrict(cell.getValue() as string, {
                 addSuffix: true,
@@ -169,10 +193,7 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
           <Tooltip label="Export Data to pdf">
             <Button
               onClick={() =>
-                exportTradingData(
-                  wallet,
-                  table.getPrePaginationRowModel().rows.map((row) => row.original)
-                )
+                startTransition(()=> exportTradingData(wallet,table.getPrePaginationRowModel().rows.map((row) => row.original)))
               }
               variant="gradient"
               size="xs"
@@ -236,6 +257,9 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
         },
       ],
     },
+    state:{
+      showProgressBars:pending
+    }
   });
   return (
     <div>

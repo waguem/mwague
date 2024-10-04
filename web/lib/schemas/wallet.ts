@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { zCurrency } from "./transactionsResolvers";
+import { zCryptoCurrency, zCurrency } from "./transactionsResolvers";
 export const TradeType = z.enum(["BUY", "SELL", "EXCHANGE"]);
 const zPNumber = z.number({ message: "must be a number" }).positive({ message: "must be a positive number" });
 
@@ -18,7 +18,7 @@ export const BuyRequest = z.object({
 export const SellRequest = z.object({
   request_type: z.literal("SELL"),
   customer: z.string(),
-  currency: zCurrency,
+  currency: z.union([zCryptoCurrency,zCurrency]),
 });
 
 // Create a Zod schema for the union of ExchangeRequest, BuyRequest, and SellRequest

@@ -1,16 +1,18 @@
+"""Transactions models"""
+
+from datetime import datetime
+import dataclasses
+
 from decimal import Decimal, getcontext
 from typing import Annotated, Mapping, Any, Optional, Union, List, ClassVar
 from uuid import UUID, uuid4
 from sqlalchemy.ext.mutable import MutableDict, MutableList
-from pydantic import Field as PydanticField, BaseModel
+from pydantic import Field as PydanticField
 from mkdi_shared.schemas import protocol as pr
-from sqlmodel import Field, SQLModel, func
+from sqlmodel import Field, SQLModel
+from sqlalchemy.ext.hybrid import hybrid_property
 import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as pg
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import Mapped, mapped_column
-from datetime import datetime
-import dataclasses
 
 
 class Payment(pr.PaymentBase, table=True):
@@ -79,6 +81,7 @@ class ForExBase(pr.TransactionDB):
     selling_rate: Annotated[Decimal, Field(ge=0)]
     provider_account: str = Field(foreign_key="accounts.initials")
     customer_account: str = Field(foreign_key="accounts.initials")
+    tag: str = Field(nullable=True)
     charge_percentage: Annotated[Decimal, Field(ge=0, le=100)]
     is_valid: ClassVar[bool] = hybrid_property(lambda cls: cls.buying_rate > cls.selling_rate)
     buying_amount: ClassVar[Decimal] = hybrid_property(lambda cls: cls.amount / cls.buying_rate)
@@ -152,13 +155,15 @@ def get_buyed_amount(cls) -> Decimal:
 
 
 def get_trading_result(cls) -> Decimal:
-    if cls.state == pr.TransactionState.PENDING:
+    if cls.state == pr.TransactionState.PENDING or cls.trading_type == pr.TradingType.BUY:
         return 0
 
-    if cls.trading_type != pr.TradingType.SELL:
-        return 0
+    if cls.trading_type == pr.TradingType.EXCHANGE:
+        exchange_value = cls.amount * (cls.trading_rate / cls.daily_rate)
+        worth = cls.amount * (cls.wallet_value / cls.wallet_crypto)
+        return exchange_value - worth
 
-    return cls.amount / cls.trading_rate - cls.trading_cost
+    return (cls.amount / cls.trading_rate) - cls.trading_cost
 
 
 def get_trading_amount(cls) -> Decimal:
@@ -173,12 +178,23 @@ def get_trading_amount(cls) -> Decimal:
 
 
 def get_trading_cost(cls) -> Decimal:
-    if cls.state == pr.TransactionState.PENDING:
+    if cls.state == pr.TransactionState.PENDING or cls.wallet_trading == 0:
         return 0
 
-    if cls.trading_type != pr.TradingType.SELL or cls.wallet_trading == 0:
-        return cls.amount
+    if cls.trading_type == pr.TradingType.BUY:
+        # when we are buying, we are buying crypto currency and using wallet trading currency
+        # buying cost is the amount of crypto currency in office currency
+        # buying cost = trading_rate / daily_rate
+        br = cls.trading_rate / cls.daily_rate 
+        return cls.amount * br
 
+    if cls.trading_type == pr.TradingType.EXCHANGE:
+        # let's image we exchanged 10 000 USDT for 721 500 RMB
+        # how much 10 000 USDT are worth in the wallet value ?
+        value_rate = cls.wallet_value / cls.wallet_crypto
+        return cls.amount * value_rate
+
+    
     cost_rate = cls.wallet_value / cls.wallet_trading
 
     return cls.amount * cost_rate
@@ -213,6 +229,9 @@ class WalletTrading(pr.WalletTradingBase, table=True):
     created_at: Annotated[datetime, PydanticField(default_factory=datetime.now)]
     created_by: UUID = Field(foreign_key="employees.id")
     reviwed_by: UUID | None = Field(foreign_key="employees.id")
+
+    currency: str
+
     state: pr.TransactionState
 
     amount: Decimal = Field(gt=0, nullable=False, max_digits=19, decimal_places=3)
@@ -240,7 +259,7 @@ class WalletTrading(pr.WalletTradingBase, table=True):
     trading_result: ClassVar[Decimal] = hybrid_property(get_trading_result)
     trading_amount: ClassVar[Decimal] = hybrid_property(get_trading_amount)
     trading_crypto: ClassVar[Decimal] = hybrid_property(get_trading_crypto)
-
+    
     def to_report_item(self) -> dict:
 
         request_message = next((note for note in self.notes if note["type"] == "SELL"), None)

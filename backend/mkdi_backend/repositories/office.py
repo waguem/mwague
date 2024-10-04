@@ -5,11 +5,12 @@ from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol
 from mkdi_backend.models.Activity import FundCommit, Activity
 from mkdi_backend.repositories.account import AccountRepository
-from sqlmodel import Session, select, and_
+from sqlmodel import Session, select
+from uuid import uuid4
 from sqlalchemy.ext.asyncio import AsyncSession
 from copy import deepcopy
 from typing import List
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 class OfficeRepository:
@@ -147,19 +148,18 @@ class OfficeRepository:
             )
         )
 
-        if wallet:
-            raise MkdiError(
-                f"Wallet {data.crypto_currency} already exists",
-                error_code=MkdiErrorCode.WALLET_EXISTS,
-            )
-
         # create a new wallet
+        
         wallet = OfficeWallet(
             office_id=office_id,
             crypto_currency=data.crypto_currency,
             trading_currency=data.trading_currency,
-            walletID=f"{str(data.crypto_currency.value)}-{str(data.trading_currency.value)}",
+            walletID=str(uuid4()),
+            wallet_name=data.wallet_name,
+            initials=data.initials,
+            wallet_type=protocol.WalletType.SIMPLE if data.crypto_currency == protocol.CryptoCurrency.NA else protocol.WalletType.CRYPTO
         )
+
         self.db.add(wallet)
         return wallet
 
@@ -187,7 +187,7 @@ class OfficeRepository:
         return today.replace(hour=23, minute=59, second=59)
 
     def get_daily_fund_commits(
-        self, office_id: str, start_date_str: str, end_date_str: str
+        self, office_id: str, start_date_str: str | None, end_date_str: str | None
     ) -> List[FundCommit]:
         today = datetime.now()
         date_format = "%Y-%m-%dT%H:%M:%S.%fZ"

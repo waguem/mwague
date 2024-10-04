@@ -103,6 +103,7 @@ class ForExTransaction(PayableTransaction):
             org_id=user.organization_id,
             type=pr.TransactionType.FOREX,
             created_by=user.user_db_id,
+            tag=user_input.tag
         )
 
         notes = []

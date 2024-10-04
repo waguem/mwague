@@ -1,7 +1,7 @@
 services:
   # auth
   keycloakdb:
-    image: postgres
+    image: postgres:16.0
     container_name: keycloak-postgres
     volumes:
       - keycloak_data:/var/lib/postgresql/data
@@ -29,7 +29,7 @@ services:
       retries: 15
 
   db:
-    image: postgres
+    image: postgres:16.0
     container_name: postgresdb
     pull_policy: always
     restart: always

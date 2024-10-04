@@ -1,6 +1,8 @@
 import { OfficeResponse } from "@/lib/client";
-import { getCryptoIcon, getMoneyIcon } from "@/lib/utils";
-import { Stack, Group, Select, NumberInput, Divider } from "@mantine/core";
+import { getCryptoIcon, getMoneyIcon, getMoneyPrefix } from "@/lib/utils";
+import { Stack, Group, Select, NumberInput, Divider,Text,NumberFormatter, Badge } from "@mantine/core";
+
+
 
 interface Props {
   form: any;
@@ -14,7 +16,6 @@ export function SellCurrency({ form, office, walletID, agents }: Props) {
   const currencies: any[] = office?.currencies as any[];
   const mainCurrency = currencies.find((currency: any) => currency.main);
   const baseCurrency = currencies.find((currency: any) => currency.base);
-  const exchange_wallet = office?.wallets?.find((wallet) => wallet.walletID === form.values?.exchange_with);
 
   return (
     <>
@@ -58,8 +59,8 @@ export function SellCurrency({ form, office, walletID, agents }: Props) {
           <NumberInput
             label="Selling Rate"
             required
-            value={form.values.exchange_rate}
-            onChange={(value) => form.setFieldValue("exchange_rate", Number(value))}
+            value={form.values.trading_rate}
+            onChange={(value) => form.setFieldValue("trading_rate", Number(value))}
             thousandSeparator=","
             decimalScale={4}
             allowDecimal
@@ -93,10 +94,10 @@ export function SellCurrency({ form, office, walletID, agents }: Props) {
             allowDecimal
             onChange={(value) => {
               const amount = Number(value);
-              let payment_in_main = amount * (Number(form.values.exchange_rate) / form.values.daily_rate);
-              if (form.values.tradeType === "SELL" && Number(form.values.exchange_rate) > 0) {
+              let payment_in_main = amount * (Number(form.values.trading_rate) / form.values.daily_rate);
+              if (form.values.tradeType === "SELL" && Number(form.values.trading_rate) > 0) {
                 if (form.values.selling_currency === wallet?.trading_currency) {
-                  payment_in_main = amount / Number(form.values.exchange_rate);
+                  payment_in_main = amount / Number(form.values.trading_rate);
                 }
               }
               form.setValues((values: any) => ({
@@ -130,17 +131,6 @@ export function SellCurrency({ form, office, walletID, agents }: Props) {
             allowDecimal
             allowNegative={false}
           />
-          {form.values.tradeType === "EXCHANGE" && form.values.exchange_rate && (
-            <NumberInput
-              label={exchange_wallet?.trading_currency + " Amount"}
-              leftSection={getMoneyIcon(baseCurrency?.name ?? "USD", 16)}
-              value={form.values.amount * form.values.exchange_rate}
-              thousandSeparator=","
-              decimalScale={4}
-              allowDecimal
-              allowNegative={false}
-            />
-          )}
         </Group>
       </Stack>
     </>

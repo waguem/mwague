@@ -3,7 +3,7 @@ import { getDefaultMRTOptions } from "@/components/mantine";
 import { createWallet } from "@/lib/actions";
 import { CryptoCurrency, Currency, OfficeResponse, OfficeWalletResponse } from "@/lib/client";
 import { cryptoCurrencyOptions, currencyOptions, getCryptoPrefix, getMoneyPrefix } from "@/lib/utils";
-import { ActionIcon, Badge, Box, Button, Group, NumberFormatter, Select, Tooltip } from "@mantine/core";
+import { ActionIcon, Badge, Box, Button, Group, NumberFormatter, Select, TextInput, Tooltip } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconExchange, IconWallet } from "@tabler/icons-react";
 import { MantineReactTable, MRT_ColumnDef, MRT_TableOptions, useMantineReactTable } from "mantine-react-table";
@@ -16,7 +16,12 @@ interface Props {
 
 const options = getDefaultMRTOptions<OfficeWalletResponse>();
 export default function Wallets({ office }: Props) {
-  const [newWallet, setNewWallet] = useState<{ crypto_currency?: CryptoCurrency; trading_currency?: Currency } | null>(
+  const [newWallet, setNewWallet] = useState<{ 
+    crypto_currency?: CryptoCurrency;
+    trading_currency?: Currency;
+    initials?: string;
+    wallet_name?: string; 
+  } | null>(
     null
   );
   const [pending, startTransition] = useTransition();
@@ -36,41 +41,78 @@ export default function Wallets({ office }: Props) {
       return;
     }
 
-    const create_wallet = async (crypto_currency: CryptoCurrency, trading_currency: Currency) => {
-      const response = await createWallet(crypto_currency, trading_currency!);
+    const create_wallet = async (initials:string, wallet_name:string, crypto_currency: CryptoCurrency, trading_currency: Currency) => {
+      const response = await createWallet(initials, wallet_name, crypto_currency, trading_currency!);
       decodeNotification("Wallet", response);
     };
 
-    startTransition(() => create_wallet(newWallet.crypto_currency!, newWallet.trading_currency!));
+    startTransition(() => create_wallet(newWallet.initials!, newWallet.wallet_name!, newWallet.crypto_currency!, newWallet.trading_currency!));
     exitCreatingMode();
   };
   const columns = useMemo<MRT_ColumnDef<OfficeWalletResponse>[]>(
     () => [
+      // {
+      //   header: "Wallet ID",
+      //   accessorKey: "walletID",
+      //   enableEditing: false,
+      //   Cell: ({ row }) => (
+      //     <Badge
+      //       variant="gradient"
+      //       size="lg"
+      //       gradient={{
+      //         from: "teal",
+      //         to: "cyan",
+      //         deg: 90,
+      //       }}
+      //     >
+      //       {row.original.crypto_currency} / {row.original.trading_currency}
+      //     </Badge>
+      //   ),
+      // },
       {
-        header: "Wallet ID",
-        accessorKey: "walletID",
-        enableEditing: false,
-        Cell: ({ row }) => (
-          <Badge
-            variant="gradient"
-            size="lg"
-            gradient={{
-              from: "teal",
-              to: "cyan",
-              deg: 90,
-            }}
-          >
-            {row.original.crypto_currency} / {row.original.trading_currency}
+        header:"Name",
+        accessorKey:"wallet_name",
+        size:70,
+        Cell:({cell})=>(
+          <Badge variant="dot" size="md" radius={"sm"}>
+            {cell.getValue() as string}
           </Badge>
         ),
+        Edit:({row})=>(
+          <TextInput
+            defaultValue={row.original.initials}
+            placeholder="Name"
+            onChange={(event)=>setNewWallet((wallet)=>({
+              ...wallet,
+              wallet_name: event.target.value
+            }))}
+          />
+        )
       },
       {
-        header: "Crypto Currency",
+        header:"Initials",
+        accessorKey:"initials",
+        size:60,
+        Cell:({cell})=> cell.getValue() as string,
+        Edit:({row})=>(
+          <TextInput
+            defaultValue={row.original.initials}
+            placeholder="Initials"
+            onChange={(event)=>setNewWallet((wallet)=>({
+              ...wallet,
+              initials: event.target.value
+            }))}
+          />
+        )
+      },
+      {
+        header: "Crypto",
         accessorKey: "crypto_currency",
+        size:60,
         Cell: ({ cell }) => (
           <Badge
             variant="gradient"
-            size="lg"
+            size="sm"
             gradient={{
               from: "teal",
               to: "cyan",
@@ -97,12 +139,13 @@ export default function Wallets({ office }: Props) {
       {
         header: "Currency",
         accessorKey: "trading_currency",
+        size:60,
         Cell: ({ cell }) => {
           return (
             <Box>
               <Badge
                 variant="gradient"
-                size="lg"
+                size="md"
                 gradient={{
                   from: "teal",
                   to: "cyan",
@@ -209,7 +252,7 @@ export default function Wallets({ office }: Props) {
     ...options,
     createDisplayMode: "row",
     editDisplayMode: "row",
-    positionActionsColumn: "first",
+    positionActionsColumn: "last",
     onCreatingRowSave: handleCreateWalled,
     enableRowActions: false,
     renderRowActions: ({ row }) => {

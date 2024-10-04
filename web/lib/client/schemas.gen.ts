@@ -58,7 +58,7 @@ export const $AccountMonthlyReport = {
       type: "string",
       format: "date-time",
       title: "Updated At",
-      default: "2024-09-19T09:35:47.151395",
+      default: "2024-10-04T09:14:16.389613",
     },
   },
   type: "object",
@@ -162,8 +162,8 @@ export const $AgentReponseWithAccounts = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -204,8 +204,8 @@ export const $AgentResponse = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -257,12 +257,12 @@ export const $Amount = {
 
 export const $Body_create_office_api_v1_organization_office_post = {
   properties: {
-    create_office: {
+    request: {
       $ref: "#/components/schemas/CreateOfficeRequest",
     },
   },
   type: "object",
-  required: ["create_office"],
+  required: ["request"],
   title: "Body_create_office_api_v1_organization_office_post",
 } as const;
 
@@ -398,8 +398,8 @@ export const $CreateAgentRequest = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -467,8 +467,8 @@ export const $CreateOfficeRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     name: {
       type: "string",
@@ -497,6 +497,17 @@ export const $CreateOfficeWalletRequest = {
     trading_currency: {
       $ref: "#/components/schemas/Currency",
     },
+    wallet_name: {
+      type: "string",
+      title: "Wallet Name",
+    },
+    initials: {
+      type: "string",
+      title: "Initials",
+    },
+    wallet_type: {
+      $ref: "#/components/schemas/WalletType",
+    },
   },
   type: "object",
   required: ["crypto_currency", "trading_currency"],
@@ -509,8 +520,8 @@ export const $CreateOrganizationRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     org_name: {
       type: "string",
@@ -525,7 +536,7 @@ export const $CreateOrganizationRequest = {
 } as const;
 
 export const $CryptoCurrency = {
-  enum: ["BTC", "ETH", "USDT"],
+  enum: ["BTC", "ETH", "USDT", "NA"],
   title: "CryptoCurrency",
   description: "An enumeration.",
 } as const;
@@ -1125,6 +1136,10 @@ export const $ForEx = {
       type: "string",
       title: "Customer Account",
     },
+    tag: {
+      type: "string",
+      title: "Tag",
+    },
     charge_percentage: {
       type: "number",
       maximum: 100,
@@ -1148,6 +1163,7 @@ export const $ForEx = {
     "selling_rate",
     "provider_account",
     "customer_account",
+    "tag",
     "charge_percentage",
   ],
   title: "ForEx",
@@ -1168,6 +1184,10 @@ export const $ForExRequest = {
     customer_account: {
       type: "string",
       title: "Customer Account",
+    },
+    tag: {
+      type: "string",
+      title: "Tag",
     },
     currency: {
       $ref: "#/components/schemas/Currency",
@@ -1205,6 +1225,7 @@ export const $ForExRequest = {
     "type",
     "provider_account",
     "customer_account",
+    "tag",
     "currency",
     "base_currency",
     "daily_rate",
@@ -1313,6 +1334,10 @@ export const $ForExWithPayments = {
       type: "string",
       title: "Customer Account",
     },
+    tag: {
+      type: "string",
+      title: "Tag",
+    },
     charge_percentage: {
       type: "number",
       maximum: 100,
@@ -1344,6 +1369,7 @@ export const $ForExWithPayments = {
     "selling_rate",
     "provider_account",
     "customer_account",
+    "tag",
     "charge_percentage",
   ],
   title: "ForExWithPayments",
@@ -1601,8 +1627,8 @@ export const $OfficeResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     name: {
       type: "string",
@@ -1655,6 +1681,10 @@ export const $OfficeResult = {
       type: "string",
       title: "Code",
     },
+    tag: {
+      type: "string",
+      title: "Tag",
+    },
     state: {
       $ref: "#/components/schemas/TransactionState",
     },
@@ -1685,6 +1715,17 @@ export const $OfficeWalletResponse = {
     },
     trading_currency: {
       $ref: "#/components/schemas/Currency",
+    },
+    wallet_name: {
+      type: "string",
+      title: "Wallet Name",
+    },
+    initials: {
+      type: "string",
+      title: "Initials",
+    },
+    wallet_type: {
+      $ref: "#/components/schemas/WalletType",
     },
     walletID: {
       type: "string",
@@ -1727,8 +1768,8 @@ export const $OrganizationResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     org_name: {
       type: "string",
@@ -1942,7 +1983,15 @@ export const $SellRequest = {
       title: "Customer",
     },
     currency: {
-      $ref: "#/components/schemas/Currency",
+      anyOf: [
+        {
+          $ref: "#/components/schemas/Currency",
+        },
+        {
+          $ref: "#/components/schemas/CryptoCurrency",
+        },
+      ],
+      title: "Currency",
     },
   },
   type: "object",
@@ -2511,8 +2560,8 @@ export const $WalletTradingRequest = {
       type: "string",
       maxLength: 16,
       title: "Code",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     walletID: {
       type: "string",
@@ -2577,8 +2626,8 @@ export const $WalletTradingResponse = {
       type: "string",
       maxLength: 16,
       title: "Code",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     walletID: {
       type: "string",
@@ -2652,6 +2701,12 @@ export const $WalletTradingResponse = {
       title: "Trading Cost",
       strict: true,
     },
+    trading_amount: {
+      type: "number",
+      minimum: 0,
+      title: "Trading Amount",
+      strict: true,
+    },
     trading_crypto: {
       type: "number",
       minimum: 0,
@@ -2707,8 +2762,15 @@ export const $WalletTradingResponse = {
     "wallet_crypto",
     "wallet_trading",
     "trading_cost",
+    "trading_amount",
     "trading_crypto",
     "trading_result",
   ],
   title: "WalletTradingResponse",
+} as const;
+
+export const $WalletType = {
+  enum: ["CRYPTO", "SIMPLE"],
+  title: "WalletType",
+  description: "An enumeration.",
 } as const;

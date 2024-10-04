@@ -88,6 +88,7 @@ class CryptoCurrency(Enum):
     BITCOINT = "BTC"
     ETHEREUM = "ETH"
     USDT = "USDT"  # Tether
+    NA="NA"
 
 
 class TradingType(Enum):
@@ -124,13 +125,18 @@ class PaymentBase(SQLModel):
         default={}, sa_column=sa.Column(MutableDict.as_mutable(pg.JSONB))
     )
 
-
+class WalletType(Enum):
+    CRYPTO="CRYPTO"
+    SIMPLE="SIMPLE"
 class CryptoWalletBase(SQLModel):
     # the crypto currency used in the wallet to buy
     # the trading currency
     crypto_currency: CryptoCurrency
     # this currency is used for trading
     trading_currency: Currency
+    wallet_name: str | None
+    initials: str | None
+    wallet_type: WalletType | None
 
 
 class CreateOfficeWalletRequest(CryptoWalletBase):
@@ -291,6 +297,7 @@ class ForExRequest(BaseModel):
     type: Literal["FOREX"]
     provider_account: str
     customer_account: str
+    tag             : str
     currency: Currency
     base_currency: Currency
     daily_rate: Annotated[Decimal, Field(strict=True, gt=0)]
@@ -457,7 +464,7 @@ class BuyRequest(BaseModel):
 class SellRequest(BaseModel):
     request_type: Literal["SELL"]
     customer: str
-    currency: Currency
+    currency: Currency | CryptoCurrency
 
 
 class ExchangeRequest(BaseModel):
@@ -481,6 +488,7 @@ class WalletTradingResponse(WalletTradingBase):
     wallet_crypto: Annotated[Decimal, Field(strict=True, ge=0)]
     wallet_trading: Annotated[Decimal, Field(strict=True, ge=0)]
     trading_cost: Annotated[Decimal, Field(strict=True, ge=0)]
+    trading_amount: Annotated[Decimal, Field(strict=True, ge=0)]
     trading_crypto: Annotated[Decimal, Field(strict=True, ge=0)]
     trading_result: Annotated[Decimal, Field()]
     account: str | None
@@ -546,6 +554,7 @@ class OfficeResult(BaseModel):
     result_source: TransactionType
     amount: Decimal
     code: str
+    tag: str | None
     state: TransactionState
     result_type: ResultType
     date: datetime

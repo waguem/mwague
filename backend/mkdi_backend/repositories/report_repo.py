@@ -18,7 +18,7 @@ from sqlmodel.sql.expression import select
 from datetime import timedelta, datetime
 from loguru import logger
 from mkdi_backend.repositories.transactions import TransactionRepository
-import json
+
 
 
 class ReportRepository:
@@ -116,6 +116,7 @@ class ReportRepository:
                     transaction_id=transaction.id,
                     date=transaction.created_at,
                     state=transaction.state,
+                    tag=transaction.tag
                 ),
                 resulst,
             )
@@ -145,7 +146,7 @@ class ReportRepository:
                     code=transaction.code,
                     transaction_id=transaction.id,
                     date=transaction.created_at,
-                    state=transaction.state,
+                    state=transaction.state
                 ),
                 results,
             )
