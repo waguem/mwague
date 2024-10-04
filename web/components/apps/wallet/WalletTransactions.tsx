@@ -12,7 +12,7 @@ import { MantineReactTable, MRT_ColumnDef, useMantineReactTable } from "mantine-
 import { useMemo, useState, useTransition } from "react";
 import { NewTrade } from "./NewTrade";
 import { getCryptoPrefix, getMoneyPrefix, getStateBadge } from "@/lib/utils";
-import { formatDate, formatDistanceToNowStrict } from "date-fns";
+import { formatDistanceToNowStrict } from "date-fns";
 import { PayTrade } from "./PaymentTrade";
 import { isArray } from "lodash";
 import { HoverMessage } from "./HoverMessage";

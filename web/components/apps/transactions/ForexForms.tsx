@@ -1,6 +1,6 @@
 import { AgentReponseWithAccounts, Currency, OfficeResponse } from "@/lib/client";
 import { currencyOptions, getAccountOptions } from "@/lib/utils";
-import { Group, NumberInput, Select, Stack, Avatar, Button, LoadingOverlay, Textarea, TagsInput } from "@mantine/core";
+import { Group, NumberInput, Select, Stack, Avatar, Button, LoadingOverlay, Textarea } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconCurrencyDirham, IconCurrencyDollar, IconLoader, IconMessage, IconSend } from "@tabler/icons-react";
 import { useTransition } from "react";

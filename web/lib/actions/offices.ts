@@ -39,7 +39,7 @@ export async function addOffice(prevSate: State, data: FormData): Promise<State>
 
     const response = await createOffice({
       requestBody: {
-        create_office: {
+        request: {
           ...validationsFields.data,
           default_rates: [],
         },
