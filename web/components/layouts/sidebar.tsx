@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import IconCaretsDown from "@/components/icon/icon-carets-down";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { NavRoute, NavRoutes } from "./NavRoutes";
+import {  NavRoutes, NavSection } from "./NavRoutes";
 
 const CollapsibleLogo = ({ menu }: { menu: string }) => {
   return (
@@ -26,7 +26,7 @@ const CollapsibleLogo = ({ menu }: { menu: string }) => {
   );
 };
 
-const Sidebar = ({ routes }: { routes: NavRoute[] }) => {
+const Sidebar = ({ sections }: { sections: NavSection[] }) => {
   const dispatch = useDispatch();
   const pathname = usePathname();
   const themeConfig = useSelector((state: IRootState) => state.themeConfig);
@@ -86,7 +86,7 @@ const Sidebar = ({ routes }: { routes: NavRoute[] }) => {
             </button>
           </div>
           <PerfectScrollbar className="relative h-[calc(100vh-80px)]">
-            <NavRoutes routes={routes} />
+            <NavRoutes sections={sections} />
           </PerfectScrollbar>
         </div>
       </nav>

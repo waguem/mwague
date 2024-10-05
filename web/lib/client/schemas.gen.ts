@@ -58,7 +58,7 @@ export const $AccountMonthlyReport = {
       type: "string",
       format: "date-time",
       title: "Updated At",
-      default: "2024-10-04T09:14:16.389613",
+      default: "2024-10-05T08:58:09.444036",
     },
   },
   type: "object",
@@ -777,6 +777,29 @@ export const $ExchangeRequest = {
   type: "object",
   required: ["request_type", "exchange_rate", "walletID"],
   title: "ExchangeRequest",
+} as const;
+
+export const $ExchangeWithSimpleWalletRequest = {
+  properties: {
+    request_type: {
+      type: "string",
+      enum: ["EXCHANGE WITH SIMPLE WALLET"],
+      title: "Request Type",
+    },
+    exchange_rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Exchange Rate",
+      strict: true,
+    },
+    walletID: {
+      type: "string",
+      title: "Walletid",
+    },
+  },
+  type: "object",
+  required: ["request_type", "exchange_rate", "walletID"],
+  title: "ExchangeWithSimpleWalletRequest",
 } as const;
 
 export const $External = {
@@ -2249,7 +2272,7 @@ export const $SendingWithPayments = {
 } as const;
 
 export const $TradingType = {
-  enum: ["BUY", "SELL", "EXCHANGE"],
+  enum: ["BUY", "SELL", "EXCHANGE", "EXCHANGE WITH SIMPLE WALLET"],
   title: "TradingType",
   description: "An enumeration.",
 } as const;
@@ -2603,6 +2626,9 @@ export const $WalletTradingRequest = {
         {
           $ref: "#/components/schemas/ExchangeRequest",
         },
+        {
+          $ref: "#/components/schemas/ExchangeWithSimpleWalletRequest",
+        },
       ],
       title: "Request",
       discriminator: {
@@ -2611,6 +2637,7 @@ export const $WalletTradingRequest = {
           BUY: "#/components/schemas/BuyRequest",
           SELL: "#/components/schemas/SellRequest",
           EXCHANGE: "#/components/schemas/ExchangeRequest",
+          "EXCHANGE WITH SIMPLE WALLET": "#/components/schemas/ExchangeWithSimpleWalletRequest",
         },
       },
     },

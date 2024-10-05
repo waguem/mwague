@@ -97,6 +97,7 @@ export default function ExternalForms({ agentWithAccounts, office }: Props) {
                 label="Sender"
                 key={form.key("sender")}
                 data={accountsOptions}
+                searchable
                 {...form.getInputProps("sender")}
                 onChange={(value) => value && form.setFieldValue("sender", value)}
               />

@@ -5,12 +5,12 @@ import {
   ActionIcon,
   Badge,
   Button,
-  Divider,
   Group,
   Loader,
   LoadingOverlay,
   Modal,
   NumberFormatter,
+  Select,
   Stack,
   Textarea,
 } from "@mantine/core";
@@ -23,19 +23,26 @@ import { TradeWallet, WalletTradeRequest } from "@/lib/schemas";
 import { BuyCurrency } from "./BuyCurrency";
 import { ExchangeCurrency } from "./ExchanceCurrency";
 import { SellCurrency } from "./SellCurrency";
+import SimpleExchange from "./SimpleExchange";
 
 interface FormInput {
-  tradeType: "BUY" | "SELL" | "EXCHANGE";
-  daily_rate: number;
-  trading_rate: number;
+  tradeType: "BUY" | "SELL" | "EXCHANGE" | "EXCHANGE WITH SIMPLE WALLET";
+  
   amount: number;
   payment_in_main: number;
   payment_in_base: number;
-  exchange_with?: string;
+  
+  daily_rate: number;
+  trading_rate: number;
   exchange_rate?: number;
+  selling_rate?: number;
+
   customer?: string;
-  selling_currency?: string;
+  exchange_with?: string;
   message?: string;
+  
+  selling_currency?: string;
+  exchange_currency?: Currency
 }
 interface Props {
   walletID: string;
@@ -87,10 +94,12 @@ export function NewTrade({ walletID, office, agents }: Props) {
           };
           break;
         case "EXCHANGE":
+        case "EXCHANGE WITH SIMPLE WALLET":
           request = {
-            request_type: "EXCHANGE",
+            request_type: form.values.tradeType,
             walletID: form.values.exchange_with ?? "",
             exchange_rate: Number(form.values.exchange_rate),
+            selling_rate: Number(form.values.selling_rate)
           };
           break;
       }
@@ -136,6 +145,7 @@ export function NewTrade({ walletID, office, agents }: Props) {
     const sellingCost = amount_in_crypto * valueRate;
     return selling - sellingCost;
   };
+  
   const getForm = () => {
     switch (form.values.tradeType) {
       case "BUY":
@@ -144,8 +154,11 @@ export function NewTrade({ walletID, office, agents }: Props) {
         return <ExchangeCurrency agents={agents} office={office} walletID={walletID} form={form} />;
       case "SELL":
         return <SellCurrency agents={agents} office={office} walletID={walletID} form={form} />;
+      case "EXCHANGE WITH SIMPLE WALLET":
+        return <SimpleExchange office={office} walletID={walletID} form={form}/>
     }
   };
+
   return (
     <>
       <Button variant="gradient" size="compact-md" onClick={open}>
@@ -200,6 +213,21 @@ export function NewTrade({ walletID, office, agents }: Props) {
         />
         <form action={() => startTransition(() => trade())}>
           <Stack>
+            <Group grow>
+              <Select
+                placeholder="Select Trade Type"
+                label="Trade Type"
+                data={[
+                  { value: "BUY", label: "Buy" },
+                  { value: "SELL", label: "Sell" },
+                  { value: "EXCHANGE", label: "Exchange with Crypto Wallet" },
+                  { value: "EXCHANGE WITH SIMPLE WALLET", label: "Exchange with Simple Wallet" },
+                ]}
+                required
+                value={form.values.tradeType}
+                onChange={(value) => form.setFieldValue("tradeType", value as FormInput["tradeType"])}
+              />
+            </Group>
             {getForm()}
             <Group grow>
               <Textarea
@@ -214,7 +242,6 @@ export function NewTrade({ walletID, office, agents }: Props) {
                 }
               />
             </Group>
-            <Divider label="Review" />
             <Button type="submit" color="blue">
               <IconSend size={18} className="mr-1" />
               {form.values.tradeType}

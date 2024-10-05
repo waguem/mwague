@@ -125,6 +125,7 @@ export default function ForeignExForms({ agentWithAccounts, office }: Props) {
                 label="Wallet"
                 placeholder="Select wallet"
                 leftSection={<IconWallet size={16} />}
+                searchable
                 id="wallet"
                 value={form.values.walletID}
                 onChange={(value) => form.setFieldValue("walletID", value as any)}

@@ -8,9 +8,6 @@ interface Props {
   walletID: string;
   agents: { value: string; label: string }[];
 }
-type FormInput = {
-  tradeType: "BUY" | "SELL" | "EXCHANGE";
-};
 
 export function ExchangeCurrency({ form, office, walletID }: Props) {
   const wallet = office?.wallets?.find((wallet) => wallet.walletID === walletID)!;
@@ -19,27 +16,15 @@ export function ExchangeCurrency({ form, office, walletID }: Props) {
   const baseCurrency = currencies.find((currency: any) => currency.base);
   const exchange_wallet = office?.wallets?.find((wallet) => wallet.walletID === form.values?.exchange_with);
   const walletOptions = office?.wallets
-    ?.filter((wallet) => wallet.walletID !== walletID)
+    ?.filter((wallet) => wallet.walletID !== walletID && wallet.wallet_type === "CRYPTO")
     .map((wallet) => ({
-      value: wallet.walletID,
-      label: wallet.walletID,
+      value: wallet.walletID ?? "",
+      label: wallet.wallet_name ?? "",
     }));
 
   return (
     <>
       <Group grow>
-        <Select
-          placeholder="Select Trade Type"
-          label="Trade Type"
-          data={[
-            { value: "BUY", label: "Buy" },
-            { value: "SELL", label: "Sell" },
-            { value: "EXCHANGE", label: "Exchange" },
-          ]}
-          required
-          value={form.values.tradeType}
-          onChange={(value) => form.setFieldValue("tradeType", value as FormInput["tradeType"])}
-        />
 
         <NumberInput
           label="Daily Rate"

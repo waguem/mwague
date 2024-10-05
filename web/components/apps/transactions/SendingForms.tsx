@@ -98,6 +98,7 @@ export default function SendingForms({ agentWithAccounts, office }: Props) {
                 placeholder="Select an agent payer"
                 key={form.key("receiver_initials")}
                 label="Agent Payer"
+                searchable
                 {...form.getInputProps("receiver_initials")}
                 required
                 data={accountsOptions}
@@ -122,6 +123,7 @@ export default function SendingForms({ agentWithAccounts, office }: Props) {
                 placeholder="Select a option"
                 label="Payment Currency"
                 key={form.key("payment_currency")}
+                searchable
                 data={currencyOptions}
                 {...form.getInputProps("payment_currency")}
                 onChange={(value) => value && form.setFieldValue("payment_currency", value as Currency)}
@@ -131,6 +133,7 @@ export default function SendingForms({ agentWithAccounts, office }: Props) {
                 placeholder="Select a option"
                 label="Payment Method"
                 key={form.key("payment_method")}
+                searchable
                 data={paymentMethodOptions}
                 {...form.getInputProps("payment_method")}
                 onChange={(value) => value && form.setFieldValue("payment_method", value)}

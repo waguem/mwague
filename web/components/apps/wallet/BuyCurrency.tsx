@@ -8,9 +8,8 @@ interface Props {
   walletID: string;
   agents: { value: string; label: string }[];
 }
-type FormInput = {
-  tradeType: "BUY" | "SELL" | "EXCHANGE";
-};
+
+
 export function BuyCurrency({ office, form, walletID, agents }: Props) {
   const wallet = office?.wallets?.find((wallet) => wallet.walletID === walletID)!;
   const currencies: any[] = office?.currencies as any[];
@@ -21,18 +20,6 @@ export function BuyCurrency({ office, form, walletID, agents }: Props) {
   return (
     <>
       <Group grow>
-        <Select
-          placeholder="Select Trade Type"
-          label="Trade Type"
-          data={[
-            { value: "BUY", label: "Buy" },
-            { value: "SELL", label: "Sell" },
-            { value: "EXCHANGE", label: "Exchange" },
-          ]}
-          required
-          value={form.values.tradeType}
-          onChange={(value) => form.setFieldValue("tradeType", value as FormInput["tradeType"])}
-        />
         <Select
           placeholder="Provider"
           required

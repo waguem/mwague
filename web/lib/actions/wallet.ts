@@ -31,7 +31,7 @@ export const tradeWallet = async (tradingRequest: TradeWalletReq, path: string) 
     }
     // make request
     await tradeWalletApiV1WalletPost({
-      requestBody: validated.data,
+      requestBody: validated.data
     });
 
     // revalidatePath

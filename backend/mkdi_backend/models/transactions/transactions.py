@@ -170,7 +170,10 @@ def get_trading_amount(cls) -> Decimal:
 
     if cls.trading_type == pr.TradingType.EXCHANGE:
         return cls.amount / cls.exchange_rate
-
+    
+    if cls.trading_type == pr.TradingType.EXCHANGE_WITH_SIMPLE_WALLET:
+        return cls.amount 
+    
     if cls.trading_type == pr.TradingType.BUY:
         return cls.amount * (cls.trading_rate / cls.daily_rate)
 
@@ -188,11 +191,12 @@ def get_trading_cost(cls) -> Decimal:
         br = cls.trading_rate / cls.daily_rate
         return cls.amount * br
 
-    if cls.trading_type == pr.TradingType.EXCHANGE:
+    if cls.trading_type == pr.TradingType.EXCHANGE or cls.trading_type == pr.TradingType.EXCHANGE_WITH_SIMPLE_WALLET:
         # let's image we exchanged 10 000 USDT for 721 500 RMB
         # how much 10 000 USDT are worth in the wallet value ?
         value_rate = cls.wallet_value / cls.wallet_crypto
         return cls.amount * value_rate
+
 
     cost_rate = cls.wallet_value / cls.wallet_trading
 
@@ -211,6 +215,7 @@ def get_trading_crypto(cls) -> Decimal:
         wallet_crypto_rate = cls.wallet_crypto / cls.wallet_trading
 
         return cls.amount * wallet_crypto_rate
+    
 
     return cls.amount
 
@@ -249,6 +254,7 @@ class WalletTrading(pr.WalletTradingBase, table=True):
     exchange_walletID: str = Field(foreign_key="wallets.walletID", nullable=True)
     account: str = Field(foreign_key="accounts.initials", nullable=True)
     exchange_rate: Decimal = Field(gt=0, nullable=True, max_digits=11, decimal_places=6)
+    selling_rate: Decimal = Field(gt=0, nullable=True, max_digits=11, decimal_places=6)
 
     notes: List[Mapping[Any, Mapping | Any]] = Field(
         default={}, sa_column=sa.Column(MutableList.as_mutable(pg.JSONB))

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import SignOutButton from "../auth/signOut";
 import { useDisclosure } from "@mantine/hooks";
 import { Badge, Collapse } from "@mantine/core";
+import { Fragment } from "react";
 
 export interface NavRoute {
   label: string;
@@ -13,6 +14,11 @@ export interface NavRoute {
   href: string;
   permissions: string[];
   children?: NavRoute[];
+}
+
+export interface NavSection {
+  section: string;
+  routes: NavRoute[]
 }
 
 function NavGroup({ index, route, pathname }: { index: number; route: NavRoute; pathname: string }) {
@@ -65,13 +71,21 @@ function NavGroup({ index, route, pathname }: { index: number; route: NavRoute; 
   );
 }
 
-export function NavRoutes({ routes }: { routes: NavRoute[] }) {
+export function NavRoutes({ sections }: { sections: NavSection[] }) {
   const pathname = usePathname();
 
   return (
     <ul className="relative space-y-0.5 p-4 py-0 font-semibold">
-      {routes.map((route, index) => (
-        <NavGroup key={index} route={route} pathname={pathname} index={index} />
+      {sections.map((section, index) => (
+        <Fragment key={index}>
+          <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
+            <span>{section.section}</span>
+          </h2>
+          {section.routes.map((route,j)=>(
+            <NavGroup key={index} route={route} pathname={pathname} index={j} />
+          ))}
+        </Fragment>
+
       ))}
       <li className="menu nav-item">
         <SignOutButton />

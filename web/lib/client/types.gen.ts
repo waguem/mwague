@@ -240,6 +240,14 @@ export type ExchangeRequest = {
 
 export type request_type2 = "EXCHANGE";
 
+export type ExchangeWithSimpleWalletRequest = {
+  request_type: "EXCHANGE WITH SIMPLE WALLET";
+  exchange_rate: number;
+  walletID: string;
+};
+
+export type request_type3 = "EXCHANGE WITH SIMPLE WALLET";
+
 /**
  * Transaction database model
  */
@@ -591,7 +599,7 @@ export type SellRequest = {
   currency: Currency | CryptoCurrency;
 };
 
-export type request_type3 = "SELL";
+export type request_type4 = "SELL";
 
 /**
  * Transaction database model
@@ -664,7 +672,7 @@ export type SendingWithPayments = {
 /**
  * An enumeration.
  */
-export type TradingType = "BUY" | "SELL" | "EXCHANGE";
+export type TradingType = "BUY" | "SELL" | "EXCHANGE" | "EXCHANGE WITH SIMPLE WALLET";
 
 export type TransactionItem = {
   item: Internal | Deposit | Sending | External | ForEx;
@@ -748,7 +756,7 @@ export type WalletTradingRequest = {
   daily_rate: number;
   trading_rate: number;
   message?: string;
-  request: BuyRequest | SellRequest | ExchangeRequest;
+  request: BuyRequest | SellRequest | ExchangeRequest | ExchangeWithSimpleWalletRequest;
 };
 
 export type WalletTradingResponse = {

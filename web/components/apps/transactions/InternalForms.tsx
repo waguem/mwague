@@ -125,6 +125,7 @@ export default function InternalForms({ agentWithAccounts, office, officeAccount
                 placeholder="Select a option"
                 label="Sender"
                 key={form.key("sender")}
+                searchable
                 {...form.getInputProps("sender")}
                 required
                 data={accountsOptions}
@@ -136,6 +137,7 @@ export default function InternalForms({ agentWithAccounts, office, officeAccount
                 label="Receiver"
                 key={form.key("receiver")}
                 {...form.getInputProps("receiver")}
+                searchable
                 required
                 data={accountsOptions}
                 onChange={(value) => value && form.setFieldValue("receiver", value)}

@@ -114,6 +114,7 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
             leftSection={<Avatar src={"/assets/avatars/avat-10.png"} alt="User avatar" size="xs" />}
             id="provider"
             required
+            searchable
             value={form.values.provider}
             onChange={(value) => form.setFieldValue("provider", value as any)}
           />

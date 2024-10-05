@@ -12,7 +12,7 @@ import Portals from "@/components/portals";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import UserHeader from "@/components/layouts/UserHeader";
-import { NavRoute } from "@/components/layouts/NavRoutes";
+import { NavRoute, NavSection } from "@/components/layouts/NavRoutes";
 import {
   IconBook,
   IconBuildingWarehouse,
@@ -58,6 +58,7 @@ export default async function DefaultLayout({ children }: { children: React.Reac
       icon: <IconReport size={20} />,
     },
   ];
+
   const routes: NavRoute[] = makeRoutes(session.user.roles, [
     {
       href: `/dashboard/office/${office.id}`,
@@ -77,20 +78,25 @@ export default async function DefaultLayout({ children }: { children: React.Reac
       label: "Transactions",
       icon: <IconTransactionBitcoin size={20} />,
       permissions: ADMINS,
+    }
+  ]);
+
+  const navSection: NavSection[]=[
+    {
+      section: "OFFICE",
+      routes: routes
     },
     {
-      href: `#`,
-      label: "Wallets",
-      icon: <IconWallet size={20} />,
-      permissions: ADMINS,
-      children: office.wallets?.map((wallet) => ({
+      section:"WALLETS",
+      routes:office.wallets!.sort((a,b)=> a.wallet_type! > b.wallet_type! ? 1 : -1)?.map((wallet) => ({
         href: `/dashboard/wallet/${wallet.walletID}`,
-        label: `${wallet.crypto_currency}-${wallet.trading_currency}`,
+        badge: wallet.wallet_type==="CRYPTO" ? `${wallet.crypto_currency}-${wallet.trading_currency}` : `${wallet.trading_currency}`,
         permissions: ADMINS,
-        badge: wallet.wallet_type as string,
+        label: wallet.wallet_name?.split(" ")[0] ?? "",
+        icon: <IconWallet size={20} />,
       })),
-    },
-  ]);
+    }
+  ]
   return (
     <>
       {/* BEGIN MAIN CONTAINER */}
@@ -104,7 +110,7 @@ export default async function DefaultLayout({ children }: { children: React.Reac
 
         <MainContainer>
           {/* BEGIN SIDEBAR */}
-          <Sidebar routes={routes} />
+          <Sidebar sections={navSection} />
           {/* END SIDEBAR */}
           <div className="main-content flex min-h-screen flex-col">
             {/* BEGIN TOP NAVBAR */}

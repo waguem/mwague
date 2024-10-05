@@ -15,7 +15,6 @@ from mkdi_backend.repositories.transaction_repos.invariant import managed_invari
 from mkdi_backend.utils.dateutils import get_month_range
 from typing import List
 from datetime import datetime
-from functools import wraps
 
 
 class WalletRepository:
@@ -34,6 +33,8 @@ class WalletRepository:
                 return self.sell(request)
             case pr.TradingType.EXCHANGE:
                 return self.exchange(request)
+            case pr.TradingType.EXCHANGE_WITH_SIMPLE_WALLET:
+                return self.exchange_with_simple_wallet(request)
             case _:
                 raise ValueError("Invalid trading type")
 
@@ -251,6 +252,8 @@ class WalletRepository:
             office.credit(benefit_or_lost)
             self.db.add(office)
 
+
+
     @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
     def exchange(self, request: pr.WalletTradingRequest) -> pr.WalletTradingResponse:
         """Exchange currency from the wallet to another currency, using a other wallet"""
@@ -395,7 +398,7 @@ class WalletRepository:
             v_from=(fund.balance),
             variation=fund_out,
             activity_id=activity.id,
-            description=f"Wallet Trade {trade.walletID} {trade.code}",
+            description=f"Wallet Trade {wallet.wallet_name} {trade.code}",
             is_out=True,  # out
             date=datetime.now(),
         )
@@ -504,3 +507,88 @@ class WalletRepository:
         self.db.add(customer)
 
         return trade
+
+    @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
+    def exchange_with_simple_wallet(self,request)-> pr.WalletTradingResponse:
+        # get crypto wallet from request
+        source_wallet = self.get_wallet(request.walletID)
+        destination_wallet = self.get_wallet(request.request.walletID)
+
+        if not source_wallet or not destination_wallet:
+            raise MkdiError(
+                error_code=MkdiErrorCode.NOT_FOUND,
+                message="Wallet not found",
+            )
+        office = self._get_office(self.user.office_id)
+
+        trade = WalletTrading(
+            walletID=source_wallet.walletID,
+            exchange_walletID=destination_wallet.walletID,
+            trading_type=request.trading_type,
+            amount=request.amount,
+            state=pr.TransactionState.PAID,
+            daily_rate=request.daily_rate,
+            trading_rate=request.trading_rate,
+            exchange_rate=request.request.exchange_rate,
+            selling_rate=request.request.selling_rate,
+            notes=[],
+            currency=destination_wallet.trading_currency,
+            created_by=self.user.user_db_id,
+        )
+
+        trade.code = self.generate_code(source_wallet.initials, office.counter if office.counter else 0)
+        message = dict()
+        message["date"] = datetime.isoformat(datetime.now())
+        message["message"] = request.message
+        message["type"] = str(request.trading_type)
+        message["user"] = self.user.user_db_id
+        trade.notes.append(message)
+
+        trade.pendings = source_wallet.pending_in - source_wallet.pending_out
+        trade.wallet_trading = source_wallet.trading_balance
+        trade.wallet_value = source_wallet.value
+        trade.wallet_crypto = source_wallet.crypto_balance
+        
+        # move funds from source wallet to destination wallet
+        self.exchange_wallets_simple(source_wallet,destination_wallet,request,office)
+
+        office.counter = office.counter + 1 if office.counter else 1
+
+        self.db.add(source_wallet)
+        self.db.add(destination_wallet)
+        self.db.add(office)
+
+        return trade
+        
+    def exchange_wallets_simple(self, source,destination,request,office):
+        assert source.crypto_balance >= request.amount
+        assert request.request.exchange_rate > 0
+        assert request.trading_rate > 0  
+        assert source.wallet_type == pr.WalletType.CRYPTO
+        assert destination.wallet_type == pr.WalletType.SIMPLE
+
+        # source 10,000USDT valued at 10,019.50 USD with tr 70,000 RMB
+        #
+        # the rate is  70,000 RMB / 10,000 USDT = 7RMB/USDT
+
+        source_tr = source.trading_balance / source.crypto_balance
+        
+        source_vr = source.value / source.crypto_balance
+
+        value = request.amount * source_vr
+
+        exchange_value = request.amount * (request.request.selling_rate / request.daily_rate)
+        trading_value = request.amount * ( request.request.exchange_rate / request.trading_rate)
+
+        delta = exchange_value - value
+
+        source.value -= value
+        source.crypto_balance -= request.amount
+        source.trading_balance -= request.amount * source_tr
+
+        office.credit(delta)
+        # destination.crypto_balance = 0 because the destination is a simple wallet
+
+        destination.value += exchange_value
+        destination.trading_balance += trading_value
+
