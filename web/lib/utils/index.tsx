@@ -79,7 +79,7 @@ export const cryptoCurrencyOptions = [
   { value: "BITCOIN", label: "BTC" },
   { value: "ETHERIUM", label: "ETH" },
   { value: "USDT", label: "USDT" },
-  { value: "NA", label: "SIMPLE" }
+  { value: "NA", label: "SIMPLE" },
 ];
 
 /**

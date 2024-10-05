@@ -78,25 +78,30 @@ export default async function DefaultLayout({ children }: { children: React.Reac
       label: "Transactions",
       icon: <IconTransactionBitcoin size={20} />,
       permissions: ADMINS,
-    }
+    },
   ]);
 
-  const navSection: NavSection[]=[
+  const navSection: NavSection[] = [
     {
       section: "OFFICE",
-      routes: routes
+      routes: routes,
     },
     {
-      section:"WALLETS",
-      routes:office.wallets!.sort((a,b)=> a.wallet_type! > b.wallet_type! ? 1 : -1)?.map((wallet) => ({
-        href: `/dashboard/wallet/${wallet.walletID}`,
-        badge: wallet.wallet_type==="CRYPTO" ? `${wallet.crypto_currency}-${wallet.trading_currency}` : `${wallet.trading_currency}`,
-        permissions: ADMINS,
-        label: wallet.wallet_name?.split(" ")[0] ?? "",
-        icon: <IconWallet size={20} />,
-      })),
-    }
-  ]
+      section: "WALLETS",
+      routes: office
+        .wallets!.sort((a, b) => (a.wallet_type! > b.wallet_type! ? 1 : -1))
+        ?.map((wallet) => ({
+          href: `/dashboard/wallet/${wallet.walletID}`,
+          badge:
+            wallet.wallet_type === "CRYPTO"
+              ? `${wallet.crypto_currency}-${wallet.trading_currency}`
+              : `${wallet.trading_currency}`,
+          permissions: ADMINS,
+          label: wallet.wallet_name?.split(" ")[0] ?? "",
+          icon: <IconWallet size={20} />,
+        })),
+    },
+  ];
   return (
     <>
       {/* BEGIN MAIN CONTAINER */}

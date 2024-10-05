@@ -9,7 +9,6 @@ interface Props {
   agents: { value: string; label: string }[];
 }
 
-
 export function BuyCurrency({ office, form, walletID, agents }: Props) {
   const wallet = office?.wallets?.find((wallet) => wallet.walletID === walletID)!;
   const currencies: any[] = office?.currencies as any[];

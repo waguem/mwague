@@ -25,7 +25,6 @@ export function ExchangeCurrency({ form, office, walletID }: Props) {
   return (
     <>
       <Group grow>
-
         <NumberInput
           label="Daily Rate"
           required

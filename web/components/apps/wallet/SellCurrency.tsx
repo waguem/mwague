@@ -16,7 +16,6 @@ export function SellCurrency({ form, office, walletID, agents }: Props) {
   const baseCurrency = currencies.find((currency: any) => currency.base);
 
   return (
-
     <Stack>
       <Group grow>
         <Select
@@ -118,6 +117,5 @@ export function SellCurrency({ form, office, walletID, agents }: Props) {
         />
       </Group>
     </Stack>
-  
   );
 }

@@ -18,7 +18,7 @@ export interface NavRoute {
 
 export interface NavSection {
   section: string;
-  routes: NavRoute[]
+  routes: NavRoute[];
 }
 
 function NavGroup({ index, route, pathname }: { index: number; route: NavRoute; pathname: string }) {
@@ -81,11 +81,10 @@ export function NavRoutes({ sections }: { sections: NavSection[] }) {
           <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
             <span>{section.section}</span>
           </h2>
-          {section.routes.map((route,j)=>(
+          {section.routes.map((route, j) => (
             <NavGroup key={index} route={route} pathname={pathname} index={j} />
           ))}
         </Fragment>
-
       ))}
       <li className="menu nav-item">
         <SignOutButton />

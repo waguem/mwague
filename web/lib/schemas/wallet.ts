@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { zCryptoCurrency, zCurrency } from "./transactionsResolvers";
-export const TradeType = z.enum(["BUY", "SELL", "EXCHANGE","EXCHANGE WITH SIMPLE WALLET"]);
+export const TradeType = z.enum(["BUY", "SELL", "EXCHANGE", "EXCHANGE WITH SIMPLE WALLET"]);
 const zPNumber = z.number({ message: "must be a number" }).positive({ message: "must be a positive number" });
 
 const ExchangeRequest = z.object({
@@ -8,7 +8,6 @@ const ExchangeRequest = z.object({
   // Define the fields for ExchangeRequest
   exchange_rate: zPNumber,
   walletID: z.string(),
-  
 });
 
 const ExchangeWithSimpleWalletRequest = z.object({
@@ -16,7 +15,7 @@ const ExchangeWithSimpleWalletRequest = z.object({
   walletID: z.string(),
   exchange_rate: zPNumber,
   selling_rate: zPNumber,
-})
+});
 
 export const BuyRequest = z.object({
   request_type: z.literal("BUY"),
@@ -30,7 +29,12 @@ export const SellRequest = z.object({
 });
 
 // Create a Zod schema for the union of ExchangeRequest, BuyRequest, and SellRequest
-const WalletTradeRequestSchema = z.discriminatedUnion("request_type", [ExchangeRequest, BuyRequest, SellRequest,ExchangeWithSimpleWalletRequest]);
+const WalletTradeRequestSchema = z.discriminatedUnion("request_type", [
+  ExchangeRequest,
+  BuyRequest,
+  SellRequest,
+  ExchangeWithSimpleWalletRequest,
+]);
 
 export type WalletTradeRequest = z.infer<typeof WalletTradeRequestSchema>;
 

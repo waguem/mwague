@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import IconCaretsDown from "@/components/icon/icon-carets-down";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import {  NavRoutes, NavSection } from "./NavRoutes";
+import { NavRoutes, NavSection } from "./NavRoutes";
 
 const CollapsibleLogo = ({ menu }: { menu: string }) => {
   return (

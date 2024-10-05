@@ -252,8 +252,6 @@ class WalletRepository:
             office.credit(benefit_or_lost)
             self.db.add(office)
 
-
-
     @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
     def exchange(self, request: pr.WalletTradingRequest) -> pr.WalletTradingResponse:
         """Exchange currency from the wallet to another currency, using a other wallet"""
@@ -509,7 +507,7 @@ class WalletRepository:
         return trade
 
     @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
-    def exchange_with_simple_wallet(self,request)-> pr.WalletTradingResponse:
+    def exchange_with_simple_wallet(self, request) -> pr.WalletTradingResponse:
         # get crypto wallet from request
         source_wallet = self.get_wallet(request.walletID)
         destination_wallet = self.get_wallet(request.request.walletID)
@@ -536,7 +534,9 @@ class WalletRepository:
             created_by=self.user.user_db_id,
         )
 
-        trade.code = self.generate_code(source_wallet.initials, office.counter if office.counter else 0)
+        trade.code = self.generate_code(
+            source_wallet.initials, office.counter if office.counter else 0
+        )
         message = dict()
         message["date"] = datetime.isoformat(datetime.now())
         message["message"] = request.message
@@ -548,9 +548,9 @@ class WalletRepository:
         trade.wallet_trading = source_wallet.trading_balance
         trade.wallet_value = source_wallet.value
         trade.wallet_crypto = source_wallet.crypto_balance
-        
+
         # move funds from source wallet to destination wallet
-        self.exchange_wallets_simple(source_wallet,destination_wallet,request,office)
+        self.exchange_wallets_simple(source_wallet, destination_wallet, request, office)
 
         office.counter = office.counter + 1 if office.counter else 1
 
@@ -559,11 +559,11 @@ class WalletRepository:
         self.db.add(office)
 
         return trade
-        
-    def exchange_wallets_simple(self, source,destination,request,office):
+
+    def exchange_wallets_simple(self, source, destination, request, office):
         assert source.crypto_balance >= request.amount
         assert request.request.exchange_rate > 0
-        assert request.trading_rate > 0  
+        assert request.trading_rate > 0
         assert source.wallet_type == pr.WalletType.CRYPTO
         assert destination.wallet_type == pr.WalletType.SIMPLE
 
@@ -572,13 +572,13 @@ class WalletRepository:
         # the rate is  70,000 RMB / 10,000 USDT = 7RMB/USDT
 
         source_tr = source.trading_balance / source.crypto_balance
-        
+
         source_vr = source.value / source.crypto_balance
 
         value = request.amount * source_vr
 
         exchange_value = request.amount * (request.request.selling_rate / request.daily_rate)
-        trading_value = request.amount * ( request.request.exchange_rate / request.trading_rate)
+        trading_value = request.amount * (request.request.exchange_rate / request.trading_rate)
 
         delta = exchange_value - value
 
@@ -591,4 +591,3 @@ class WalletRepository:
 
         destination.value += exchange_value
         destination.trading_balance += trading_value
-

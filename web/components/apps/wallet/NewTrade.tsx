@@ -27,11 +27,11 @@ import SimpleExchange from "./SimpleExchange";
 
 interface FormInput {
   tradeType: "BUY" | "SELL" | "EXCHANGE" | "EXCHANGE WITH SIMPLE WALLET";
-  
+
   amount: number;
   payment_in_main: number;
   payment_in_base: number;
-  
+
   daily_rate: number;
   trading_rate: number;
   exchange_rate?: number;
@@ -40,9 +40,9 @@ interface FormInput {
   customer?: string;
   exchange_with?: string;
   message?: string;
-  
+
   selling_currency?: string;
-  exchange_currency?: Currency
+  exchange_currency?: Currency;
 }
 interface Props {
   walletID: string;
@@ -99,7 +99,7 @@ export function NewTrade({ walletID, office, agents }: Props) {
             request_type: form.values.tradeType,
             walletID: form.values.exchange_with ?? "",
             exchange_rate: Number(form.values.exchange_rate),
-            selling_rate: Number(form.values.selling_rate)
+            selling_rate: Number(form.values.selling_rate),
           };
           break;
       }
@@ -145,7 +145,7 @@ export function NewTrade({ walletID, office, agents }: Props) {
     const sellingCost = amount_in_crypto * valueRate;
     return selling - sellingCost;
   };
-  
+
   const getForm = () => {
     switch (form.values.tradeType) {
       case "BUY":
@@ -155,7 +155,7 @@ export function NewTrade({ walletID, office, agents }: Props) {
       case "SELL":
         return <SellCurrency agents={agents} office={office} walletID={walletID} form={form} />;
       case "EXCHANGE WITH SIMPLE WALLET":
-        return <SimpleExchange office={office} walletID={walletID} form={form}/>
+        return <SimpleExchange office={office} walletID={walletID} form={form} />;
     }
   };
 

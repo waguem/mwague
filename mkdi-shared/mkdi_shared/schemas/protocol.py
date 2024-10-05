@@ -476,17 +476,19 @@ class ExchangeRequest(BaseModel):
     exchange_rate: Annotated[Decimal, Field(strict=True, gt=0)]
     walletID: str
 
+
 class ExchangeWithSimpleWalletRequest(BaseModel):
     request_type: Literal["EXCHANGE WITH SIMPLE WALLET"]
     walletID: str
     exchange_rate: Annotated[Decimal, Field(strict=True, gt=0)]
     selling_rate: Annotated[Decimal, Field(strict=True, gt=0)]
-    
 
 
 class WalletTradingRequest(WalletTradingBase):
     message: str | None
-    request: Union[BuyRequest, SellRequest, ExchangeRequest,ExchangeWithSimpleWalletRequest] = Field(discriminator="request_type")
+    request: Union[BuyRequest, SellRequest, ExchangeRequest, ExchangeWithSimpleWalletRequest] = (
+        Field(discriminator="request_type")
+    )
 
 
 class WalletTradingResponse(WalletTradingBase):
