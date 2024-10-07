@@ -204,7 +204,7 @@ export const getMoneyIcon = (currency: Currency | undefined, size: number = 16) 
   return <IconCurrency size={size} />;
 };
 
-export const getCryptoIcon = (currency: CryptoCurrency, size: number) => {
+export const getCryptoIcon = (currency: CryptoCurrency, size: number = 16) => {
   switch (currency) {
     case "BTC":
       return <IconCurrencyBitcoin size={size} />;
@@ -257,3 +257,11 @@ export const getAccountOptions = (type: AgentType, agents: AgentReponseWithAccou
     })
     .flat();
 };
+
+export const tradeOptions = [
+  { value: "BUY", label: "Buy", wallet: "CRYPTO" },
+  { value: "SELL", label: "Sell", wallet: "ALL" },
+  { value: "DEPOSIT", label: "Wallet Deposit", wallet: "SIMPLE" },
+  { value: "EXCHANGE", label: "Exchange with Crypto Wallet", wallet: "CRYPTO" },
+  { value: "EXCHANGE WITH SIMPLE WALLET", label: "Exchange with Simple Wallet", wallet: "CRYPTO" },
+];

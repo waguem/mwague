@@ -11,7 +11,7 @@ import { ActionIcon, Badge, Button, Group, MantineColor, NumberFormatter, Toolti
 import { MantineReactTable, MRT_ColumnDef, useMantineReactTable } from "mantine-react-table";
 import { useMemo, useState, useTransition } from "react";
 import { NewTrade } from "./NewTrade";
-import { getCryptoPrefix, getMoneyPrefix, getStateBadge } from "@/lib/utils";
+import { getAccountOptions, getCryptoPrefix, getMoneyPrefix, getStateBadge } from "@/lib/utils";
 import { formatDistanceToNowStrict } from "date-fns";
 import { PayTrade } from "./PaymentTrade";
 import { isArray } from "lodash";
@@ -20,7 +20,7 @@ import { TradingDetail } from "./TradingDetail";
 import CommitTrade from "./CommitTrade";
 import { IconCheck, IconCopy, IconDownload } from "@tabler/icons-react";
 import { useClipboard } from "@mantine/hooks";
-import { exportTradingData } from "@/lib/pdf/generator";
+import { exportTradingData, generateReceipt, Receipt } from "@/lib/pdf/generator";
 
 interface Props {
   office: OfficeResponse;
@@ -45,14 +45,7 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
     }
   };
   const [pending, startTransition] = useTransition();
-  const agentAccountsOptions = agents
-    ?.filter((agent) => isArray(agent.accounts))
-    .map((agent) => agent.accounts)
-    .flat()
-    .map((account) => ({
-      label: account!.initials,
-      value: account!.initials,
-    }));
+  const agentAccountsOptions = getAccountOptions("SUPPLIER", agents);
 
   const columns = useMemo<MRT_ColumnDef<WalletTradingResponse>[]>(
     () => [
@@ -232,12 +225,30 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
       );
     },
     renderRowActions: ({ row }) => {
+      const receipt: Receipt = {
+        account: row.original.account ?? "",
+        amount:
+          row?.original.trading_type == "DEPOSIT"
+            ? row.original.amount * (1 + row.original.trading_rate / 100)
+            : row.original.amount,
+        code: row.original.code ?? "",
+        description: "D",
+      };
       return (
         <Group gap="xs">
-          {row.original.trading_type === "BUY" && (
-            <Tooltip label="Pay">
-              <PayTrade accounts={officeAccounts} trade={row.original as WalletTradingResponse} wallet={wallet} />
-            </Tooltip>
+          {["BUY", "DEPOSIT"].includes(row.original.trading_type) && (
+            <Group grow>
+              <Tooltip label="Pay">
+                <PayTrade accounts={officeAccounts} trade={row.original as WalletTradingResponse} wallet={wallet} />
+              </Tooltip>
+              {row.original.state === "PAID" && (
+                <Tooltip label="Receipt">
+                  <ActionIcon variant="outline" onClick={() => generateReceipt(receipt)}>
+                    <IconDownload size={16} />
+                  </ActionIcon>
+                </Tooltip>
+              )}
+            </Group>
           )}
 
           {row.original.trading_type === "SELL" && (

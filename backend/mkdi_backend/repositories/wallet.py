@@ -35,6 +35,8 @@ class WalletRepository:
                 return self.exchange(request)
             case pr.TradingType.EXCHANGE_WITH_SIMPLE_WALLET:
                 return self.exchange_with_simple_wallet(request)
+            case pr.TradingType.DEPOSIT:
+                return self.simple_wallet_deposit(request)
             case _:
                 raise ValueError("Invalid trading type")
 
@@ -88,7 +90,7 @@ class WalletRepository:
             currency=wallet.crypto_currency,
             notes=[],
         )
-        trade.code = self.generate_code(office.initials, office.counter if office.counter else 0)
+        trade.code = self.generate_code(wallet.initials, office.counter if office.counter else 0)
         message = dict()
         message["date"] = datetime.isoformat(datetime.now())
         message["message"] = request.message
@@ -379,7 +381,12 @@ class WalletRepository:
                 error_code=MkdiErrorCode.NOT_FOUND,
                 message="Fund account not found",
             )
+
         fund_out = trade.amount * (trade.trading_rate / trade.daily_rate)
+
+        if trade.trading_type == pr.TradingType.DEPOSIT:
+            fund_out = trade.amount * (1 + trade.trading_rate / 100)
+
         # move funds from fund to the wallet account
         # the wallet currency is in crypto currency, but
         # it holds the equivalent amount in the fund account
@@ -391,9 +398,14 @@ class WalletRepository:
         )
 
         fund.debit(fund_out)
-        wallet.crypto_balance += trade.amount
+        wallet.crypto_balance += trade.amount if trade.trading_type == pr.TradingType.BUY else 0
         wallet.value += fund_out
-        wallet.trading_balance += trade.amount * trade.trading_rate
+        wallet.trading_balance += (
+            trade.amount * trade.trading_rate
+            if trade.trading_type == pr.TradingType.BUY
+            else trade.amount
+        )
+
         fund_history = FundCommit(
             v_from=(fund.balance),
             variation=fund_out,
@@ -594,3 +606,59 @@ class WalletRepository:
 
         destination.value += exchange_value
         destination.trading_balance += trading_value
+
+    @managed_tx_method(auto_commit=CommitMode.COMMIT)
+    def simple_wallet_deposit(self, request: pr.WalletDepositRequest):
+        wallet = self.get_wallet(request.walletID)
+
+        if not wallet:
+            raise MkdiError(
+                error_code=MkdiErrorCode.NOT_FOUND,
+                message="Wallet not found",
+            )
+
+        assert isinstance(request.request, pr.WalletDepositRequest)
+        deposit: pr.WalletDeposit = request.request
+        office = self._get_office(self.user.office_id)
+
+        provider = self.db.scalar(
+            select(Account).where(
+                Account.initials == deposit.provider, Account.office_id == self.user.office_id
+            )
+        )
+
+        trade = WalletTrading(
+            walletID=wallet.walletID,
+            trading_type=request.trading_type,
+            amount=request.amount,
+            daily_rate=request.daily_rate,
+            trading_rate=request.trading_rate,
+            created_by=self.user.user_db_id,
+            state=pr.TransactionState.PENDING,
+            account=provider.initials,
+            currency=wallet.trading_currency,
+            notes=[],
+        )
+
+        trade.code = self.generate_code(wallet.initials, office.counter if office.counter else 0)
+        trade.notes.append(self.get_message(request.message, str(request.trading_type)))
+
+        office.counter = office.counter + 1 if office.counter else 1
+
+        trade.pendings = wallet.pending_in - wallet.pending_out
+        trade.wallet_trading = wallet.trading_balance
+        trade.wallet_value = wallet.value
+        trade.wallet_crypto = wallet.crypto_balance
+
+        self.db.add(trade)
+        self.db.add(office)
+
+        return trade
+
+    def get_message(self, msg: str, msg_type: str):
+        message = dict()
+        message["date"] = datetime.isoformat(datetime.now())
+        message["message"] = msg
+        message["type"] = msg_type
+        message["user"] = self.user.user_db_id
+        return message

@@ -98,7 +98,7 @@ class ReportRepository:
     def _get_forex_result(self, office_id: str, start_date: datetime, end_date: datetime):
         resulst = self.db.scalars(
             select(ForEx)
-            .where(ForEx.forex_result is not 0)
+            .where(ForEx.forex_result != 0)
             .where(ForEx.created_at >= start_date)
             .where(ForEx.created_at <= end_date)
             .where(ForEx.office_id == office_id)

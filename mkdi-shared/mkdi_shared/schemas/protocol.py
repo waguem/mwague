@@ -94,6 +94,7 @@ class CryptoCurrency(Enum):
 class TradingType(Enum):
     BUY = "BUY"
     SELL = "SELL"
+    DEPOSIT = "DEPOSIT"
     EXCHANGE = "EXCHANGE"
     EXCHANGE_WITH_SIMPLE_WALLET = "EXCHANGE WITH SIMPLE WALLET"
 
@@ -465,6 +466,11 @@ class BuyRequest(BaseModel):
     provider: str
 
 
+class WalletDepositRequest(BaseModel):
+    request_type: Literal["DEPOSIT"]
+    provider: str
+
+
 class SellRequest(BaseModel):
     request_type: Literal["SELL"]
     customer: str
@@ -486,9 +492,13 @@ class ExchangeWithSimpleWalletRequest(BaseModel):
 
 class WalletTradingRequest(WalletTradingBase):
     message: str | None
-    request: Union[BuyRequest, SellRequest, ExchangeRequest, ExchangeWithSimpleWalletRequest] = (
-        Field(discriminator="request_type")
-    )
+    request: Union[
+        BuyRequest,
+        SellRequest,
+        ExchangeRequest,
+        ExchangeWithSimpleWalletRequest,
+        WalletDepositRequest,
+    ] = Field(discriminator="request_type")
 
 
 class WalletTradingResponse(WalletTradingBase):

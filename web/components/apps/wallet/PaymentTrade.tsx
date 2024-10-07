@@ -64,22 +64,30 @@ export function PayTrade({ trade, accounts, wallet }: Props) {
                 value={trade.trading_rate}
                 label="Rate"
                 readOnly
-                leftSection={getMoneyIcon("USD", 16)}
+                leftSection={trade.trading_type === "BUY" ? getMoneyIcon("USD") : "%"}
               />
               <NumberInput
                 label={`Amount (${getCryptoPrefix(wallet.crypto_currency)})`}
-                value={trade.amount}
+                value={trade.trading_type === "BUY" ? trade.amount : trade.amount * (1 + trade.trading_rate / 100)}
                 placeholder="Amount"
                 required
                 thousandSeparator=","
                 allowDecimal
                 readOnly
-                leftSection={getCryptoIcon(wallet?.crypto_currency, 16)}
+                leftSection={
+                  trade.trading_type === "BUY"
+                    ? getCryptoIcon(wallet?.crypto_currency)
+                    : getMoneyIcon(wallet?.trading_currency)
+                }
               />
               <NumberInput
                 placeholder="Amount"
                 label={`Amount (${getMoneyPrefix("USD")})`}
-                value={trade.amount * trade.trading_rate}
+                value={
+                  trade.trading_type == "BUY"
+                    ? trade.amount * trade.trading_rate
+                    : trade.amount * trade.daily_rate * (1 + trade.trading_rate / 100)
+                }
                 readOnly
                 thousandSeparator=","
                 leftSection={getMoneyIcon("AED", 16)}
@@ -106,14 +114,22 @@ export function PayTrade({ trade, accounts, wallet }: Props) {
                         <span>Fund Out</span>
                         <Badge variant="dot" color="red">
                           <NumberFormatter
-                            value={trade.amount * (trade.trading_rate / trade.daily_rate)}
+                            value={
+                              trade.trading_type === "BUY"
+                                ? trade.amount * (trade.trading_rate / trade.daily_rate)
+                                : trade.amount * (1 + trade.trading_rate / 100)
+                            }
                             thousandSeparator=","
                             decimalScale={2}
                             prefix={getMoneyPrefix("USD")}
                           />{" "}
                           /{" "}
                           <NumberFormatter
-                            value={trade.amount * trade.trading_rate}
+                            value={
+                              trade.trading_type === "BUY"
+                                ? trade.amount * trade.trading_rate
+                                : trade.amount * (1 + trade.trading_rate / 100) * trade.daily_rate
+                            }
                             thousandSeparator=","
                             decimalScale={3}
                           />
@@ -123,7 +139,12 @@ export function PayTrade({ trade, accounts, wallet }: Props) {
                         <span>Balance</span>
                         <Badge variant="dot" color="teal">
                           <NumberFormatter
-                            value={fund.balance - trade.amount * (trade.trading_rate / trade.daily_rate)}
+                            value={
+                              fund.balance -
+                              (trade.trading_type === "BUY"
+                                ? trade.amount * (trade.trading_rate / trade.daily_rate)
+                                : trade.amount * (1 + trade.trading_rate / 100))
+                            }
                             thousandSeparator=","
                             decimalScale={3}
                             prefix={getMoneyPrefix("USD")}

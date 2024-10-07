@@ -674,7 +674,7 @@ export type SendingWithPayments = {
 /**
  * An enumeration.
  */
-export type TradingType = "BUY" | "SELL" | "EXCHANGE" | "EXCHANGE WITH SIMPLE WALLET";
+export type TradingType = "BUY" | "SELL" | "EXCHANGE" | "EXCHANGE WITH SIMPLE WALLET" | "DEPOSIT";
 
 export type TransactionItem = {
   item: Internal | Deposit | Sending | External | ForEx;
