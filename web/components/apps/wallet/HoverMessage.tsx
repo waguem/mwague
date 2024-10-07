@@ -15,7 +15,7 @@ export function HoverMessage({ message, size, show = false }: Props) {
           <ActionIcon variant="outline" radius={"md"}>
             <IconMessage2Exclamation size={16} />
           </ActionIcon>
-          {show && message.length && (
+          {show && message?.length && (
             <Box>
               <Text size="sm">
                 {message.slice(0, size || 10)}

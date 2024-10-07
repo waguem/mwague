@@ -75,6 +75,8 @@ export default function BankTT({ agentWithAccounts, office }: Props) {
     decodeNotification("Forex Transaction", response, (errors) => {
       form.setErrors(errors);
     });
+
+    response?.status === "success" && form.reset();
   };
   // when ever the agentOptions changes the agentAccounts should also change
   // the agentAccounts should be the accounts of the selected agent

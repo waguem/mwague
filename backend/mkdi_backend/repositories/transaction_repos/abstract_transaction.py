@@ -291,16 +291,7 @@ class AbstractTransaction(ABC):
         Returns:
             pr.TransactionResponse: _description_
         """
-        user_input: pr.TransactionReviewReq = self.get_inputs()
         transaction.state = pr.TransactionState.REJECTED
-        if user_input.notes:
-            transaction.add_note(
-                pr.Note(
-                    content=user_input.notes,
-                    created_by=str(self.user.user_db_id),
-                    created_at=datetime.now().isoformat(),
-                )
-            )
         transaction.reviwed_by = self.user.user_db_id
         self.db.add(transaction)
         return transaction
@@ -316,15 +307,6 @@ class AbstractTransaction(ABC):
             pr.TransactionResponse: _description_
         """
         transaction.state = pr.TransactionState.CANCELLED
-        user_input: pr.TransactionReviewReq = self.get_inputs()
-        transaction.add_note(
-            pr.Note(
-                content=user_input.notes,
-                created_by=str(self.user.user_db_id),
-                created_at=datetime.now().isoformat(),
-            )
-        )
-
         transaction.reviwed_by = self.user.user_db_id
         self.db.add(transaction)
 

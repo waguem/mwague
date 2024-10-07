@@ -100,16 +100,8 @@ export default function InternalForms({ agentWithAccounts, office, officeAccount
 
       const response = await addTransaction(null, data);
       decodeNotification("Internal Transaction", response);
-      form.setValues({
-        sender: "",
-        receiver: "",
-        type: "INTERNAL",
-        currency: mainCurrency?.name || "",
-        amount: 0,
-        convertedAmount: 0,
-        rate: baseCurrency?.defaultRate || 0,
-        charges: 0,
-      });
+
+      response?.status === "success" && form.reset();
     } catch (e) {}
   };
 

@@ -126,6 +126,7 @@ export function NewTrade({ walletID, office, agents }: Props) {
 
       if (response.status === "success") {
         close();
+        form.reset();
       }
     } catch (e) {}
   };
@@ -178,7 +179,10 @@ export function NewTrade({ walletID, office, agents }: Props) {
       </Button>
       <Modal
         centered
-        onClose={close}
+        onClose={() => {
+          close();
+          form.reset();
+        }}
         opened={opened}
         title={
           <Group>
@@ -226,6 +230,7 @@ export function NewTrade({ walletID, office, agents }: Props) {
               <Select
                 placeholder="Select Trade Type"
                 label="Trade Type"
+                searchable
                 data={tradeOptions.filter((option) => ["ALL", wallet.wallet_type].includes(option.wallet))}
                 required
                 value={form.values.tradeType}

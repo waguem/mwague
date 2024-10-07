@@ -94,6 +94,7 @@ export default function ForeignExForms({ agentWithAccounts, office }: Props) {
     decodeNotification("Forex Transaction", response, (errors) => {
       form.setErrors(errors);
     });
+    response?.status === "success" && form.reset();
   };
   const agentOptions = agentWithAccounts.map((agent) => ({
     label: agent.name,

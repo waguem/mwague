@@ -21,6 +21,7 @@ export function SellCurrency({ form, office, walletID, agents }: Props) {
         <Select
           placeholder="Selling Currency"
           label="Selling Currency"
+          searchable
           data={[
             { label: wallet?.crypto_currency, value: wallet?.crypto_currency },
             { label: wallet?.trading_currency, value: wallet?.trading_currency },
@@ -37,6 +38,7 @@ export function SellCurrency({ form, office, walletID, agents }: Props) {
           label="Customer Account"
           data={agents}
           required
+          searchable
           value={form.values.customer}
           onChange={(value) => form.setFieldValue("customer", value as string)}
         />
