@@ -26,7 +26,7 @@ export default async function Transactions({ params }: { params: { slug: string 
   const data = await getData(params.slug);
   return (
     <div className="grid grid-row-2 gap-4">
-      <div className="row-span-1 relative flex h-full gap-5 sm:h-[calc(70vh_-_150px)]">
+      <div>
         <TransactionsForms
           officeAccounts={data.officeAccounts}
           activity={data.activity}
@@ -34,7 +34,7 @@ export default async function Transactions({ params }: { params: { slug: string 
           agentAccounts={data.agentAccounts}
         />
       </div>
-      <div>
+      <div className="pt-5">
         <MantineReactTable office={data.office} data={data.transactions} employees={data.employees} />
       </div>
     </div>

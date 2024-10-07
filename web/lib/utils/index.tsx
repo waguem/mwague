@@ -227,7 +227,7 @@ export const getMoneyPrefix = (currency: Currency | undefined) => {
     case "RMB":
       return "¥";
     case "AED":
-      return "Dhs";
+      return "aed";
     case "GNF":
       return "FG";
   }

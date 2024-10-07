@@ -84,8 +84,16 @@ class ForExBase(pr.TransactionDB):
     tag: str = Field(nullable=True)
     charge_percentage: Annotated[Decimal, Field(ge=0, le=100)]
     is_valid: ClassVar[bool] = hybrid_property(lambda cls: cls.buying_rate > cls.selling_rate)
-    buying_amount: ClassVar[Decimal] = hybrid_property(lambda cls: cls.amount / cls.buying_rate)
-    selling_amount: ClassVar[Decimal] = hybrid_property(lambda cls: cls.amount / cls.selling_rate)
+    buying_amount: ClassVar[Decimal] = hybrid_property(
+        lambda cls: cls.amount / cls.buying_rate if cls.tag != "BANKTT" else cls.amount
+    )
+    selling_amount: ClassVar[Decimal] = hybrid_property(
+        lambda cls: (
+            cls.amount / cls.selling_rate
+            if cls.tag != "BANKTT"
+            else cls.amount * (1 + cls.selling_rate / 100)
+        )
+    )
     forex_result: ClassVar[Decimal] = hybrid_property(
         lambda cls: cls.selling_amount - cls.buying_amount
     )
@@ -255,7 +263,6 @@ class WalletTrading(pr.WalletTradingBase, table=True):
     exchange_walletID: str = Field(foreign_key="wallets.walletID", nullable=True)
     account: str = Field(foreign_key="accounts.initials", nullable=True)
     exchange_rate: Decimal = Field(gt=0, nullable=True, max_digits=11, decimal_places=6)
-    selling_rate: Decimal = Field(gt=0, nullable=True, max_digits=11, decimal_places=6)
 
     notes: List[Mapping[Any, Mapping | Any]] = Field(
         default={}, sa_column=sa.Column(MutableList.as_mutable(pg.JSONB))

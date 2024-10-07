@@ -242,8 +242,9 @@ export type request_type2 = "EXCHANGE";
 
 export type ExchangeWithSimpleWalletRequest = {
   request_type: "EXCHANGE WITH SIMPLE WALLET";
-  exchange_rate: number;
   walletID: string;
+  exchange_rate: number;
+  selling_rate: number;
 };
 
 export type request_type3 = "EXCHANGE WITH SIMPLE WALLET";
@@ -414,6 +415,7 @@ export type FundCommit = {
   v_from: number;
   variation: number;
   date?: string;
+  account: string;
   description: string;
   activity_id: string;
 };

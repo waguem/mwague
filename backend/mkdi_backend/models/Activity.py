@@ -27,7 +27,7 @@ class FundCommit(SQLModel, table=True):
     v_from: Decimal
     variation: Decimal
     date: Annotated[datetime, Field(default_factory=datetime.now)]
-
+    account: str = Field(nullable=True)
     description: str = Field(max_length=128, nullable=True)
     activity_id: UUID = Field(foreign_key="activities.id")
     activity: "Activity" = Relationship(back_populates="fundcommits")  # type: ignore

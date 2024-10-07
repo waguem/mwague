@@ -17,8 +17,6 @@ from mkdi_backend.models.Activity import FundCommit
 from decimal import Decimal
 from sqlmodel import select, or_, and_
 from datetime import datetime
-import random
-import string
 import json
 
 
@@ -55,6 +53,7 @@ class ForExTransaction(PayableTransaction):
             v_from=(fund.balance),
             variation=amount,
             activity_id=activity["id"],
+            account=transaction.customer_account,
             description=f"Forex {transaction.code}",
             is_out=True,
             date=datetime.now(),

@@ -383,11 +383,13 @@ class WalletRepository:
         # move funds from fund to the wallet account
         # the wallet currency is in crypto currency, but
         # it holds the equivalent amount in the fund account
+
         activity = self.db.scalar(
             select(Activity).where(
                 Activity.office_id == self.user.office_id, Activity.state == pr.ActivityState.OPEN
             )
         )
+
         fund.debit(fund_out)
         wallet.crypto_balance += trade.amount
         wallet.value += fund_out
@@ -395,6 +397,7 @@ class WalletRepository:
         fund_history = FundCommit(
             v_from=(fund.balance),
             variation=fund_out,
+            account=wallet.wallet_name,
             activity_id=activity.id,
             description=f"Wallet Trade {wallet.wallet_name} {trade.code}",
             is_out=True,  # out

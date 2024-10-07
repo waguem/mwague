@@ -26,8 +26,11 @@ export const OfficeFundDetail = ({ commits, fund }: Props) => {
       {
         header: "Date & Time",
         accessorKey: "date",
+        sortingFn: (rowA, rowB) => {
+          return new Date(rowA.original.date ?? "").getTime() > new Date(rowB.original.date ?? "").getTime() ? -1 : 1;
+        },
         Cell: ({ cell }) => (
-          <Badge variant="dot" color="dark">
+          <Badge variant="dot" color="dark" size="lg" radius="sm">
             {formatDistanceToNowStrict(cell.getValue() as string, { addSuffix: true })}
           </Badge>
         ),
@@ -39,11 +42,11 @@ export const OfficeFundDetail = ({ commits, fund }: Props) => {
         Cell: ({ cell, row }) => (
           <>
             {!row.original.is_out ? (
-              <Badge variant="dot" color="teal">
+              <Badge variant="dot" color="teal" size="xl">
                 <NumberFormatter decimalScale={2} prefix={"$"} value={cell.getValue() as number} thousandSeparator />
               </Badge>
             ) : (
-              <Badge variant="dot" color="red">
+              <Badge variant="dot" color="red" size="xl">
                 <IconArrowDown color="red" size={12} />
               </Badge>
             )}
@@ -70,11 +73,11 @@ export const OfficeFundDetail = ({ commits, fund }: Props) => {
         Cell: ({ cell, row }) => (
           <>
             {row.original.is_out ? (
-              <Badge variant="dot" color="red">
+              <Badge variant="dot" color="red" size="xl">
                 <NumberFormatter decimalScale={2} prefix={"$"} value={cell.getValue() as number} thousandSeparator />
               </Badge>
             ) : (
-              <Badge variant="dot" color="teal">
+              <Badge variant="dot" color="teal" size="xl">
                 <IconArrowUp color="teal" size={12} />
               </Badge>
             )}
@@ -98,10 +101,14 @@ export const OfficeFundDetail = ({ commits, fund }: Props) => {
         header: "Balance",
         accessorKey: "v_from",
         Cell: ({ cell }) => (
-          <Badge variant="dot" color="cyan">
+          <Badge size="xl" variant="dot" color={Number(cell.getValue() as number) >= 0 ? "cyan" : "red"} radius={"sm"}>
             <NumberFormatter decimalScale={2} prefix={"$"} value={cell.getValue() as number} thousandSeparator />
           </Badge>
         ),
+      },
+      {
+        header: "Account",
+        accessorKey: "account",
       },
       {
         header: "Description",
@@ -136,7 +143,7 @@ export const OfficeFundDetail = ({ commits, fund }: Props) => {
     renderBottomToolbarCustomActions: () => (
       <Group>
         Fund Balance :
-        <Badge size="lg" radius={"md"} variant="filled" color="blue">
+        <Badge size="xl" radius={"md"} variant="dot" color="blue">
           <NumberFormatter
             decimalScale={2}
             thousandSeparator
@@ -146,6 +153,14 @@ export const OfficeFundDetail = ({ commits, fund }: Props) => {
         </Badge>
       </Group>
     ),
+    initialState: {
+      sorting: [
+        {
+          id: "date",
+          desc: true,
+        },
+      ],
+    },
   });
   return <MantineReactTable table={table} />;
 };

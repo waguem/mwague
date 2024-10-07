@@ -58,7 +58,7 @@ export const $AccountMonthlyReport = {
       type: "string",
       format: "date-time",
       title: "Updated At",
-      default: "2024-10-05T08:58:09.444036",
+      default: "2024-10-07T07:16:28.082120",
     },
   },
   type: "object",
@@ -786,19 +786,25 @@ export const $ExchangeWithSimpleWalletRequest = {
       enum: ["EXCHANGE WITH SIMPLE WALLET"],
       title: "Request Type",
     },
+    walletID: {
+      type: "string",
+      title: "Walletid",
+    },
     exchange_rate: {
       type: "number",
       exclusiveMinimum: 0,
       title: "Exchange Rate",
       strict: true,
     },
-    walletID: {
-      type: "string",
-      title: "Walletid",
+    selling_rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Selling Rate",
+      strict: true,
     },
   },
   type: "object",
-  required: ["request_type", "exchange_rate", "walletID"],
+  required: ["request_type", "walletID", "exchange_rate", "selling_rate"],
   title: "ExchangeWithSimpleWalletRequest",
 } as const;
 
@@ -1423,6 +1429,10 @@ export const $FundCommit = {
       format: "date-time",
       title: "Date",
     },
+    account: {
+      type: "string",
+      title: "Account",
+    },
     description: {
       type: "string",
       maxLength: 128,
@@ -1435,7 +1445,7 @@ export const $FundCommit = {
     },
   },
   type: "object",
-  required: ["is_out", "v_from", "variation", "description", "activity_id"],
+  required: ["is_out", "v_from", "variation", "account", "description", "activity_id"],
   title: "FundCommit",
 } as const;
 

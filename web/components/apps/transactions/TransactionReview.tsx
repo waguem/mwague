@@ -221,8 +221,12 @@ function DepositView({ transaction }: { transaction: Deposit; mainCurrency: Curr
 function ForexView({ transaction, office }: { transaction: ForEx; office: OfficeResponse }) {
   const currencies: OfficeCurrency[] = (office?.currencies ?? []) as OfficeCurrency[];
   const mainCurrency = currencies?.find((currency: any) => currency.main);
-  const buying_amount = transaction.amount / transaction.buying_rate;
-  const selling_amount = transaction.amount / transaction.selling_rate;
+  let buying_amount = transaction.amount / transaction.buying_rate;
+  let selling_amount = transaction.amount / transaction.selling_rate;
+  if (transaction.tag === "BANKTT") {
+    buying_amount = transaction.amount;
+    selling_amount = transaction.amount * (1 + transaction.selling_rate / 100);
+  }
   const exchange_benefit = selling_amount - buying_amount;
   return (
     <List
@@ -321,8 +325,17 @@ function ForexView({ transaction, office }: { transaction: ForEx; office: Office
           </ThemeIcon>
         }
       >
-        (B/S) Rates : <NumberFormatter thousandSeparator value={transaction.buying_rate ?? 0} decimalScale={5} /> /{" "}
-        <NumberFormatter thousandSeparator value={transaction.selling_rate ?? 0} decimalScale={5} />
+        {transaction.tag == "BANKTT" ? (
+          <>
+            Rates :{" "}
+            <NumberFormatter thousandSeparator value={transaction.buying_rate ?? 0} decimalScale={5} prefix="%" />
+          </>
+        ) : (
+          <>
+            (B/S) Rates : <NumberFormatter thousandSeparator value={transaction.buying_rate ?? 0} decimalScale={5} /> /{" "}
+            <NumberFormatter thousandSeparator value={transaction.selling_rate ?? 0} decimalScale={5} />
+          </>
+        )}
       </List.Item>
       <List.Item
         icon={

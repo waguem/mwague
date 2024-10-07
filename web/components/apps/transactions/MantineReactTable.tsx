@@ -86,9 +86,11 @@ const MantineTable = ({ data, office, employees }: Props) => {
           const currencies = office?.currencies as any;
           let currency: Currency = currencies?.find((curr: any) => curr.main)?.name as unknown as Currency;
           let fCurrency: Currency = "USD";
+          let forexAmount = 0;
           if (cell.row.original.item.type === "FOREX") {
             const tr: ForEx = cell.row.original.item as ForEx;
             currency = tr.currency;
+            forexAmount = tr.tag === "BANKTT" ? tr.amount : tr.amount / tr.selling_rate;
           }
           return (
             <Group gap={"xs"}>
@@ -98,7 +100,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
                     decimalScale={3}
                     prefix={`${getMoneyPrefix(fCurrency)}`}
                     thousandSeparator
-                    value={(cell.row.original.item as ForEx).amount / (cell.row.original.item as ForEx).selling_rate}
+                    value={forexAmount}
                   />
                 </Badge>
               )}

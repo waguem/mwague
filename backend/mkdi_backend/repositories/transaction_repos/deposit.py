@@ -42,6 +42,7 @@ class DepositTransaction(AbstractTransaction):
             v_from=(fund.balance),
             variation=transaction.amount,
             activity_id=self.activity.id,
+            account=transaction.owner_initials,
             date=datetime.now(),
             is_out=False,
             description=f"Deposit {transaction.code}",

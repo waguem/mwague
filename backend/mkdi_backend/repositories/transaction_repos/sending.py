@@ -56,6 +56,7 @@ class SendingTransaction(PayableTransaction):
         fund_history = FundCommit(
             v_from=(fund.balance),
             variation=commited_amount,
+            account=transaction.receiver_initials,
             activity_id=activity["id"],
             description=f"Sending {transaction.code}",
             is_out=False,

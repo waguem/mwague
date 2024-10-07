@@ -17,19 +17,15 @@ interface FormInputs {
   currency: Currency; // buying currency
   mainCurrency: Currency;
   provider: string;
-  buyingRate: number;
   sellingRate: number;
-  intermeditateByingRate: number; // given by the provider
-  intermediateSellingRate: number; // given to the client
   amountInBuyedCurrency: number; // amount in buying currency
   amountInBaseCurrency: number;
   amountInMainCurrency: number;
   dailyRate: number;
   message: string;
-  tag: string;
 }
 
-export default function ForexForms({ agentWithAccounts, office }: Props) {
+export default function BankTT({ agentWithAccounts, office }: Props) {
   const currencies: any = office?.currencies ?? [];
 
   const mainCurrency = currencies.find((currency: any) => currency?.main) as any;
@@ -40,16 +36,12 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
       currency: mainCurrency?.name,
       provider: "",
       dailyRate: baseCurrency?.defaultRate,
-      buyingRate: 0,
       sellingRate: 0,
       amountInBuyedCurrency: 0,
       amountInBaseCurrency: 0,
       amountInMainCurrency: 0,
-      intermediateSellingRate: 0,
-      intermeditateByingRate: 0,
       mainCurrency: mainCurrency?.name,
       message: "",
-      tag: "ALI PAY",
     },
     mode: "controlled",
     validate: {
@@ -58,12 +50,9 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
       amountInBaseCurrency: (value) => (value > 0 ? null : "Amount is required"),
       amountInBuyedCurrency: (value) => (value > 0 ? null : "Amount is required"),
       amountInMainCurrency: (value) => (value > 0 ? null : "Amount is required"),
-      buyingRate: (value) => (value > 0 ? null : "Rate is required"),
       sellingRate: (value) => (value > 0 ? null : "Rate is required"),
-      intermeditateByingRate: (value) => (value > 0 ? null : "Rate is required"),
       dailyRate: (value) => (value > 0 ? null : "Rate is required"),
       provider: (value) => (value?.length > 0 ? null : "Provider is required"),
-      intermediateSellingRate: (value) => (value > 0 ? null : "Rate is required"),
     },
   });
 
@@ -75,12 +64,12 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
     data.append("base_currency", baseCurrency?.name);
     data.append("currency", form.values.currency);
     data.append("daily_rate", form.values.dailyRate.toString());
-    data.append("buying_rate", form.values.buyingRate.toString());
     data.append("selling_rate", form.values.sellingRate.toString());
+    data.append("buying_rate", form.values.sellingRate.toString());
     data.append("amount", form.values.amountInBuyedCurrency.toString());
     data.append("message", form.values.message);
     data.append("type", "FOREX");
-    data.append("tag", form.values.tag);
+    data.append("tag", "BANKTT");
     const response = await addTransaction(null, data);
 
     decodeNotification("Forex Transaction", response, (errors) => {
@@ -129,24 +118,6 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
             required
           />
           <Select
-            label="Tag"
-            placeholder="Select a Tag"
-            value={form.values.tag}
-            searchable
-            onChange={(value) => form.setFieldValue("tag", value as string)}
-            data={["ALI PAY", "TT RMB", "BANK TT"]}
-          />
-          <NumberInput
-            id="dailyRate"
-            label={"Daily Rate 1 " + mainCurrency?.name}
-            placeholder="Enter rate"
-            required
-            leftSection={<Group>{getMoneyIcon(baseCurrency?.name, 16)}</Group>}
-            value={form.values.dailyRate}
-            onChange={(value) => form.setFieldValue("dailyRate", value as any)}
-            thousandSeparator=","
-          />
-          <Select
             data={currencyOptions}
             label="Buying Currency"
             placeholder="Select currency"
@@ -160,50 +131,25 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
 
         <Group grow>
           <NumberInput
-            id="intermeditateByingRate"
-            label={"Buying Rate 1" + baseCurrency?.name}
-            placeholder="Enter intermediate rate"
+            id="dailyRate"
+            label={"Daily Rate 1 " + mainCurrency?.name}
+            placeholder="Enter rate"
             required
-            value={form.values.intermeditateByingRate}
-            leftSection={getMoneyIcon(form.values.currency, 16)}
-            allowNegative={false}
-            onChange={(value) => {
-              form.setValues({
-                ...form.values,
-                intermeditateByingRate: Number(value),
-                buyingRate: Number(value) * form.values.dailyRate,
-                sellingRate: 0,
-              });
-            }}
+            leftSection={<Group>{getMoneyIcon(baseCurrency?.name, 16)}</Group>}
+            value={form.values.dailyRate}
+            onChange={(value) => form.setFieldValue("dailyRate", value as any)}
             thousandSeparator=","
           />
           <NumberInput
-            id="buyingRate"
-            label={"Buying Rate 1" + mainCurrency?.name}
-            placeholder="Enter buying rate"
+            id="charge_rate"
+            label={"Charge Percentage %"}
+            placeholder="Enter Charge Rate"
             required
             allowNegative={false}
             decimalScale={5}
-            value={form.values.buyingRate}
-            leftSection={getMoneyIcon(form.values.currency, 16)}
-            onChange={(value) => form.setFieldValue("buyingRate", Number(value))}
-            thousandSeparator=","
-          />
-          <NumberInput
-            id="sellingRate"
-            label={"Selling Rate 1" + mainCurrency?.name}
-            placeholder="Enter selling rate"
-            required
-            allowNegative={false}
             value={form.values.sellingRate}
-            leftSection={getMoneyIcon(form.values.currency, 16)}
-            onChange={(value) => {
-              form.setValues({
-                ...form.values,
-                sellingRate: Number(value),
-                intermediateSellingRate: Number(value) / form.values.dailyRate,
-              });
-            }}
+            leftSection={"%"}
+            onChange={(value) => form.setFieldValue("sellingRate", Number(value))}
             thousandSeparator=","
           />
         </Group>
@@ -223,8 +169,8 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
               form.setValues({
                 ...form.values,
                 amountInBuyedCurrency: Number(value),
-                amountInMainCurrency: Number(value) / form.values.sellingRate,
-                amountInBaseCurrency: (Number(value) / form.values.sellingRate) * form.values.dailyRate,
+                amountInMainCurrency: Number(value) * (1 + form.values.sellingRate / 100),
+                amountInBaseCurrency: Number(value) * (1 + form.values.sellingRate / 100) * form.values.dailyRate,
               });
             }}
           />
@@ -239,19 +185,19 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
             allowNegative={false}
             leftSection={<IconCurrencyDirham size={16} />}
             onChange={(value) => {
-              const amount = Number(value) * form.values.intermediateSellingRate;
+              const amount = Number(value) / form.values.dailyRate;
               form.setValues({
                 ...form.values,
                 amountInBaseCurrency: Number(value),
-                amountInBuyedCurrency: amount,
-                amountInMainCurrency: amount / form.values.sellingRate,
+                amountInBuyedCurrency: amount / (1 + form.values.sellingRate / 100),
+                amountInMainCurrency: amount,
               });
             }}
           />
           <NumberInput
             decimalScale={2}
             thousandSeparator=","
-            label={"Amount in " + mainCurrency?.name}
+            label={"Payment in " + mainCurrency?.name}
             leftSection={<IconCurrencyDollar size={16} />}
             placeholder="Enter amount"
             id="sellingAmount"
@@ -259,11 +205,11 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
             allowNegative={false}
             value={form.values.amountInMainCurrency}
             onChange={(value) => {
-              const amount = Number(value) * form.values.sellingRate;
+              const amount = Number(value);
               form.setValues({
                 ...form.values,
                 amountInMainCurrency: Number(value),
-                amountInBuyedCurrency: amount,
+                amountInBuyedCurrency: amount / (1 + form.values.sellingRate / 100),
                 amountInBaseCurrency: Number(value) * form.values.dailyRate,
               });
             }}
