@@ -674,7 +674,7 @@ export type SendingWithPayments = {
 /**
  * An enumeration.
  */
-export type TradingType = "BUY" | "SELL" | "EXCHANGE" | "EXCHANGE WITH SIMPLE WALLET" | "DEPOSIT";
+export type TradingType = "BUY" | "SELL" | "DEPOSIT" | "EXCHANGE" | "EXCHANGE WITH SIMPLE WALLET";
 
 export type TransactionItem = {
   item: Internal | Deposit | Sending | External | ForEx;
@@ -750,6 +750,13 @@ export type ValidationError = {
  */
 export type ValidationState = "APPROVED" | "REJECTED" | "CANCELLED";
 
+export type WalletDepositRequest = {
+  request_type: "DEPOSIT";
+  provider: string;
+};
+
+export type request_type5 = "DEPOSIT";
+
 export type WalletTradingRequest = {
   code?: string;
   walletID: string;
@@ -758,7 +765,7 @@ export type WalletTradingRequest = {
   daily_rate: number;
   trading_rate: number;
   message?: string;
-  request: BuyRequest | SellRequest | ExchangeRequest | ExchangeWithSimpleWalletRequest;
+  request: BuyRequest | SellRequest | ExchangeRequest | ExchangeWithSimpleWalletRequest | WalletDepositRequest;
 };
 
 export type WalletTradingResponse = {
