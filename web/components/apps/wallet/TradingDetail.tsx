@@ -17,14 +17,7 @@ import {
   Table,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import {
-  IconBook,
-  IconCircleDashed,
-  IconCoinBitcoin,
-  IconExchange,
-  IconMinus,
-  IconWallet,
-} from "@tabler/icons-react";
+import { IconBook, IconCircleDashed, IconCoinBitcoin, IconExchange, IconMinus, IconWallet } from "@tabler/icons-react";
 import { Fragment } from "react";
 
 export function TradingDetail({ trading, wallet }: { trading: WalletTradingResponse; wallet: OfficeWalletResponse }) {
