@@ -163,7 +163,10 @@ def get_buyed_amount(cls) -> Decimal:
 
 
 def get_trading_result(cls) -> Decimal:
-    if cls.state == pr.TransactionState.PENDING or cls.trading_type == pr.TradingType.BUY:
+    if cls.state == pr.TransactionState.PENDING or cls.trading_type in [
+        pr.TradingType.DEPOSIT,
+        pr.TradingType.BUY,
+    ]:
         return 0
 
     if cls.trading_type == pr.TradingType.EXCHANGE:
@@ -171,26 +174,24 @@ def get_trading_result(cls) -> Decimal:
         worth = cls.amount * (cls.wallet_value / cls.wallet_crypto)
         return exchange_value - worth
 
+    if cls.trading_type == pr.TradingType.EXCHANGE_WITH_SIMPLE_WALLET:
+        return 0
+
     return (cls.amount / cls.trading_rate) - cls.trading_cost
 
 
 def get_trading_amount(cls) -> Decimal:
 
-    if cls.trading_type == pr.TradingType.EXCHANGE:
-        return cls.amount / cls.exchange_rate
-
     if cls.trading_type == pr.TradingType.EXCHANGE_WITH_SIMPLE_WALLET:
         return cls.amount
 
-    if cls.trading_type == pr.TradingType.BUY:
+    if cls.trading_type == pr.TradingType.BUY or cls.trading_type == pr.TradingType.EXCHANGE:
         return cls.amount * (cls.trading_rate / cls.daily_rate)
 
     return cls.amount / cls.trading_rate
 
 
 def get_trading_cost(cls) -> Decimal:
-    if cls.state == pr.TransactionState.PENDING or cls.wallet_trading == 0:
-        return 0
 
     if cls.trading_type == pr.TradingType.BUY:
         # when we are buying, we are buying crypto currency and using wallet trading currency
@@ -198,6 +199,12 @@ def get_trading_cost(cls) -> Decimal:
         # buying cost = trading_rate / daily_rate
         br = cls.trading_rate / cls.daily_rate
         return cls.amount * br
+
+    if cls.trading_type == pr.TradingType.DEPOSIT:
+        return cls.amount * (1 + cls.trading_rate / 100)
+
+    if cls.state == pr.TransactionState.PENDING or cls.wallet_trading == 0:
+        return 0
 
     if (
         cls.trading_type == pr.TradingType.EXCHANGE
@@ -229,6 +236,17 @@ def get_trading_crypto(cls) -> Decimal:
     return cls.amount
 
 
+def get_exchange_amount(cls) -> Decimal:
+    if (
+        cls.trading_type
+        not in [pr.TradingType.EXCHANGE, pr.TradingType.EXCHANGE_WITH_SIMPLE_WALLET]
+        or not cls.exchange_rate
+    ):
+        return 0
+
+    return cls.amount * cls.exchange_rate
+
+
 class WalletTrading(pr.WalletTradingBase, table=True):
     __tablename__ = "wallet_trading"
     id: Optional[UUID] = Field(
@@ -243,7 +261,9 @@ class WalletTrading(pr.WalletTradingBase, table=True):
     created_by: UUID = Field(foreign_key="employees.id")
     reviwed_by: UUID | None = Field(foreign_key="employees.id")
 
-    currency: str
+    exchange_currency: pr.Currency = Field(nullable=True)
+    selling_currency: str = Field(nullable=True)
+    trading_currency: str = Field(nullable=True)
 
     state: pr.TransactionState
 
@@ -269,9 +289,11 @@ class WalletTrading(pr.WalletTradingBase, table=True):
     )
 
     trading_cost: ClassVar[Decimal] = hybrid_property(get_trading_cost)
-    trading_result: ClassVar[Decimal] = hybrid_property(get_trading_result)
     trading_amount: ClassVar[Decimal] = hybrid_property(get_trading_amount)
+    trading_exchange: ClassVar[Decimal] = hybrid_property(get_exchange_amount)
     trading_crypto: ClassVar[Decimal] = hybrid_property(get_trading_crypto)
+
+    trading_result: ClassVar[Decimal] = hybrid_property(get_trading_result)
 
     def to_report_item(self) -> dict:
 

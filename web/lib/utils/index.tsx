@@ -216,7 +216,7 @@ export const getCryptoIcon = (currency: CryptoCurrency, size: number = 16) => {
   return <IconCurrency size={size} />;
 };
 
-export const getMoneyPrefix = (currency: Currency | undefined) => {
+export const getMoneyPrefix = (currency: Currency | CryptoCurrency | undefined) => {
   switch (currency) {
     case "USD":
       return "$";
@@ -229,9 +229,12 @@ export const getMoneyPrefix = (currency: Currency | undefined) => {
     case "AED":
       return "aed";
     case "GNF":
-      return "FG";
+    case "USDT":
+      return "₮";
+    case "NA":
+      return "";
   }
-  return "$";
+  return "";
 };
 
 export const getCryptoPrefix = (currency: CryptoCurrency) => {
@@ -246,9 +249,9 @@ export const getCryptoPrefix = (currency: CryptoCurrency) => {
   return "";
 };
 
-export const getAccountOptions = (type: AgentType, agents: AgentReponseWithAccounts[]) => {
+export const getAccountOptions = (type: AgentType | null, agents: AgentReponseWithAccounts[]) => {
   return agents
-    .filter((agent) => agent.accounts && agent.type === type)
+    .filter((agent) => (type ? agent.accounts && agent.type === type : agent.accounts?.length))
     .map((agent) => {
       return agent.accounts!.map((account) => ({
         label: `[${account.type}]  ${account.initials} ${agent.name} ${account.currency} `,

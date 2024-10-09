@@ -45,6 +45,7 @@ interface FormInput {
 
   selling_currency?: string;
   exchange_currency?: Currency;
+  trading_currency?: string;
 }
 interface Props {
   walletID: string;
@@ -117,6 +118,9 @@ export function NewTrade({ walletID, office, agents }: Props) {
         walletID: walletID,
         daily_rate: form.values.daily_rate,
         trading_rate: form.values.trading_rate,
+        trading_currency: form.values.trading_currency,
+        exchange_currency: form.values.exchange_currency,
+        selling_currency: form.values.selling_currency,
         request: request,
         message: form.values.message,
       };

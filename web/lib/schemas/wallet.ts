@@ -49,6 +49,9 @@ export const TradeWallet = z.object({
   walletID: z.string(),
   daily_rate: zPNumber,
   trading_rate: zPNumber,
+  trading_currency: z.optional(z.string()),
+  selling_currency: z.optional(z.string()),
+  exchange_currency: z.optional(z.string()),
   request: WalletTradeRequestSchema,
   message: z.string().optional(),
 });

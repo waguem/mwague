@@ -20,7 +20,7 @@ import { TradingDetail } from "./TradingDetail";
 import CommitTrade from "./CommitTrade";
 import { IconCheck, IconCopy, IconDownload } from "@tabler/icons-react";
 import { useClipboard } from "@mantine/hooks";
-import { exportTradingData, generateReceipt, Receipt } from "@/lib/pdf/generator";
+import { exportTradingData } from "@/lib/pdf/generator";
 
 interface Props {
   office: OfficeResponse;
@@ -45,14 +45,14 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
     }
   };
   const [pending, startTransition] = useTransition();
-  const agentAccountsOptions = getAccountOptions("SUPPLIER", agents);
+  const agentAccountsOptions = getAccountOptions(null, agents);
 
   const columns = useMemo<MRT_ColumnDef<WalletTradingResponse>[]>(
     () => [
       {
         header: "Code",
         accessorKey: "code",
-        size: 220,
+        size: 100,
         Cell: ({ cell, row }) => {
           const [copied, setCopied] = useState(false);
 
@@ -75,15 +75,22 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
                   {copied ? <IconCheck color="teal" size={16} /> : <IconCopy size={16} />}
                 </ActionIcon>
               </Tooltip>
-              <Badge variant="dot" color={getReviewBadgeColor(row.original.trading_type)} size="md">
+              <Badge radius={"sm"} variant="dot" color={getReviewBadgeColor(row.original.trading_type)} size="md">
                 {cell.getValue() as string}
-              </Badge>
-              <Badge variant="dot" color={getReviewBadgeColor(row.original.trading_type)} size="md">
-                {row.original.trading_type}
               </Badge>
             </Group>
           );
         },
+      },
+      {
+        header: "Type",
+        accessorKey: "trading_type",
+        size: 100,
+        Cell: ({ row }) => (
+          <Badge radius={"sm"} variant="dot" color={getReviewBadgeColor(row.original.trading_type)} size="md">
+            {row.original.trading_type}
+          </Badge>
+        ),
       },
       {
         header: "Amount",
@@ -118,16 +125,6 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
               decimalScale={3}
               prefix={getCryptoPrefix(wallet.crypto_currency)}
             />
-          </Badge>
-        ),
-      },
-      {
-        header: `Cost`,
-        accessorKey: "trading_cost",
-        size: 100,
-        Cell: ({ cell }) => (
-          <Badge radius={"sm"} size="md" variant="dot" color="violet">
-            <NumberFormatter value={cell.getValue() as number} thousandSeparator="," decimalScale={3} prefix={"$"} />
           </Badge>
         ),
       },
@@ -225,38 +222,21 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
       );
     },
     renderRowActions: ({ row }) => {
-      const receipt: Receipt = {
-        account: row.original.account ?? "",
-        amount:
-          row?.original.trading_type == "DEPOSIT"
-            ? row.original.amount * (1 + row.original.trading_rate / 100)
-            : row.original.amount,
-        code: row.original.code ?? "",
-        description: "D",
-      };
       return (
         <Group gap="xs">
+          <Tooltip label="Show details">
+            <TradingDetail trading={row.original as WalletTradingResponse} wallet={wallet} />
+          </Tooltip>
           {["BUY", "DEPOSIT"].includes(row.original.trading_type) && (
             <Group grow>
               <Tooltip label="Pay">
                 <PayTrade accounts={officeAccounts} trade={row.original as WalletTradingResponse} wallet={wallet} />
               </Tooltip>
-              {row.original.state === "PAID" && (
-                <Tooltip label="Receipt">
-                  <ActionIcon variant="outline" onClick={() => generateReceipt(receipt)}>
-                    <IconDownload size={16} />
-                  </ActionIcon>
-                </Tooltip>
-              )}
             </Group>
           )}
-
           {row.original.trading_type === "SELL" && (
             <CommitTrade trade={row.original as WalletTradingResponse} wallet={wallet} />
           )}
-          <Tooltip label="Show details">
-            <TradingDetail trading={row.original as WalletTradingResponse} />
-          </Tooltip>
         </Group>
       );
     },

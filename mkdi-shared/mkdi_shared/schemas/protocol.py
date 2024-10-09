@@ -461,6 +461,9 @@ class TransactionDB(TransactionBase):
 class WalletTradingBase(SQLModel):
     code: str | None = Field(nullable=False, max_length=16, unique=True)
     walletID: str = SQLModelField(foreign_key="wallets.walletID")
+    trading_currency: str | None
+    exchange_currency: str | None
+    selling_currency: str | None
     trading_type: TradingType
     amount: Annotated[Decimal, Field(strict=True, ge=0)]
     daily_rate: Annotated[Decimal, Field(strict=True, gt=0, max_digits=12, decimal_places=6)]
@@ -516,10 +519,13 @@ class WalletTradingResponse(WalletTradingBase):
     wallet_value: Annotated[Decimal, Field(strict=True, ge=0)]
     wallet_crypto: Annotated[Decimal, Field(strict=True, ge=0)]
     wallet_trading: Annotated[Decimal, Field(strict=True, ge=0)]
+
     trading_cost: Annotated[Decimal, Field(strict=True, ge=0)]
     trading_amount: Annotated[Decimal, Field(strict=True, ge=0)]
     trading_crypto: Annotated[Decimal, Field(strict=True, ge=0)]
     trading_result: Annotated[Decimal, Field()]
+    trading_exchange: Annotated[Decimal, Field()]
+
     account: str | None
     exchange_rate: Annotated[Decimal | None, Field(strict=True, gt=0)]
     exchange_walletID: str | None

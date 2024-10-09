@@ -1,5 +1,5 @@
-import { OfficeResponse } from "@/lib/client";
-import { getCryptoIcon, getMoneyIcon } from "@/lib/utils";
+import { Currency, OfficeResponse } from "@/lib/client";
+import { currencyOptions, getCryptoIcon, getMoneyIcon } from "@/lib/utils";
 import { Select, NumberInput, Group, Divider } from "@mantine/core";
 
 interface Props {
@@ -25,6 +25,15 @@ export function ExchangeCurrency({ form, office, walletID }: Props) {
   return (
     <>
       <Group grow>
+        <Select
+          label="Exchange Currency"
+          searchable
+          required
+          placeholder="Select a currency"
+          data={currencyOptions}
+          value={form.values.exchange_currency}
+          onChange={(value) => form.setFieldValue("exchange_currency", value as Currency)}
+        />
         <NumberInput
           label="Daily Rate"
           required

@@ -87,7 +87,7 @@ class WalletRepository:
             created_by=self.user.user_db_id,
             state=pr.TransactionState.PENDING,
             account=provider.initials,
-            currency=wallet.crypto_currency,
+            trading_currency=wallet.crypto_currency.value,
             notes=[],
         )
         trade.code = self.generate_code(wallet.initials, office.counter if office.counter else 0)
@@ -145,7 +145,7 @@ class WalletRepository:
             created_by=self.user.user_db_id,
             state=pr.TransactionState.PAID,
             account=customer.initials,
-            currency=request.request.currency,
+            selling_currency=request.request.currency.value,
             notes=[],
         )
 
@@ -280,7 +280,8 @@ class WalletRepository:
             state=pr.TransactionState.PAID,
             exchange_walletID=exchange_wallet.walletID,
             exchange_rate=exchange_request.exchange_rate,
-            currency=wallet.crypto_currency,
+            exchange_currency=wallet.trading_currency.value,
+            trading_currency=wallet.exchange_currency.value,
             notes=[],
         )
 
@@ -545,7 +546,8 @@ class WalletRepository:
             exchange_rate=request.request.exchange_rate,
             selling_rate=request.request.selling_rate,
             notes=[],
-            currency=destination_wallet.trading_currency,
+            exchange_currency=destination_wallet.trading_currency.value,
+            trading_currency=source_wallet.crytpo_currency.value,
             created_by=self.user.user_db_id,
         )
 
@@ -636,7 +638,7 @@ class WalletRepository:
             created_by=self.user.user_db_id,
             state=pr.TransactionState.PENDING,
             account=provider.initials,
-            currency=wallet.trading_currency,
+            exchange_currency=wallet.trading_currency.value,
             notes=[],
         )
 

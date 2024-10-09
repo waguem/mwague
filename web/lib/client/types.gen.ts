@@ -764,6 +764,9 @@ export type request_type5 = "DEPOSIT";
 export type WalletTradingRequest = {
   code?: string;
   walletID: string;
+  trading_currency?: string;
+  exchange_currency?: string;
+  selling_currency?: string;
   trading_type: TradingType;
   amount: number;
   daily_rate: number;
@@ -775,6 +778,9 @@ export type WalletTradingRequest = {
 export type WalletTradingResponse = {
   code?: string;
   walletID: string;
+  trading_currency?: string;
+  exchange_currency?: string;
+  selling_currency?: string;
   trading_type: TradingType;
   amount: number;
   daily_rate: number;
@@ -791,6 +797,7 @@ export type WalletTradingResponse = {
   trading_amount: number;
   trading_crypto: number;
   trading_result: number;
+  trading_exchange: number;
   account?: string;
   exchange_rate?: number;
   exchange_walletID?: string;

@@ -58,7 +58,7 @@ export const $AccountMonthlyReport = {
       type: "string",
       format: "date-time",
       title: "Updated At",
-      default: "2024-10-09T08:22:24.756144",
+      default: "2024-10-09T14:09:35.294315",
     },
   },
   type: "object",
@@ -2633,6 +2633,18 @@ export const $WalletTradingRequest = {
       type: "string",
       title: "Walletid",
     },
+    trading_currency: {
+      type: "string",
+      title: "Trading Currency",
+    },
+    exchange_currency: {
+      type: "string",
+      title: "Exchange Currency",
+    },
+    selling_currency: {
+      type: "string",
+      title: "Selling Currency",
+    },
     trading_type: {
       $ref: "#/components/schemas/TradingType",
     },
@@ -2706,6 +2718,18 @@ export const $WalletTradingResponse = {
     walletID: {
       type: "string",
       title: "Walletid",
+    },
+    trading_currency: {
+      type: "string",
+      title: "Trading Currency",
+    },
+    exchange_currency: {
+      type: "string",
+      title: "Exchange Currency",
+    },
+    selling_currency: {
+      type: "string",
+      title: "Selling Currency",
     },
     trading_type: {
       $ref: "#/components/schemas/TradingType",
@@ -2791,6 +2815,10 @@ export const $WalletTradingResponse = {
       type: "number",
       title: "Trading Result",
     },
+    trading_exchange: {
+      type: "number",
+      title: "Trading Exchange",
+    },
     account: {
       type: "string",
       title: "Account",
@@ -2839,6 +2867,7 @@ export const $WalletTradingResponse = {
     "trading_amount",
     "trading_crypto",
     "trading_result",
+    "trading_exchange",
   ],
   title: "WalletTradingResponse",
 } as const;
