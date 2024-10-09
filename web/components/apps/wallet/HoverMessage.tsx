@@ -72,7 +72,7 @@ export function HoverMessages({ messages, notesType = "TRANSACTION" }: MessagesP
                   <Badge size="xs" variant="dot" color="gray">
                     {formatDistanceToNowStrict(message.date, { addSuffix: true })}
                   </Badge>
-                  <Box>{message.type}</Box>
+                  <Box>Message</Box>
                 </Group>
               }
               key={index}

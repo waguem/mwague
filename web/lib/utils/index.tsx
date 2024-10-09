@@ -265,3 +265,5 @@ export const tradeOptions = [
   { value: "EXCHANGE", label: "Exchange with Crypto Wallet", wallet: "CRYPTO" },
   { value: "EXCHANGE WITH SIMPLE WALLET", label: "Exchange with Simple Wallet", wallet: "CRYPTO" },
 ];
+
+export const defaultTags = ["FOOD", "SALARY", "CHARGES", "BOSS EXPENSE", "BOSS BENEFIT"];

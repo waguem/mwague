@@ -116,7 +116,12 @@ class InternalTransaction(AbstractTransaction):
         )
         # load notes from internal
         notes = []
-        notes = self.update_notes(notes, "REQUEST", self.get_inputs().message)
+        tags = list()
+
+        if self.input.tags:
+            tags = self.input.tags.split(",")
+
+        notes = self.update_notes(notes, "REQUEST", self.get_inputs().message, tags)
         internal.notes = json.dumps(notes)
 
         sender.counter = sender.counter + 1 if sender.counter else 1

@@ -58,7 +58,7 @@ export const $AccountMonthlyReport = {
       type: "string",
       format: "date-time",
       title: "Updated At",
-      default: "2024-10-07T12:39:59.570039",
+      default: "2024-10-09T08:22:24.756144",
     },
   },
   type: "object",
@@ -939,6 +939,10 @@ export const $ExternalRequest = {
     payment_currency: {
       $ref: "#/components/schemas/Currency",
     },
+    tags: {
+      type: "string",
+      title: "Tags",
+    },
   },
   type: "object",
   required: ["type", "sender", "payment_currency"],
@@ -1583,6 +1587,10 @@ export const $InternalRequest = {
     receiver: {
       type: "string",
       title: "Receiver",
+    },
+    tags: {
+      type: "string",
+      title: "Tags",
     },
   },
   type: "object",
@@ -2337,6 +2345,10 @@ export const $TransactionRequest = {
       type: "string",
       title: "Message",
     },
+    tags: {
+      type: "string",
+      title: "Tags",
+    },
     transaction_type: {
       $ref: "#/components/schemas/TransactionType",
     },
@@ -2434,6 +2446,10 @@ export const $TransactionReviewReq = {
     message: {
       type: "string",
       title: "Message",
+    },
+    tags: {
+      type: "string",
+      title: "Tags",
     },
     transaction_type: {
       $ref: "#/components/schemas/TransactionType",

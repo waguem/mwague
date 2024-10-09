@@ -288,6 +288,7 @@ export type ExternalRequest = {
   sender: string;
   customer?: CustomerDetails;
   payment_currency: Currency;
+  tags?: string;
 };
 
 export type type2 = "EXTERNAL";
@@ -459,6 +460,7 @@ export type InternalRequest = {
   type: "INTERNAL";
   sender: string;
   receiver: string;
+  tags?: string;
 };
 
 export type type4 = "INTERNAL";
@@ -686,6 +688,7 @@ export type TransactionRequest = {
   amount: Amount;
   charges?: Amount;
   message?: string;
+  tags?: string;
   transaction_type?: TransactionType;
   data?: InternalRequest | DepositRequest | ExternalRequest | SendingRequest | ForExRequest;
 };
@@ -706,6 +709,7 @@ export type TransactionReviewReq = {
   amount: Amount;
   charges?: Amount;
   message?: string;
+  tags?: string;
   transaction_type?: TransactionType;
   data?: InternalRequest | DepositRequest | ExternalRequest | SendingRequest | ForExRequest;
   code: string;

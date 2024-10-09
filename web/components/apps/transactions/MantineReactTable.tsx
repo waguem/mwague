@@ -156,22 +156,27 @@ const MantineTable = ({ data, office, employees }: Props) => {
         ),
       },
       {
+        header: "Type",
+        accessorKey: "item.type",
+        enableEditing: false,
+        Cell: ({ row }) => (
+          <Badge variant="outline" color={getBadgeType(row.original.item.type as TransactionType)}>
+            {row.original.item.type as string}{" "}
+          </Badge>
+        ),
+      },
+      {
         accessorKey: "item.state", //normal accessorKey
         header: "State",
         size: 160,
         enableEditing: false,
-        Cell: ({ cell, row }) => {
+        Cell: ({ cell }) => {
           const state: TransactionState = cell.getValue() as TransactionState;
           const badgeConfig = getStateBadge(state);
           return (
-            <Group gap={"xs"}>
-              <Badge variant="outline" color={getBadgeType(row.original.item.type as TransactionType)}>
-                {row.original.item.type as string}{" "}
-              </Badge>
-              <Badge size="md" {...badgeConfig}>
-                {state}
-              </Badge>
-            </Group>
+            <Badge size="md" {...badgeConfig}>
+              {state}
+            </Badge>
           );
         },
       },

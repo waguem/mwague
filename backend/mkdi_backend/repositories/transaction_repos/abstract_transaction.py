@@ -396,13 +396,15 @@ class AbstractTransaction(ABC):
         month = now.strftime("%m")
         return f"{initial}{month}{counter+1:03}"
 
-    def update_notes(self, notes, type, note):
+    def update_notes(self, notes, type, note, tags: List[str] | None = None):
         """create a note"""
         message = dict()
         message["date"] = datetime.isoformat(datetime.now())
         message["message"] = note if note else ""
         message["type"] = type
         message["user"] = self.user.user_db_id
+        if tags:
+            message["tags"] = tags
         notes.append(message)
 
         return notes

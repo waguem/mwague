@@ -1,11 +1,11 @@
 "use client";
 
 import { AccountResponse, AgentReponseWithAccounts, OfficeResponse } from "@/lib/client";
-import { getAccountOptions, getMoneyIcon } from "@/lib/utils";
+import { defaultTags, getAccountOptions, getMoneyIcon } from "@/lib/utils";
 import { useTransition } from "react";
 import { addTransaction } from "@/lib/actions/transactions";
 import { OfficeCurrency } from "@/lib/types";
-import { Button, Group, NumberInput, Select, Stack, Textarea } from "@mantine/core";
+import { Button, Group, NumberInput, Select, Stack, TagsInput, Textarea } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { isNumber } from "lodash";
 import { decodeNotification } from "../notifications/notifications";
@@ -29,6 +29,7 @@ interface InternalRequestForm extends TransactionBase {
   receiver: string;
   type: string;
   charges: number;
+  tags: string[];
 }
 
 export default function InternalForms({ agentWithAccounts, office, officeAccounts }: Props) {
@@ -49,6 +50,7 @@ export default function InternalForms({ agentWithAccounts, office, officeAccount
       convertedAmount: 0,
       rate: baseCurrency?.defaultRate || 0,
       charges: 0,
+      tags: [],
     },
     validate: {
       amount: (value) => (value <= 0 ? "Amount must be greater than 0" : undefined),
@@ -97,13 +99,19 @@ export default function InternalForms({ agentWithAccounts, office, officeAccount
       data.append("rate", form.values.rate.toString());
       data.append("charges", form.values.charges.toString());
       form.values.message && data.append("message", form.values.message);
-
+      if (form.values.tags?.length) {
+        data.append("tags", form.values.tags.join(","));
+      }
       const response = await addTransaction(null, data);
       decodeNotification("Internal Transaction", response);
 
       response?.status === "success" && form.reset();
     } catch (e) {}
   };
+
+  const isOfficeAccountSelected = officeAccounts.find((ac) =>
+    [form.values.sender, form.values.receiver].includes(ac.initials)
+  );
 
   return (
     <section className="bg-white dark:bg-gray-900">
@@ -134,6 +142,9 @@ export default function InternalForms({ agentWithAccounts, office, officeAccount
                 data={accountsOptions}
                 onChange={(value) => value && form.setFieldValue("receiver", value)}
               />
+              {isOfficeAccountSelected && (
+                <TagsInput label="Expense Tag" data={defaultTags} clearable {...form.getInputProps("tags")} />
+              )}
             </Group>
             <Group grow>
               <NumberInput

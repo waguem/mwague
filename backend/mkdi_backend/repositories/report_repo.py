@@ -7,6 +7,7 @@ from mkdi_backend.models.transactions.transactions import (
     Sending,
     ForEx,
     WalletTrading,
+    Deposit,
 )
 from mkdi_backend.models.models import KcUser
 
@@ -14,10 +15,12 @@ from mkdi_backend.models.office import OfficeWallet, Office
 from mkdi_backend.models.Account import Account, AccountType, AccountMonthlyReport
 from mkdi_backend.models.Agent import Agent
 
-from sqlmodel.sql.expression import select
+from sqlmodel.sql.expression import select, or_
+
 from datetime import timedelta, datetime
 from loguru import logger
 from mkdi_backend.repositories.transactions import TransactionRepository
+import json
 
 
 class ReportRepository:
@@ -50,13 +53,28 @@ class ReportRepository:
         sending = self._get_model_result(Sending, office_id, start_date, end_date)
         forex = self._get_forex_result(office_id, start_date, end_date)
         tradings = self._get_wallet_trading_result(office_id, start_date, end_date)
+
+        office_deposits = self._get_office_deposits(office_id, start_date, end_date)
+        office_internals = self._get_office_internals(office_id, start_date, end_date)
+        office_externals = self._get_office_externals(office_id, start_date, end_date)
+
         report.results.extend(internals)
         report.results.extend(externals)
         report.results.extend(sending)
         report.results.extend(forex)
         report.results.extend(tradings)
+        report.results.extend(office_deposits)
+        report.results.extend(office_internals)
+        report.results.extend(office_externals)
 
         return report
+
+    def _get_office_account(self, office_id: str):
+        return self.db.scalar(
+            select(Account)
+            .where(Account.type == protocol.AccountType.OFFICE)
+            .where(Account.office_id == office_id)
+        )
 
     def _start_of_day(self, date):
         return date.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -277,3 +295,100 @@ class ReportRepository:
             self.db.commit()
         else:
             logger.info(f"Report for account {account.initials} not found")
+
+    def _get_tag(self, transaction):
+        if isinstance(transaction.notes, str):
+            notes = json.loads(transaction.notes)
+            for note in notes:
+                if "tags" in note:
+                    return ",".join(note["tags"])
+
+    def _get_office_deposits(self, office_id: str, start_date: datetime, end_date: datetime):
+        office_account = self._get_office_account(office_id)
+        results = self.db.scalars(
+            select(Deposit)
+            .where(Deposit.owner_initials == office_account.initials)
+            .where(Deposit.office_id == office_id)
+            .where(Deposit.created_at >= start_date)
+            .where(Deposit.created_at <= end_date)
+            .order_by(Deposit.created_at)
+        ).all()
+
+        return list(
+            map(
+                lambda transaction: protocol.OfficeResult(
+                    result_source=transaction.type,
+                    result_type=protocol.ResultType.BENEFIT,
+                    amount=transaction.amount,
+                    code=transaction.code,
+                    transaction_id=transaction.id,
+                    date=transaction.created_at,
+                    state=transaction.state,
+                    tag=self._get_tag(transaction),
+                ),
+                results,
+            )
+        )
+
+    def _get_office_internals(self, office_id: str, start_date: datetime, end_date: datetime):
+        office_account = self._get_office_account(office_id)
+        results = self.db.scalars(
+            select(Internal)
+            .where(
+                or_(
+                    Internal.sender_initials == office_account.initials,
+                    Internal.receiver_initials == office_account.initials,
+                )
+            )
+            .where(Internal.office_id == office_id)
+            .where(Internal.created_at >= start_date)
+            .where(Internal.created_at <= end_date)
+            .order_by(Internal.created_at)
+        ).all()
+
+        return list(
+            map(
+                lambda transaction: protocol.OfficeResult(
+                    result_source=transaction.type,
+                    result_type=(
+                        protocol.ResultType.EXPENSE
+                        if transaction.sender_initials == office_account.initials
+                        else protocol.ResultType.BENEFIT
+                    ),
+                    amount=transaction.amount,
+                    code=transaction.code,
+                    transaction_id=transaction.id,
+                    date=transaction.created_at,
+                    state=transaction.state,
+                    tag=self._get_tag(transaction),
+                ),
+                results,
+            )
+        )
+
+    def _get_office_externals(self, office_id: str, start_date: datetime, end_date: datetime):
+        office_account = self._get_office_account(office_id)
+        results = self.db.scalars(
+            select(External)
+            .where(External.sender_initials == office_account.initials)
+            .where(External.office_id == office_id)
+            .where(External.created_at >= start_date)
+            .where(External.created_at <= end_date)
+            .order_by(External.created_at)
+        ).all()
+
+        return list(
+            map(
+                lambda transaction: protocol.OfficeResult(
+                    result_source=transaction.type,
+                    result_type=protocol.ResultType.EXPENSE,
+                    amount=transaction.amount,
+                    code=transaction.code,
+                    transaction_id=transaction.id,
+                    date=transaction.created_at,
+                    state=transaction.state,
+                    tag=self._get_tag(transaction),
+                ),
+                results,
+            )
+        )

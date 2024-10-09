@@ -164,7 +164,12 @@ class ExternalTransaction(PayableTransaction):
             history={"history": []},
         )
         notes = []
-        notes = self.update_notes(notes, "REQUEST", self.get_inputs().message)
+        tags = list()
+
+        if self.input.tags:
+            tags = self.input.tags.split(",")
+
+        notes = self.update_notes(notes, "REQUEST", self.get_inputs().message, tags)
         external.notes = json.dumps(notes)
         office.counter = office.counter + 1 if office.counter else 1
         self.db.add(external)

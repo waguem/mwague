@@ -1,17 +1,18 @@
 "use client";
 
-import { AgentReponseWithAccounts, OfficeResponse } from "@/lib/client";
-import { getAccountOptions, getMoneyIcon, getMoneyPrefix } from "@/lib/utils";
+import { AccountResponse, AgentReponseWithAccounts, OfficeResponse } from "@/lib/client";
+import { defaultTags, getAccountOptions, getMoneyIcon, getMoneyPrefix } from "@/lib/utils";
 import { useTransition } from "react";
 
 import { useForm } from "@mantine/form";
 import { OfficeCurrency } from "@/lib/types";
-import { Button, Group, NumberInput, Select, Stack, Textarea } from "@mantine/core";
+import { Button, Group, NumberInput, Select, Stack, TagsInput, Textarea } from "@mantine/core";
 import { IconLoader, IconSend } from "@tabler/icons-react";
 import { addTransaction } from "@/lib/actions/transactions";
 import { decodeNotification } from "../notifications/notifications";
 interface Props {
   agentWithAccounts: AgentReponseWithAccounts[];
+  officeAccounts: AccountResponse[];
   office: OfficeResponse;
 }
 
@@ -26,9 +27,10 @@ interface TransactionBase {
 interface DepositRequestForm extends TransactionBase {
   receiver: string;
   type: string;
+  tags?: string[];
 }
 
-export default function DepositForms({ agentWithAccounts, office }: Props) {
+export default function DepositForms({ agentWithAccounts, office, officeAccounts }: Props) {
   const currencies: OfficeCurrency[] = (office.currencies as OfficeCurrency[]) || [];
   const mainCurrency = currencies.find((currency) => currency.main);
   const baseCurrency = currencies.find((currency) => currency.base);
@@ -43,6 +45,7 @@ export default function DepositForms({ agentWithAccounts, office }: Props) {
       amount: 0,
       convertedAmount: 0,
       rate: baseCurrency?.defaultRate || 0,
+      tags: [],
     },
     validate: {
       receiver: (value) => (!value ? "Receiver is required" : undefined),
@@ -52,8 +55,12 @@ export default function DepositForms({ agentWithAccounts, office }: Props) {
     },
   });
 
-  const accountsOptions = getAccountOptions("AGENT", agentWithAccounts);
+  const agentAccountsOptions = getAccountOptions("AGENT", agentWithAccounts);
+  const officeAccountsOptions = officeAccounts
+    ?.filter((ac) => ac.type === "OFFICE")
+    .map((account) => ({ value: account.initials, label: `[${account.type}] ${account.initials}` }));
 
+  const accountsOptions = [...agentAccountsOptions, ...officeAccountsOptions];
   const [pending, startTransition] = useTransition();
 
   const onSubmit = async () => {
@@ -64,10 +71,15 @@ export default function DepositForms({ agentWithAccounts, office }: Props) {
     data.append("amount", form.values.amount.toString());
     data.append("rate", form.values.rate.toString());
     data.append("message", form.values.message || "");
+    if (form.values.tags?.length) {
+      data.append("tags", form.values.tags.join(","));
+    }
     const respsonse = await addTransaction(null, data);
     decodeNotification("Deposit", respsonse);
     respsonse?.status === "success" && form.reset();
   };
+
+  const isOfficeSelected = officeAccounts?.find((ac) => ac.initials === form.values.receiver);
 
   if (!accountsOptions) return null;
 
@@ -100,6 +112,7 @@ export default function DepositForms({ agentWithAccounts, office }: Props) {
                 thousandSeparator=","
                 allowNegative={false}
               />
+              {isOfficeSelected && <TagsInput label="Benefit Tag" data={defaultTags} {...form.getInputProps("tags")} />}
             </Group>
             <Group grow>
               <NumberInput

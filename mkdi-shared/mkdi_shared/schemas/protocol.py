@@ -277,6 +277,7 @@ class InternalRequest(BaseModel):
     type: Literal["INTERNAL"]
     sender: str
     receiver: str
+    tags: str | None
 
 
 class CustomerDetails(BaseModel):
@@ -289,6 +290,7 @@ class ExternalRequest(BaseModel):
     sender: str
     customer: Optional[CustomerDetails] = None
     payment_currency: Currency
+    tags: str | None
 
 
 class SendingRequest(BaseModel):
@@ -328,8 +330,12 @@ class TransactionRequest(BaseModel):
     currency: Currency | None
     amount: Amount
     charges: Amount | None
+
     message: str | None
+    tags: str | None
+
     transaction_type: Optional[TransactionType] = None
+
     data: Optional[
         Union[InternalRequest, DepositRequest, ExternalRequest, SendingRequest, ForExRequest]
     ] = Field(default=None, discriminator="type")

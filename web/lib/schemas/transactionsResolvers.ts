@@ -61,6 +61,7 @@ export const Internal = zfd.formData({
   amount: zfd.text(zPNumber),
   rate: zfd.text(zPNumber),
   message: zfd.text(z.string().max(1024)),
+  tags: z.optional(z.string()),
 });
 
 const Deposit = zfd.formData({
@@ -68,6 +69,7 @@ const Deposit = zfd.formData({
   amount: zfd.text(zPNumber),
   rate: zfd.text(zPNumber),
   message: zfd.text(z.string().max(255)),
+  tags: z.optional(z.string()),
 });
 const External = zfd.formData({
   sender: zfd.text(z.string().max(20)).refine((value) => value.trim() !== ""),
@@ -75,6 +77,7 @@ const External = zfd.formData({
   rate: zfd.text(zPNumber),
   message: zfd.text(z.string().max(1024)).optional(),
   payment_currency: zCurrency.optional(),
+  tags: z.optional(z.string()),
 });
 const Sending = zfd.formData({
   receiver_initials: zfd.text(z.string().max(20)).refine((value) => value.trim() !== ""),
@@ -157,6 +160,7 @@ const InternalFormResolver: FormResolver = {
         receiver: parsed.data.receiver,
         type: "INTERNAL",
       },
+      tags: parsed.data.tags,
     };
   },
 };
@@ -187,6 +191,7 @@ const DepositFormResolver: FormResolver = {
         receiver: parsed.data.receiver,
         type: "DEPOSIT",
       },
+      tags: parsed.data.tags,
     };
   },
 };
@@ -261,6 +266,7 @@ const ExternalFormResolver: FormResolver = {
         //   phone: parsed.data.customer_phone,
         // },
       },
+      tags: parsed.data.tags,
     };
   },
 };

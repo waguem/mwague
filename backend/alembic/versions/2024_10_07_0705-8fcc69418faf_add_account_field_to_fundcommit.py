@@ -38,4 +38,64 @@ def downgrade() -> None:
         ),
     )
 
+    op.alter_column("wallet_trading", "currency", existing_type=sa.VARCHAR(), nullable=True)
+    op.alter_column(
+        "wallet_trading",
+        "created_at",
+        existing_type=sa.DateTime(),
+        type_=postgresql.TIMESTAMP(timezone=True),
+        existing_nullable=False,
+    )
+    op.alter_column(
+        "sendings",
+        "created_at",
+        existing_type=sa.DateTime(),
+        type_=postgresql.TIMESTAMP(timezone=True),
+        existing_nullable=False,
+    )
+    op.alter_column(
+        "internals",
+        "created_at",
+        existing_type=sa.DateTime(),
+        type_=postgresql.TIMESTAMP(timezone=True),
+        existing_nullable=False,
+    )
+    op.alter_column(
+        "forex",
+        "created_at",
+        existing_type=sa.DateTime(),
+        type_=postgresql.TIMESTAMP(timezone=True),
+        existing_nullable=False,
+    )
+    op.alter_column(
+        "externals",
+        "created_at",
+        existing_type=sa.DateTime(),
+        type_=postgresql.TIMESTAMP(timezone=True),
+        existing_nullable=False,
+    )
+    op.alter_column(
+        "deposits",
+        "created_at",
+        existing_type=sa.DateTime(),
+        type_=postgresql.TIMESTAMP(timezone=True),
+        existing_nullable=False,
+    )
+    op.alter_column(
+        "account_reports", "updated_at", existing_type=postgresql.TIMESTAMP(), nullable=True
+    )
+    op.alter_column(
+        "account_reports",
+        "end_date",
+        existing_type=sa.DateTime(),
+        type_=postgresql.TIMESTAMP(timezone=True),
+        existing_nullable=False,
+    )
+    op.alter_column(
+        "account_reports",
+        "start_date",
+        existing_type=sa.DateTime(),
+        type_=postgresql.TIMESTAMP(timezone=True),
+        existing_nullable=False,
+    )
     # ### end Alembic commands ###

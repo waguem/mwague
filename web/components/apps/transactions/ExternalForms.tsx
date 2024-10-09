@@ -1,17 +1,18 @@
 "use client";
 
-import { AgentReponseWithAccounts, Currency, OfficeResponse } from "@/lib/client";
-import { getAccountOptions, getMoneyIcon, getMoneyPrefix } from "@/lib/utils";
+import { AccountResponse, AgentReponseWithAccounts, Currency, OfficeResponse } from "@/lib/client";
+import { defaultTags, getAccountOptions, getMoneyIcon, getMoneyPrefix } from "@/lib/utils";
 import { useTransition } from "react";
 import { addTransaction } from "@/lib/actions/transactions";
 import { useForm as useMantineForm } from "@mantine/form";
-import { Button, Group, NumberInput, Select, Stack, Textarea } from "@mantine/core";
+import { Button, Group, NumberInput, Select, Stack, TagsInput, Textarea } from "@mantine/core";
 import { OfficeCurrency } from "@/lib/types";
 import { decodeNotification } from "../notifications/notifications";
 import { IconLoader, IconSend } from "@tabler/icons-react";
 interface Props {
   agentWithAccounts: AgentReponseWithAccounts[];
   office: OfficeResponse;
+  officeAccounts: AccountResponse[];
 }
 
 interface TransactionBase {
@@ -31,9 +32,10 @@ interface ExternalRequestForm extends TransactionBase {
   customer_phone: string;
   payment_currency: Currency;
   charge_pencentage: number;
+  tags: string[];
 }
 
-export default function ExternalForms({ agentWithAccounts, office }: Props) {
+export default function ExternalForms({ agentWithAccounts, office, officeAccounts }: Props) {
   const currencies: OfficeCurrency[] = (office.currencies as OfficeCurrency[]) || [];
 
   const mainCurrency = currencies.find((currency) => currency.main);
@@ -53,6 +55,7 @@ export default function ExternalForms({ agentWithAccounts, office }: Props) {
       rate: baseCurrency?.defaultRate || 0,
       charges: 0,
       charge_pencentage: 0,
+      tags: [],
     },
     validate: {
       sender: (value) => (!value ? "Sender is required" : undefined),
@@ -63,6 +66,14 @@ export default function ExternalForms({ agentWithAccounts, office }: Props) {
   });
 
   const accountsOptions = getAccountOptions("AGENT", agentWithAccounts);
+  const officeAccountsOptions = officeAccounts
+    ?.filter((ac) => ac.type === "OFFICE")
+    .map((account) => ({ value: account.initials, label: `[${account.type}] ${account.initials}` }));
+  // merge the two options
+  if (officeAccountsOptions.length > 0) {
+    accountsOptions.push(...officeAccountsOptions);
+  }
+
   const [pending, startTransition] = useTransition();
 
   const onSubmit = async () => {
@@ -76,11 +87,13 @@ export default function ExternalForms({ agentWithAccounts, office }: Props) {
       data.append("rate", form.values.rate.toString());
       data.append("charges", form.values.charges.toString());
       form.values.message && data.append("message", form.values.message);
+      form.values.tags?.length && data.append("tags", form.values.tags.join(","));
       const response = await addTransaction(null, data);
       decodeNotification("External Transaction", response);
       response?.status === "success" && form.reset();
     } catch (e) {}
   };
+  const isOfficeAccountSelected = officeAccounts.find((ac) => ac.initials === form.values.sender);
 
   if (!accountsOptions) return null;
 
@@ -113,18 +126,22 @@ export default function ExternalForms({ agentWithAccounts, office }: Props) {
                 thousandSeparator=","
                 allowNegative={false}
               />
-              <NumberInput
-                id="charge_pencentage"
-                placeholder="Charges Percentage"
-                label="Charges Percentage"
-                key={form.key("charges")}
-                {...form.getInputProps("charge_pencentage")}
-                allowDecimal
-                leftSection="%"
-                max={100}
-                min={0}
-                required
-              />
+              {isOfficeAccountSelected ? (
+                <TagsInput label="Expense Tag" data={defaultTags} clearable {...form.getInputProps("tags")} />
+              ) : (
+                <NumberInput
+                  id="charge_pencentage"
+                  placeholder="Charges Percentage"
+                  label="Charges Percentage"
+                  key={form.key("charges")}
+                  {...form.getInputProps("charge_pencentage")}
+                  allowDecimal
+                  leftSection="%"
+                  max={100}
+                  min={0}
+                  required
+                />
+              )}
             </Group>
             <Group grow>
               <NumberInput

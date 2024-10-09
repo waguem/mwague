@@ -97,7 +97,10 @@ class DepositTransaction(AbstractTransaction):
         )
 
         notes = []
-        notes = self.update_notes(notes, "REQUEST", self.get_inputs().message)
+        tags = list()
+        if self.input.tags:
+            tags = self.input.tags.split(",")
+        notes = self.update_notes(notes, "REQUEST", self.get_inputs().message, tags)
         deposit.notes = json.dumps(notes)
         account.counter = account.counter + 1 if account.counter else 1
 

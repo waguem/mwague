@@ -27,6 +27,7 @@ export default function WalletDeposit({ form, office, walletID, agents }: Props)
           label="Provider"
           data={agents}
           required
+          searchable
           value={form.values.customer}
           onChange={(value) => form.setFieldValue("customer", value as string)}
         />
