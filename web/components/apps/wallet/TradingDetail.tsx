@@ -1,6 +1,7 @@
 "use client";
-import { Currency, OfficeWalletResponse, WalletTradingResponse } from "@/lib/client";
-import { getCryptoPrefix, getMoneyPrefix } from "@/lib/utils";
+import { Currency, OfficeWalletResponse, Payment, WalletTradingResponse } from "@/lib/client";
+import { generateReceipt, Receipt } from "@/lib/pdf/generator";
+import { getMoneyPrefix } from "@/lib/utils";
 import {
   ActionIcon,
   Badge,
@@ -15,14 +16,46 @@ import {
   Divider,
   Space,
   Table,
+  Tooltip,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { IconBook, IconCircleDashed, IconCoinBitcoin, IconExchange, IconMinus, IconWallet } from "@tabler/icons-react";
+import {
+  IconBook,
+  IconCancel,
+  IconCircleDashed,
+  IconCoinBitcoin,
+  IconDownload,
+  IconExchange,
+  IconMinus,
+  IconWallet,
+} from "@tabler/icons-react";
+import { format } from "date-fns";
 import { Fragment } from "react";
 
 export function TradingDetail({ trading, wallet }: { trading: WalletTradingResponse; wallet: OfficeWalletResponse }) {
   const [opened, { open, close }] = useDisclosure(false);
 
+  const getReceipt = (payment: Payment): Receipt => {
+    return {
+      account: trading.account ?? "",
+      amount: payment.amount,
+      code: trading.code ?? "No Code",
+      description: "",
+    };
+  };
+
+  const get_currency = (trade: WalletTradingResponse) => {
+    switch (trade.trading_type) {
+      case "BUY":
+      case "DEPOSIT":
+      case "EXCHANGE WITH SIMPLE WALLET":
+        return trade.trading_currency;
+      case "SELL":
+        return trade.selling_currency;
+      case "EXCHANGE":
+        return trade.exchange_currency;
+    }
+  };
   return (
     <Fragment>
       <ActionIcon variant="outline" onClick={open}>
@@ -63,15 +96,34 @@ export function TradingDetail({ trading, wallet }: { trading: WalletTradingRespo
                 )}
               </Table.Td>
               <Table.Td>
-                {["SELL", "EXCHANGE", "EXCHANGE WITH SIMPLE WALLET"].includes(trading?.trading_type) ? (
-                  <NumberFormatter value={trading.trading_rate} />
+                {["SELL", "SIMPLE SELL", "EXCHANGE", "EXCHANGE WITH SIMPLE WALLET"].includes(trading?.trading_type) ? (
+                  <NumberFormatter
+                    suffix={trading?.trading_type === "SIMPLE SELL" ? "%" : ""}
+                    value={
+                      trading?.trading_type === "EXCHANGE WITH SIMPLE WALLET"
+                        ? trading?.selling_rate
+                        : trading.trading_rate
+                    }
+                  />
                 ) : (
                   "-"
                 )}
               </Table.Td>
               <Table.Td>
                 {["EXCHANGE", "EXCHANGE WITH SIMPLE WALLET"].includes(trading?.trading_type) ? (
-                  <NumberFormatter value={trading?.exchange_rate} />
+                  <>
+                    <NumberFormatter value={trading?.exchange_rate} />
+                    {trading?.trading_type === "EXCHANGE WITH SIMPLE WALLET" && (
+                      <>
+                        {" "}
+                        / <NumberFormatter value={trading?.trading_rate} /> =
+                        <NumberFormatter
+                          decimalScale={6}
+                          value={Number(trading?.exchange_rate) / trading?.trading_rate}
+                        />
+                      </>
+                    )}
+                  </>
                 ) : (
                   "-"
                 )}
@@ -93,7 +145,9 @@ export function TradingDetail({ trading, wallet }: { trading: WalletTradingRespo
                   Name
                 </Badge>
               </Box>
-              <Badge variant="dot">{wallet.wallet_name}</Badge>
+              <Badge variant="dot" size="lg">
+                {wallet.wallet_name}
+              </Badge>
             </Group>
             <Divider label="Trade" />
             <Group grow>
@@ -106,7 +160,7 @@ export function TradingDetail({ trading, wallet }: { trading: WalletTradingRespo
                 </Badge>
               </Box>
               <Badge variant="dot" size="lg">
-                {trading.trading_type} {trading.trading_currency}
+                {trading.trading_type} {get_currency(trading)}
               </Badge>
             </Group>
             <Group grow>
@@ -168,7 +222,59 @@ export function TradingDetail({ trading, wallet }: { trading: WalletTradingRespo
             </Group>
           </Stack>
         </Card>
-        <Divider label="Payment" />
+        {trading.payments?.length ? (
+          <Fragment>
+            <Space h="md" />
+            <Divider label="Payment" />
+            <Space h="lg" />
+            <Table withTableBorder highlightOnHover verticalSpacing={"sm"}>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Date</Table.Th>
+                  <Table.Th>State</Table.Th>
+                  <Table.Th>Amount</Table.Th>
+                  <Table.Th>Actions</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {trading.payments?.map((payment) => (
+                  <Table.Tr key={payment.transaction_id}>
+                    <Table.Td>{format(payment.payment_date, "MMM dd")}</Table.Td>
+                    <Table.Td>
+                      <Group justify="left">
+                        <Badge size="sm" color={payment.state == 1 ? "teal" : "red"} variant="outline">
+                          {payment.state == 1 ? "Paid" : "Cancelled"}
+                        </Badge>
+                      </Group>
+                    </Table.Td>
+                    <Table.Td>
+                      <NumberFormatter decimalScale={2} prefix="$" thousandSeparator value={payment.amount} />
+                    </Table.Td>
+                    <Table.Td>
+                      <Group gap="sm" justify="left">
+                        <Tooltip label="Cancel" position="left">
+                          <ActionIcon size="md" variant="outline" color="red" radius={"md"}>
+                            <IconCancel size={16} />
+                          </ActionIcon>
+                        </Tooltip>
+                        <Tooltip label="Download Receipt" position="left">
+                          <ActionIcon
+                            onClick={() => generateReceipt(getReceipt(payment))}
+                            size="md"
+                            variant="outline"
+                            radius={"md"}
+                          >
+                            <IconDownload size={16} />
+                          </ActionIcon>
+                        </Tooltip>
+                      </Group>
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          </Fragment>
+        ) : null}
       </Drawer>
     </Fragment>
   );
@@ -176,8 +282,18 @@ export function TradingDetail({ trading, wallet }: { trading: WalletTradingRespo
 
 function TrAmount({ trading, wallet }: { wallet: OfficeWalletResponse; trading: WalletTradingResponse }) {
   let currency = getMoneyPrefix(trading.trading_currency as Currency);
-  if (trading.trading_type == "EXCHANGE") {
-    currency = getCryptoPrefix(wallet.crypto_currency);
+  switch (trading.trading_type) {
+    case "BUY":
+    case "DEPOSIT":
+      currency = getMoneyPrefix(trading.trading_currency);
+      break;
+    case "SELL":
+      currency = getMoneyPrefix(trading.selling_currency);
+      break;
+    case "EXCHANGE":
+      currency = getMoneyPrefix(trading.trading_currency);
+    default:
+      break;
   }
   return (
     <Badge variant="dot" size="lg">
@@ -210,7 +326,7 @@ function TrResult({ trading }: { wallet: OfficeWalletResponse; trading: WalletTr
 
 function TrSell({ trading }: { wallet: OfficeWalletResponse; trading: WalletTradingResponse }) {
   let currency = getMoneyPrefix("USD");
-  if (!["SELL", "EXCHANGE"].includes(trading.trading_type)) {
+  if (!["SELL", "SIMPLE SELL", "EXCHANGE", "EXCHANGE WITH SIMPLE WALLET"].includes(trading.trading_type)) {
     return <Badge color="gray" variant="dot"></Badge>;
   }
   return (
@@ -221,7 +337,7 @@ function TrSell({ trading }: { wallet: OfficeWalletResponse; trading: WalletTrad
 }
 
 function TrExchange({ trading }: { wallet: OfficeWalletResponse; trading: WalletTradingResponse }) {
-  let currency = getMoneyPrefix(trading?.trading_currency as Currency);
+  let currency = getMoneyPrefix(trading?.exchange_currency as Currency);
   if (!["EXCHANGE", "EXCHANGE WITH SIMPLE WALLET"].includes(trading.trading_type)) {
     return <Badge color="gray" variant="dot"></Badge>;
   }

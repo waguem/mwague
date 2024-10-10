@@ -58,7 +58,7 @@ export const $AccountMonthlyReport = {
       type: "string",
       format: "date-time",
       title: "Updated At",
-      default: "2024-10-09T14:09:35.294315",
+      default: "2024-10-10T13:29:16.104884",
     },
   },
   type: "object",
@@ -1850,6 +1850,11 @@ export const $Payment = {
     transaction_type: {
       $ref: "#/components/schemas/TransactionType",
     },
+    paid_by: {
+      type: "string",
+      format: "uuid",
+      title: "Paid By",
+    },
     state: {
       $ref: "#/components/schemas/PaymentState",
     },
@@ -1871,15 +1876,58 @@ export const $Payment = {
       format: "uuid",
       title: "Id",
     },
+  },
+  type: "object",
+  required: ["payment_date", "amount", "transaction_id", "transaction_type", "paid_by", "state"],
+  title: "Payment",
+} as const;
+
+export const $PaymentBase = {
+  properties: {
+    payment_date: {
+      type: "string",
+      format: "date",
+      title: "Payment Date",
+    },
+    amount: {
+      type: "number",
+      minimum: 0,
+      title: "Amount",
+      strict: true,
+    },
+    transaction_id: {
+      type: "string",
+      format: "uuid",
+      title: "Transaction Id",
+    },
+    transaction_type: {
+      $ref: "#/components/schemas/TransactionType",
+    },
     paid_by: {
       type: "string",
       format: "uuid",
       title: "Paid By",
     },
+    state: {
+      $ref: "#/components/schemas/PaymentState",
+    },
+    notes: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "Notes",
+      default: {},
+    },
   },
   type: "object",
-  required: ["payment_date", "amount", "transaction_id", "transaction_type", "state", "paid_by"],
-  title: "Payment",
+  required: ["payment_date", "amount", "transaction_id", "transaction_type", "paid_by", "state"],
+  title: "PaymentBase",
 } as const;
 
 export const $PaymentMethod = {
@@ -1939,6 +1987,11 @@ export const $PaymentResponse = {
     transaction_type: {
       $ref: "#/components/schemas/TransactionType",
     },
+    paid_by: {
+      type: "string",
+      format: "uuid",
+      title: "Paid By",
+    },
     state: {
       $ref: "#/components/schemas/PaymentState",
     },
@@ -1954,11 +2007,6 @@ export const $PaymentResponse = {
       type: "object",
       title: "Notes",
       default: {},
-    },
-    paid_by: {
-      type: "string",
-      format: "uuid",
-      title: "Paid By",
     },
   },
   type: "object",
@@ -2290,7 +2338,7 @@ export const $SendingWithPayments = {
 } as const;
 
 export const $TradingType = {
-  enum: ["BUY", "SELL", "DEPOSIT", "EXCHANGE", "EXCHANGE WITH SIMPLE WALLET"],
+  enum: ["BUY", "SELL", "SIMPLE SELL", "DEPOSIT", "EXCHANGE", "EXCHANGE WITH SIMPLE WALLET"],
   title: "TradingType",
   description: "An enumeration.",
 } as const;
@@ -2634,15 +2682,36 @@ export const $WalletTradingRequest = {
       title: "Walletid",
     },
     trading_currency: {
-      type: "string",
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          $ref: "#/components/schemas/Currency",
+        },
+      ],
       title: "Trading Currency",
     },
     exchange_currency: {
-      type: "string",
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          $ref: "#/components/schemas/Currency",
+        },
+      ],
       title: "Exchange Currency",
     },
     selling_currency: {
-      type: "string",
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          $ref: "#/components/schemas/Currency",
+        },
+      ],
       title: "Selling Currency",
     },
     trading_type: {
@@ -2720,15 +2789,36 @@ export const $WalletTradingResponse = {
       title: "Walletid",
     },
     trading_currency: {
-      type: "string",
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          $ref: "#/components/schemas/Currency",
+        },
+      ],
       title: "Trading Currency",
     },
     exchange_currency: {
-      type: "string",
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          $ref: "#/components/schemas/Currency",
+        },
+      ],
       title: "Exchange Currency",
     },
     selling_currency: {
-      type: "string",
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          $ref: "#/components/schemas/Currency",
+        },
+      ],
       title: "Selling Currency",
     },
     trading_type: {
@@ -2829,6 +2919,12 @@ export const $WalletTradingResponse = {
       title: "Exchange Rate",
       strict: true,
     },
+    selling_rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Selling Rate",
+      strict: true,
+    },
     exchange_walletID: {
       type: "string",
       title: "Exchange Walletid",
@@ -2847,6 +2943,13 @@ export const $WalletTradingResponse = {
       },
       type: "array",
       title: "Notes",
+    },
+    payments: {
+      items: {
+        $ref: "#/components/schemas/PaymentBase",
+      },
+      type: "array",
+      title: "Payments",
     },
   },
   type: "object",
@@ -2868,6 +2971,7 @@ export const $WalletTradingResponse = {
     "trading_crypto",
     "trading_result",
     "trading_exchange",
+    "payments",
   ],
   title: "WalletTradingResponse",
 } as const;

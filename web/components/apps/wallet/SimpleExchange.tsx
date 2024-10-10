@@ -124,8 +124,8 @@ export default function SimpleExchange({ form, walletID, office }: Props) {
           }}
         />
         <NumberInput
-          label={sourceWallet?.trading_currency + " Amount"}
-          leftSection={getMoneyIcon(sourceWallet?.trading_currency ?? "USD", 16)}
+          label={form.values.exchange_currency + " Amount"}
+          leftSection={getMoneyIcon(form.values.exchange_currency)}
           value={form.values.payment_in_main}
           thousandSeparator=","
           decimalScale={2}

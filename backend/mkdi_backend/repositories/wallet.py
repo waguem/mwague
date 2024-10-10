@@ -29,7 +29,7 @@ class WalletRepository:
         match request.trading_type:
             case pr.TradingType.BUY:
                 return self.buy(request)
-            case pr.TradingType.SELL:
+            case pr.TradingType.SELL | pr.TradingType.SIMPLE_SELL:
                 return self.sell(request)
             case pr.TradingType.EXCHANGE:
                 return self.exchange(request)
@@ -145,7 +145,8 @@ class WalletRepository:
             created_by=self.user.user_db_id,
             state=pr.TransactionState.PAID,
             account=customer.initials,
-            selling_currency=request.request.currency.value,
+            selling_currency=request.selling_currency,
+            trading_currency=wallet.trading_currency.value,
             notes=[],
         )
 
@@ -167,7 +168,10 @@ class WalletRepository:
         office.counter = office.counter + 1 if office.counter else 1
         # move funds from wallet to customer
         # if the requested amount is greater than the trading balance then the trade will be in pending state and no movement is maid
-        self.sell_to_customer(trade, customer, wallet, request)
+        if wallet.wallet_type == pr.WalletType.CRYPTO:
+            self.sell_to_customer(trade, customer, wallet, request)
+        else:
+            self.simple_sell_to_customer(trade, customer, wallet, request)
 
         self.db.add(trade)
         self.db.add(wallet)
@@ -175,6 +179,39 @@ class WalletRepository:
         self.db.add(office)
 
         return trade
+
+    def simple_sell_to_customer(
+        self,
+        trade: WalletTrading,
+        customer: Account,
+        wallet: OfficeWallet,
+        request: pr.WalletTradingRequest,
+    ):
+        # we can only sell one currency here which is the trading currency (USD)
+        benefit_or_lost = 0
+        office = self._get_office(self.user.office_id)
+
+        if not wallet.trading_balance >= request.amount:
+            trade.state = pr.TransactionState.PENDING
+            return
+        # let's image we have 10,000USD trading balance that was bought using 10,200USD
+        # the rate is 10,000/10,2000
+        # so I we are selling 5000 => the cost is 5000 * 10200 / 10000 = 5100
+        cost_rate = wallet.value / wallet.trading_balance
+
+        cost = request.amount * cost_rate
+        # the trading rate is in percent
+        sold = request.amount * (1 + request.trading_rate / 100)
+        benefit_or_lost = sold - cost
+
+        wallet.trading_balance -= request.amount
+        wallet.value -= cost
+
+        customer.debit(sold)
+
+        if benefit_or_lost != 0:
+            office.credit(benefit_or_lost)
+            self.db.add(office)
 
     def sell_to_customer(
         self,
@@ -186,7 +223,7 @@ class WalletRepository:
         benefit_or_lost = 0
         office = self._get_office(self.user.office_id)
 
-        if request.request.currency == wallet.trading_currency:
+        if request.selling_currency == wallet.trading_currency.value:
 
             # let's say we have 1000 RMB in the wallet
             # and the request is to sell 2000 RMB
@@ -216,9 +253,10 @@ class WalletRepository:
 
             # charge this lost to the office
 
-        elif request.request.currency == wallet.crypto_currency:
+        elif request.selling_currency == wallet.crypto_currency.value:
             # this is the case were we are selling the crypto currency,
             # the amount is in the crypto currency
+
             if not wallet.crypto_balance >= request.amount:
                 trade.state = pr.TransactionState.PENDING
                 return
@@ -280,8 +318,8 @@ class WalletRepository:
             state=pr.TransactionState.PAID,
             exchange_walletID=exchange_wallet.walletID,
             exchange_rate=exchange_request.exchange_rate,
-            exchange_currency=wallet.trading_currency.value,
-            trading_currency=wallet.exchange_currency.value,
+            exchange_currency=request.exchange_currency,
+            trading_currency=wallet.crypto_currency.value,
             notes=[],
         )
 
@@ -547,13 +585,15 @@ class WalletRepository:
             selling_rate=request.request.selling_rate,
             notes=[],
             exchange_currency=destination_wallet.trading_currency.value,
-            trading_currency=source_wallet.crytpo_currency.value,
+            trading_currency=source_wallet.crypto_currency.value,
+            selling_currency=request.selling_currency,
             created_by=self.user.user_db_id,
         )
 
         trade.code = self.generate_code(
             source_wallet.initials, office.counter if office.counter else 0
         )
+
         message = dict()
         message["date"] = datetime.isoformat(datetime.now())
         message["message"] = request.message
@@ -638,7 +678,7 @@ class WalletRepository:
             created_by=self.user.user_db_id,
             state=pr.TransactionState.PENDING,
             account=provider.initials,
-            exchange_currency=wallet.trading_currency.value,
+            trading_currency=wallet.trading_currency.value,
             notes=[],
         )
 

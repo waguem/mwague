@@ -47,6 +47,18 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
   const [pending, startTransition] = useTransition();
   const agentAccountsOptions = getAccountOptions(null, agents);
 
+  const get_currency = (trade: WalletTradingResponse) => {
+    switch (trade.trading_type) {
+      case "BUY":
+      case "DEPOSIT":
+        return trade.trading_currency;
+      case "SELL":
+        return trade.selling_currency;
+      case "EXCHANGE":
+      case "EXCHANGE WITH SIMPLE WALLET":
+        return trade.exchange_currency;
+    }
+  };
   const columns = useMemo<MRT_ColumnDef<WalletTradingResponse>[]>(
     () => [
       {
@@ -103,11 +115,7 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
                 value={cell.getValue() as number}
                 thousandSeparator=","
                 decimalScale={3}
-                prefix={
-                  row.original.trading_type === "SELL"
-                    ? getMoneyPrefix(wallet?.trading_currency)
-                    : getCryptoPrefix(wallet.crypto_currency)
-                }
+                prefix={getMoneyPrefix(get_currency(row?.original))}
               />
             </Badge>
           );
@@ -123,7 +131,7 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
               value={cell.getValue() as number}
               thousandSeparator=","
               decimalScale={3}
-              prefix={getCryptoPrefix(wallet.crypto_currency)}
+              prefix={getMoneyPrefix(wallet.wallet_type == "CRYPTO" ? wallet.crypto_currency : wallet.trading_currency)}
             />
           </Badge>
         ),

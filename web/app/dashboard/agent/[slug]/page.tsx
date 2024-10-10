@@ -40,7 +40,7 @@ export default async function AgentPage({
       </TimelineItem>
       <TimelineItem bullet={<IconBitcoin />} title={<Title order={3}>Tradings</Title>}>
         <Space h="xl" />
-        <TradingsTable tradings={tradings} />
+        <TradingsTable office={office} tradings={tradings} />
       </TimelineItem>
       <TimelineItem bullet={<IconReport size={12} />} title={<Title order={3}>Reports</Title>}>
         <Space h="xl" />

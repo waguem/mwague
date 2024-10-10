@@ -94,6 +94,7 @@ class CryptoCurrency(Enum):
 class TradingType(Enum):
     BUY = "BUY"
     SELL = "SELL"
+    SIMPLE_SELL = "SIMPLE SELL"
     DEPOSIT = "DEPOSIT"
     EXCHANGE = "EXCHANGE"
     EXCHANGE_WITH_SIMPLE_WALLET = "EXCHANGE WITH SIMPLE WALLET"
@@ -122,6 +123,7 @@ class PaymentBase(SQLModel):
     amount: Annotated[Decimal, Field(strict=True, ge=0)]
     transaction_id: UUID
     transaction_type: TransactionType
+    paid_by: UUID
     state: PaymentState
     notes: Mapping[Any, Mapping | Any] = SQLModelField(
         default={}, sa_column=sa.Column(MutableDict.as_mutable(pg.JSONB))
@@ -461,9 +463,9 @@ class TransactionDB(TransactionBase):
 class WalletTradingBase(SQLModel):
     code: str | None = Field(nullable=False, max_length=16, unique=True)
     walletID: str = SQLModelField(foreign_key="wallets.walletID")
-    trading_currency: str | None
-    exchange_currency: str | None
-    selling_currency: str | None
+    trading_currency: str | Currency | None
+    exchange_currency: str | Currency | None
+    selling_currency: str | Currency | None
     trading_type: TradingType
     amount: Annotated[Decimal, Field(strict=True, ge=0)]
     daily_rate: Annotated[Decimal, Field(strict=True, gt=0, max_digits=12, decimal_places=6)]
@@ -528,9 +530,13 @@ class WalletTradingResponse(WalletTradingBase):
 
     account: str | None
     exchange_rate: Annotated[Decimal | None, Field(strict=True, gt=0)]
+    selling_rate: Annotated[Decimal | None, Field(strict=True, gt=0)]
+
     exchange_walletID: str | None
 
     notes: List[Mapping[Any, Mapping | Any]] | None
+
+    payments: List[PaymentBase]
 
 
 class TransactionReviewReq(TransactionRequest):

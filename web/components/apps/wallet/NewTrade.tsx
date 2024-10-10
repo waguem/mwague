@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { tradeWallet } from "@/lib/actions";
-import { Currency, OfficeResponse } from "@/lib/client";
+import { Currency, OfficeResponse, TradingType } from "@/lib/client";
 import {
   ActionIcon,
   Badge,
@@ -28,7 +28,7 @@ import WalletDeposit from "./WalletDeposit";
 import { tradeOptions } from "@/lib/utils";
 
 interface FormInput {
-  tradeType: "BUY" | "SELL" | "EXCHANGE" | "DEPOSIT" | "EXCHANGE WITH SIMPLE WALLET";
+  tradeType: TradingType;
 
   amount: number;
   payment_in_main: number;
@@ -90,6 +90,7 @@ export function NewTrade({ walletID, office, agents }: Props) {
           };
           break;
         case "SELL":
+        case "SIMPLE SELL":
           request = {
             request_type: "SELL",
             customer: form.values.customer ?? "",
@@ -165,6 +166,7 @@ export function NewTrade({ walletID, office, agents }: Props) {
       case "EXCHANGE":
         return <ExchangeCurrency agents={agents} office={office} walletID={walletID} form={form} />;
       case "SELL":
+      case "SIMPLE SELL":
         return <SellCurrency agents={agents} office={office} walletID={walletID} form={form} />;
       case "EXCHANGE WITH SIMPLE WALLET":
         return <SimpleExchange office={office} walletID={walletID} form={form} />;

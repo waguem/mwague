@@ -1,5 +1,5 @@
 "use client";
-import { TransactionState, WalletTradingResponse } from "@/lib/client";
+import { OfficeResponse, OfficeWalletResponse, TransactionState, WalletTradingResponse } from "@/lib/client";
 import { Badge, Group, MantineColor, NumberFormatter, Tooltip } from "@mantine/core";
 import { MantineReactTable, MRT_ColumnDef, useMantineReactTable } from "mantine-react-table";
 import { useMemo } from "react";
@@ -11,9 +11,11 @@ import { TradingDetail } from "./TradingDetail";
 
 interface Props {
   tradings: WalletTradingResponse[];
+  wallet?: OfficeWalletResponse | undefined;
+  office?: OfficeResponse | undefined;
 }
 
-export function TradingsTable({ tradings }: Props) {
+export function TradingsTable({ tradings, wallet, office }: Props) {
   const getReviewBadgeColor = (type: string): MantineColor => {
     switch (type) {
       case "BUY":
@@ -137,11 +139,14 @@ export function TradingsTable({ tradings }: Props) {
     enableEditing: true,
     positionActionsColumn: "last",
     renderRowActions: ({ row }) => {
+      if (!wallet && office) {
+        wallet = office?.wallets?.find((w) => w.walletID == row.original.walletID);
+      }
       return (
         <Group gap="xs">
           {row.original.trading_type === "SELL" && (
             <Tooltip label="Show details">
-              <TradingDetail trading={row.original as WalletTradingResponse} />
+              <TradingDetail wallet={wallet!} trading={row.original as WalletTradingResponse} />
             </Tooltip>
           )}
         </Group>

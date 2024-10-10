@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { zCryptoCurrency, zCurrency } from "./transactionsResolvers";
-export const TradeType = z.enum(["BUY", "SELL", "DEPOSIT", "EXCHANGE", "EXCHANGE WITH SIMPLE WALLET"]);
+import { $TradingType } from "../client";
+
 const zPNumber = z.number({ message: "must be a number" }).positive({ message: "must be a positive number" });
 
 const ExchangeRequest = z.object({
@@ -44,7 +45,7 @@ const WalletTradeRequestSchema = z.discriminatedUnion("request_type", [
 export type WalletTradeRequest = z.infer<typeof WalletTradeRequestSchema>;
 
 export const TradeWallet = z.object({
-  trading_type: TradeType,
+  trading_type: z.enum($TradingType.enum),
   amount: zPNumber,
   walletID: z.string(),
   daily_rate: zPNumber,

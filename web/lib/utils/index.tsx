@@ -5,8 +5,10 @@ import {
   CryptoCurrency,
   Currency,
   ResultType,
+  TradingType,
   TransactionState,
   TransactionType,
+  WalletType,
 } from "../client";
 import {
   IconCurrency,
@@ -216,7 +218,7 @@ export const getCryptoIcon = (currency: CryptoCurrency, size: number = 16) => {
   return <IconCurrency size={size} />;
 };
 
-export const getMoneyPrefix = (currency: Currency | CryptoCurrency | undefined) => {
+export const getMoneyPrefix = (currency: Currency | CryptoCurrency | string | undefined) => {
   switch (currency) {
     case "USD":
       return "$";
@@ -261,9 +263,14 @@ export const getAccountOptions = (type: AgentType | null, agents: AgentReponseWi
     .flat();
 };
 
-export const tradeOptions = [
+export const tradeOptions: {
+  value: TradingType;
+  label: string;
+  wallet: WalletType | "ALL";
+}[] = [
   { value: "BUY", label: "Buy", wallet: "CRYPTO" },
-  { value: "SELL", label: "Sell", wallet: "ALL" },
+  { value: "SELL", label: "Sell From CRYPTO Wallet", wallet: "CRYPTO" },
+  { value: "SIMPLE SELL", label: "Sell From SIMPLE Wallet", wallet: "SIMPLE" },
   { value: "DEPOSIT", label: "Wallet Deposit", wallet: "SIMPLE" },
   { value: "EXCHANGE", label: "Exchange with Crypto Wallet", wallet: "CRYPTO" },
   { value: "EXCHANGE WITH SIMPLE WALLET", label: "Exchange with Simple Wallet", wallet: "CRYPTO" },

@@ -51,7 +51,7 @@ export function SellCurrency({ form, office, walletID, agents }: Props) {
           decimalScale={4}
           allowDecimal
           allowNegative={false}
-          leftSection={getMoneyIcon(wallet?.trading_currency ?? "USD", 16)}
+          leftSection={wallet?.wallet_type == "SIMPLE" ? "%" : getMoneyIcon(wallet?.trading_currency ?? "USD", 16)}
         />
       </Group>
       <Group grow>
@@ -86,6 +86,10 @@ export function SellCurrency({ form, office, walletID, agents }: Props) {
                 payment_in_main = amount / Number(form.values.trading_rate);
               }
             }
+            if (wallet.wallet_type === "SIMPLE") {
+              payment_in_main = amount * (1 + form.values.trading_rate / 100);
+            }
+
             form.setValues((values: any) => ({
               ...values,
               amount,

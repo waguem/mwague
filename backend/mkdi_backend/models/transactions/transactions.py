@@ -9,10 +9,11 @@ from uuid import UUID, uuid4
 from sqlalchemy.ext.mutable import MutableDict, MutableList
 from pydantic import Field as PydanticField
 from mkdi_shared.schemas import protocol as pr
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, Session, select
 from sqlalchemy.ext.hybrid import hybrid_property
 import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as pg
+from mkdi_backend.database import engine
 
 
 class Payment(pr.PaymentBase, table=True):
@@ -175,18 +176,32 @@ def get_trading_result(cls) -> Decimal:
         return exchange_value - worth
 
     if cls.trading_type == pr.TradingType.EXCHANGE_WITH_SIMPLE_WALLET:
-        return 0
+        return cls.trading_amount - cls.trading_cost
 
-    return (cls.amount / cls.trading_rate) - cls.trading_cost
+    if cls.trading_type == pr.TradingType.SIMPLE_SELL:
+        return cls.trading_amount - cls.trading_cost
+
+    selling_value = cls.amount / cls.trading_rate
+
+    if cls.trading_currency != cls.selling_currency:
+        selling_value = cls.amount * (cls.trading_rate / cls.daily_rate)
+
+    return selling_value - cls.trading_cost
 
 
 def get_trading_amount(cls) -> Decimal:
 
     if cls.trading_type == pr.TradingType.EXCHANGE_WITH_SIMPLE_WALLET:
-        return cls.amount
+        return cls.amount * (cls.selling_rate / cls.daily_rate)
 
     if cls.trading_type == pr.TradingType.BUY or cls.trading_type == pr.TradingType.EXCHANGE:
         return cls.amount * (cls.trading_rate / cls.daily_rate)
+
+    if cls.trading_currency != cls.selling_currency:
+        return cls.amount * (cls.trading_rate / cls.daily_rate)
+
+    if cls.trading_type == pr.TradingType.SIMPLE_SELL:
+        return cls.amount * (1 + cls.trading_rate / 100)
 
     return cls.amount / cls.trading_rate
 
@@ -217,21 +232,31 @@ def get_trading_cost(cls) -> Decimal:
 
     cost_rate = cls.wallet_value / cls.wallet_trading
 
+    if cls.trading_type == pr.TradingType.SIMPLE_SELL:
+        cost_rate = cls.wallet_value / cls.wallet_trading
+
+    if cls.trading_currency != cls.selling_currency and cls.wallet_crypto > 0:
+        cost_rate = cls.wallet_value / cls.wallet_crypto
+
     return cls.amount * cost_rate
 
 
 def get_trading_crypto(cls) -> Decimal:
 
-    if cls.trading_type == pr.TradingType.SELL:
+    if cls.trading_type == pr.TradingType.SELL and cls.trading_currency == cls.selling_currency:
         # let's image we sold 10 000 RMB
         # how much those 10 000 RMB are worth in wallet currency "USDT"
         # let's image the wallet was valued 100 000 USDT for 721 500 RMB, then the rate is 0.1386
         # so the 10 000 RMB are worth 1386.00 USDT
         if cls.state == pr.TransactionState.PENDING:
             return 0
+
         wallet_crypto_rate = cls.wallet_crypto / cls.wallet_trading
 
         return cls.amount * wallet_crypto_rate
+
+    if cls.trading_type == pr.TradingType.SIMPLE_SELL:
+        return 0
 
     return cls.amount
 
@@ -244,7 +269,19 @@ def get_exchange_amount(cls) -> Decimal:
     ):
         return 0
 
+    if cls.trading_type == pr.TradingType.EXCHANGE_WITH_SIMPLE_WALLET:
+        return cls.amount * (cls.exchange_rate / cls.trading_rate)
+
     return cls.amount * cls.exchange_rate
+
+
+def get_payments(cls) -> List[Payment]:
+    with Session(engine) as db:
+        return db.scalars(
+            select(Payment)
+            .where(Payment.transaction_id == cls.id)
+            .order_by(Payment.payment_date.desc())
+        ).all()
 
 
 class WalletTrading(pr.WalletTradingBase, table=True):
@@ -283,6 +320,7 @@ class WalletTrading(pr.WalletTradingBase, table=True):
     exchange_walletID: str = Field(foreign_key="wallets.walletID", nullable=True)
     account: str = Field(foreign_key="accounts.initials", nullable=True)
     exchange_rate: Decimal = Field(gt=0, nullable=True, max_digits=11, decimal_places=6)
+    selling_rate: Decimal = Field(gt=0, nullable=True, max_digits=11, decimal_places=6)
 
     notes: List[Mapping[Any, Mapping | Any]] = Field(
         default={}, sa_column=sa.Column(MutableList.as_mutable(pg.JSONB))
@@ -309,6 +347,8 @@ class WalletTrading(pr.WalletTradingBase, table=True):
             "description": request_message["message"] if request_message else "",
             "is_out": self.trading_type == pr.TradingType.SELL,
         }
+
+    payments: ClassVar[List[Payment]] = hybrid_property(get_payments)
 
 
 TransactionWithDetails = Union[

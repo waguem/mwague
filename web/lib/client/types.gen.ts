@@ -534,6 +534,7 @@ export type Payment = {
   amount: number;
   transaction_id: string;
   transaction_type: TransactionType;
+  paid_by: string;
   state: PaymentState;
   notes?: {
     [key: string]:
@@ -543,7 +544,22 @@ export type Payment = {
       | unknown;
   };
   id?: string;
+};
+
+export type PaymentBase = {
+  payment_date: string;
+  amount: number;
+  transaction_id: string;
+  transaction_type: TransactionType;
   paid_by: string;
+  state: PaymentState;
+  notes?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
 };
 
 /**
@@ -564,6 +580,7 @@ export type PaymentResponse = {
   amount: number;
   transaction_id: string;
   transaction_type: TransactionType;
+  paid_by?: string;
   state: PaymentState;
   notes?: {
     [key: string]:
@@ -572,7 +589,6 @@ export type PaymentResponse = {
         }
       | unknown;
   };
-  paid_by?: string;
 };
 
 /**
@@ -676,7 +692,7 @@ export type SendingWithPayments = {
 /**
  * An enumeration.
  */
-export type TradingType = "BUY" | "SELL" | "DEPOSIT" | "EXCHANGE" | "EXCHANGE WITH SIMPLE WALLET";
+export type TradingType = "BUY" | "SELL" | "SIMPLE SELL" | "DEPOSIT" | "EXCHANGE" | "EXCHANGE WITH SIMPLE WALLET";
 
 export type TransactionItem = {
   item: Internal | Deposit | Sending | External | ForEx;
@@ -764,9 +780,9 @@ export type request_type5 = "DEPOSIT";
 export type WalletTradingRequest = {
   code?: string;
   walletID: string;
-  trading_currency?: string;
-  exchange_currency?: string;
-  selling_currency?: string;
+  trading_currency?: string | Currency;
+  exchange_currency?: string | Currency;
+  selling_currency?: string | Currency;
   trading_type: TradingType;
   amount: number;
   daily_rate: number;
@@ -778,9 +794,9 @@ export type WalletTradingRequest = {
 export type WalletTradingResponse = {
   code?: string;
   walletID: string;
-  trading_currency?: string;
-  exchange_currency?: string;
-  selling_currency?: string;
+  trading_currency?: string | Currency;
+  exchange_currency?: string | Currency;
+  selling_currency?: string | Currency;
   trading_type: TradingType;
   amount: number;
   daily_rate: number;
@@ -800,6 +816,7 @@ export type WalletTradingResponse = {
   trading_exchange: number;
   account?: string;
   exchange_rate?: number;
+  selling_rate?: number;
   exchange_walletID?: string;
   notes?: Array<{
     [key: string]:
@@ -808,6 +825,7 @@ export type WalletTradingResponse = {
         }
       | unknown;
   }>;
+  payments: Array<PaymentBase>;
 };
 
 /**
