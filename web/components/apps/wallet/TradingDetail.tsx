@@ -280,7 +280,7 @@ export function TradingDetail({ trading, wallet }: { trading: WalletTradingRespo
   );
 }
 
-function TrAmount({ trading, wallet }: { wallet: OfficeWalletResponse; trading: WalletTradingResponse }) {
+function TrAmount({ trading }: { wallet: OfficeWalletResponse; trading: WalletTradingResponse }) {
   let currency = getMoneyPrefix(trading.trading_currency as Currency);
   switch (trading.trading_type) {
     case "BUY":
