@@ -5,7 +5,7 @@ from typing import Annotated, List
 from sqlmodel import Session
 from fastapi import APIRouter, Depends, Security
 
-from mkdi_backend.api.deps import check_authorization, get_db, AsyncDBSessionDep
+from mkdi_backend.api.deps import check_authorization, get_db, AsyncDBSessionDep, DBSessionDep
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.models.transactions.transaction_item import TransactionItem
 from mkdi_backend.repositories.transactions import TransactionRepository
@@ -105,6 +105,19 @@ async def add_payment(
 ) -> protocol.PaymentResponse:
     """add payment to a transaction"""
     return await TransactionRepository(db).add_payment(user, code, usr_input)
+
+
+@router.delete(
+    "/transaction/{code}/cancel", response_model=protocol.TransactionResponse, status_code=200
+)
+def cancel_transaction(
+    *,
+    user: Annotated[KcUser, Security(check_authorization, scopes=["office_admin"])],
+    code: str,
+    usr_input: protocol.CancelTransaction,
+    db: DBSessionDep,
+) -> protocol.TransactionResponse:
+    return TransactionRepository(db).cancel_transaction(user, code, usr_input)
 
 
 @router.get(

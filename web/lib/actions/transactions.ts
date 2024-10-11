@@ -14,9 +14,10 @@ import {
   GetOfficeTransactionsWithDetailsApiV1TransactionCodeGetResponse,
   addPaymentApiV1TransactionCodePayPost,
   updateTransactionApiV1TransactionCodePut,
+  cancelTransactionApiV1TransactionCodeCancelDelete as cancelTransactionApi,
 } from "@/lib/client";
 import { State } from "./state";
-import { getResolver } from "../schemas/transactionsResolvers";
+import { getResolver, CancelTransactionType, CancelTransaction } from "../schemas/transactionsResolvers";
 import { PaymentResolver, TransactionReviewResolver, PaymentRequest } from "../schemas/actions";
 import { revalidatePath } from "next/cache";
 
@@ -217,6 +218,27 @@ export const updateTransaction = async (officeId: string, data: any): Promise<St
     return {
       status: "success",
       message: `Transaction ${response.code} updated successfully`,
+    };
+  });
+};
+
+export const cancelTransaction = async (data: CancelTransactionType) => {
+  return withToken(async () => {
+    const parsed = CancelTransaction.safeParse(data);
+    if (!parsed.success) {
+      return {
+        status: "error",
+        message: "Invalid Cancellation data",
+      };
+    }
+    const response = await cancelTransactionApi({
+      code: data.code,
+      requestBody: data,
+    });
+    revalidatePath(`/dashboard/office/[slug]/transactions`);
+    return {
+      status: "success",
+      message: `${response.type} Transaction ${response.code} has been cancelled`,
     };
   });
 };

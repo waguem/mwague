@@ -277,3 +277,5 @@ export const tradeOptions: {
 ];
 
 export const defaultTags = ["FOOD", "SALARY", "CHARGES", "BOSS EXPENSE", "BOSS BENEFIT"];
+
+export const CANCELLATION_REASON = ["Duplicated", "Mistake", "Agent Cancelled"];

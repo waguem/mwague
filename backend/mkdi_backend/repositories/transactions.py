@@ -459,3 +459,27 @@ class TransactionRepository:
         for item in acc_report:
             item["created_at"] = item["created_at"].isoformat()
         return acc_report
+
+    def cancel_transaction(
+        self, user: KcUser, code: str, usr_input: pr.CancelTransaction
+    ) -> pr.TransactionResponse:
+        """Cancel a transaction"""
+
+        reviewer: AbstractTransaction = None
+        try:
+            reviewer = self.get_concrete_type(usr_input.type)(self.db, user, usr_input)
+        except ValidationError as e:
+            raise e
+
+        transaction = reviewer.get_transaction(code)
+        reviewer.transaction = transaction
+
+        transaction = reviewer.rollback(transaction)
+
+        notes = json.loads(transaction.notes)
+        reviewer.update_notes(notes, "CANCEL", usr_input.description, tags=usr_input.reason)
+        transaction.notes = json.dumps(notes)
+
+        transaction = reviewer.cancel(transaction)
+
+        return transaction

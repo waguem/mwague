@@ -190,8 +190,10 @@ class AbstractTransaction(ABC):
         Returns:
             float: The amount of charges.
         """
-        if self.input.charges:
+        if hasattr(self.input, "charges") and self.input.charges:
             return self.input.charges.amount
+        elif self.transaction:
+            return self.transaction.charges
         return 0
 
     def get_amount(self):
@@ -311,6 +313,10 @@ class AbstractTransaction(ABC):
         self.db.add(transaction)
 
         return transaction
+
+    @abstractmethod
+    def rollback(self, transaction: pr.TransactionDB) -> pr.TransactionDB:
+        """Rollback a commited transaction"""
 
     @abstractmethod
     def do_transaction(self) -> None:

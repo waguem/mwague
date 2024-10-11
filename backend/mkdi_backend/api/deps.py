@@ -29,6 +29,9 @@ def get_db() -> Generator:
         yield db
 
 
+DBSessionDep = Annotated[Session, Depends(get_db)]
+
+
 # Get the payload/token from keycloak
 async def get_payload(token: str = Security(oauth2_scheme)) -> dict:
     introspect = keycloak_openid.introspect(token)

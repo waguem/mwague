@@ -147,8 +147,8 @@ class InternalTransaction(AbstractTransaction):
         Returns:
             List[Account]: _description_
         """
-
-        request: pr.InternalRequest = self.get_inputs().data
+        usr_input = self.get_inputs()
+        request: pr.InternalRequest = usr_input.data if hasattr(usr_input, "data") else None
         if request is None and sender is None and receiver is None:
             # reviewing the transaction
             tr: Internal = self.transaction
@@ -190,3 +190,33 @@ class InternalTransaction(AbstractTransaction):
         raise MkdiError(
             error_code=MkdiErrorCode.INVALID_STATE, message="Internal transactions cannot be paid"
         )
+
+    @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
+    def rollback_commit(self, transaction: Internal) -> Internal:
+        accounts = self.accounts(transaction.sender_initials, transaction.receiver_initials)
+
+        office = next((a for a in accounts if a.type == pr.AccountType.OFFICE), None)
+        sender = next((a for a in accounts if a.initials == transaction.sender_initials), None)
+        receiver = next((a for a in accounts if a.initials == transaction.receiver_initials), None)
+
+        commits = list()
+
+        commits.append(sender.credit(transaction.amount))
+        commits.append(receiver.debit(transaction.amount))
+        if office and transaction.charges > 0 and sender.type != pr.AccountType.OFFICE:
+            commits.append(sender.credit(transaction.charges))
+
+            if receiver.id == office.id:
+                commits.append(receiver.debit(transaction.charges))
+            else:
+                commits.append(office.debit(transaction.charges))
+
+        transaction.save_commit(commits)
+        transaction.state = pr.TransactionState.REVIEW
+
+        return transaction
+
+    def rollback(self, transaction: Internal) -> pr.TransactionResponse:
+        """roll back and cancel transaction"""
+        transaction = self.rollback_commit(transaction)
+        return transaction

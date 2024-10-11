@@ -137,3 +137,6 @@ class DepositTransaction(AbstractTransaction):
     def get_transaction(self, code: str) -> pr.TransactionDB:
         """get deposit transaction"""
         return self.db.query(Deposit).filter(Deposit.code == code).one()
+
+    def rollback(self, transaction: Deposit) -> pr.TransactionResponse:
+        pass

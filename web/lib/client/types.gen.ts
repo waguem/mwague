@@ -101,6 +101,13 @@ export type BuyRequest = {
 
 export type request_type = "BUY";
 
+export type CancelTransaction = {
+  reason: Array<string>;
+  description: string;
+  code: string;
+  type: TransactionType;
+};
+
 /**
  * Commit trade request.
  */
@@ -470,6 +477,7 @@ export type Note = {
   message: string;
   type: string;
   user?: string;
+  tags?: Array<string>;
 };
 
 /**
@@ -1005,6 +1013,13 @@ export type AddPaymentApiV1TransactionCodePayPostData = {
 
 export type AddPaymentApiV1TransactionCodePayPostResponse = PaymentResponse;
 
+export type CancelTransactionApiV1TransactionCodeCancelDeleteData = {
+  code: string;
+  requestBody: CancelTransaction;
+};
+
+export type CancelTransactionApiV1TransactionCodeCancelDeleteResponse = TransactionResponse;
+
 export type TradeWalletApiV1WalletPostData = {
   requestBody: WalletTradingRequest;
 };
@@ -1488,6 +1503,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: PaymentResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/transaction/{code}/cancel": {
+    delete: {
+      req: CancelTransactionApiV1TransactionCodeCancelDeleteData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: TransactionResponse;
         /**
          * Validation Error
          */

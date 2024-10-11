@@ -9,9 +9,12 @@ import {
   OfficeResponse,
   Sending,
   TransactionItem,
+  TransactionState,
   TransactionType,
 } from "@/lib/client";
-import { useEffect, useTransition } from "react";
+import { Fragment, useEffect, useTransition } from "react";
+
+import { useForm as useFromMantine } from "@mantine/form";
 
 import {
   List,
@@ -31,6 +34,10 @@ import {
   Alert,
   Avatar,
   Tooltip,
+  Stack,
+  TagsInput,
+  Badge,
+  Blockquote,
 } from "@mantine/core";
 import {
   IconCash,
@@ -47,14 +54,15 @@ import {
   IconTag,
 } from "@tabler/icons-react";
 import { useForm } from "react-hook-form";
-import { ReviewFormData, reviewTransaction } from "@/lib/actions/transactions";
+import { cancelTransaction, ReviewFormData, reviewTransaction } from "@/lib/actions/transactions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TransactionReviewResolver } from "@/lib/schemas/actions";
 import { useFormState } from "react-dom";
 import { State } from "@/lib/actions";
 import { notifications } from "@mantine/notifications";
-import { getMoneyPrefix } from "@/lib/utils";
+import { CANCELLATION_REASON, getMoneyPrefix } from "@/lib/utils";
 import { OfficeCurrency } from "@/lib/types";
+import { decodeNotification } from "../notifications/notifications";
 
 interface Props {
   row: TransactionItem;
@@ -417,6 +425,23 @@ export default function TransactionReview({ row, opened, close, office, getEmplo
       amount: row?.item?.amount ?? 0,
     },
   });
+
+  const getTags = () => {
+    const cancellation = row?.notes?.find((n) => n.type === "CANCEL");
+    console.log("Tags ", cancellation?.tags);
+    return cancellation?.tags?.length ? cancellation.tags : [];
+  };
+
+  const form = useFromMantine<{
+    reason: string[];
+    description: string;
+  }>({
+    initialValues: {
+      reason: getTags(),
+      description: "",
+    },
+  });
+
   const currencies: any = office?.currencies ?? [];
   const mainCurrency = currencies?.find((currency: any) => currency.main);
   const baseCurrency = currencies?.find((currency: any) => currency.base);
@@ -424,6 +449,18 @@ export default function TransactionReview({ row, opened, close, office, getEmplo
   const [pending, startTransition] = useTransition();
   const [state, formAction] = useFormState<State, ReviewFormData>(reviewTransaction, null);
 
+  const handleCancel = async () => {
+    try {
+      const response = await cancelTransaction({
+        type: row?.item?.type,
+        reason: form.values.reason,
+        description: form.values.description,
+        code: row?.item?.code,
+      });
+      decodeNotification("CANCELLATION", response);
+      response?.status === "success" && form.reset();
+    } catch (e) {}
+  };
   useEffect(() => {
     if (state?.status === "success") {
       notifications.show({
@@ -494,8 +531,20 @@ export default function TransactionReview({ row, opened, close, office, getEmplo
 
   const requestMessage = row?.notes?.find((note) => note.type === "REQUEST");
   const reviewMessage = row?.notes?.find((note) => note.type === "REVIEW");
+  const cancelMessage = row?.notes?.find((note) => note.type === "CANCEL");
   const requester = getEmployee([requestMessage?.user ?? ""]);
   const reviewer = getEmployee([reviewMessage?.user ?? ""]);
+  const canceller = getEmployee([cancelMessage?.user ?? ""]);
+  const activeState: Record<TransactionState, number> = {
+    REVIEW: 1,
+    PENDING: 1,
+    REJECTED: 2,
+    PAID: 2,
+    CANCELLED: 3,
+  };
+
+  console.log("Vlue", form.values.reason);
+
   return (
     <Drawer
       overlayProps={{ backgroundOpacity: 0.5, blur: 4 }}
@@ -513,7 +562,7 @@ export default function TransactionReview({ row, opened, close, office, getEmplo
             children: <Loader size={20} />,
           }}
         />
-        <Timeline active={0} bulletSize={24} lineWidth={2}>
+        <Timeline active={activeState[row?.item?.state]} bulletSize={24} lineWidth={2}>
           <Timeline.Item bullet={<IconGitBranch size={12} />} title="Transaction Request">
             <Space h={10} />
             <Alert title="Message" icon={<IconMessageDots size={14} />}>
@@ -535,7 +584,7 @@ export default function TransactionReview({ row, opened, close, office, getEmplo
               />
             )}
           </Timeline.Item>
-          <Timeline.Item title="Transaction review" bullet={<IconMessageDots size={12} />}>
+          <Timeline.Item color="teal" title="Transaction review" bullet={<IconMessageDots size={12} />}>
             {row?.item && row?.item.state === "REVIEW" && (
               <form
                 className="mt-5"
@@ -601,6 +650,52 @@ export default function TransactionReview({ row, opened, close, office, getEmplo
                 </Group>
               </Alert>
             )}
+          </Timeline.Item>
+
+          <Timeline.Item color="red" title="Cancellation" bullet={<IconCancel size={12} />}>
+            <Space h="xl" />
+            {row?.item?.state === "PAID" ? (
+              <form action={() => startTransition(() => handleCancel())}>
+                <Stack>
+                  <Group grow>
+                    <TagsInput
+                      label="Reason"
+                      data={CANCELLATION_REASON}
+                      {...form.getInputProps("reason")}
+                      value={form.values.reason}
+                    />
+                  </Group>
+                  <Group grow>
+                    <Textarea label="Description" {...form.getInputProps("description")} />
+                  </Group>
+                  <Group grow>
+                    <Button type="submit" variant="gradient" size="xs" gradient={{ from: "red", to: "pink", deg: 120 }}>
+                      Cancel
+                    </Button>
+                  </Group>
+                </Stack>
+              </form>
+            ) : row?.item?.state === "CANCELLED" ? (
+              <Blockquote color="red">
+                <Group grow>
+                  {cancelMessage?.tags?.map((t) => (
+                    <Badge variant="dot" radius={"md"} key={t}>
+                      {t}
+                    </Badge>
+                  ))}
+                </Group>
+                <Group className="mt-2">
+                  <Tooltip label={canceller?.length >= 1 ? canceller[0].username : "Reviewer"}>
+                    <Avatar src={canceller?.length >= 1 ? canceller[0].avatar_url : ""} />
+                  </Tooltip>
+                  {cancelMessage?.message}
+                </Group>
+              </Blockquote>
+            ) : null}
+          </Timeline.Item>
+
+          <Timeline.Item color="gray" bullet={<IconX size={12} />} title="Cancelled">
+            {row?.item?.state === "CANCELLED" && <Fragment></Fragment>}
           </Timeline.Item>
         </Timeline>
       </Box>

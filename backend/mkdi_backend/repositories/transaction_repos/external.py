@@ -247,3 +247,6 @@ class ExternalTransaction(PayableTransaction):
     def cancel_payment(self, payment: Payment) -> None:
         """cancel payment on the transaction"""
         pass
+
+    def rollback(self, transaction: External) -> pr.TransactionResponse:
+        pass

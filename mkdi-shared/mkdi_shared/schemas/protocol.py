@@ -376,6 +376,7 @@ class Note(BaseModel):
     message: str
     type: str
     user: str | None
+    tags: List[str] | None
 
 
 class NoteList(BaseModel):
@@ -544,6 +545,13 @@ class TransactionReviewReq(TransactionRequest):
     type: TransactionType
     state: Annotated[ValidationState, Field(nullable=False)]
     notes: str | None
+
+
+class CancelTransaction(BaseModel):
+    reason: List[str]
+    description: str
+    code: str
+    type: TransactionType
 
 
 class CancelRequest(BaseModel):

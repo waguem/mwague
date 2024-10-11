@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { zfd } from "zod-form-data";
-import { DepositRequest, InternalRequest, TransactionRequest } from "../client";
+import { $TransactionType, DepositRequest, InternalRequest, TransactionRequest } from "../client";
 
 // Step 1: Define the registry
 // Assuming you have Zod schemas defined somewhere
@@ -100,6 +100,15 @@ const ForEx = zfd.formData({
   message: zfd.text(z.string().max(1024)).optional(),
   tag: zfd.text(z.string()),
 });
+
+export const CancelTransaction = zfd.formData({
+  type: z.enum($TransactionType.enum),
+  reason: z.array(z.string()),
+  code: z.string(),
+  description: zfd.text(z.string().min(0).max(265)),
+});
+
+export type CancelTransactionType = z.infer<typeof CancelTransaction>;
 
 export type Data = InternalRequest | DepositRequest;
 export interface FormResolver {
