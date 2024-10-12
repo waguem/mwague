@@ -136,3 +136,14 @@ async def get_office_transactions_with_details(
     return await TransactionRepository(db).get_office_transactions_with_details(
         user, tr_code=code, tr_type=tr_type
     )
+
+
+@router.post("/payment/{id}/cancel", response_model=protocol.PaymentResponse, status_code=200)
+def cancel_payment(
+    *,
+    user: Annotated[KcUser, Security(check_authorization, scopes=["office_admin"])],
+    id: str,
+    request: protocol.CancelTransaction,
+    db: DBSessionDep,
+) -> protocol.PaymentResponse:
+    return TransactionRepository(db).cancel_payment(user, id, request)

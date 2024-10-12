@@ -24,15 +24,16 @@ export default function SimpleExchange({ form, walletID, office }: Props) {
     <Stack>
       <Group grow>
         <Select
+          searchable
           label="Simple Wallet"
           required
-          searchable
           placeholder="Select a Simple Wallet"
           value={form.values.exchange_with}
           onChange={(value) => form.setFieldValue("exchange_with", value as string)}
           data={options}
         />
         <Select
+          searchable
           label="Exchange Currency"
           required
           placeholder="Select a currency"

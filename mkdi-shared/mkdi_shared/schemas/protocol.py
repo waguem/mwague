@@ -155,6 +155,8 @@ class OfficeWalletResponse(CryptoWalletBase):
     crypto_balance: Decimal
     trading_balance: Decimal
     value: Decimal
+    pending_in: Decimal
+    pending_out: Decimal
     office_id: UUID
 
 

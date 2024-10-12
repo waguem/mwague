@@ -109,31 +109,31 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
       <Stack gap={"xl"}>
         <Group grow>
           <Select
+            searchable
             data={supplierOptions}
             label="Provider"
             placeholder="Select provider"
             leftSection={<Avatar src={"/assets/avatars/avat-10.png"} alt="User avatar" size="xs" />}
             id="provider"
             required
-            searchable
             value={form.values.provider}
             onChange={(value) => form.setFieldValue("provider", value as any)}
           />
           <Select
+            searchable
             data={accountsOptions}
             label="Customer"
             placeholder="Select Account"
             id="customer"
-            searchable
             value={form.values.account}
             onChange={(value) => form.setFieldValue("account", value as any)}
             required
           />
           <Select
+            searchable
             label="Tag"
             placeholder="Select a Tag"
             value={form.values.tag}
-            searchable
             onChange={(value) => form.setFieldValue("tag", value as string)}
             data={["ALI PAY", "TT RMB", "BANK TT"]}
           />
@@ -148,6 +148,7 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
             thousandSeparator=","
           />
           <Select
+            searchable
             data={currencyOptions}
             label="Buying Currency"
             placeholder="Select currency"

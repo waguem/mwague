@@ -138,6 +138,7 @@ export default function Wallets({ office }: Props) {
         ),
         Edit: ({ row }) => (
           <Select
+            searchable
             placeholder="Pick a value"
             defaultValue={row.original.crypto_currency}
             data={cryptoCurrencyOptions}
@@ -173,6 +174,7 @@ export default function Wallets({ office }: Props) {
         },
         Edit: ({ row }) => (
           <Select
+            searchable
             placeholder="Pick a value"
             defaultValue={row.original.trading_currency}
             data={currencyOptions}

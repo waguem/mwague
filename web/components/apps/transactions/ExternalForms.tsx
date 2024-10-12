@@ -105,12 +105,12 @@ export default function ExternalForms({ agentWithAccounts, office, officeAccount
           <Stack gap={"lg"}>
             <Group grow>
               <Select
+                searchable
                 id="sender"
                 placeholder="Select a option"
                 label="Sender"
                 key={form.key("sender")}
                 data={accountsOptions}
-                searchable
                 {...form.getInputProps("sender")}
                 onChange={(value) => value && form.setFieldValue("sender", value)}
               />

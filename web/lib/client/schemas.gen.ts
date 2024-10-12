@@ -58,7 +58,7 @@ export const $AccountMonthlyReport = {
       type: "string",
       format: "date-time",
       title: "Updated At",
-      default: "2024-10-11T10:24:47.664201",
+      default: "2024-10-12T07:19:20.959474",
     },
   },
   type: "object",
@@ -1817,6 +1817,14 @@ export const $OfficeWalletResponse = {
       type: "number",
       title: "Value",
     },
+    pending_in: {
+      type: "number",
+      title: "Pending In",
+    },
+    pending_out: {
+      type: "number",
+      title: "Pending Out",
+    },
     office_id: {
       type: "string",
       format: "uuid",
@@ -1831,6 +1839,8 @@ export const $OfficeWalletResponse = {
     "crypto_balance",
     "trading_balance",
     "value",
+    "pending_in",
+    "pending_out",
     "office_id",
   ],
   title: "OfficeWalletResponse",

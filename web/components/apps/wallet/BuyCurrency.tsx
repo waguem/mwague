@@ -20,6 +20,7 @@ export function BuyCurrency({ office, form, walletID, agents }: Props) {
     <>
       <Group grow>
         <Select
+          searchable
           placeholder="Provider"
           required
           label="Provider"

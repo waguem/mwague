@@ -483,3 +483,17 @@ class TransactionRepository:
         transaction = reviewer.cancel(transaction)
 
         return transaction
+
+    def cancel_payment(self, user: KcUser, id: str, request) -> pr.PaymentResponse:
+
+        reviewer: AbstractTransaction = None
+        try:
+            reviewer = self.get_concrete_type(request.type)(self.db, user, request)
+        except ValidationError as e:
+            raise e
+
+        transaction = reviewer.get_transaction(request.code)
+        reviewer.transaction = transaction
+
+        payment = reviewer.cancel_payment(id)
+        return payment

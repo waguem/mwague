@@ -223,6 +223,7 @@ export default function OfficeInfo({ office, HealthCheck }: Props) {
               <GridCol span={10}>
                 <Group grow>
                   <Select
+                    searchable
                     label="Main Currency"
                     data={currencyOptions}
                     readOnly={!(editing["mainCurrency"] && editing["baseCurrency"])}
@@ -230,6 +231,7 @@ export default function OfficeInfo({ office, HealthCheck }: Props) {
                     onChange={(value) => setFields((prev) => ({ ...prev, mainCurrency: value ?? "" }))}
                   />
                   <Select
+                    searchable
                     label="Payment Currency"
                     data={currencyOptions}
                     readOnly={!(editing["mainCurrency"] && editing["baseCurrency"])}

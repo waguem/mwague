@@ -130,14 +130,14 @@ export default function TransactionsForms({ agentAccounts, activity, office, off
                   <NumberFormatter
                     value={officeAccounts?.find((a) => a.type == "FUND")?.balance ?? 0}
                     thousandSeparator
-                    decimalScale={3}
+                    decimalScale={2}
                     prefix={getMoneyPrefix(officeAccounts?.find((a) => a.type === "FUND")?.currency)}
                   />{" "}
                   /{" "}
                   <NumberFormatter
                     value={(officeAccounts?.find((a) => a.type == "FUND")?.balance ?? 0) * baseCurrency!.defaultRate}
                     thousandSeparator
-                    decimalScale={3}
+                    decimalScale={2}
                     prefix={getMoneyPrefix(baseCurrency!.name)}
                   />
                 </Badge>
@@ -161,7 +161,7 @@ export default function TransactionsForms({ agentAccounts, activity, office, off
                   <NumberFormatter
                     value={(officeAccounts?.find((a) => a.type == "OFFICE")?.balance ?? 0) * baseCurrency!.defaultRate}
                     thousandSeparator
-                    decimalScale={3}
+                    decimalScale={2}
                     prefix={getMoneyPrefix(baseCurrency!.name)}
                   />
                 </Badge>

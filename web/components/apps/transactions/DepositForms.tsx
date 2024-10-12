@@ -91,13 +91,13 @@ export default function DepositForms({ agentWithAccounts, office, officeAccounts
           <Stack gap={"lg"}>
             <Group grow>
               <Select
+                searchable
                 id="receiver"
                 placeholder="Select a option"
                 label="Receiver"
                 key={form.key("receiver")}
                 data={accountsOptions}
                 {...form.getInputProps("receiver")}
-                searchable
                 onChange={(value) => value && form.setFieldValue("receiver", value)}
               />
               <NumberInput

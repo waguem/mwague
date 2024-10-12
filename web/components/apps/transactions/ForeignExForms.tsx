@@ -122,17 +122,18 @@ export default function ForeignExForms({ agentWithAccounts, office }: Props) {
           <Stack gap={"xl"}>
             <Group grow>
               <Select
+                searchable
                 data={walletOptions}
                 label="Wallet"
                 placeholder="Select wallet"
                 leftSection={<IconWallet size={16} />}
-                searchable
                 id="wallet"
                 value={form.values.walletID}
                 onChange={(value) => form.setFieldValue("walletID", value as any)}
                 required
               />
               <Select
+                searchable
                 data={forexTypeOptions}
                 label="Are you Buying or Selling ?"
                 placeholder="Select option"
@@ -145,6 +146,7 @@ export default function ForeignExForms({ agentWithAccounts, office }: Props) {
             </Group>
             <Group grow>
               <Select
+                searchable
                 data={agentOptions}
                 label="Customer / Provider"
                 leftSection={<Avatar src={"/assets/avatars/avat-10.png"} alt="User avatar" size="xs" />}
@@ -161,6 +163,7 @@ export default function ForeignExForms({ agentWithAccounts, office }: Props) {
                 required
               />
               <Select
+                searchable
                 data={accountsOptions}
                 label="Account"
                 placeholder="Select Account"

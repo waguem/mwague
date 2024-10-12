@@ -121,11 +121,11 @@ export default function InternalForms({ agentWithAccounts, office, officeAccount
           <Stack gap={"lg"}>
             <Group grow>
               <Select
+                searchable
                 id="sender"
                 placeholder="Select a option"
                 label="Sender"
                 key={form.key("sender")}
-                searchable
                 {...form.getInputProps("sender")}
                 required
                 data={accountsOptions}

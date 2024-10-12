@@ -63,6 +63,8 @@ import type {
   AddPaymentApiV1TransactionCodePayPostResponse,
   CancelTransactionApiV1TransactionCodeCancelDeleteData,
   CancelTransactionApiV1TransactionCodeCancelDeleteResponse,
+  CancelPaymentApiV1PaymentIdCancelPostData,
+  CancelPaymentApiV1PaymentIdCancelPostResponse,
   TradeWalletApiV1WalletPostData,
   TradeWalletApiV1WalletPostResponse,
   GetWalletTradingsApiV1WalletWalletIdTradingsGetData,
@@ -821,6 +823,31 @@ export const cancelTransactionApiV1TransactionCodeCancelDelete = (
     url: "/api/v1/transaction/{code}/cancel",
     path: {
       code: data.code,
+    },
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Cancel Payment
+ * @param data The data for the request.
+ * @param data.id
+ * @param data.requestBody
+ * @returns PaymentResponse Successful Response
+ * @throws ApiError
+ */
+export const cancelPaymentApiV1PaymentIdCancelPost = (
+  data: CancelPaymentApiV1PaymentIdCancelPostData
+): CancelablePromise<CancelPaymentApiV1PaymentIdCancelPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/payment/{id}/cancel",
+    path: {
+      id: data.id,
     },
     body: data.requestBody,
     mediaType: "application/json",

@@ -234,9 +234,9 @@ export function NewTrade({ walletID, office, agents }: Props) {
           <Stack>
             <Group grow>
               <Select
+                searchable
                 placeholder="Select Trade Type"
                 label="Trade Type"
-                searchable
                 data={tradeOptions.filter((option) => ["ALL", wallet.wallet_type].includes(option.wallet))}
                 required
                 value={form.values.tradeType}

@@ -63,21 +63,21 @@ export default function CreateAccount({ owner_initials }: Props) {
             </Group>
             <Group grow>
               <Select
+                searchable
                 label="Currency"
                 placeholder="Select Currency"
                 data={currencyOptions}
                 required
-                searchable
                 {...form.getInputProps("currency")}
               />
             </Group>
             <Group grow>
               <Select
+                searchable
                 label="Account Type"
                 placeholder="Select Account Type"
                 data={accountTypeOptions}
                 required
-                searchable
                 {...form.getInputProps("type")}
               />
             </Group>

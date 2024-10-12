@@ -46,7 +46,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
   };
 
   const isPayable = (type: TransactionType) => {
-    return ["EXTERNAL", "FOREX", "SENDING"].includes(type);
+    return ["EXTERNAL", "DEPOSIT", "FOREX", "SENDING"].includes(type);
   };
 
   const reduceAmountItems = (acc: number, row: any) => {

@@ -528,6 +528,8 @@ export type OfficeWalletResponse = {
   crypto_balance: number;
   trading_balance: number;
   value: number;
+  pending_in: number;
+  pending_out: number;
   office_id: string;
 };
 
@@ -1019,6 +1021,13 @@ export type CancelTransactionApiV1TransactionCodeCancelDeleteData = {
 };
 
 export type CancelTransactionApiV1TransactionCodeCancelDeleteResponse = TransactionResponse;
+
+export type CancelPaymentApiV1PaymentIdCancelPostData = {
+  id: string;
+  requestBody: CancelTransaction;
+};
+
+export type CancelPaymentApiV1PaymentIdCancelPostResponse = PaymentResponse;
 
 export type TradeWalletApiV1WalletPostData = {
   requestBody: WalletTradingRequest;
@@ -1518,6 +1527,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: TransactionResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/payment/{id}/cancel": {
+    post: {
+      req: CancelPaymentApiV1PaymentIdCancelPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: PaymentResponse;
         /**
          * Validation Error
          */

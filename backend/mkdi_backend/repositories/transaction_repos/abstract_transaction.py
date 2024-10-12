@@ -192,8 +192,11 @@ class AbstractTransaction(ABC):
         """
         if hasattr(self.input, "charges") and self.input.charges:
             return self.input.charges.amount
-        elif self.transaction:
+        elif self.transaction and hasattr(self.transaction, "charges"):
             return self.transaction.charges
+
+        if hasattr(self.transaction, "forex_result"):
+            return self.transaction.forex_result
         return 0
 
     def get_amount(self):
@@ -382,7 +385,12 @@ class AbstractTransaction(ABC):
         if not (
             transaction
             and tr_type
-            in [pr.TransactionType.EXTERNAL, pr.TransactionType.SENDING, pr.TransactionType.FOREX]
+            in [
+                pr.TransactionType.EXTERNAL,
+                pr.TransactionType.DEPOSIT,
+                pr.TransactionType.SENDING,
+                pr.TransactionType.FOREX,
+            ]
             and include_payments
         ):
             return transaction

@@ -99,22 +99,22 @@ export default function BankTT({ agentWithAccounts, office }: Props) {
       <Stack gap={"xl"}>
         <Group grow>
           <Select
+            searchable
             data={supplierOptions}
             label="Provider"
             placeholder="Select provider"
             leftSection={<Avatar src={"/assets/avatars/avat-10.png"} alt="User avatar" size="xs" />}
             id="provider"
             required
-            searchable
             value={form.values.provider}
             onChange={(value) => form.setFieldValue("provider", value as any)}
           />
           <Select
+            searchable
             data={accountsOptions}
             label="Customer"
             placeholder="Select Account"
             id="customer"
-            searchable
             value={form.values.account}
             onChange={(value) => form.setFieldValue("account", value as any)}
             required

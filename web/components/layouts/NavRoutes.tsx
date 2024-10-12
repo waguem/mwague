@@ -82,7 +82,7 @@ export function NavRoutes({ sections }: { sections: NavSection[] }) {
             <span>{section.section}</span>
           </h2>
           {section.routes.map((route, j) => (
-            <NavGroup key={index} route={route} pathname={pathname} index={j} />
+            <NavGroup key={`${route.label}-${j}`} route={route} pathname={pathname} index={j} />
           ))}
         </Fragment>
       ))}

@@ -114,7 +114,7 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
               <NumberFormatter
                 value={cell.getValue() as number}
                 thousandSeparator=","
-                decimalScale={3}
+                decimalScale={2}
                 prefix={getMoneyPrefix(get_currency(row?.original))}
               />
             </Badge>
@@ -130,7 +130,7 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
             <NumberFormatter
               value={cell.getValue() as number}
               thousandSeparator=","
-              decimalScale={3}
+              decimalScale={2}
               prefix={getMoneyPrefix(wallet.wallet_type == "CRYPTO" ? wallet.crypto_currency : wallet.trading_currency)}
             />
           </Badge>

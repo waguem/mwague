@@ -24,10 +24,10 @@ export default function WalletDeposit({ form, office, walletID, agents }: Props)
     <Stack>
       <Group grow>
         <Select
+          searchable
           label="Provider"
           data={agents}
           required
-          searchable
           value={form.values.customer}
           onChange={(value) => form.setFieldValue("customer", value as string)}
         />
@@ -38,7 +38,7 @@ export default function WalletDeposit({ form, office, walletID, agents }: Props)
           value={form.values.daily_rate}
           onChange={(value) => form.setFieldValue("daily_rate", Number(value))}
           thousandSeparator=","
-          decimalScale={4}
+          decimalScale={3}
           allowDecimal
           allowNegative={false}
         />
@@ -78,7 +78,7 @@ export default function WalletDeposit({ form, office, walletID, agents }: Props)
           leftSection={getMoneyIcon(baseCurrency!.name)}
           value={form.values.payment_in_base}
           thousandSeparator=","
-          decimalScale={4}
+          decimalScale={2}
           allowDecimal
           allowNegative={false}
         />
@@ -87,7 +87,7 @@ export default function WalletDeposit({ form, office, walletID, agents }: Props)
           leftSection={getMoneyIcon(baseCurrency!.name)}
           value={form.values.payment_in_main}
           thousandSeparator=","
-          decimalScale={4}
+          decimalScale={2}
           allowDecimal
           allowNegative={false}
         />

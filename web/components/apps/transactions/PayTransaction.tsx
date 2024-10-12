@@ -22,14 +22,7 @@ import {
   Loader,
 } from "@mantine/core";
 import { useEffect, useState, useTransition } from "react";
-import {
-  IconCancel,
-  IconCurrencyDirham,
-  IconCurrencyDollar,
-  IconDownload,
-  IconHandGrab,
-  IconSend,
-} from "@tabler/icons-react";
+import { IconCurrencyDirham, IconCurrencyDollar, IconDownload, IconHandGrab, IconSend } from "@tabler/icons-react";
 import { useForm } from "@mantine/form";
 import { payTransaction } from "@/lib/actions/transactions";
 
@@ -38,6 +31,7 @@ import { decodeNotification } from "../notifications/notifications";
 import { generateReceipt, Receipt } from "@/lib/pdf/generator";
 import { HoverMessages } from "../wallet/HoverMessage";
 import { TransactionType } from "@/lib/client";
+import CancelPayment from "./CancelPayment";
 interface PayTransactionProps {
   row: any;
   opened: boolean;
@@ -147,11 +141,7 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
         </Table.Td>
         <Table.Td>
           <Group gap="sm" justify="left">
-            <Tooltip label="Cancel" position="left">
-              <ActionIcon size="md" variant="outline" color="red" radius={"md"}>
-                <IconCancel size={16} />
-              </ActionIcon>
-            </Tooltip>
+            <CancelPayment payment={item} transaction={row} />
             <Tooltip label="Download Receipt" position="left">
               <ActionIcon onClick={() => generateReceipt(getReceipt())} size="md" variant="outline" radius={"md"}>
                 <IconDownload size={16} />

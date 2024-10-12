@@ -3,6 +3,7 @@ import datetime
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from mkdi_backend.repositories.transaction_repos.invariant import (
     async_managed_invariant_tx_method,
+    managed_invariant_tx_method,
     CommitMode,
 )
 from mkdi_backend.repositories.transaction_repos.abstract_transaction import AbstractTransaction
@@ -21,9 +22,8 @@ class PayableTransaction(AbstractTransaction):
         """commit payment"""
 
     @abstractmethod
-    def cancel_payment(self, payment: Payment) -> None:
-        """cancel payment on the transaction"""
-        pass
+    def cancel_payment_commit(self, payment: Payment):
+        """cancel payment commit"""
 
     def get_payments(self) -> int:
         """get payments made on the transaction"""
@@ -118,3 +118,24 @@ class PayableTransaction(AbstractTransaction):
         self.db.add(fund_history)
 
         return payment_db
+
+    def get_payment(self, payment_id: str):
+        return self.db.scalar(select(Payment).where(Payment.id == payment_id))
+
+    @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
+    def cancel_payment(self, payment_id: str) -> Payment:
+
+        payment = self.get_payment(payment_id)
+        assert self.transaction is not None
+        assert payment.transaction_id == self.transaction.id
+
+        # implemented by payable interface
+        fund_history = self.cancel_payment_commit(payment)
+
+        self.transaction.state = pr.TransactionState.REVIEW
+
+        self.db.add(self.transaction)
+        self.db.add(fund_history)
+
+        payment.state = pr.PaymentState.CANCELLED
+        return payment

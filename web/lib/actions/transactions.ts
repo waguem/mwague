@@ -15,6 +15,7 @@ import {
   addPaymentApiV1TransactionCodePayPost,
   updateTransactionApiV1TransactionCodePut,
   cancelTransactionApiV1TransactionCodeCancelDelete as cancelTransactionApi,
+  cancelPaymentApiV1PaymentIdCancelPost,
 } from "@/lib/client";
 import { State } from "./state";
 import { getResolver, CancelTransactionType, CancelTransaction } from "../schemas/transactionsResolvers";
@@ -239,6 +240,30 @@ export const cancelTransaction = async (data: CancelTransactionType) => {
     return {
       status: "success",
       message: `${response.type} Transaction ${response.code} has been cancelled`,
+    };
+  });
+};
+
+export const cancelPayment = async (id: string, cancellation: CancelTransactionType) => {
+  const parsed = CancelTransaction.safeParse(cancellation);
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: "Invalid Cancellation data",
+    };
+  }
+
+  const response = await cancelPaymentApiV1PaymentIdCancelPost({
+    id,
+    requestBody: cancellation,
+  });
+
+  revalidatePath(`/dashboard/office/[slug]/transactions`);
+
+  return withToken(async () => {
+    return {
+      status: "success",
+      message: `Payment for transaction ${response.transaction_type} with code ${cancellation.code} as been cancelled`,
     };
   });
 };

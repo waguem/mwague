@@ -221,19 +221,31 @@ class ExternalTransaction(PayableTransaction):
             List[Account]: _description_
         """
 
-        request: pr.ExternalRequest = self.get_inputs().data
+        request: pr.ExternalRequest = self.get_inputs()
+
+        request = request.data if hasattr(request, "data") else None
+
         if request is None and sender is None:
             # reviewing the transaction
             tr: External = self.transaction
             sender = tr.sender_initials
 
-        accounts = [self.use_account(sender or request.sender)]
-
-        # if there are charges, add the office account
+        condition = None
 
         if self.get_charges() > 0:
-            office_account, _ = self.use_office_accounts()
-            accounts.append(office_account)
+            condition = or_(
+                Account.initials == sender,
+                Account.owner_id == self.user.office_id,  # FUND and OFFICE accounts
+            )
+        else:
+            # No charges, only the sender account is needed and the fund accounts
+            condition = or_(
+                Account.initials == sender,
+                and_(Account.owner_id == self.user.office_id, Account.type == pr.AccountType.FUND),
+            )
+
+        # if there are charges, add the office account
+        accounts = self.db.scalars(select(Account).where(condition)).all()
 
         return accounts
 
@@ -243,10 +255,43 @@ class ExternalTransaction(PayableTransaction):
         """
         return self.db.query(External).filter(External.code == code).one()
 
-    @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
-    def cancel_payment(self, payment: Payment) -> None:
-        """cancel payment on the transaction"""
-        pass
-
     def rollback(self, transaction: External) -> pr.TransactionResponse:
         pass
+
+    def cancel_payment_commit(self, payment: Payment):
+        commits = list()
+        accounts = self.accounts()
+
+        office: Account = next((x for x in accounts if x.type == pr.AccountType.OFFICE), None)
+        sender: Account = next(
+            (x for x in accounts if x.initials == self.transaction.sender_initials), None
+        )
+        fund: Account = next((x for x in accounts if x.type == pr.AccountType.FUND), None)
+
+        assert sender is not None
+        assert fund is not None
+        assert payment.amount > 0
+
+        commits.append(sender.credit(payment.amount))
+        commits.append(fund.credit(payment.amount))
+
+        if payment.amount == self.transaction.amount:
+            if self.get_charges() > 0:
+                commits.append(sender.credit(self.transaction.charges))
+                commits.append(office.debit(self.transaction.charges))
+
+        activity = self.has_started_activity()
+
+        fund_history = FundCommit(
+            v_from=(fund.balance),
+            variation=payment.amount,
+            account=self.transaction.sender_initials,
+            activity_id=activity.id,
+            description=f"Cancelling External {self.transaction.code}",
+            is_out=False,
+            date=datetime.now(),
+        )
+
+        self.transaction.save_commit(commits)
+
+        return fund_history

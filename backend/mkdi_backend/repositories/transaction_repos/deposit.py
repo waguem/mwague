@@ -2,26 +2,24 @@
 
 from datetime import datetime
 from typing import List
-import secrets
-import string
+from mkdi_backend.models.transactions.transactions import Payment
 from mkdi_backend.models.Account import Account
 from mkdi_backend.models.Activity import Activity
 from mkdi_backend.models.Activity import FundCommit
 from mkdi_backend.models.models import KcUser
-from mkdi_backend.models.transactions.transactions import Deposit, TransactionWithDetails
-from mkdi_backend.repositories.transaction_repos.abstract_transaction import AbstractTransaction
+from mkdi_backend.models.transactions.transactions import Deposit
+from mkdi_backend.repositories.transaction_repos.payable import PayableTransaction
 from mkdi_backend.repositories.transaction_repos.invariant import (
     CommitMode,
     managed_invariant_tx_method,
 )
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol as pr
-from sqlalchemy.ext.asyncio.session import AsyncSession
-from sqlmodel import select
+from sqlmodel import select, and_, or_
 import json
 
 
-class DepositTransaction(AbstractTransaction):
+class DepositTransaction(PayableTransaction):
     """
     Deposit transaction
     """
@@ -111,28 +109,31 @@ class DepositTransaction(AbstractTransaction):
     @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
     def approve(self, transaction: Deposit) -> Deposit:
         """Approve deposit transaction"""
-        self.validate_review()
-        commits = self.commit(transaction)
-        transaction.save_commit(commits)
-        transaction.state = pr.TransactionState.PAID
+        transaction.state = pr.TransactionState.PENDING
         transaction.reviwed_by = self.user.user_db_id
+        self.db.add(transaction)
         return transaction
 
     def accounts(self, receiver=None) -> List[Account]:
         """
         Only the office fund and the receiver account are used in a deposit transaction
         """
-        if self.get_inputs().data is None:
-            # reviewing the transaction
+        receiver = (
+            self.get_inputs().data.receiver
+            if hasattr(self.get_inputs(), "data") and hasattr(self.get_inputs().data, "receiver")
+            else None
+        )
+        if not receiver:
+            assert self.transaction is not None
             tr: Deposit = self.transaction
             receiver = tr.owner_initials
-        else:
-            receiver = self.get_inputs().data.receiver
 
-        receiver_account = self.use_account(receiver)
-        _, fund = self.use_office_accounts()
+        cdt = [
+            Account.initials == receiver,  # Account depositer,
+            and_(Account.type == pr.AccountType.FUND, Account.office_id == self.user.office_id),
+        ]
 
-        return [receiver_account, fund]
+        return self.db.scalars(select(Account).where(or_(*cdt))).all()
 
     def get_transaction(self, code: str) -> pr.TransactionDB:
         """get deposit transaction"""
@@ -140,3 +141,78 @@ class DepositTransaction(AbstractTransaction):
 
     def rollback(self, transaction: Deposit) -> pr.TransactionResponse:
         pass
+
+    async def a_accounts(self, receiver=None) -> List[Account]:
+        receiver = (
+            self.get_inputs().data.receiver
+            if hasattr(self.get_inputs(), "data") and hasattr(self.get_inputs().data, "receiver")
+            else None
+        )
+        if not receiver:
+            assert self.transaction is not None
+            tr: Deposit = self.transaction
+            receiver = tr.owner_initials
+
+        cdt = [
+            Account.initials == receiver,  # Account depositer,
+            and_(Account.type == pr.AccountType.FUND, Account.office_id == self.user.office_id),
+        ]
+        return (await self.db.scalars(select(Account).where(or_(*cdt)))).all()
+
+    async def a_commit(
+        self, amount: int, transaction: pr.TransactionDB, has_complete: bool
+    ) -> List:
+        commits = list()
+        accounts = await self.a_accounts()
+
+        depositer: Account = next(
+            (x for x in accounts if x.initials == transaction.owner_initials), None
+        )
+        fund: Account = next((x for x in accounts if x.type == pr.AccountType.FUND), None)
+
+        assert depositer is not None
+        assert fund is not None
+
+        commits.append(depositer.credit(amount))
+        commits.append(fund.credit(amount))
+        activity = await self.a_has_started_activity()
+
+        fund_history = FundCommit(
+            v_from=(fund.balance),
+            variation=amount,
+            account=transaction.owner_initials,
+            activity_id=activity["id"],
+            description=f"Deposit {transaction.code}",
+            is_out=False,
+            date=datetime.now(),
+        )
+        return commits, fund_history
+
+    def cancel_payment_commit(self, payment: Payment):
+        commits = list()
+
+        accounts = self.accounts()
+
+        depositer: Account = next(
+            (x for x in accounts if x.initials == self.transaction.owner_initials), None
+        )
+        fund: Account = next((x for x in accounts if x.type == pr.AccountType.FUND), None)
+
+        commits.append(depositer.debit(payment.amount))
+        commits.append(fund.debit(payment.amount))
+
+        activity = self.has_started_activity()
+
+        fund_history = FundCommit(
+            v_from=fund.balance,
+            variation=payment.amount,
+            activity_id=activity.id,
+            account=self.transaction.owner_initials,
+            description=f"Cancelling Deposit {self.transaction.code}",
+            is_out=True,
+            date=datetime.now(),
+        )
+
+        self.transaction.save_commit(commits)
+
+        return fund_history

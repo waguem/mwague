@@ -45,7 +45,7 @@ class Internal(pr.TransactionDB, table=True):
     charges: Annotated[Decimal, Field(ge=0)]
 
 
-class Deposit(pr.TransactionDB, table=True):
+class DepositBase(pr.TransactionDB):
     __tablename__ = "deposits"
     """
         A deposit transaction is made for an account domiciled in the office.
@@ -130,6 +130,10 @@ class SendingWithPayments(SendingBase):
     payments: List[Payment] = PydanticField(default=[])
 
 
+class DepositWithPayments(DepositBase):
+    payments: List[Payment] = PydanticField(default=[])
+
+
 class External(ExternalBase, table=True):
 
     def withPayments(self, payments: List[Payment]) -> ExternalWithPayments:
@@ -140,6 +144,12 @@ class Sending(SendingBase, table=True):
 
     def withPayments(self, payments: List[Payment]) -> SendingWithPayments:
         return SendingWithPayments(**self.dict(), payments=payments)
+
+
+class Deposit(DepositBase, table=True):
+
+    def withPayments(self, payments: List[Payment]) -> DepositWithPayments:
+        return DepositWithPayments(**self.dict(), payments=payments)
 
 
 class Rate(SQLModel):
@@ -352,5 +362,5 @@ class WalletTrading(pr.WalletTradingBase, table=True):
 
 
 TransactionWithDetails = Union[
-    Internal, Deposit, SendingWithPayments, ExternalWithPayments, ForExWithPayments
+    Internal, DepositWithPayments, SendingWithPayments, ExternalWithPayments, ForExWithPayments
 ]

@@ -26,8 +26,8 @@ export function ExchangeCurrency({ form, office, walletID }: Props) {
     <>
       <Group grow>
         <Select
-          label="Exchange Currency"
           searchable
+          label="Exchange Currency"
           required
           placeholder="Select a currency"
           data={currencyOptions}
@@ -44,6 +44,7 @@ export function ExchangeCurrency({ form, office, walletID }: Props) {
       <Divider my="xs" label="Exchange With" />
       <Group grow>
         <Select
+          searchable
           label="to Wallet"
           data={walletOptions}
           required

@@ -144,18 +144,25 @@ class ForExTransaction(PayableTransaction):
         return accounts.all()
 
     def accounts(self, customer_account=None, provider_account=None) -> List[Account]:
-        request: pr.ForExRequest = self.get_inputs().data
+        request: pr.ForExRequest = self.get_inputs()
+        request = request.data if hasattr(request, "data") else None
         if request is None and customer_account is None:
             tr: ForeignEx = self.transaction
-            customer_account = tr.account
+            customer_account = tr.customer_account
 
-        stmt = select(Account).where(
-            or_(Account.initials == customer_account, Account.initials == provider_account)
-        )
+        cdt = [
+            Account.initials == customer_account,
+            and_(Account.type == pr.AccountType.FUND, Account.office_id == self.user.office_id),
+        ]
 
-        accounts = self.db.exec(stmt).all()
+        if self.get_charges() > 0:
+            cdt.append(
+                and_(
+                    Account.type == pr.AccountType.OFFICE, Account.office_id == self.user.office_id
+                )
+            )
 
-        return accounts
+        return self.db.scalars(select(Account).where(or_(*(cdt)))).all()
 
     def get_transaction(self, code: str) -> ForeignEx:
         """
@@ -163,10 +170,41 @@ class ForExTransaction(PayableTransaction):
         """
         return self.db.scalar(select(ForeignEx).where(ForeignEx.code == code))
 
-    @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
-    def cancel_payment(self, payment: Payment) -> None:
-        """cancel payment on the transaction"""
-        pass
-
     def rollback(self, transaction: ForeignEx) -> pr.TransactionResponse:
         pass
+
+    def cancel_payment_commit(self, payment: Payment):
+        commits = list()
+
+        accounts = self.accounts()
+        office: Account = next((x for x in accounts if x.type == pr.AccountType.OFFICE), None)
+        sender: Account = next(
+            (x for x in accounts if x.initials == self.transaction.customer_account), None
+        )
+        fund: Account = next((x for x in accounts if x.type == pr.AccountType.FUND), None)
+
+        assert fund is not None
+        assert office is not None
+        assert sender is not None
+
+        commits.append(sender.credit(self.transaction.selling_amount))
+        commits.append(fund.credit(self.transaction.buying_amount))
+
+        if self.transaction.forex_result > 0:
+            commits.append(office.debit(self.transaction.forex_result))
+
+        activity = self.has_started_activity()
+
+        fund_history = FundCommit(
+            v_from=fund.balance,
+            variation=payment.amount,
+            activity_id=activity.id,
+            account=self.transaction.customer_account,
+            description=f"Cancelling Forex {self.transaction.code}",
+            is_out=False,
+            date=datetime.now(),
+        )
+
+        self.transaction.save_commit(commits)
+
+        return fund_history
