@@ -181,6 +181,8 @@ def get_trading_result(cls) -> Decimal:
         return 0
 
     if cls.trading_type == pr.TradingType.EXCHANGE:
+        if cls.wallet_crypto == 0:
+            return 0
         exchange_value = cls.amount * (cls.trading_rate / cls.daily_rate)
         worth = cls.amount * (cls.wallet_value / cls.wallet_crypto)
         return exchange_value - worth
@@ -237,7 +239,7 @@ def get_trading_cost(cls) -> Decimal:
     ):
         # let's image we exchanged 10 000 USDT for 721 500 RMB
         # how much 10 000 USDT are worth in the wallet value ?
-        value_rate = cls.wallet_value / cls.wallet_crypto
+        value_rate = cls.wallet_value / cls.wallet_crypto if cls.wallet_crypto > 0 else 0
         return cls.amount * value_rate
 
     cost_rate = cls.wallet_value / cls.wallet_trading

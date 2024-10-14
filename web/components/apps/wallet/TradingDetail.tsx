@@ -31,6 +31,7 @@ import {
 } from "@tabler/icons-react";
 import { format } from "date-fns";
 import { Fragment } from "react";
+import TradeReview from "./TradeReview";
 
 export function TradingDetail({ trading, wallet }: { trading: WalletTradingResponse; wallet: OfficeWalletResponse }) {
   const [opened, { open, close }] = useDisclosure(false);
@@ -275,6 +276,8 @@ export function TradingDetail({ trading, wallet }: { trading: WalletTradingRespo
             </Table>
           </Fragment>
         ) : null}
+        <Divider className="mt-4" label="Trade Review" />
+        <TradeReview trade={trading} />
       </Drawer>
     </Fragment>
   );

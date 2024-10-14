@@ -36,6 +36,10 @@ def managed_tx_method(
     def decorator(f):
         @wraps(f)
         def wrapped_f(self, *args, **kwargs):
+            session = self.db if hasattr(self,"db") else None
+            if not session and hasattr(self,"session"):
+                session = self.session.db
+
             try:
                 result = None
                 if auto_commit == CommitMode.COMMIT:
@@ -43,14 +47,14 @@ def managed_tx_method(
                     for i in range(num_retries):
                         try:
                             result = f(self, *args, **kwargs)
-                            self.db.commit()
+                            session.commit()
                             if isinstance(result, SQLModel):
-                                self.db.refresh(result)
+                                session.refresh(result)
                             retry_exhausted = False
                             break
                         except PendingRollbackError as error:
                             logger.info(str(error))
-                            self.db.rollback()
+                            session.rollback()
                         except OperationalError as error:
                             if error.orig is not None and isinstance(
                                 error.orig,
@@ -64,7 +68,7 @@ def managed_tx_method(
                                 logger.info(
                                     f"{type(error.orig)} Inner {error.orig.pgcode} {type(error.orig.pgcode)}"
                                 )
-                                self.db.rollback()
+                                session.rollback()
                             else:
                                 raise error
                         logger.info(f"Retry {i+1}/{num_retries}")
@@ -77,11 +81,11 @@ def managed_tx_method(
                 else:
                     result = f(self, *args, **kwargs)
                     if auto_commit == CommitMode.FLUSH:
-                        self.db.flush()
+                        session.flush()
                         if isinstance(result, SQLModel):
-                            self.db.refresh(result)
+                            session.refresh(result)
                     elif auto_commit == CommitMode.ROLLBACK:
-                        self.db.rollback()
+                        session.rollback()
                 return result
             except NoResultFound as error:
                 raise MkdiError(

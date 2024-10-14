@@ -1,17 +1,20 @@
 from decimal import Decimal
 
 from loguru import logger
+from sqlmodel import Session, func
+
+from sqlalchemy import select, case, or_
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
+from mkdi_shared.schemas import protocol
+
+from mkdi_backend.api.deps import KcUser
 from mkdi_backend.config import settings
 from mkdi_backend.models.Account import Account
 from mkdi_backend.models.Agent import Agent
-from mkdi_backend.models.models import KcUser
 from mkdi_backend.models.office import Office, OfficeWallet
 from mkdi_backend.utils.database import CommitMode, managed_tx_method
-from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
-from mkdi_shared.schemas import protocol
-from sqlmodel import Session, and_, func
-from sqlalchemy import select, case, or_
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class AccountRepository:

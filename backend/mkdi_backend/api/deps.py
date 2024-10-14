@@ -164,3 +164,16 @@ def check_authorization(
         )
 
     return user
+
+
+class UserDBSession:
+
+    def __init__(self, user: KcUser, db: Session):
+        self.user = user
+        self.db = db
+
+    def get_user(self):
+        return self.user
+
+    def get_db(self):
+        return self.db

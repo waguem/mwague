@@ -58,7 +58,7 @@ export const $AccountMonthlyReport = {
       type: "string",
       format: "date-time",
       title: "Updated At",
-      default: "2024-10-12T07:19:20.959474",
+      default: "2024-10-14T04:21:44.770847",
     },
   },
   type: "object",
@@ -162,8 +162,8 @@ export const $AgentReponseWithAccounts = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -204,8 +204,8 @@ export const $AgentResponse = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -424,8 +424,8 @@ export const $CreateAgentRequest = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -493,8 +493,8 @@ export const $CreateOfficeRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     name: {
       type: "string",
@@ -546,8 +546,8 @@ export const $CreateOrganizationRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     org_name: {
       type: "string",
@@ -689,6 +689,99 @@ export const $DepositRequest = {
   type: "object",
   required: ["type", "receiver"],
   title: "DepositRequest",
+} as const;
+
+export const $DepositWithPayments = {
+  properties: {
+    amount: {
+      type: "number",
+      minimum: 0,
+      title: "Amount",
+      strict: true,
+    },
+    rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Rate",
+      strict: true,
+    },
+    code: {
+      type: "string",
+      maxLength: 64,
+      title: "Code",
+    },
+    state: {
+      $ref: "#/components/schemas/TransactionState",
+    },
+    type: {
+      $ref: "#/components/schemas/TransactionType",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    office_id: {
+      type: "string",
+      format: "uuid",
+      title: "Office Id",
+    },
+    org_id: {
+      type: "string",
+      format: "uuid",
+      title: "Org Id",
+    },
+    created_by: {
+      type: "string",
+      format: "uuid",
+      title: "Created By",
+    },
+    reviwed_by: {
+      type: "string",
+      format: "uuid",
+      title: "Reviwed By",
+    },
+    history: {
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "object",
+          },
+          {},
+        ],
+      },
+      type: "object",
+      title: "History",
+      default: {},
+    },
+    notes: {
+      type: "string",
+      title: "Notes",
+      default: "[]",
+      nullable: false,
+    },
+    owner_initials: {
+      type: "string",
+      title: "Owner Initials",
+    },
+    payments: {
+      items: {
+        $ref: "#/components/schemas/Payment",
+      },
+      type: "array",
+      title: "Payments",
+      default: [],
+    },
+  },
+  type: "object",
+  required: ["amount", "rate", "code", "state", "type", "office_id", "org_id", "created_by", "owner_initials"],
+  title: "DepositWithPayments",
+  description: "Transaction database model",
 } as const;
 
 export const $EmployeeResponse = {
@@ -1701,8 +1794,8 @@ export const $OfficeResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     name: {
       type: "string",
@@ -1852,8 +1945,8 @@ export const $OrganizationResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     org_name: {
       type: "string",
@@ -2380,6 +2473,94 @@ export const $SendingWithPayments = {
   description: "Transaction database model",
 } as const;
 
+export const $TradeReviewReq = {
+  properties: {
+    code: {
+      type: "string",
+      maxLength: 16,
+      title: "Code",
+      nullable: false,
+      unique: true,
+    },
+    walletID: {
+      type: "string",
+      title: "Walletid",
+    },
+    trading_currency: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          $ref: "#/components/schemas/Currency",
+        },
+      ],
+      title: "Trading Currency",
+    },
+    exchange_currency: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          $ref: "#/components/schemas/Currency",
+        },
+      ],
+      title: "Exchange Currency",
+    },
+    selling_currency: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          $ref: "#/components/schemas/Currency",
+        },
+      ],
+      title: "Selling Currency",
+    },
+    trading_type: {
+      $ref: "#/components/schemas/TradingType",
+    },
+    amount: {
+      type: "number",
+      minimum: 0,
+      title: "Amount",
+      strict: true,
+    },
+    daily_rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Daily Rate",
+      strict: true,
+    },
+    trading_rate: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Trading Rate",
+      strict: true,
+    },
+    tags: {
+      items: {
+        type: "string",
+      },
+      type: "array",
+      title: "Tags",
+    },
+    review: {
+      allOf: [
+        {
+          $ref: "#/components/schemas/ValidationState",
+        },
+      ],
+      nullable: false,
+    },
+  },
+  type: "object",
+  required: ["walletID", "trading_type", "amount", "daily_rate", "trading_rate", "tags", "review"],
+  title: "TradeReviewReq",
+} as const;
+
 export const $TradingType = {
   enum: ["BUY", "SELL", "SIMPLE SELL", "DEPOSIT", "EXCHANGE", "EXCHANGE WITH SIMPLE WALLET"],
   title: "TradingType",
@@ -2601,7 +2782,7 @@ export const $TransactionReviewReq = {
 } as const;
 
 export const $TransactionState = {
-  enum: ["REVIEW", "PENDING", "PAID", "CANCELLED", "REJECTED"],
+  enum: ["INIT", "REVIEW", "PENDING", "PAID", "CANCELLED", "REJECTED"],
   title: "TransactionState",
   description: "An enumeration.",
 } as const;
@@ -2717,8 +2898,8 @@ export const $WalletTradingRequest = {
       type: "string",
       maxLength: 16,
       title: "Code",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     walletID: {
       type: "string",
@@ -2824,8 +3005,8 @@ export const $WalletTradingResponse = {
       type: "string",
       maxLength: 16,
       title: "Code",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     walletID: {
       type: "string",

@@ -242,7 +242,7 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
               </Tooltip>
             </Group>
           )}
-          {row.original.trading_type === "SELL" && (
+          {["SELL"].includes(row.original.trading_type) && (
             <CommitTrade trade={row.original as WalletTradingResponse} wallet={wallet} />
           )}
         </Group>

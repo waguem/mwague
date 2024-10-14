@@ -45,11 +45,14 @@ def get_wallet_tradings(
 def pay_trade(
     *,
     user: KcUser = Security(check_authorization, scopes=["office_admin"]),
-    tradeID: str,
+    trade_code: str,
+    payment_request: pr.PaymentRequest,
     db: Session = Depends(get_db),
 ) -> pr.PaymentResponse:
-    """Pay trade"""
-    return WalletRepository(db, user).pay_trade(tradeID)
+    """
+    Pay trade
+    """
+    return WalletRepository(db, user).pay(trade_code, payment_request)
 
 
 @router.get(
@@ -70,15 +73,26 @@ def get_agent_tradings(
 
 
 @router.post(
-    "/wallet/trade/{walletID}/commit",
+    "/wallet/trade/{trade_code}/commit",
     response_model=pr.WalletTradingResponse,
 )
-def commit_tradd(
+def commit_trade(
     *,
     user: KcUser = Security(check_authorization, scopes=["office_admin"]),
-    walletID: str,
     commit: pr.CommitTradeRequest,
+    trade_code: str,
     db: Session = Depends(get_db),
 ) -> pr.WalletTradingResponse:
     """Commit trade"""
-    return WalletRepository(db, user).commit_trade(commit)
+    return WalletRepository(db, user).commit_trade(trade_code, commit)
+
+
+@router.post("/trade/review", response_model=pr.WalletTradingResponse, status_code=201)
+def review_trade(
+    *,
+    user: KcUser = Security(check_authorization, scopes=["office_admin"]),
+    review: pr.TradeReviewReq,
+    db: Session = Depends(get_db),
+) -> pr.WalletTradingResponse:
+    """Review Trade"""
+    return WalletRepository(db, user).review_trade(review)

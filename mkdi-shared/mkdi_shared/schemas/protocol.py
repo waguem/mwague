@@ -346,6 +346,7 @@ class TransactionRequest(BaseModel):
 
 
 class TransactionState(Enum):
+    INIT = "INIT"
     REVIEW = "REVIEW"
     PENDING = "PENDING"
     PAID = "PAID"
@@ -547,6 +548,11 @@ class TransactionReviewReq(TransactionRequest):
     type: TransactionType
     state: Annotated[ValidationState, Field(nullable=False)]
     notes: str | None
+
+
+class TradeReviewReq(WalletTradingBase):
+    tags: List[str]
+    review: Annotated[ValidationState, Field(nullable=False)]
 
 
 class CancelTransaction(BaseModel):

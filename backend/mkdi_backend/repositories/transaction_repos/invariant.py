@@ -159,11 +159,18 @@ def managed_invariant_tx_method(
 
     def check_invariant(self):
         """check sys invariant before calling a function"""
+        session = self.db if hasattr(self, "db") else None
+        user = self.user if hasattr(self, "user") else None
+
+        if not session and hasattr(self, "session"):
+            session = self.session.db
+            user = self.session.user
+
         # check system invariant and make sure it is healthy
-        acc_repo = AccountRepository(self.db)
-        activity_repo = ActivityRepo(self.db)
-        return activity_repo.has_started(self.user.office_id) and acc_repo.check_invariant(
-            self.user.office_id
+        acc_repo = AccountRepository(session)
+        activity_repo = ActivityRepo(session)
+        return activity_repo.has_started(user.office_id) and acc_repo.check_invariant(
+            user.office_id
         )
 
     def decorator(f):
@@ -171,6 +178,11 @@ def managed_invariant_tx_method(
         def wrapped_f(self, *args, **kwargs):
             logger.info(f"Checking Sys Invariant for {f.__name__}")
             logger.info(f"Auto Commit Mode: {auto_commit}")
+
+            session = self.db if hasattr(self, "db") else None
+
+            if not session and hasattr(self, "session"):
+                session = self.session.db
 
             try:
                 result: SQLModel | List[SQLModel] = None
@@ -195,7 +207,7 @@ def managed_invariant_tx_method(
                         for account in start_accounts:
                             if account:
                                 account.version += 1
-                                self.db.add(account)
+                                session.add(account)
 
                         logger.info(f"Sys Invariant is Healthy before {f.__name__}")
 
@@ -221,15 +233,15 @@ def managed_invariant_tx_method(
                                 break
 
                         if mismatch:
-                            self.db.rollback()
+                            session.rollback()
                             retry_exhausted = False
                             continue
 
                         if isinstance(result, List):
                             for item in result:
-                                self.db.add(item)
+                                session.add(item)
                         elif isinstance(result, SQLModel):
-                            self.db.add(result)
+                            session.add(result)
 
                         # commit the transaction
 
@@ -237,20 +249,20 @@ def managed_invariant_tx_method(
                         healthy = check_invariant(self)
                         if not healthy:
                             logger.info(f"Sys Invariant is Unhealthy after {f.__name__}")
-                            self.db.rollback()
+                            session.rollback()
                             continue
 
-                        self.db.commit()
+                        session.commit()
                         if isinstance(result, SQLModel):
                             logger.info("Refreshing DB")
-                            self.db.refresh(result)
+                            session.refresh(result)
                         retry_exhausted = False
                         logger.info(f"Sys Invariant is Healthy after {f.__name__}")
                         break
 
                     except PendingRollbackError as error:
                         logger.info(str(error))
-                        self.db.rollback()
+                        session.rollback()
                     except OperationalError as error:
                         if error.orig is not None and isinstance(
                             error.orig,
@@ -264,7 +276,7 @@ def managed_invariant_tx_method(
                             logger.info(
                                 f"{type(error.orig)} Inner {error.orig.pgcode} {type(error.orig.pgcode)}"
                             )
-                            self.db.rollback()
+                            session.rollback()
                         else:
                             raise error
 

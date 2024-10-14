@@ -73,8 +73,10 @@ import type {
   PayTradeApiV1WalletTradeTradeIdPayPostResponse,
   GetAgentTradingsApiV1OfficeAgentInitialsTradingsGetData,
   GetAgentTradingsApiV1OfficeAgentInitialsTradingsGetResponse,
-  CommitTraddApiV1WalletTradeWalletIdCommitPostData,
-  CommitTraddApiV1WalletTradeWalletIdCommitPostResponse,
+  CommitTradeApiV1WalletTradeTradeCodeCommitPostData,
+  CommitTradeApiV1WalletTradeTradeCodeCommitPostResponse,
+  ReviewTradeApiV1TradeReviewPostData,
+  ReviewTradeApiV1TradeReviewPostResponse,
   GetMonthlyReportApiV1OfficeMonthlyReportGetData,
   GetMonthlyReportApiV1OfficeMonthlyReportGetResponse,
   GetAgentYearlyReportsApiV1OfficeAgentInitialsMonthlyReportGetData,
@@ -906,7 +908,8 @@ export const getWalletTradingsApiV1WalletWalletIdTradingsGet = (
  * Pay Trade
  * Pay trade
  * @param data The data for the request.
- * @param data.tradeId
+ * @param data.tradeCode
+ * @param data.requestBody
  * @returns PaymentResponse Successful Response
  * @throws ApiError
  */
@@ -916,9 +919,11 @@ export const payTradeApiV1WalletTradeTradeIdPayPost = (
   return __request(OpenAPI, {
     method: "POST",
     url: "/api/v1/wallet/trade/{tradeID}/pay",
-    path: {
-      tradeID: data.tradeId,
+    query: {
+      trade_code: data.tradeCode,
     },
+    body: data.requestBody,
+    mediaType: "application/json",
     errors: {
       422: "Validation Error",
     },
@@ -955,23 +960,45 @@ export const getAgentTradingsApiV1OfficeAgentInitialsTradingsGet = (
 };
 
 /**
- * Commit Tradd
+ * Commit Trade
  * Commit trade
  * @param data The data for the request.
- * @param data.walletId
+ * @param data.tradeCode
  * @param data.requestBody
  * @returns WalletTradingResponse Successful Response
  * @throws ApiError
  */
-export const commitTraddApiV1WalletTradeWalletIdCommitPost = (
-  data: CommitTraddApiV1WalletTradeWalletIdCommitPostData
-): CancelablePromise<CommitTraddApiV1WalletTradeWalletIdCommitPostResponse> => {
+export const commitTradeApiV1WalletTradeTradeCodeCommitPost = (
+  data: CommitTradeApiV1WalletTradeTradeCodeCommitPostData
+): CancelablePromise<CommitTradeApiV1WalletTradeTradeCodeCommitPostResponse> => {
   return __request(OpenAPI, {
     method: "POST",
-    url: "/api/v1/wallet/trade/{walletID}/commit",
+    url: "/api/v1/wallet/trade/{trade_code}/commit",
     path: {
-      walletID: data.walletId,
+      trade_code: data.tradeCode,
     },
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Review Trade
+ * Review Trade
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns WalletTradingResponse Successful Response
+ * @throws ApiError
+ */
+export const reviewTradeApiV1TradeReviewPost = (
+  data: ReviewTradeApiV1TradeReviewPostData
+): CancelablePromise<ReviewTradeApiV1TradeReviewPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/trade/review",
     body: data.requestBody,
     mediaType: "application/json",
     errors: {

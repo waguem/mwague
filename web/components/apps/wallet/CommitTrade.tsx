@@ -37,12 +37,18 @@ interface CommintInputs {
 
 export default function CommitTrade({ wallet, trade }: CommitTradeProps) {
   const [opened, { close, open }] = useDisclosure(false);
+
+  let selling = trade.amount / trade.trading_rate;
+  if (trade.trading_type === "SIMPLE SELL") {
+    selling = trade.amount * (1 + trade.trading_rate / 100);
+  }
+
   const form = useForm<CommintInputs>({
     initialValues: {
       amount: trade.amount,
       trading_rate: trade.trading_rate,
       trading_cost: (wallet.value / wallet.trading_balance) * trade.amount,
-      sold_amount: trade.amount / trade.trading_rate,
+      sold_amount: selling,
       trading_result: trade.amount / trade.trading_rate - (wallet.value / wallet.trading_balance) * trade.amount,
       crypto_amount: trade.amount * (wallet.crypto_balance / wallet.trading_balance),
     },
@@ -50,7 +56,6 @@ export default function CommitTrade({ wallet, trade }: CommitTradeProps) {
 
   const isActive = trade.state === "PENDING" && trade.amount <= wallet.trading_balance;
   // how much the trading.amount is evaluated in the wallet ?
-
   const [pending, startTransition] = useTransition();
   const commit = async () => {
     try {
@@ -65,7 +70,7 @@ export default function CommitTrade({ wallet, trade }: CommitTradeProps) {
         crypto_amount: form.values.crypto_amount,
       };
 
-      const response = await commitTrade(request);
+      const response = await commitTrade(trade?.code ?? "", request);
       decodeNotification("Commit Trade", response);
       if (response.status == "success") {
         close();
@@ -152,6 +157,7 @@ export default function CommitTrade({ wallet, trade }: CommitTradeProps) {
                 placeholder="Amount"
                 value={form.values.amount}
                 {...form.getInputProps("amount")}
+                readOnly
                 onChange={(value) =>
                   form.setValues({
                     ...form.values,
@@ -172,6 +178,7 @@ export default function CommitTrade({ wallet, trade }: CommitTradeProps) {
               <NumberInput
                 placeholder="Selling Rate"
                 {...form.getInputProps("trading_rate")}
+                readOnly
                 onChange={(value) =>
                   form.setValues({
                     ...form.values,

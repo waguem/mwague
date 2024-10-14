@@ -5,8 +5,11 @@ import {
   getWalletTradingsApiV1WalletWalletIdTradingsGet as getWalletTradingsApi,
   payTradeApiV1WalletTradeTradeIdPayPost,
   getAgentTradingsApiV1OfficeAgentInitialsTradingsGet as getAgentWalletTradingsApi,
-  commitTraddApiV1WalletTradeWalletIdCommitPost as commitTradeApi,
+  commitTradeApiV1WalletTradeTradeCodeCommitPost as commitTradeApi,
   CommitTradeRequest,
+  TradeReviewReq,
+  reviewTradeApiV1TradeReviewPost,
+  PaymentRequest,
 } from "@/lib/client";
 import { withToken } from "./withToken";
 import { TradeWallet } from "@/lib/schemas";
@@ -52,10 +55,11 @@ export const getWalletTradings = async (walletID: string) => {
   });
 };
 
-export const payTrade = async (walletID: string, tradeID: string) => {
+export const payTrade = async (walletID: string, trade_code: string, request: PaymentRequest) => {
   return withToken(async () => {
     await payTradeApiV1WalletTradeTradeIdPayPost({
-      tradeId: tradeID,
+      tradeCode: trade_code,
+      requestBody: request,
     });
     revalidatePath(`/dashboard/wallet/${walletID}`);
     return {
@@ -75,10 +79,10 @@ export const getAgentTradings = async (initials: string, startDate?: string, end
   });
 };
 
-export const commitTrade = async (request: CommitTradeRequest) => {
+export const commitTrade = async (code: string, request: CommitTradeRequest) => {
   return withToken(async () => {
     await commitTradeApi({
-      walletId: request.walletID,
+      tradeCode: code,
       requestBody: request,
     });
 
@@ -87,6 +91,21 @@ export const commitTrade = async (request: CommitTradeRequest) => {
     return {
       status: "success",
       message: "Trade Committed Successfully",
+    };
+  });
+};
+
+export const reviewTrade = async (review: TradeReviewReq) => {
+  return withToken(async () => {
+    const trade = await reviewTradeApiV1TradeReviewPost({
+      requestBody: review,
+    });
+
+    revalidatePath(`/dashboard/wallet/${review.walletID}`);
+
+    return {
+      status: "success",
+      message: `${trade.code} has been reviewed`,
     };
   });
 };

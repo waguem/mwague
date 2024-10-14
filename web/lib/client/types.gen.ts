@@ -218,6 +218,33 @@ export type DepositRequest = {
 
 export type type = "DEPOSIT";
 
+/**
+ * Transaction database model
+ */
+export type DepositWithPayments = {
+  amount: number;
+  rate: number;
+  code: string;
+  state: TransactionState;
+  type: TransactionType;
+  created_at?: string;
+  id?: string;
+  office_id: string;
+  org_id: string;
+  created_by: string;
+  reviwed_by?: string;
+  history?: {
+    [key: string]:
+      | {
+          [key: string]: unknown;
+        }
+      | unknown;
+  };
+  notes?: string;
+  owner_initials: string;
+  payments?: Array<Payment>;
+};
+
 export type EmployeeResponse = {
   email: string;
   username: string;
@@ -699,6 +726,20 @@ export type SendingWithPayments = {
   payments?: Array<Payment>;
 };
 
+export type TradeReviewReq = {
+  code?: string;
+  walletID: string;
+  trading_currency?: string | Currency;
+  exchange_currency?: string | Currency;
+  selling_currency?: string | Currency;
+  trading_type: TradingType;
+  amount: number;
+  daily_rate: number;
+  trading_rate: number;
+  tags: Array<string>;
+  review: ValidationState;
+};
+
 /**
  * An enumeration.
  */
@@ -747,7 +788,7 @@ export type TransactionReviewReq = {
 /**
  * An enumeration.
  */
-export type TransactionState = "REVIEW" | "PENDING" | "PAID" | "CANCELLED" | "REJECTED";
+export type TransactionState = "INIT" | "REVIEW" | "PENDING" | "PAID" | "CANCELLED" | "REJECTED";
 
 /**
  * An enumeration.
@@ -996,7 +1037,7 @@ export type GetOfficeTransactionsWithDetailsApiV1TransactionCodeGetData = {
 
 export type GetOfficeTransactionsWithDetailsApiV1TransactionCodeGetResponse =
   | Internal
-  | Deposit
+  | DepositWithPayments
   | SendingWithPayments
   | ExternalWithPayments
   | ForExWithPayments;
@@ -1042,7 +1083,8 @@ export type GetWalletTradingsApiV1WalletWalletIdTradingsGetData = {
 export type GetWalletTradingsApiV1WalletWalletIdTradingsGetResponse = Array<WalletTradingResponse>;
 
 export type PayTradeApiV1WalletTradeTradeIdPayPostData = {
-  tradeId: string;
+  requestBody: PaymentRequest;
+  tradeCode: string;
 };
 
 export type PayTradeApiV1WalletTradeTradeIdPayPostResponse = PaymentResponse;
@@ -1055,12 +1097,18 @@ export type GetAgentTradingsApiV1OfficeAgentInitialsTradingsGetData = {
 
 export type GetAgentTradingsApiV1OfficeAgentInitialsTradingsGetResponse = Array<WalletTradingResponse>;
 
-export type CommitTraddApiV1WalletTradeWalletIdCommitPostData = {
+export type CommitTradeApiV1WalletTradeTradeCodeCommitPostData = {
   requestBody: CommitTradeRequest;
-  walletId: string;
+  tradeCode: string;
 };
 
-export type CommitTraddApiV1WalletTradeWalletIdCommitPostResponse = WalletTradingResponse;
+export type CommitTradeApiV1WalletTradeTradeCodeCommitPostResponse = WalletTradingResponse;
+
+export type ReviewTradeApiV1TradeReviewPostData = {
+  requestBody: TradeReviewReq;
+};
+
+export type ReviewTradeApiV1TradeReviewPostResponse = WalletTradingResponse;
 
 export type GetMonthlyReportApiV1OfficeMonthlyReportGetData = {
   endDate?: string;
@@ -1483,7 +1531,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Internal | Deposit | SendingWithPayments | ExternalWithPayments | ForExWithPayments;
+        200: Internal | DepositWithPayments | SendingWithPayments | ExternalWithPayments | ForExWithPayments;
         /**
          * Validation Error
          */
@@ -1609,14 +1657,29 @@ export type $OpenApiTs = {
       };
     };
   };
-  "/api/v1/wallet/trade/{walletID}/commit": {
+  "/api/v1/wallet/trade/{trade_code}/commit": {
     post: {
-      req: CommitTraddApiV1WalletTradeWalletIdCommitPostData;
+      req: CommitTradeApiV1WalletTradeTradeCodeCommitPostData;
       res: {
         /**
          * Successful Response
          */
         200: WalletTradingResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/trade/review": {
+    post: {
+      req: ReviewTradeApiV1TradeReviewPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        201: WalletTradingResponse;
         /**
          * Validation Error
          */

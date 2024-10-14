@@ -16,10 +16,11 @@ import {
   Stack,
   NumberFormatter,
   Badge,
+  Textarea,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconCashRegister } from "@tabler/icons-react";
-import { Fragment, useTransition } from "react";
+import { Fragment, useState, useTransition } from "react";
 import { decodeNotification } from "../notifications/notifications";
 
 interface Props {
@@ -31,11 +32,21 @@ interface Props {
 export function PayTrade({ trade, accounts, wallet }: Props) {
   const [opened, { close, open }] = useDisclosure(false);
   const [pending, startTransition] = useTransition();
+  const [message, setMessage] = useState<string>("");
   const fund = accounts.find((account) => account.type === "FUND");
   if (!fund) return null;
   const pay = async () => {
     try {
-      const response = await payTrade(wallet.walletID, trade.id);
+      let payment = trade.amount * (trade.trading_rate / trade.daily_rate);
+      if (trade.trading_type === "DEPOSIT") {
+        payment = trade.amount * (1 + trade.trading_rate / 100);
+      }
+      const response = await payTrade(wallet.walletID, trade.code ?? "", {
+        amount: payment,
+        payment_type: "FOREX",
+        notes: message,
+        rate: trade.daily_rate,
+      });
       decodeNotification("Pay Trade", response);
       if (response.status === "success") {
         close();
@@ -48,7 +59,7 @@ export function PayTrade({ trade, accounts, wallet }: Props) {
         <IconCashRegister size={16} />
       </ActionIcon>
 
-      <Modal size="xl" centered opened={opened} onClose={close} title="Payment">
+      <Modal size="xl" centered opened={opened} onClose={close} withCloseButton={false}>
         <LoadingOverlay
           visible={pending}
           loaderProps={{
@@ -57,12 +68,13 @@ export function PayTrade({ trade, accounts, wallet }: Props) {
         />
         <form action={() => startTransition(() => pay())}>
           <Stack>
-            <Divider label="Cash out" />
+            <Divider label="Payment" />
             <Group grow>
               <NumberInput
                 placeholder="Trading Rate"
                 value={trade.trading_rate}
                 label="Rate"
+                decimalScale={3}
                 readOnly
                 leftSection={trade.trading_type === "BUY" ? getMoneyIcon("USD") : "%"}
               />
@@ -73,6 +85,7 @@ export function PayTrade({ trade, accounts, wallet }: Props) {
                 required
                 thousandSeparator=","
                 allowDecimal
+                decimalScale={2}
                 readOnly
                 leftSection={
                   trade.trading_type === "BUY"
@@ -89,6 +102,7 @@ export function PayTrade({ trade, accounts, wallet }: Props) {
                     : trade.amount * trade.daily_rate * (1 + trade.trading_rate / 100)
                 }
                 readOnly
+                decimalScale={2}
                 thousandSeparator=","
                 leftSection={getMoneyIcon("AED", 16)}
               />
@@ -192,6 +206,9 @@ export function PayTrade({ trade, accounts, wallet }: Props) {
                   </GridCol>
                 </Grid>
               </Card>
+            </Group>
+            <Group grow>
+              <Textarea label="Payment Message" value={message} onChange={(value) => setMessage(value.target.value)} />
             </Group>
             <Button disabled={trade.state !== "PENDING"} type="submit" variant="gradient" size="xs">
               <IconCashRegister size={18} className="mr-1" />

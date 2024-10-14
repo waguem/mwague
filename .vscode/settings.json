@@ -9,5 +9,10 @@
     "**/*.pyc": { "when": "$(basename).py" },
     "**/__pycache__": true
   },
-  "workbench.colorCustomizations": { "editorUnnecessaryCode.border": "#e47070" }
+  "workbench.colorCustomizations": {
+    "editorUnnecessaryCode.border": "#e47070"
+  },
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/mkdi-shared"
+  ]
 }
