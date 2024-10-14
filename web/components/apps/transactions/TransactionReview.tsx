@@ -541,6 +541,7 @@ export default function TransactionReview({ row, opened, close, office, getEmplo
     REJECTED: 2,
     PAID: 2,
     CANCELLED: 3,
+    INIT: 1,
   };
 
   console.log("Vlue", form.values.reason);
