@@ -13,3 +13,6 @@ class PendingState(TradeState):
 
     def commit(self) -> WalletTrading:
         return TradeBuilder(self.db_session).commit(self.request, self.trade)
+
+    def rollback(self) -> WalletTrading:
+        return TradeBuilder(self.db_session).put_under_review(self.request, self.trade)

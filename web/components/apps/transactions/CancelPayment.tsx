@@ -5,11 +5,11 @@ import { useDisclosure } from "@mantine/hooks";
 import { IconCancel } from "@tabler/icons-react";
 import { Fragment, useTransition } from "react";
 import { decodeNotification } from "../notifications/notifications";
-import { Payment, TransactionResponse } from "@/lib/client";
+import { Payment, TransactionResponse, WalletTradingResponse } from "@/lib/client";
 
 interface Props {
   payment: Payment;
-  transaction: TransactionResponse;
+  transaction: TransactionResponse | WalletTradingResponse;
 }
 
 export default function CancelPayment({ payment, transaction }: Props) {
@@ -24,14 +24,12 @@ export default function CancelPayment({ payment, transaction }: Props) {
 
   const handleCancel = async () => {
     try {
-      console.log("H");
       const response = await cancelPayment(payment.id ?? "", {
-        code: transaction.code,
+        code: transaction.code ?? "",
         description: form.values.message,
         reason: [],
         type: payment.transaction_type,
       });
-      console.log("H");
       if (response.status === "success") {
         form.reset();
         close();

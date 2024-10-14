@@ -62,3 +62,9 @@ class TradeBuilder:
 
     def commit(self,commit:pr.CommitTradeRequest, trade:WalletTrading)-> WalletTrading:
         return self.get_instance(trade).commit(commit,trade)
+
+    def rollback(self,cancellation:pr.CancelTransaction,trade:WalletTrading)-> WalletTrading:
+        return self.get_instance(trade).rollback(cancellation,trade)
+    
+    def put_under_review(self,cancellation:pr.CancelTransaction,trade:WalletTrading)-> WalletTrading:
+        return self.get_instance(trade).rollback(cancellation,trade)

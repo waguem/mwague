@@ -34,6 +34,10 @@ class ITrade:
     def approve(self, review: pr.TradeReviewReq, trade: WalletTrading) -> WalletTrading:
         """approve a trading"""
 
+    @abstractmethod
+    def rollback(self, cancellation: pr.CancelTransaction, trade: WalletTrading) -> WalletTrading:
+        """rollback a trading"""
+
     def commit(self, commit: pr.CommitTradeRequest, trade: WalletTrading) -> WalletTrading:
         """approve a trading"""
 
@@ -49,17 +53,6 @@ class ITrade:
     def cancel(self, review: pr.TradeReviewReq, trade: WalletTrading) -> WalletTrading:
         """approve a trading"""
         trade.state = pr.TransactionState.CANCELLED
-        self.add_note(trade, review.review.value, review.tags, self.session.user.user_db_id)
-        self.session.db.add(trade)
-        return trade
-
-    @managed_tx_method(auto_commit=CommitMode.COMMIT)
-    def approve_payable(self, review: pr.TradeReviewReq, trade: WalletTrading) -> WalletTrading:
-        """APPROVE Payable Trade, it will go to pending and wait for payment."""
-        wallet = self.get_wallet(trade.walletID)
-        self.update_trade(trade, wallet)
-        # go to pending and wait for payment
-        trade.state = pr.TransactionState.PENDING
         self.add_note(trade, review.review.value, review.tags, self.session.user.user_db_id)
         self.session.db.add(trade)
         return trade
@@ -137,6 +130,16 @@ class IPayableTrade(ITrade):
     ) -> WalletTrading:
         """create a trade from the user request"""
 
+    @abstractmethod
+    def rollback_payment(
+        self,
+        *,
+        trade: WalletTrading,
+        wallet: OfficeWallet,
+        fund: Account,
+    ) -> WalletTrading:
+        """create a trade from the user request"""
+
     def accounts(self):
         """return office accounts (fund and office)"""
         return [self.get_office(), self.get_fund()]
@@ -145,14 +148,22 @@ class IPayableTrade(ITrade):
     def get_payment_amount(self, trade: WalletTrading) -> Decimal:
         """Get the amount to be paid"""
 
-    @abstractmethod
-    def rollback_payment(self, request: pr.WalletTradingRequest) -> WalletTrading:
-        """create a trade from the user request"""
-        pass
+    @managed_tx_method(auto_commit=CommitMode.COMMIT)
+    def approve(self, review: pr.TradeReviewReq, trade: WalletTrading) -> WalletTrading:
+        """APPROVE Payable Trade, it will go to pending and wait for payment."""
+        assert trade.state == pr.TransactionState.REVIEW
+        wallet = self.get_wallet(trade.walletID)
+        self.update_trade(trade, wallet)
+        # go to pending and wait for payment
+        trade.state = pr.TransactionState.PENDING
+        self.add_note(trade, review.review.value, review.tags, self.session.user.user_db_id)
+        self.session.db.add(trade)
+        return trade
 
     @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
     def pay(self, trade: WalletTrading, request: pr.PaymentRequest):
         """pay trade"""
+        assert trade.state == pr.TransactionState.PENDING
         wallet = self.get_wallet(trade.walletID)
         fund = self.get_fund()
         activity = self.get_activity()
@@ -184,3 +195,53 @@ class IPayableTrade(ITrade):
         self.session.db.add(fund_history)
 
         return payment
+
+    def rollback(self, cancellation: pr.CancelTransaction, trade: WalletTrading) -> WalletTrading:
+        assert trade.state in [pr.TransactionState.PENDING, pr.TransactionState.PAID]
+        transitions = {
+            pr.TransactionState.PENDING: self.rollback_pending,
+            pr.TransactionState.PAID: self.rollback_paid,
+        }
+
+        self.add_note(trade, "Rollback", cancellation.reason, self.session.user.user_db_id)
+        return transitions[trade.state](trade)
+
+    @managed_tx_method(auto_commit=CommitMode.COMMIT)
+    def rollback_pending(self, trade: WalletTrading) -> WalletTrading:
+        """Rollback pending State"""
+        assert trade.state == pr.TransactionState.PENDING
+        trade.state = pr.TransactionState.REVIEW
+        self.session.db.add(trade)
+        return trade
+
+    @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
+    def rollback_paid(self, trade: WalletTrading) -> WalletTrading:
+        """Rollback a trade"""
+        assert trade.state == pr.TransactionState.PAID
+        wallet = self.get_wallet(trade.walletID)
+        fund = self.get_fund()
+        activity = self.get_activity()
+
+        self.rollback_payment(trade=trade, wallet=wallet, fund=fund)
+
+        fund_history = FundCommit(
+            v_from=fund.balance,
+            variation=self.get_payment_amount(trade),
+            account=wallet.wallet_name,
+            activity_id=activity.id,
+            description=f"Rollback Wallet Trade Payment {wallet.wallet_name} {trade.code}",
+            is_out=False,  # out
+            date=datetime.now(),
+        )
+
+        # cancel previous payments
+        for payment in trade.payments:
+            if payment.state == pr.PaymentState.PAID:
+                payment.state = pr.PaymentState.CANCELLED
+                self.session.db.add(payment)
+
+        trade.state = pr.TransactionState.PENDING
+        self.session.db.add(trade)
+        self.session.db.add(fund_history)
+
+        return trade

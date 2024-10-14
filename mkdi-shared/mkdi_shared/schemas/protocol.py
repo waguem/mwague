@@ -562,11 +562,6 @@ class CancelTransaction(BaseModel):
     type: TransactionType
 
 
-class CancelRequest(BaseModel):
-    code: str
-    reason: str
-
-
 class MkdiErrorResponse(BaseModel):
     """The format of an error response from the OASST API."""
 

@@ -77,6 +77,8 @@ import type {
   CommitTradeApiV1WalletTradeTradeCodeCommitPostResponse,
   ReviewTradeApiV1TradeReviewPostData,
   ReviewTradeApiV1TradeReviewPostResponse,
+  RollbackApiV1TradeRollbackPostData,
+  RollbackApiV1TradeRollbackPostResponse,
   GetMonthlyReportApiV1OfficeMonthlyReportGetData,
   GetMonthlyReportApiV1OfficeMonthlyReportGetResponse,
   GetAgentYearlyReportsApiV1OfficeAgentInitialsMonthlyReportGetData,
@@ -999,6 +1001,27 @@ export const reviewTradeApiV1TradeReviewPost = (
   return __request(OpenAPI, {
     method: "POST",
     url: "/api/v1/trade/review",
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Rollback
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns WalletTradingResponse Successful Response
+ * @throws ApiError
+ */
+export const rollbackApiV1TradeRollbackPost = (
+  data: RollbackApiV1TradeRollbackPostData
+): CancelablePromise<RollbackApiV1TradeRollbackPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/trade/rollback",
     body: data.requestBody,
     mediaType: "application/json",
     errors: {

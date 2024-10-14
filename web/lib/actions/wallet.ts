@@ -10,6 +10,8 @@ import {
   TradeReviewReq,
   reviewTradeApiV1TradeReviewPost,
   PaymentRequest,
+  rollbackApiV1TradeRollbackPost,
+  CancelTransaction,
 } from "@/lib/client";
 import { withToken } from "./withToken";
 import { TradeWallet } from "@/lib/schemas";
@@ -102,6 +104,21 @@ export const reviewTrade = async (review: TradeReviewReq) => {
     });
 
     revalidatePath(`/dashboard/wallet/${review.walletID}`);
+
+    return {
+      status: "success",
+      message: `${trade.code} has been reviewed`,
+    };
+  });
+};
+
+export const rollbackTrade = async (cancellation: CancelTransaction) => {
+  return withToken(async () => {
+    const trade = await rollbackApiV1TradeRollbackPost({
+      requestBody: cancellation,
+    });
+
+    revalidatePath(`/dashboard/wallet/${trade.walletID}`);
 
     return {
       status: "success",

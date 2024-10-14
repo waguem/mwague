@@ -553,6 +553,7 @@ export default function TransactionReview({ row, opened, close, office, getEmplo
       offset={8}
       radius="md"
       position="right"
+      withCloseButton={false}
       opened={opened}
       onClose={close}
     >

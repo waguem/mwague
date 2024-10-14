@@ -1,7 +1,7 @@
 "use client";
-import { Currency, OfficeWalletResponse, Payment, WalletTradingResponse } from "@/lib/client";
+import { $TransactionType, Currency, OfficeWalletResponse, Payment, WalletTradingResponse } from "@/lib/client";
 import { generateReceipt, Receipt } from "@/lib/pdf/generator";
-import { getMoneyPrefix } from "@/lib/utils";
+import { CANCELLATION_REASON, defaultTags, getMoneyPrefix } from "@/lib/utils";
 import {
   ActionIcon,
   Badge,
@@ -17,24 +17,42 @@ import {
   Space,
   Table,
   Tooltip,
+  TagsInput,
+  Textarea,
+  Button,
+  LoadingOverlay,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
   IconBook,
-  IconCancel,
   IconCircleDashed,
   IconCoinBitcoin,
   IconDownload,
   IconExchange,
   IconMinus,
+  IconRotateClockwise,
+  IconTag,
   IconWallet,
 } from "@tabler/icons-react";
 import { format } from "date-fns";
-import { Fragment } from "react";
+import { Fragment, useTransition } from "react";
 import TradeReview from "./TradeReview";
+import { useForm } from "@mantine/form";
+import { rollbackTrade } from "@/lib/actions/wallet";
+import { decodeNotification } from "../notifications/notifications";
 
 export function TradingDetail({ trading, wallet }: { trading: WalletTradingResponse; wallet: OfficeWalletResponse }) {
   const [opened, { open, close }] = useDisclosure(false);
+  const [pending, startTransition] = useTransition();
+  const form = useForm<{
+    reason: [];
+    description: string;
+  }>({
+    initialValues: {
+      reason: [],
+      description: "",
+    },
+  });
 
   const getReceipt = (payment: Payment): Receipt => {
     return {
@@ -43,6 +61,22 @@ export function TradingDetail({ trading, wallet }: { trading: WalletTradingRespo
       code: trading.code ?? "No Code",
       description: "",
     };
+  };
+
+  const handleRollback = async () => {
+    try {
+      const response = await rollbackTrade({
+        code: trading.code ?? "",
+        reason: form.values.reason,
+        description: form.values.description,
+        type: "TRADING",
+      });
+
+      decodeNotification("ROLLBACK", response);
+      if (response.status === "success") {
+        form.reset();
+      }
+    } catch (e) {}
   };
 
   const get_currency = (trade: WalletTradingResponse) => {
@@ -223,6 +257,7 @@ export function TradingDetail({ trading, wallet }: { trading: WalletTradingRespo
             </Group>
           </Stack>
         </Card>
+        <TradeReview trade={trading} />
         {trading.payments?.length ? (
           <Fragment>
             <Space h="md" />
@@ -253,11 +288,6 @@ export function TradingDetail({ trading, wallet }: { trading: WalletTradingRespo
                     </Table.Td>
                     <Table.Td>
                       <Group gap="sm" justify="left">
-                        <Tooltip label="Cancel" position="left">
-                          <ActionIcon size="md" variant="outline" color="red" radius={"md"}>
-                            <IconCancel size={16} />
-                          </ActionIcon>
-                        </Tooltip>
                         <Tooltip label="Download Receipt" position="left">
                           <ActionIcon
                             onClick={() => generateReceipt(getReceipt(payment))}
@@ -276,8 +306,38 @@ export function TradingDetail({ trading, wallet }: { trading: WalletTradingRespo
             </Table>
           </Fragment>
         ) : null}
-        <Divider className="mt-4" label="Trade Review" />
-        <TradeReview trade={trading} />
+        {!["REVIEW", "CANCELLED"].includes(trading.state) && (
+          <Card withBorder className="mt-4">
+            <LoadingOverlay visible={pending} loaderProps={{ color: "pink", type: "dots" }} />
+            <Divider label="ROLLBACK" />
+            <form action={() => startTransition(() => handleRollback())}>
+              <Stack>
+                <Group grow>
+                  <TagsInput
+                    data={CANCELLATION_REASON}
+                    label="Reason"
+                    leftSection={<IconTag size={16} />}
+                    {...form.getInputProps("reason")}
+                  />
+                </Group>
+                <Group grow>
+                  <Textarea label={"Description"} {...form.getInputProps("description")} />
+                </Group>
+                <Group grow>
+                  <Button
+                    leftSection={<IconRotateClockwise size={18} />}
+                    size={"xs"}
+                    type="submit"
+                    variant="gradient"
+                    gradient={{ from: "pink", to: "red", deg: 120 }}
+                  >
+                    Rollback
+                  </Button>
+                </Group>
+              </Stack>
+            </form>
+          </Card>
+        )}
       </Drawer>
     </Fragment>
   );

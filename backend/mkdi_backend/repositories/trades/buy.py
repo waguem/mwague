@@ -36,11 +36,6 @@ class BuyTrade(IPayableTrade):
 
         return trade
 
-    def approve(self, review: pr.TradeReviewReq, trade: WalletTrading) -> WalletTrading:
-        """APPROVE BUYING Trade"""
-        assert trade.state == pr.TransactionState.REVIEW
-        return self.approve_payable(review, trade)
-
     def get_payment_amount(self, trade: WalletTrading) -> pr.Decimal:
         return trade.amount * (trade.trading_rate / trade.daily_rate)
 
@@ -60,5 +55,16 @@ class BuyTrade(IPayableTrade):
         wallet.value += fund_out
         wallet.trading_balance += trade.amount * trade.trading_rate
 
-    def rollback_payment(self, request: pr.WalletTradingRequest) -> WalletTrading:
-        return super().rollback_payment(request)
+    def rollback_payment(
+        self,
+        *,
+        trade: WalletTrading,
+        wallet,
+        fund,
+    ) -> WalletTrading:
+        """Apply payment for buying trade"""
+        fund_out = self.get_payment_amount(trade)
+        fund.credit(fund_out)
+        wallet.crypto_balance -= trade.amount
+        wallet.value -= fund_out
+        wallet.trading_balance -= trade.amount * trade.trading_rate

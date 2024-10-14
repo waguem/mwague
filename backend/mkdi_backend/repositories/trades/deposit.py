@@ -1,9 +1,6 @@
 """Deposit Trade"""
 
 from mkdi_shared.schemas import protocol as pr
-from mkdi_backend.models.Account import Account
-from mkdi_backend.models.Activity import Activity
-from mkdi_backend.models.office import OfficeWallet
 from mkdi_backend.models.transactions.transactions import WalletTrading
 
 from mkdi_backend.repositories.trades.trade import IPayableTrade
@@ -39,9 +36,6 @@ class DepositTrade(IPayableTrade):
 
         return trade
 
-    def approve(self, review: pr.TradeReviewReq, trade: WalletTrading) -> WalletTrading:
-        return self.approve_payable(review, trade)
-
     def get_payment_amount(self, trade: WalletTrading) -> pr.Decimal:
         return trade.amount * (1 + trade.trading_rate / 100)
 
@@ -62,5 +56,17 @@ class DepositTrade(IPayableTrade):
         wallet.value += fund_out
         wallet.trading_balance += trade.amount
 
-    def rollback_payment(self, request: pr.WalletTradingRequest) -> WalletTrading:
-        return super().rollback_payment(request)
+    def rollback_payment(
+        self,
+        *,
+        trade: WalletTrading,
+        wallet,
+        fund,
+    ) -> WalletTrading:
+        """Apply payment for deposit trade"""
+        fund_out = self.get_payment_amount(trade)
+        assert wallet.wallet_type == pr.WalletType.SIMPLE
+        fund.credit(fund_out)
+        wallet.crypto_balance = 0
+        wallet.value -= fund_out
+        wallet.trading_balance -= trade.amount

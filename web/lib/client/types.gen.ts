@@ -1110,6 +1110,12 @@ export type ReviewTradeApiV1TradeReviewPostData = {
 
 export type ReviewTradeApiV1TradeReviewPostResponse = WalletTradingResponse;
 
+export type RollbackApiV1TradeRollbackPostData = {
+  requestBody: CancelTransaction;
+};
+
+export type RollbackApiV1TradeRollbackPostResponse = WalletTradingResponse;
+
 export type GetMonthlyReportApiV1OfficeMonthlyReportGetData = {
   endDate?: string;
   startDate?: string;
@@ -1675,6 +1681,21 @@ export type $OpenApiTs = {
   "/api/v1/trade/review": {
     post: {
       req: ReviewTradeApiV1TradeReviewPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        201: WalletTradingResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/trade/rollback": {
+    post: {
+      req: RollbackApiV1TradeRollbackPostData;
       res: {
         /**
          * Successful Response

@@ -37,7 +37,11 @@ class ITradeState(Protocol):
 
 
 TradeRequest = Union[
-    pr.TradeReviewReq, pr.PaymentRequest, pr.CommitTradeRequest, pr.WalletTradingRequest
+    pr.TradeReviewReq,
+    pr.PaymentRequest,
+    pr.CommitTradeRequest,
+    pr.WalletTradingRequest,
+    pr.CancelTransaction,
 ]
 
 

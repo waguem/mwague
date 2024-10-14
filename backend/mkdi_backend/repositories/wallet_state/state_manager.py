@@ -104,3 +104,17 @@ class TradeStateManager:
         t_state.set_trade(trade)
 
         return t_state.commit()
+
+    def rollback(
+        self, session: UserDBSession, cancellation: pr.CancelTransaction
+    ) -> pr.WalletTradingResponse:
+        self.state = pr.TransactionState.INIT
+        init_state = self.get_state(session)
+        trade = init_state.get_trade(cancellation.code)
+        self.state = trade.state
+
+        t_state = self.get_state(session)
+        t_state.set_request(cancellation)
+        t_state.set_trade(trade)
+
+        return t_state.rollback()

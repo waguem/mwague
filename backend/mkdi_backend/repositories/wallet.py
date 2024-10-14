@@ -1,21 +1,19 @@
 """wallet trading repository"""
 
-from mkdi_backend.api.deps import KcUser
-from mkdi_backend.models.transactions.transactions import WalletTrading, Payment
-from mkdi_backend.models.office import OfficeWallet
-from mkdi_backend.models.Account import Account
-from mkdi_backend.models.Activity import FundCommit, Activity
-from mkdi_backend.models.Agent import Agent
+from datetime import datetime
+from typing import List
 from sqlmodel import Session, select, or_
 from mkdi_shared.schemas import protocol as pr
-from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
-from mkdi_backend.utils.database import managed_tx_method, CommitMode
-from mkdi_backend.repositories.transaction_repos.invariant import managed_invariant_tx_method
+
+from mkdi_backend.api.deps import KcUser
+from mkdi_backend.models.transactions.transactions import WalletTrading
+from mkdi_backend.models.office import OfficeWallet
+from mkdi_backend.models.Account import Account
+from mkdi_backend.models.Agent import Agent
+
 from mkdi_backend.utils.dateutils import get_month_range
-from typing import List
-from datetime import datetime
-from mkdi_backend.repositories.wallet_state import TradeStateManager
 from mkdi_backend.api.deps import UserDBSession
+from mkdi_backend.repositories.wallet_state import TradeStateManager
 
 
 class WalletRepository:
@@ -52,6 +50,10 @@ class WalletRepository:
     ) -> pr.WalletTradingResponse:
         db_session: UserDBSession = UserDBSession(user=self.user, db=self.db)
         return self.trade_manager.commit(db_session, trade_code, commit)
+
+    def rollback(self, cancellation: pr.CancelTransaction) -> pr.WalletTradingResponse:
+        db_session: UserDBSession = UserDBSession(user=self.user, db=self.db)
+        return self.trade_manager.rollback(db_session, cancellation)
 
     def accounts(self) -> List[Account]:
         """Get user accounts."""
@@ -103,66 +105,6 @@ class WalletRepository:
         ).all()
 
         return tradings
-
-    @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
-    def commit_trade_rem(self, commit: pr.CommitTradeRequest) -> pr.WalletTradingResponse:
-        # find the trade
-        trade = self.db.scalar(
-            select(WalletTrading).where(
-                WalletTrading.id == commit.tradeID,
-                WalletTrading.state == pr.TransactionState.PENDING,
-            )
-        )
-        if not trade:
-            raise MkdiError(
-                error_code=MkdiErrorCode.NOT_FOUND,
-                message="Trade not found",
-            )
-        # the trade should be in pending state
-        # find wallet
-        wallet = self.get_wallet(trade.walletID)
-        if not wallet:
-            raise MkdiError(
-                error_code=MkdiErrorCode.NOT_FOUND,
-                message="Wallet not found",
-            )
-        # get the customer_account
-
-        customer = self.db.scalar(
-            select(Account).where(
-                Account.initials == trade.account, Account.office_id == self.user.office_id
-            )
-        )
-        if not customer:
-            raise MkdiError(
-                error_code=MkdiErrorCode.NOT_FOUND,
-                message="Customer not found",
-            )
-
-        office = self._get_office(self.user.office_id)
-
-        trade.wallet_trading = wallet.trading_balance
-        trade.wallet_value = wallet.value
-        trade.wallet_crypto = wallet.crypto_balance
-        trade.pendings = wallet.pending_in - wallet.pending_out
-
-        wallet.trading_balance -= commit.amount
-        wallet.value -= commit.trading_cost
-        wallet.crypto_balance -= commit.crypto_amount
-
-        trade.trading_rate = commit.trading_rate
-        trade.amount = commit.amount
-
-        customer.debit(commit.sold_amount)
-
-        office.credit(commit.trading_result)
-
-        trade.state = pr.TransactionState.PAID
-        self.db.add(wallet)
-        self.db.add(trade)
-        self.db.add(customer)
-
-        return trade
 
     def get_message(self, msg: str, msg_type: str):
         message = dict()

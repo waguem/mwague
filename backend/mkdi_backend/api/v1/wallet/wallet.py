@@ -96,3 +96,13 @@ def review_trade(
 ) -> pr.WalletTradingResponse:
     """Review Trade"""
     return WalletRepository(db, user).review_trade(review)
+
+
+@router.post("/trade/rollback", response_model=pr.WalletTradingResponse, status_code=201)
+def rollback(
+    *,
+    user: KcUser = Security(check_authorization, scopes=["office_admin"]),
+    cancellation: pr.CancelTransaction,
+    db: Session = Depends(get_db),
+) -> pr.WalletTradingResponse:
+    return WalletRepository(db, user).rollback(cancellation)
