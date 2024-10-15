@@ -58,14 +58,14 @@ class ExchangeTrade(ITrade):
         else:
             return trade.amount * (trade.selling_rate / trade.daily_rate)
 
-    def selling_cost(self, trade: WalletTrading, wallet: OfficeWallet):
-        return trade.amount * WalletRates(wallet, wallet.crypto_balance).cost_rate
+    def selling_cost(self, trade: WalletTrading):
+        return trade.amount * trade.wallet_value / trade.wallet_crypto
 
     def selling_crypto(self, trade: WalletTrading):
         return trade.amount
 
-    def trading_amount(self, trade: WalletTrading, wallet: OfficeWallet):
-        return trade.amount * WalletRates(wallet, wallet.crypto_balance).trading_rate
+    def trading_amount(self, trade: WalletTrading):
+        return trade.amount * trade.wallet_trading / trade.wallet_crypto
 
     def exchange_amount(self, trade: WalletTrading, wallet_type: pr.WalletType):
         if wallet_type == pr.WalletType.SIMPLE:
@@ -94,9 +94,9 @@ class ExchangeTrade(ITrade):
         office = self.get_office()
 
         sold = self.selling_amount(trade, exchange_wallet.wallet_type)
-        cost = self.selling_cost(trade, wallet)
+        cost = self.selling_cost(trade)
         crypto = self.selling_crypto(trade)
-        trading_amount = self.trading_amount(trade, wallet)
+        trading_amount = self.trading_amount(trade)
 
         delta = sold - cost
 
@@ -119,5 +119,43 @@ class ExchangeTrade(ITrade):
         self.session.db.add(wallet)
         self.session.db.add(exchange_wallet)
         self.session.db.add(office)
+
+        return trade
+
+    @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
+    def rollback_paid(self, trade: WalletTrading) -> WalletTrading:
+        """Rollback a paid trade"""
+        assert trade.state == pr.TransactionState.PAID
+        wallet = self.get_wallet(trade.walletID)
+        exchange_wallet = self.get_wallet(trade.exchange_walletID)
+
+        sold = self.selling_amount(trade, exchange_wallet.wallet_type)
+        cost = self.selling_cost(trade)
+        crypto = self.selling_crypto(trade)
+        trading_amount = self.trading_amount(trade)
+
+        delta = sold - cost
+
+        wallet.crypto_balance += crypto
+        wallet.trading_balance += trading_amount
+        wallet.value += cost
+
+        exchange_wallet.crypto_balance -= (
+            crypto if exchange_wallet.wallet_type == pr.WalletType.CRYPTO else 0
+        )
+        exchange_wallet.trading_balance -= self.exchange_amount(trade, exchange_wallet.wallet_type)
+        exchange_wallet.value -= self.exchange_value(trade, exchange_wallet.wallet_type)
+
+        if delta:
+            office = self.get_office()
+            office.debit(delta)
+            self.session.db.add(office)
+
+        trade.state = pr.TransactionState.REVIEW
+        self.session.db.add(trade)
+        self.session.db.add(office)
+        self.session.db.add(exchange_wallet)
+
+        self.session.db.add(wallet)
 
         return trade

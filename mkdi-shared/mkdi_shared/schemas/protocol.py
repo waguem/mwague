@@ -1,6 +1,6 @@
 # pyling: disable-all
 from datetime import date, datetime
-from decimal import Decimal
+from decimal import Decimal, ROUND_UP
 from enum import Enum, auto
 from typing import Annotated, List, Literal, Optional, Union, Mapping, Any
 from uuid import UUID, uuid4
@@ -8,7 +8,7 @@ import json
 import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as pg
 from mkdi_shared.exceptions.mkdi_api_error import MkdiErrorCode, MkdiError
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field
 from sqlmodel import Field as SQLModelField
 from sqlmodel import SQLModel
 from sqlalchemy.ext.mutable import MutableDict, MutableList
@@ -205,11 +205,13 @@ class AccountBase(SQLModel):
     def credit(self, amount: Decimal) -> TransactionCommit:
         commit = self.get_commit(amount, VariationType.CREDIT)
         self.balance += amount
+        self.balance = self.balance.quantize(Decimal(".001"), rounding=ROUND_UP)
         return commit
 
     def debit(self, amount: Decimal) -> TransactionCommit:
         commit = self.get_commit(amount, VariationType.DEBIT)
         self.balance -= amount
+        self.balance = self.balance.quantize(Decimal(".001"), rounding=ROUND_UP)
         return commit
 
     def get_commit(self, amount: Decimal, variation: VariationType) -> TransactionCommit:

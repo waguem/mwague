@@ -71,16 +71,12 @@ class SellTrade(ITrade):
         return trade.amount * rate
 
     def selling_cost(self, trade: WalletTrading, wallet: OfficeWallet):
-        tradings_rates = WalletRates(wallet, wallet.trading_balance)
-        crypto_rates = WalletRates(wallet, wallet.crypto_balance)
-        rates = WalletRates(wallet, 0)
-
+        cost_rate = 0
         if trade.selling_currency == wallet.trading_currency.value:
-            rates = tradings_rates
+            cost_rate = trade.wallet_value / trade.wallet_trading
         elif trade.selling_currency == wallet.crypto_currency.value:
-            rates = crypto_rates
-
-        return trade.amount * rates.cost_rate
+            cost_rate = trade.wallet_value / trade.wallet_crypto
+        return trade.amount * cost_rate
 
     def trading_amount(self, trade: WalletTrading, wallet: OfficeWallet):
         if trade.selling_currency == wallet.trading_currency.value:
@@ -89,11 +85,11 @@ class SellTrade(ITrade):
             return trade.amount * wallet.trading_balance / wallet.crypto_balance
 
     def selling_crypto(self, trade: WalletTrading, wallet: OfficeWallet):
+        """Selling crypto amount"""
         if trade.selling_currency == wallet.crypto_currency.value:
             return trade.amount
         elif trade.selling_currency == wallet.trading_currency.value:
-            trading_rates = WalletRates(wallet, wallet.trading_balance)
-            return trade.amount * trading_rates.crypto_rate
+            return trade.amount * trade.wallet_crypto / trade.wallet_trading
 
     @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
     def approve(self, review: pr.TradeReviewReq, trade: WalletTrading) -> WalletTrading:
@@ -162,5 +158,38 @@ class SellTrade(ITrade):
         self.session.db.add(wallet)
         self.session.db.add(account)
         self.session.db.add(trade)
+
+        return trade
+
+    @managed_invariant_tx_method(auto_commit=CommitMode.COMMIT)
+    def rollback_paid(self, trade: WalletTrading) -> WalletTrading:
+        """Rollback a paid trade"""
+        assert trade.state == pr.TransactionState.PAID
+        wallet = self.get_wallet(trade.walletID)
+        account = self.get_account(trade.account)
+
+        sold = self.selling_amount(trade, wallet)
+        cost = self.selling_cost(trade, wallet)
+        crypto = self.selling_crypto(trade, wallet)
+        trading_amount = self.trading_amount(trade, wallet)
+
+        delta = sold - cost
+
+        wallet.crypto_balance += crypto
+        wallet.trading_balance += trading_amount
+        wallet.value += cost
+
+        account.credit(sold)
+
+        if delta:
+            office = self.get_office()
+            office.debit(delta)
+            self.session.db.add(office)
+
+        trade.state = pr.TransactionState.REVIEW
+        self.session.db.add(trade)
+        self.session.db.add(office)
+        self.session.db.add(account)
+        self.session.db.add(wallet)
 
         return trade
