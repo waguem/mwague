@@ -1,7 +1,7 @@
 "use client";
-import { $TransactionType, Currency, OfficeWalletResponse, Payment, WalletTradingResponse } from "@/lib/client";
+import { Currency, OfficeWalletResponse, Payment, WalletTradingResponse } from "@/lib/client";
 import { generateReceipt, Receipt } from "@/lib/pdf/generator";
-import { CANCELLATION_REASON, defaultTags, getMoneyPrefix } from "@/lib/utils";
+import { CANCELLATION_REASON,  getMoneyPrefix } from "@/lib/utils";
 import {
   ActionIcon,
   Badge,
