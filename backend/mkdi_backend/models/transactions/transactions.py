@@ -86,12 +86,14 @@ class ForExBase(pr.TransactionDB):
     charge_percentage: Annotated[Decimal, Field(ge=0, le=100)]
     is_valid: ClassVar[bool] = hybrid_property(lambda cls: cls.buying_rate > cls.selling_rate)
     buying_amount: ClassVar[Decimal] = hybrid_property(
-        lambda cls: cls.amount / cls.buying_rate if cls.tag != "BANKTT" else cls.amount
+        lambda cls: (
+            cls.amount / cls.buying_rate if cls.tag != "BANKTT" and cls.buying_rate else cls.amount
+        )
     )
     selling_amount: ClassVar[Decimal] = hybrid_property(
         lambda cls: (
             cls.amount / cls.selling_rate
-            if cls.tag != "BANKTT"
+            if cls.tag != "BANKTT" and cls.selling_rate
             else cls.amount * (1 + cls.selling_rate / 100)
         )
     )
@@ -263,7 +265,7 @@ def get_trading_crypto(cls) -> Decimal:
         if cls.state == pr.TransactionState.PENDING:
             return 0
 
-        wallet_crypto_rate = cls.wallet_crypto / cls.wallet_trading
+        wallet_crypto_rate = cls.wallet_crypto / cls.wallet_trading if cls.wallet_traing else 0
 
         return cls.amount * wallet_crypto_rate
 
@@ -282,7 +284,7 @@ def get_exchange_amount(cls) -> Decimal:
         return 0
 
     if cls.trading_type == pr.TradingType.EXCHANGE_WITH_SIMPLE_WALLET:
-        return cls.amount * (cls.exchange_rate / cls.trading_rate)
+        return cls.amount * (cls.exchange_rate / cls.trading_rate) if cls.trading_rate else 0
 
     return cls.amount * cls.exchange_rate
 
