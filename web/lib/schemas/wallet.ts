@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { zCryptoCurrency, zCurrency } from "./transactionsResolvers";
+import { zCryptoCurrency, zCurrency, zNumber } from "./transactionsResolvers";
 import { $TradingType } from "../client";
 
 const zPNumber = z.number({ message: "must be a number" }).positive({ message: "must be a positive number" });
@@ -49,7 +49,7 @@ export const TradeWallet = z.object({
   amount: zPNumber,
   walletID: z.string(),
   daily_rate: zPNumber,
-  trading_rate: zPNumber,
+  trading_rate: zNumber,
   trading_currency: z.optional(z.string()),
   selling_currency: z.optional(z.string()),
   exchange_currency: z.optional(z.string()),

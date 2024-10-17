@@ -117,7 +117,13 @@ export default function ForeignExForms({ agentWithAccounts, office }: Props) {
   return (
     <form action={() => startTransition(() => handleSubmit())} className="mt-5">
       <Grid style={{ padding: "10px" }}>
-        <LoadingOverlay visible={pending} opacity={0.9} color="gray" zIndex={1000} />
+        <LoadingOverlay
+          loaderProps={{ color: "pink", type: "dots" }}
+          visible={pending}
+          opacity={0.9}
+          color="gray"
+          zIndex={1000}
+        />
         <GridCol span={8} style={{ margin: "0" }}>
           <Stack gap={"xl"}>
             <Group grow>

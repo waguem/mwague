@@ -1116,6 +1116,12 @@ export type RollbackApiV1TradeRollbackPostData = {
 
 export type RollbackApiV1TradeRollbackPostResponse = WalletTradingResponse;
 
+export type UpdateTradeApiV1TradeUpdatePatchData = {
+  requestBody: WalletTradingResponse;
+};
+
+export type UpdateTradeApiV1TradeUpdatePatchResponse = WalletTradingResponse;
+
 export type GetMonthlyReportApiV1OfficeMonthlyReportGetData = {
   endDate?: string;
   startDate?: string;
@@ -1701,6 +1707,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         201: WalletTradingResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/trade/update": {
+    patch: {
+      req: UpdateTradeApiV1TradeUpdatePatchData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: WalletTradingResponse;
         /**
          * Validation Error
          */

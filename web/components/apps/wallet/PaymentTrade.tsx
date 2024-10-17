@@ -9,7 +9,6 @@ import {
   Grid,
   GridCol,
   Group,
-  Loader,
   LoadingOverlay,
   Modal,
   NumberInput,
@@ -60,12 +59,7 @@ export function PayTrade({ trade, accounts, wallet }: Props) {
       </ActionIcon>
 
       <Modal size="xl" centered opened={opened} onClose={close} withCloseButton={false}>
-        <LoadingOverlay
-          visible={pending}
-          loaderProps={{
-            children: <Loader size={32} color="blue" />,
-          }}
-        />
+        <LoadingOverlay visible={pending} loaderProps={{ color: "pink", type: "dots" }} />
         <form action={() => startTransition(() => pay())}>
           <Stack>
             <Divider label="Payment" />

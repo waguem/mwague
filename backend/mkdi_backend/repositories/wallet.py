@@ -55,6 +55,10 @@ class WalletRepository:
         db_session: UserDBSession = UserDBSession(user=self.user, db=self.db)
         return self.trade_manager.rollback(db_session, cancellation)
 
+    def update(self, trade_request: pr.WalletTradingResponse) -> pr.WalletTradingResponse:
+        db_session: UserDBSession = UserDBSession(user=self.user, db=self.db)
+        return self.trade_manager.update(db_session, trade_request)
+
     def accounts(self) -> List[Account]:
         """Get user accounts."""
         return self.db.scalars(

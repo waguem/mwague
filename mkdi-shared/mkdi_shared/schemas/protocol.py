@@ -475,7 +475,7 @@ class WalletTradingBase(SQLModel):
     trading_type: TradingType
     amount: Annotated[Decimal, Field(strict=True, ge=0)]
     daily_rate: Annotated[Decimal, Field(strict=True, gt=0, max_digits=12, decimal_places=6)]
-    trading_rate: Annotated[Decimal, Field(strict=True, gt=0, max_digits=11, decimal_places=6)]
+    trading_rate: Annotated[Decimal, Field(strict=True, ge=0, max_digits=11, decimal_places=6)]
 
 
 class BuyRequest(BaseModel):

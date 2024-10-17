@@ -95,7 +95,13 @@ export default function BankTT({ agentWithAccounts, office }: Props) {
 
   return (
     <form action={() => startTransition(() => handleSubmit())} className="p-5">
-      <LoadingOverlay visible={pending} opacity={0.9} color="gray" zIndex={1000} />
+      <LoadingOverlay
+        loaderProps={{ color: "pink", type: "dots" }}
+        visible={pending}
+        opacity={0.9}
+        color="gray"
+        zIndex={1000}
+      />
       <Stack gap={"xl"}>
         <Group grow>
           <Select

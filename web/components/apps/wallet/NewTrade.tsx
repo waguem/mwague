@@ -6,7 +6,6 @@ import {
   Badge,
   Button,
   Group,
-  Loader,
   LoadingOverlay,
   Modal,
   NumberFormatter,
@@ -224,12 +223,7 @@ export function NewTrade({ walletID, office, agents }: Props) {
         }
         size="70%"
       >
-        <LoadingOverlay
-          visible={pending}
-          loaderProps={{
-            children: <Loader size={32} color="blue" />,
-          }}
-        />
+        <LoadingOverlay visible={pending} loaderProps={{ color: "pink", type: "dots" }} />
         <form action={() => startTransition(() => trade())}>
           <Stack>
             <Group grow>

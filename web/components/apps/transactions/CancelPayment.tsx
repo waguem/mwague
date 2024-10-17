@@ -55,7 +55,7 @@ export default function CancelPayment({ payment, transaction }: Props) {
           Are you sure ?
         </Text>
         <form action={() => startTransition(() => handleCancel())}>
-          <LoadingOverlay visible={pending} />
+          <LoadingOverlay visible={pending} loaderProps={{ color: "pink", type: "dots" }} />
           <Group align="flex-end">
             <Textarea placeholder="Give Your explanation" style={{ flex: 1 }} {...form.getInputProps("message")} />
             <Button gradient={{ from: "red", to: "pink", deg: 120 }} variant="gradient" type="submit">

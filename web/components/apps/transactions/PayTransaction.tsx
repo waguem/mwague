@@ -173,12 +173,7 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
       withCloseButton={false}
     >
       <ScrollArea>
-        <LoadingOverlay
-          visible={pending || !transaction}
-          loaderProps={{
-            children: <Loader size={20} />,
-          }}
-        />
+        <LoadingOverlay visible={pending || !transaction} loaderProps={{ color: "pink", type: "dots" }} />
         <Space h="xs" />
         {row?.state === "PENDING" && (
           <Accordion defaultValue={"payment"}>

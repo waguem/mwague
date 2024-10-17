@@ -21,6 +21,7 @@ import CommitTrade from "./CommitTrade";
 import { IconCheck, IconCopy, IconDownload } from "@tabler/icons-react";
 import { useClipboard } from "@mantine/hooks";
 import { exportTradingData } from "@/lib/pdf/generator";
+import EditTrading from "./EditTrading";
 
 interface Props {
   office: OfficeResponse;
@@ -176,6 +177,12 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
+
+  const walletOptions = office?.wallets?.map((wallet) => ({
+    value: wallet.walletID ?? "",
+    label: wallet.wallet_name ?? "",
+  }));
+
   const table = useMantineReactTable({
     columns,
     data: tradings,
@@ -245,6 +252,7 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
           {["SELL"].includes(row.original.trading_type) && (
             <CommitTrade trade={row.original as WalletTradingResponse} wallet={wallet} />
           )}
+          <EditTrading walletOptions={walletOptions!} accountOptions={agentAccountsOptions} trading={row.original} />
         </Group>
       );
     },

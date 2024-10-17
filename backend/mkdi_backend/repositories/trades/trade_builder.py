@@ -68,3 +68,6 @@ class TradeBuilder:
     
     def put_under_review(self,cancellation:pr.CancelTransaction,trade:WalletTrading)-> WalletTrading:
         return self.get_instance(trade).rollback(cancellation,trade)
+    
+    def update(self,update_request:pr.WalletTradingResponse, trade: WalletTrading)-> WalletTrading:
+        return self.get_instance(trade).update(update_request=update_request,trade=trade)

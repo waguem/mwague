@@ -25,3 +25,9 @@ class ReviewState(TradeState):
         builder: TradeBuilder = TradeBuilder(self.db_session)
         trade = builder.cancel(trade=self.trade, review=self.get_request())
         return trade
+
+    def update(self) -> WalletTrading:
+        """Update Trading"""
+        return TradeBuilder(self.db_session).update(
+            trade=self.trade, update_request=self.get_request()
+        )

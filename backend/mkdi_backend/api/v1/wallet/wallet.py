@@ -106,3 +106,13 @@ def rollback(
     db: Session = Depends(get_db),
 ) -> pr.WalletTradingResponse:
     return WalletRepository(db, user).rollback(cancellation)
+
+
+@router.patch("/trade/update", response_model=pr.WalletTradingResponse, status_code=200)
+def update_trade(
+    *,
+    user: KcUser = Security(check_authorization, scopes=["office_admin"]),
+    trade_request: pr.WalletTradingResponse,
+    db: Session = Depends(get_db),
+) -> pr.WalletTradingResponse:
+    return WalletRepository(db, user).update(trade_request)

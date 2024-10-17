@@ -118,3 +118,18 @@ class TradeStateManager:
         t_state.set_trade(trade)
 
         return t_state.rollback()
+
+    def update(
+        self, session: UserDBSession, trade_request: pr.WalletTradingResponse
+    ) -> pr.WalletTradingResponse:
+        self.state = pr.TransactionState.INIT
+        init_state = self.get_state(session)
+        trade = init_state.get_trade(trade_request.code)
+        assert trade.state == pr.TransactionState.REVIEW
+        self.state = trade.state
+
+        t_state = self.get_state(session)
+        t_state.set_request(trade_request)
+        t_state.set_trade(trade)
+
+        return t_state.update()

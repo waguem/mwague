@@ -177,6 +177,34 @@ export function TradingDetail({ trading, wallet }: { trading: WalletTradingRespo
                   <IconWallet style={{ width: rem(14), height: rem(14) }} />
                 </ThemeIcon>
                 <Badge size="lg" variant="transparent">
+                  Provider
+                </Badge>
+              </Box>
+              <Badge variant="dot" size="lg">
+                {trading.account}
+              </Badge>
+            </Group>
+            {trading.trading_type.includes("EXCHANGE") && (
+              <Group grow>
+                <Box>
+                  <ThemeIcon color="blue" size={24} radius="xl">
+                    <IconWallet style={{ width: rem(14), height: rem(14) }} />
+                  </ThemeIcon>
+                  <Badge size="lg" variant="transparent">
+                    WITH
+                  </Badge>
+                </Box>
+                <Badge variant="dot" size="lg">
+                  {trading.exchange_walletID}
+                </Badge>
+              </Group>
+            )}
+            <Group grow>
+              <Box>
+                <ThemeIcon color="blue" size={24} radius="xl">
+                  <IconWallet style={{ width: rem(14), height: rem(14) }} />
+                </ThemeIcon>
+                <Badge size="lg" variant="transparent">
                   Name
                 </Badge>
               </Box>

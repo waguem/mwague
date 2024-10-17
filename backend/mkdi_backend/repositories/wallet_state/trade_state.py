@@ -32,6 +32,9 @@ class ITradeState(Protocol):
     def commit(self):
         """Transition from PENDING to PAID"""
 
+    def update(self):
+        """Update Trade when it is under review"""
+
     def get_state(self) -> pr.TransactionState:
         """Get the current state of the machine."""
 
@@ -42,6 +45,7 @@ TradeRequest = Union[
     pr.CommitTradeRequest,
     pr.WalletTradingRequest,
     pr.CancelTransaction,
+    pr.WalletTradingResponse,
 ]
 
 
@@ -89,6 +93,10 @@ class TradeState(ITradeState):
     def rollback(self) -> WalletTrading:
         """Transition from PAID to REVIEW."""
         raise StateException("Invalid action 'cancel payment' for state", self.state)
+
+    def update(self):
+        """Update Trade when it is under review"""
+        raise StateException("Invalid action 'update' for state", self.state)
 
     def get_request(self) -> TradeRequest:
         """Get Payload"""

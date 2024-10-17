@@ -12,6 +12,8 @@ import {
   PaymentRequest,
   rollbackApiV1TradeRollbackPost,
   CancelTransaction,
+  WalletTradingResponse,
+  updateTradeApiV1TradeUpdatePatch,
 } from "@/lib/client";
 import { withToken } from "./withToken";
 import { TradeWallet } from "@/lib/schemas";
@@ -36,7 +38,10 @@ export const tradeWallet = async (tradingRequest: TradeWalletReq, path: string) 
     }
     // make request
     await tradeWalletApiV1WalletPost({
-      requestBody: validated.data,
+      requestBody: {
+        ...validated.data,
+        trading_rate: +validated.data.trading_rate,
+      },
     });
 
     // revalidatePath
@@ -123,6 +128,21 @@ export const rollbackTrade = async (cancellation: CancelTransaction) => {
     return {
       status: "success",
       message: `${trade.code} has been reviewed`,
+    };
+  });
+};
+
+export const updateTrade = async (request: WalletTradingResponse) => {
+  return withToken(async () => {
+    const trade = await updateTradeApiV1TradeUpdatePatch({
+      requestBody: request,
+    });
+
+    revalidatePath(`/dashboard/wallet/${trade.walletID}`);
+
+    return {
+      status: "success",
+      message: `${trade.code} has been updated`,
     };
   });
 };

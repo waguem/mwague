@@ -57,6 +57,27 @@ class ITrade:
         self.session.db.add(trade)
         return trade
 
+    @managed_tx_method(auto_commit=CommitMode.COMMIT)
+    def update(
+        self, update_request: pr.WalletTradingResponse, trade: WalletTrading
+    ) -> WalletTrading:
+
+        trade.account = update_request.account
+        trade.exchange_walletID = update_request.exchange_walletID
+        trade.amount = update_request.amount
+
+        trade.trading_currency = update_request.trading_currency
+        trade.exchange_currency = update_request.exchange_currency
+        trade.selling_currency = update_request.selling_currency
+
+        trade.daily_rate = update_request.daily_rate
+        trade.trading_rate = update_request.trading_rate
+        trade.notes = update_request.notes
+
+        self.session.db.add(trade)
+
+        return trade
+
     def rollback(self, cancellation: pr.CancelTransaction, trade: WalletTrading) -> WalletTrading:
         """Rollback a trade"""
         assert trade.state in [pr.TransactionState.PENDING, pr.TransactionState.PAID]
