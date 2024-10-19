@@ -63,6 +63,8 @@ class ExternalTransaction(PayableTransaction):
             commits.append(sender.debit(transaction.charges))
             # in
             commits.append(office.credit(transaction.charges))
+            self.db.add(office)
+
         activity = await self.a_has_started_activity()
         fund_history = FundCommit(
             v_from=(fund.balance),
@@ -73,6 +75,10 @@ class ExternalTransaction(PayableTransaction):
             is_out=True,
             date=datetime.now(),
         )
+
+        self.db.add(sender)
+        self.db.add(fund)
+
         return commits, fund_history
 
     def commit(self, transaction: External) -> List[pr.TransactionCommit]:
@@ -136,18 +142,17 @@ class ExternalTransaction(PayableTransaction):
         assert isinstance(user_input, pr.ExternalRequest)
         assert user_input.sender is not None
 
-        accounts = self.accounts()
+        sender = self.db.scalar(
+            select(Account).where(
+                Account.type == pr.AccountType.AGENT, Account.initials == user_input.sender
+            )
+        )
 
         office = self.db.scalar(
             select(Account).where(
                 Account.type == pr.AccountType.OFFICE, Account.owner_id == user.office_id
             )
         )
-
-        if len(accounts) == 2:
-            _ = accounts.pop()
-
-        sender = accounts.pop()
 
         external = External(
             amount=self.get_amount(),
@@ -229,6 +234,8 @@ class ExternalTransaction(PayableTransaction):
             # reviewing the transaction
             tr: External = self.transaction
             sender = tr.sender_initials
+        else:
+            sender = request.sender
 
         condition = None
 
@@ -279,6 +286,7 @@ class ExternalTransaction(PayableTransaction):
             if self.get_charges() > 0:
                 commits.append(sender.credit(self.transaction.charges))
                 commits.append(office.debit(self.transaction.charges))
+                self.db.add(office)
 
         activity = self.has_started_activity()
 
@@ -293,5 +301,8 @@ class ExternalTransaction(PayableTransaction):
         )
 
         self.transaction.save_commit(commits)
+
+        self.db.add(sender)
+        self.db.add(fund)
 
         return fund_history

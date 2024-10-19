@@ -64,6 +64,7 @@ class DepositTransaction(PayableTransaction):
 
         self.db.add(receiver_account)
         self.db.add(fund)
+
         self.activity = self.db.scalar(
             select(Activity).where(
                 Activity.state == pr.ActivityState.OPEN, Activity.office_id == self.user.office_id
@@ -186,6 +187,10 @@ class DepositTransaction(PayableTransaction):
             is_out=False,
             date=datetime.now(),
         )
+
+        self.db.add(depositer)
+        self.db.add(fund)
+
         return commits, fund_history
 
     def cancel_payment_commit(self, payment: Payment):

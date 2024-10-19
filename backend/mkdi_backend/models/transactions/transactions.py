@@ -226,7 +226,7 @@ def get_trading_cost(cls) -> Decimal:
         # when we are buying, we are buying crypto currency and using wallet trading currency
         # buying cost is the amount of crypto currency in office currency
         # buying cost = trading_rate / daily_rate
-        br = cls.trading_rate / cls.daily_rate
+        br = cls.trading_rate / cls.daily_rate if cls.daily_rate else 0
         return cls.amount * br
 
     if cls.trading_type == pr.TradingType.DEPOSIT:
@@ -244,13 +244,13 @@ def get_trading_cost(cls) -> Decimal:
         value_rate = cls.wallet_value / cls.wallet_crypto if cls.wallet_crypto > 0 else 0
         return cls.amount * value_rate
 
-    cost_rate = cls.wallet_value / cls.wallet_trading
+    cost_rate = cls.wallet_value / cls.wallet_trading if cls.wallet_trading else 0
 
     if cls.trading_type == pr.TradingType.SIMPLE_SELL:
-        cost_rate = cls.wallet_value / cls.wallet_trading
+        cost_rate = cls.wallet_value / cls.wallet_trading if cls.wallet_trading else 0
 
     if cls.trading_currency != cls.selling_currency and cls.wallet_crypto > 0:
-        cost_rate = cls.wallet_value / cls.wallet_crypto
+        cost_rate = cls.wallet_value / cls.wallet_crypto if cls.wallet_crypto else 0
 
     return cls.amount * cost_rate
 
@@ -265,7 +265,7 @@ def get_trading_crypto(cls) -> Decimal:
         if cls.state == pr.TransactionState.PENDING:
             return 0
 
-        wallet_crypto_rate = cls.wallet_crypto / cls.wallet_trading if cls.wallet_traing else 0
+        wallet_crypto_rate = cls.wallet_crypto / cls.wallet_trading if cls.wallet_trading else 0
 
         return cls.amount * wallet_crypto_rate
 

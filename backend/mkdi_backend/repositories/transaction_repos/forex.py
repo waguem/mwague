@@ -58,6 +58,11 @@ class ForExTransaction(PayableTransaction):
             is_out=True,
             date=datetime.now(),
         )
+
+        self.db.add(sender)
+        self.db.add(fund)
+        self.db.add(office)
+
         return commits, fund_history
 
     def do_transaction(self) -> None:
