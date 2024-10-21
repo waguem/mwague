@@ -1,12 +1,15 @@
 from mkdi_backend.models import External, Internal, Deposit, Sending, ForEx
 from pydantic import BaseModel, root_validator
-from typing import Union, List, Dict
+from typing import Union, List
 from mkdi_shared.schemas import protocol
 import json
 
 
+AllTransactions = Union[Internal, Deposit, Sending, External, ForEx]
+
+
 class TransactionItem(BaseModel):
-    item: Union[Internal, Deposit, Sending, External, ForEx]
+    item: AllTransactions
     notes: List[protocol.Note]
 
     @root_validator

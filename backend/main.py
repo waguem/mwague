@@ -2,6 +2,8 @@ import json
 from datetime import datetime
 from http import HTTPStatus
 
+import time
+
 import fastapi
 from loguru import logger
 from mkdi_backend.api.v1.api import api_router
@@ -17,6 +19,10 @@ app = fastapi.FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     lifespan=lifespan,
 )
+
+logger.add("file_{time}.log", rotation="2 MB", compression="zip")
+
+
 startup_time: datetime = utcnow()
 
 
@@ -45,6 +51,26 @@ async def mkdi_exception_handler(request: fastapi.Request, ex: MkdiError):
             error_code=MkdiErrorCode(ex.error_code),
         ).dict(),
     )
+
+
+@app.middleware("http")
+async def log_request_time(request: fastapi.Request, call_next):
+    start_time = time.time()
+
+    response = await call_next(request)
+    # Calculate the total time taken
+    process_time = time.time() - start_time
+    formatted_process_time = f"{process_time:.4f}"
+
+    # Log the request method, URL, and time taken
+    logger.info(
+        f"Request: {request.method} {request.url} completed in {formatted_process_time} seconds"
+    )
+
+    # Add a custom header to the response to show the process time
+    response.headers["X-Process-Time"] = formatted_process_time
+
+    return response
 
 
 @app.exception_handler(Exception)

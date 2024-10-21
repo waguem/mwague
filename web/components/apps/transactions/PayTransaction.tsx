@@ -30,10 +30,11 @@ import { PaymentRequest } from "@/lib/schemas/actions";
 import { decodeNotification } from "../notifications/notifications";
 import { generateReceipt, Receipt } from "@/lib/pdf/generator";
 import { HoverMessages } from "../wallet/HoverMessage";
-import { TransactionType } from "@/lib/client";
+import { Deposit, External, ForEx, Sending, TransactionType } from "@/lib/client";
 import CancelPayment from "./CancelPayment";
+import { AllTransactions } from "@/lib/types";
 interface PayTransactionProps {
-  row: any;
+  row: AllTransactions;
   opened: boolean;
   close: () => void;
   officeId: string;
@@ -108,14 +109,15 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
     const getAccount = () => {
       switch (row.type as TransactionType) {
         case "DEPOSIT":
-          return row.owner_initials;
+          return (row as Deposit).owner_initials;
         case "SENDING":
-          return row.receiver_initials;
+          return (row as Sending).receiver_initials;
         case "FOREX":
-          return row.provider_account;
+          return (row as ForEx).provider_account;
         case "EXTERNAL":
-          return row.sender_initials;
+          return (row as External).sender_initials;
       }
+      return "";
     };
     const getReceipt = (): Receipt => {
       const message = item.notes["notes"].find((message: any) => message.type === "PAYMENT");

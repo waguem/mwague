@@ -58,7 +58,7 @@ export const $AccountMonthlyReport = {
       type: "string",
       format: "date-time",
       title: "Updated At",
-      default: "2024-10-17T06:10:25.922725",
+      default: "2024-10-21T04:32:25.357891",
     },
   },
   type: "object",

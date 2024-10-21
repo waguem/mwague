@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, Security
 
 from mkdi_backend.api.deps import check_authorization, get_db, AsyncDBSessionDep, DBSessionDep
 from mkdi_backend.models.models import KcUser
-from mkdi_backend.models.transactions.transaction_item import TransactionItem
+from mkdi_backend.models.transactions.transaction_item import TransactionItem, AllTransactions
 from mkdi_backend.repositories.transactions import TransactionRepository
 from mkdi_backend.models.transactions.transactions import TransactionWithDetails
 from mkdi_shared.schemas import protocol
@@ -28,6 +28,22 @@ async def get_office_transactions(
 ) -> List[TransactionItem]:
     """get all transactions for an office"""
     return await TransactionRepository(db).get_offcie_transactions_items(user)
+
+
+@router.get(
+    "/office/transactions/interval",
+    response_model=List[AllTransactions],
+    status_code=200,
+)
+def get_office_transactions_by_interval(
+    *,
+    user: Annotated[KcUser, Security(check_authorization, scopes=[])],
+    start_date: str | None = None,
+    end_date: str | None = None,
+    db: DBSessionDep,
+) -> List[AllTransactions]:
+    """get all transactions for an office"""
+    return TransactionRepository(db).get_offcie_transactions(user, start_date, end_date)
 
 
 @router.get(

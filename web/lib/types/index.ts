@@ -1,4 +1,4 @@
-import { Currency } from "../client";
+import { Currency, Deposit, External, ForEx, Internal, Sending } from "../client";
 
 export type OfficeCurrency = {
   name: Currency;
@@ -6,3 +6,5 @@ export type OfficeCurrency = {
   base: boolean;
   defaultRate: number;
 };
+
+export type AllTransactions = Internal | Deposit | Sending | External | ForEx;

@@ -6,9 +6,9 @@ import {
   External,
   ForEx,
   Internal,
+  Note,
   OfficeResponse,
   Sending,
-  TransactionItem,
   TransactionState,
   TransactionType,
 } from "@/lib/client";
@@ -61,11 +61,11 @@ import { useFormState } from "react-dom";
 import { State } from "@/lib/actions";
 import { notifications } from "@mantine/notifications";
 import { CANCELLATION_REASON, getMoneyPrefix } from "@/lib/utils";
-import { OfficeCurrency } from "@/lib/types";
+import { AllTransactions, OfficeCurrency } from "@/lib/types";
 import { decodeNotification } from "../notifications/notifications";
 
 interface Props {
-  row: TransactionItem;
+  row: AllTransactions;
   opened: boolean;
   office: OfficeResponse;
   close: () => void;
@@ -419,17 +419,25 @@ export default function TransactionReview({ row, opened, close, office, getEmplo
     defaultValues: {
       action: "APPROVE",
       notes: "",
-      code: row?.item?.code,
-      type: row?.item?.type,
+      code: row?.code,
+      type: row?.type,
       charges: 0,
-      amount: row?.item?.amount ?? 0,
+      amount: row?.amount ?? 0,
     },
   });
 
+  const getNotes = (): Note[] => {
+    if (row?.notes?.length) {
+      return JSON.parse(row.notes);
+    }
+    return [];
+  };
   const getTags = () => {
-    const cancellation = row?.notes?.find((n) => n.type === "CANCEL");
-    console.log("Tags ", cancellation?.tags);
-    return cancellation?.tags?.length ? cancellation.tags : [];
+    const n = getNotes();
+    if (n.length) {
+      return n[0].tags ?? [];
+    }
+    return [];
   };
 
   const form = useFromMantine<{
@@ -452,10 +460,10 @@ export default function TransactionReview({ row, opened, close, office, getEmplo
   const handleCancel = async () => {
     try {
       const response = await cancelTransaction({
-        type: row?.item?.type,
+        type: row?.type,
         reason: form.values.reason,
         description: form.values.description,
-        code: row?.item?.code,
+        code: row?.code,
       });
       decodeNotification("CANCELLATION", response);
       response?.status === "success" && form.reset();
@@ -498,20 +506,23 @@ export default function TransactionReview({ row, opened, close, office, getEmplo
   }, [state]);
 
   useEffect(() => {
-    if (row?.item) {
+    if (row) {
       reset({
         action: "APPROVE",
         notes: "",
-        code: row?.item?.code,
-        type: row?.item?.type,
+        code: row?.code,
+        type: row?.type,
         charges: 0,
-        amount: row?.item?.amount ?? 0,
+        amount: row?.amount ?? 0,
       });
     }
   }, [row, reset]);
 
   let View: any = ExternalView;
-  switch (row?.item.type) {
+
+  if (!row) return null;
+
+  switch (row?.type) {
     case "EXTERNAL":
       View = ExternalView;
       break;
@@ -528,10 +539,10 @@ export default function TransactionReview({ row, opened, close, office, getEmplo
       View = ForexView;
       break;
   }
-
-  const requestMessage = row?.notes?.find((note) => note.type === "REQUEST");
-  const reviewMessage = row?.notes?.find((note) => note.type === "REVIEW");
-  const cancelMessage = row?.notes?.find((note) => note.type === "CANCEL");
+  const notes = getNotes();
+  const requestMessage = notes.find((note) => note.type === "REQUEST");
+  const reviewMessage = notes.find((note) => note.type === "REVIEW");
+  const cancelMessage = notes.find((note) => note.type === "CANCEL");
   const requester = getEmployee([requestMessage?.user ?? ""]);
   const reviewer = getEmployee([reviewMessage?.user ?? ""]);
   const canceller = getEmployee([cancelMessage?.user ?? ""]);
@@ -564,7 +575,7 @@ export default function TransactionReview({ row, opened, close, office, getEmplo
             children: <Loader size={20} />,
           }}
         />
-        <Timeline active={activeState[row?.item?.state]} bulletSize={24} lineWidth={2}>
+        <Timeline active={activeState[row?.state]} bulletSize={24} lineWidth={2}>
           <Timeline.Item bullet={<IconGitBranch size={12} />} title="Transaction Request">
             <Space h={10} />
             <Alert title="Message" icon={<IconMessageDots size={14} />}>
@@ -572,29 +583,29 @@ export default function TransactionReview({ row, opened, close, office, getEmplo
                 <Tooltip label={requester?.length >= 1 ? requester[0].username : "Requester"}>
                   <Avatar src={requester?.length >= 1 ? requester[0].avatar_url : ""} />
                 </Tooltip>
-                {row?.notes?.find((note) => note.type === "REQUEST")?.message ?? "Transaction request"}
+                {notes.find((note) => note.type === "REQUEST")?.message ?? "Transaction request"}
               </Group>
             </Alert>
             <Space h={10} />
             <Text size="xs" mt={4}></Text>
-            {row?.item && (
+            {row && (
               <View
                 office={office}
                 baseCurrency={baseCurrency?.name}
                 mainCurrency={mainCurrency?.name}
-                transaction={row.item}
+                transaction={row}
               />
             )}
           </Timeline.Item>
           <Timeline.Item color="teal" title="Transaction review" bullet={<IconMessageDots size={12} />}>
-            {row?.item && row?.item.state === "REVIEW" && (
+            {row && row.state === "REVIEW" && (
               <form
                 className="mt-5"
                 action={(formData) => {
                   const data: any = {
                     ...formData,
                     ...getValues(),
-                    officeId: row?.item.office_id,
+                    officeId: row.office_id,
                   };
                   startTransition(() => formAction(data as unknown as ReviewFormData));
                 }}
@@ -656,7 +667,7 @@ export default function TransactionReview({ row, opened, close, office, getEmplo
 
           <Timeline.Item color="red" title="Cancellation" bullet={<IconCancel size={12} />}>
             <Space h="xl" />
-            {row?.item?.state === "PAID" ? (
+            {row?.state === "PAID" ? (
               <form action={() => startTransition(() => handleCancel())}>
                 <Stack>
                   <Group grow>
@@ -677,7 +688,7 @@ export default function TransactionReview({ row, opened, close, office, getEmplo
                   </Group>
                 </Stack>
               </form>
-            ) : row?.item?.state === "CANCELLED" ? (
+            ) : row?.state === "CANCELLED" ? (
               <Blockquote color="red">
                 <Group grow>
                   {cancelMessage?.tags?.map((t) => (
@@ -697,7 +708,7 @@ export default function TransactionReview({ row, opened, close, office, getEmplo
           </Timeline.Item>
 
           <Timeline.Item color="gray" bullet={<IconX size={12} />} title="Cancelled">
-            {row?.item?.state === "CANCELLED" && <Fragment></Fragment>}
+            {row?.state === "CANCELLED" && <Fragment></Fragment>}
           </Timeline.Item>
         </Timeline>
       </Box>

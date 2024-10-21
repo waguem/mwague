@@ -1,3 +1,4 @@
+import { Note } from "@/lib/client";
 import { ActionIcon, Avatar, Badge, Box, Group, HoverCard, Text, Timeline } from "@mantine/core";
 import { IconMessage2Exclamation } from "@tabler/icons-react";
 import { formatDistanceToNowStrict } from "date-fns";
@@ -32,14 +33,8 @@ export function HoverMessage({ message, size, show = false }: Props) {
   );
 }
 
-interface Message {
-  message: string;
-  date: string;
-  user: string;
-  type: "REQUEST" | "REVIEW" | "PAYMENT";
-}
 interface MessagesProps {
-  messages: Message[];
+  messages: Note[];
   notesType?: "TRANSACTION" | "PAYMENT";
 }
 

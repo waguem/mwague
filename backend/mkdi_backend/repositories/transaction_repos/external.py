@@ -13,10 +13,7 @@ from mkdi_backend.models.models import KcUser
 from mkdi_backend.models.transactions.transactions import External, Payment
 from mkdi_backend.models.Activity import FundCommit
 from mkdi_backend.repositories.transaction_repos.payable import PayableTransaction
-from mkdi_backend.repositories.transaction_repos.invariant import (
-    managed_invariant_tx_method,
-    async_managed_invariant_tx_method,
-)
+from mkdi_backend.repositories.transaction_repos.invariant import managed_invariant_tx_method
 from mkdi_backend.utils.database import CommitMode
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol as pr

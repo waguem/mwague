@@ -7,7 +7,7 @@ from mkdi_backend.models.Account import Account
 from mkdi_backend.models.Agent import Agent
 from mkdi_backend.models.office import OfficeWallet
 from mkdi_backend.models.models import KcUser
-from mkdi_backend.models.transactions.transaction_item import TransactionItem
+from mkdi_backend.models.transactions.transaction_item import TransactionItem, AllTransactions
 from mkdi_backend.dbmanager import sessionmanager
 import json
 from mkdi_backend.models.transactions.transactions import (
@@ -271,6 +271,53 @@ class TransactionRepository:
                 result.append(TransactionItem(item=item, notes=notes))
 
         return result
+
+    def get_offcie_transactions(
+        self, user: KcUser, start_date: str | None, end_date: str | None
+    ) -> List[AllTransactions]:
+        """Get Office Transactions by interval date"""
+        start_date, end_date = self._get_month_range(start_date, end_date)
+        internals = self.db.scalars(
+            select(Internal)
+            .where(Internal.office_id == user.office_id)
+            .where(Internal.created_at >= start_date)
+            .where(Internal.created_at <= end_date)
+            .order_by(Internal.created_at.desc())
+        ).all()
+
+        deposits = self.db.scalars(
+            select(Deposit)
+            .where(Deposit.office_id == user.office_id)
+            .where(Deposit.created_at >= start_date)
+            .where(Deposit.created_at <= end_date)
+            .order_by(Deposit.created_at.desc())
+        ).all()
+
+        externals = self.db.scalars(
+            select(External)
+            .where(External.office_id == user.office_id)
+            .where(External.created_at >= start_date)
+            .where(External.created_at <= end_date)
+            .order_by(External.created_at.desc())
+        ).all()
+
+        sendings = self.db.scalars(
+            select(Sending)
+            .where(Sending.office_id == user.office_id)
+            .where(Sending.created_at >= start_date)
+            .where(Sending.created_at <= end_date)
+            .order_by(Sending.created_at.desc())
+        ).all()
+
+        forexs = self.db.scalars(
+            select(ForEx)
+            .where(ForEx.office_id == user.office_id)
+            .where(ForEx.created_at >= start_date)
+            .where(ForEx.created_at <= end_date)
+            .order_by(ForEx.created_at.desc())
+        ).all()
+
+        return forexs + internals + sendings + deposits + externals
 
     async def get_offcie_transactions_items(self, user: KcUser) -> List[TransactionItem]:
 

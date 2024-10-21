@@ -1009,6 +1009,15 @@ export type StartActivityApiV1OfficeActivityPostResponse = ActivityResponse;
 
 export type GetOfficeTransactionsApiV1OfficeTransactionsGetResponse = Array<TransactionItem>;
 
+export type GetOfficeTransactionsByIntervalApiV1OfficeTransactionsIntervalGetData = {
+  endDate?: string;
+  startDate?: string;
+};
+
+export type GetOfficeTransactionsByIntervalApiV1OfficeTransactionsIntervalGetResponse = Array<
+  Internal | Deposit | Sending | External | ForEx
+>;
+
 export type GetAgentTransactionsApiV1AgentInitialsTransactionsGetData = {
   endDate?: string;
   initials: string;
@@ -1488,6 +1497,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: Array<TransactionItem>;
+      };
+    };
+  };
+  "/api/v1/office/transactions/interval": {
+    get: {
+      req: GetOfficeTransactionsByIntervalApiV1OfficeTransactionsIntervalGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<Internal | Deposit | Sending | External | ForEx>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
       };
     };
   };

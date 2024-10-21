@@ -49,6 +49,8 @@ import type {
   StartActivityApiV1OfficeActivityPostData,
   StartActivityApiV1OfficeActivityPostResponse,
   GetOfficeTransactionsApiV1OfficeTransactionsGetResponse,
+  GetOfficeTransactionsByIntervalApiV1OfficeTransactionsIntervalGetData,
+  GetOfficeTransactionsByIntervalApiV1OfficeTransactionsIntervalGetResponse,
   GetAgentTransactionsApiV1AgentInitialsTransactionsGetData,
   GetAgentTransactionsApiV1AgentInitialsTransactionsGetResponse,
   RequestTransactionApiV1TransactionPostData,
@@ -656,6 +658,31 @@ export const getOfficeTransactionsApiV1OfficeTransactionsGet =
       url: "/api/v1/office/transactions",
     });
   };
+
+/**
+ * Get Office Transactions By Interval
+ * get all transactions for an office
+ * @param data The data for the request.
+ * @param data.startDate
+ * @param data.endDate
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const getOfficeTransactionsByIntervalApiV1OfficeTransactionsIntervalGet = (
+  data: GetOfficeTransactionsByIntervalApiV1OfficeTransactionsIntervalGetData = {}
+): CancelablePromise<GetOfficeTransactionsByIntervalApiV1OfficeTransactionsIntervalGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/office/transactions/interval",
+    query: {
+      start_date: data.startDate,
+      end_date: data.endDate,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
 
 /**
  * Get Agent Transactions

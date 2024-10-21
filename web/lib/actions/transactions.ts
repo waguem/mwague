@@ -9,7 +9,8 @@ import {
   requestTransactionApiV1TransactionPost as requestTransactionApi,
   getOfficeTransactionsWithDetailsApiV1TransactionCodeGet as getTransactionByCode,
   reviewTransactionApiV1TransactionTransactionCodeReviewPost as reviewTransactionApi,
-  getOfficeTransactionsApiV1OfficeTransactionsGet as getOfficeTransactionsApi,
+  //getOfficeTransactionsApiV1OfficeTransactionsGet as getOfficeTransactionsApi,
+  getOfficeTransactionsByIntervalApiV1OfficeTransactionsIntervalGet as getOfficeTransactionsApi,
   TransactionReviewReq,
   GetOfficeTransactionsWithDetailsApiV1TransactionCodeGetResponse,
   addPaymentApiV1TransactionCodePayPost,
@@ -22,9 +23,12 @@ import { getResolver, CancelTransactionType, CancelTransaction } from "../schema
 import { PaymentResolver, TransactionReviewResolver, PaymentRequest } from "../schemas/actions";
 import { revalidatePath } from "next/cache";
 
-export const getMyOfficeTransactions = cache(async () => {
+export const getMyOfficeTransactions = cache(async (from?: string, to?: string) => {
   return withToken(async () => {
-    return await getOfficeTransactionsApi();
+    return await getOfficeTransactionsApi({
+      startDate: from,
+      endDate: to,
+    });
   });
 });
 

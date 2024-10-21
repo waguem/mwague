@@ -2,7 +2,7 @@
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css"; //if using mantine date picker features
 import "mantine-react-table/styles.css"; //make sure MRT styles were imported in your app root (once)
-import { useMemo, useState, useTransition } from "react";
+import { Fragment, useMemo, useState, useTransition } from "react";
 import { NumberFormatter, Badge, ActionIcon, Box, Tooltip, Group, Avatar, NumberInput, Button } from "@mantine/core";
 import { IconEyeCheck, IconEdit, IconCash, IconDownload } from "@tabler/icons-react";
 import { formatDate, formatDistanceToNowStrict } from "date-fns";
@@ -12,9 +12,9 @@ import {
   EmployeeResponse,
   ForEx,
   OfficeResponse,
-  TransactionItem,
   TransactionState,
   TransactionType,
+  Note,
 } from "@/lib/client";
 import TransactionReview from "./TransactionReview";
 import { getBadgeType, getMoneyPrefix, getStateBadge } from "@/lib/utils";
@@ -25,16 +25,17 @@ import { updateTransaction } from "@/lib/actions/transactions";
 import { decodeNotification } from "../notifications/notifications";
 import { HoverMessages } from "../wallet/HoverMessage";
 import DateRangePicker from "@/components/layouts/date-range-picker";
+import { AllTransactions } from "@/lib/types";
 
 interface Props {
-  data: TransactionItem[];
+  data: Array<AllTransactions>;
   office: OfficeResponse;
   employees: EmployeeResponse[];
 }
 
-const MantineTable = ({ data, office, employees }: Props) => {
+const TransactionTable = ({ data, office, employees }: Props) => {
   const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
-  const [editingRow, setEditingRow] = useState<TransactionItem | undefined>(undefined);
+  const [editingRow, setEditingRow] = useState<AllTransactions | undefined>(undefined);
   const [revewing, setReviewing] = useState<number>(-1);
   const [paying, setPaying] = useState<number>(-1);
   const [opened, { open, close }] = useDisclosure(false);
@@ -51,35 +52,33 @@ const MantineTable = ({ data, office, employees }: Props) => {
 
   const reduceAmountItems = (acc: number, row: any) => {
     // flat out the amount if it is a forex transaction
-    if (row.original.item.type === "FOREX") {
-      return acc + (row.original.item as ForEx).amount / (row.original.item as ForEx).selling_rate;
+    if (row.original.type === "FOREX") {
+      return acc + (row.original as ForEx).amount / (row.original as ForEx).selling_rate;
     }
-    return acc + (row.original.item.amount as number);
+    return acc + (row.original.amount as number);
   };
   //should be memoized or stable
-  const columns = useMemo<MRT_ColumnDef<TransactionItem>[]>(
+  const columns = useMemo<MRT_ColumnDef<AllTransactions>[]>(
     () => [
       {
-        accessorKey: "item.code", //access nested data with dot notation
+        accessorKey: "code", //access nested data with dot notation
         header: "Code",
         enableEditing: false,
         Cell: ({ cell, row }) => (
           <Group>
             <Avatar.Group spacing="xs">
-              {getAvatarGroup([row.original.item.created_by, row.original.item?.reviwed_by ?? ""]).map(
-                (user, index) => (
-                  <Tooltip key={index} label={user?.username}>
-                    <Avatar key={index} src={user.avatar_url} />
-                  </Tooltip>
-                )
-              )}
+              {getAvatarGroup([row.original.created_by, row.original?.reviwed_by ?? ""]).map((user, index) => (
+                <Tooltip key={index} label={user?.username}>
+                  <Avatar key={index} src={user.avatar_url} />
+                </Tooltip>
+              ))}
             </Avatar.Group>
             {cell.getValue() as string}
           </Group>
         ),
       },
       {
-        accessorKey: "item.amount",
+        accessorKey: "amount",
         header: "Amount",
         size: 80,
         Cell: ({ cell }) => {
@@ -87,14 +86,14 @@ const MantineTable = ({ data, office, employees }: Props) => {
           let currency: Currency = currencies?.find((curr: any) => curr.main)?.name as unknown as Currency;
           let fCurrency: Currency = "USD";
           let forexAmount = 0;
-          if (cell.row.original.item.type === "FOREX") {
-            const tr: ForEx = cell.row.original.item as ForEx;
+          if (cell.row.original.type === "FOREX") {
+            const tr: ForEx = cell.row.original as ForEx;
             currency = tr.currency;
             forexAmount = tr.tag === "BANKTT" ? tr.amount : tr.amount / tr.selling_rate;
           }
           return (
             <Group gap={"xs"}>
-              {cell.row.original.item.type === "FOREX" && (
+              {cell.row.original.type === "FOREX" && (
                 <Badge variant="dot" color="gray" size="md">
                   <NumberFormatter
                     decimalScale={3}
@@ -146,10 +145,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
             onChange={(value) =>
               setEditingRow({
                 ...row.original,
-                item: {
-                  ...row.original.item,
-                  amount: value as number,
-                },
+                amount: value as number,
               })
             }
           />
@@ -157,16 +153,16 @@ const MantineTable = ({ data, office, employees }: Props) => {
       },
       {
         header: "Type",
-        accessorKey: "item.type",
+        accessorKey: "type",
         enableEditing: false,
         Cell: ({ row }) => (
-          <Badge variant="outline" color={getBadgeType(row.original.item.type as TransactionType)}>
-            {row.original.item.type as string}{" "}
+          <Badge variant="outline" color={getBadgeType(row.original.type as TransactionType)}>
+            {row.original.type as string}{" "}
           </Badge>
         ),
       },
       {
-        accessorKey: "item.state", //normal accessorKey
+        accessorKey: "state", //normal accessorKey
         header: "State",
         size: 160,
         enableEditing: false,
@@ -181,18 +177,21 @@ const MantineTable = ({ data, office, employees }: Props) => {
         },
       },
       {
-        accessorKey: "item.notes",
+        accessorKey: "notes",
         header: "Description",
         enableEditing: false,
-        Cell: ({ row }) => <HoverMessages messages={row.original.notes as any} />,
+        Cell: ({ row }) => {
+          const notes: Note[] = row?.original.notes?.length ? JSON.parse(row?.original.notes) : [];
+          return <HoverMessages messages={notes} />;
+        },
       },
       {
-        accessorKey: "item.created_at",
+        accessorKey: "created_at",
         enableEditing: false,
         header: "Date",
         sortingFn: (rowA, rowB) => {
-          return new Date(rowA.original.item?.created_at ?? "").getTime() >
-            new Date(rowB.original.item?.created_at ?? "").getTime()
+          return new Date(rowA.original?.created_at ?? "").getTime() >
+            new Date(rowB.original?.created_at ?? "").getTime()
             ? -1
             : 1;
         },
@@ -212,7 +211,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
     []
   );
 
-  const handleEditTransaction: MRT_TableOptions<TransactionItem>["onEditingRowSave"] = async ({ values, table }) => {
+  const handleEditTransaction: MRT_TableOptions<AllTransactions>["onEditingRowSave"] = async ({ values, table }) => {
     const newValidationErrors = validateTransaction(values);
     if (Object.values(newValidationErrors).some((error) => error)) {
       Object.entries(newValidationErrors).forEach(([key, value]) => {
@@ -232,8 +231,8 @@ const MantineTable = ({ data, office, employees }: Props) => {
     // update transaction
     const asyncUpdate = async () => {
       const response = await updateTransaction(office.id, {
-        ...editingRow?.item,
-        amount: editingRow?.item.amount,
+        ...editingRow,
+        amount: editingRow?.amount,
       });
       decodeNotification("Update Transaction", response);
     };
@@ -253,7 +252,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
     editDisplayMode: "row", // ('modal', 'cell', 'table', and 'custom' are also available)
     initialState: {
       density: "xs",
-      sorting: [{ id: "item.created_at", desc: false }],
+      sorting: [{ id: "created_at", desc: false }],
     },
     onEditingRowSave: handleEditTransaction,
     renderRowActions: ({ row }) => (
@@ -271,7 +270,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
             <IconEyeCheck size={18} />
           </ActionIcon>
         </Tooltip>
-        {(row.getValue("item.state") === "REVIEW" || row.getValue("item.state") === "REJECTED") && (
+        {(row.getValue("state") === "REVIEW" || row.getValue("state") === "REJECTED") && (
           <Tooltip label="Edit Transaction">
             <ActionIcon
               color="red"
@@ -286,7 +285,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
           </Tooltip>
         )}
 
-        {isPayable(row.original.item.type) && (
+        {isPayable(row.original.type) && (
           <Tooltip label="Pay Transaction">
             <ActionIcon
               color="cyan"
@@ -327,7 +326,7 @@ const MantineTable = ({ data, office, employees }: Props) => {
   });
 
   return (
-    <>
+    <Fragment>
       <TransactionReview
         row={data[revewing]}
         close={closeReview}
@@ -336,21 +335,21 @@ const MantineTable = ({ data, office, employees }: Props) => {
         getEmployee={getAvatarGroup}
       />
       <PayTransaction
-        row={data[paying]?.item}
+        row={data[paying]}
         close={close}
         opened={opened}
         officeId={office.id}
         getAvatarGroup={getAvatarGroup}
       />
       <MantineReactTable table={table} />
-    </>
+    </Fragment>
   );
 };
 
-export default MantineTable;
+export default TransactionTable;
 
 function validateTransaction(transaction: any) {
   return {
-    amount: !(Number(transaction["item.amount"]) && +transaction["item.amount"] > 0) ? "Amount is Required" : "",
+    amount: !(Number(transaction["amount"]) && +transaction["amount"] > 0) ? "Amount is Required" : "",
   };
 }
