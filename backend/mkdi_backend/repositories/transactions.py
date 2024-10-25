@@ -523,7 +523,8 @@ class TransactionRepository:
 
         transaction = reviewer.rollback(transaction)
 
-        notes = json.loads(transaction.notes)
+        notes = json.loads(transaction.notes if hasattr(transaction, "notes") else "[]")
+
         reviewer.update_notes(notes, "CANCEL", usr_input.description, tags=usr_input.reason)
         transaction.notes = json.dumps(notes)
 

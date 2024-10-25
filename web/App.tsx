@@ -14,6 +14,7 @@ import {
 } from "@/store/themeConfigSlice";
 import Loading from "@/components/layouts/loading";
 import { getTranslation } from "@/i18n";
+import logger from "./lib/logger";
 
 function App({ children }: PropsWithChildren) {
   const themeConfig = useSelector((state: IRootState) => state.themeConfig);
@@ -47,6 +48,7 @@ function App({ children }: PropsWithChildren) {
   // if((!gSession || !gSession.user) && !pathname.includes("/login")){
   //   router.push("/login");
   // }
+  logger.info(`App Initialized. Is loading ? ${isLoading} `);
   return (
     <div
       className={`${(themeConfig.sidebar && "toggle-sidebar") || ""} ${themeConfig.menu} ${themeConfig.layout} ${

@@ -12,6 +12,7 @@ import "@mantine/carousel/styles.css";
 import "react-perfect-scrollbar/dist/css/styles.css";
 
 import "../styles/tailwind.css";
+import logger from "@/lib/logger";
 
 // export const metadata = {
 //   title: {
@@ -28,6 +29,7 @@ const nunito = Nunito({
 });
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  logger.info("Redering Layout.");
   return (
     <html lang="en">
       <head>

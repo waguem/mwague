@@ -30,7 +30,7 @@ import { PaymentRequest } from "@/lib/schemas/actions";
 import { decodeNotification } from "../notifications/notifications";
 import { generateReceipt, Receipt } from "@/lib/pdf/generator";
 import { HoverMessages } from "../wallet/HoverMessage";
-import { Deposit, External, ForEx, Sending, TransactionType } from "@/lib/client";
+import { Deposit, External, ForEx, Note, Sending, TransactionType } from "@/lib/client";
 import CancelPayment from "./CancelPayment";
 import { AllTransactions } from "@/lib/types";
 interface PayTransactionProps {
@@ -46,7 +46,8 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
   const [pending, startTransition] = useTransition();
 
   const [transaction, setTransaction] = useState<any>(undefined);
-
+  const notes: Note[] = JSON.parse(row?.notes ?? "[]");
+  console.log("Parsed notes... ", notes);
   const form = useForm<PaymentRequest>({
     mode: "controlled",
     initialValues: {
@@ -55,7 +56,7 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
       rate: 0,
       customerName: "",
       customerPhone: "",
-      notes: "",
+      notes: notes.find((n) => n.type == "REQUEST")?.message ?? "",
       type: "EXTERNAL",
       code: "",
     },
@@ -72,6 +73,9 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
     try {
       const response = await payTransaction(officeId, form.values);
       decodeNotification("Transaction Payment", response);
+      if (response?.status === "success") {
+        form.reset();
+      }
     } catch (e) {}
   };
 
@@ -98,6 +102,12 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
     if (row?.code && row?.type) {
       setTransaction(undefined);
       fetchTransaction(row.code, row.type);
+      const notes: Note[] = JSON.parse(row?.notes ?? "[]");
+      console.log("Parsed notes...usefec ", notes);
+      form.setValues((values) => ({
+        ...values,
+        notes: notes.find((n) => n.type === "REQUEST")?.message ?? "",
+      }));
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

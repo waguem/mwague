@@ -260,7 +260,7 @@ class AbstractTransaction(ABC):
 
             user_input: pr.TransactionReviewReq = self.get_inputs()
             note = user_input.notes or ""
-            notes = json.loads(transaction.notes)
+            notes = json.loads(transaction.notes if hasattr(transaction, "notes") else "[]")
             self.update_notes(notes, "REVIEW", note)
             transaction.notes = json.dumps(notes)
 

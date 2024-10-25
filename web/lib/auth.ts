@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { NextMiddlewareWithAuth, NextRequestWithAuth } from "next-auth/middleware";
-
+import logger from "@/lib/logger";
 const unAuthExtentions = ["jpg", "jpeg", "png", "svg"];
 
 class ProtectedURI {
@@ -57,15 +57,24 @@ export function isPublicURL(pathname: string) {
 }
 
 export const checkAuthorization: NextMiddlewareWithAuth = (request: NextRequestWithAuth) => {
+  const startTime = Date.now();
   const token = request.nextauth.token!;
   const pathname = request.nextUrl.pathname;
+  let response: NextResponse | undefined = undefined;
   if (isPublicURL(pathname)) {
-    return NextResponse.next();
+    response = NextResponse.next();
+    const processingTime = Date.now() - startTime;
+    logger.log(`Request: ${request.method} ${request.nextUrl.pathname}, Processing Time: ${processingTime} ms`);
+    return response;
   }
+
   const roles = token.user.roles;
   const protectedUri = protectedURIs.find((uri) => uri.uri.test(pathname));
   if (protectedUri && protectedUri.isAccessibleByRole(roles)) {
-    return NextResponse.next();
+    response = NextResponse.next();
+    const processingTime = Date.now() - startTime;
+    logger.log(`Request: ${request.method} ${request.nextUrl.pathname}, Processing Time: ${processingTime} ms`);
+    return response;
   }
 
   return NextResponse.json({ error: "Unauthorized", status: 403 });

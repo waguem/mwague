@@ -25,10 +25,6 @@ export default withAuth(checkAuth, {
   },
 });
 
-// export async function middleware(req:NextRequest){
-
-// }
-
 export const config = {
   matcher: [
     /*
@@ -38,6 +34,6 @@ export const config = {
      * - _rsc
      * - favicon.ico (favicon file)
      */
-    "/((?!_next/static|_next/image|auth/login|favicon.ico).*)",
+    "/((?!_next/static|_next/image|_rsc|favicon.ico).*)",
   ],
 };

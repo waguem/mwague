@@ -298,7 +298,8 @@ class ReportRepository:
 
     def _get_tag(self, transaction):
         if isinstance(transaction.notes, str):
-            notes = json.loads(transaction.notes)
+            notes = json.loads(transaction.notes if hasattr(transaction, "notes") else "[]")
+
             for note in notes:
                 if "tags" in note:
                     return ",".join(note["tags"])

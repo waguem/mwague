@@ -9,6 +9,11 @@ const nextConfig = {
   images: {
     domains: ["source.unsplash.com", "images.unsplash.com", "unsplash.com"],
   },
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
+  },
   experimental: {
     optimizePackageImports: ["@mantine/core", "@mantine/hooks", "@mantine/dates"],
   },
