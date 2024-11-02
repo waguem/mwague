@@ -11,7 +11,7 @@ import { ActionIcon, Badge, Button, Group, MantineColor, NumberFormatter, Toolti
 import { MantineReactTable, MRT_ColumnDef, useMantineReactTable } from "mantine-react-table";
 import { useMemo, useState, useTransition } from "react";
 import { NewTrade } from "./NewTrade";
-import { getAccountOptions, getCryptoPrefix, getMoneyPrefix, getStateBadge } from "@/lib/utils";
+import { getAccountOptions, getMoneyPrefix, getStateBadge } from "@/lib/utils";
 import { formatDistanceToNowStrict } from "date-fns";
 import { PayTrade } from "./PaymentTrade";
 import { isArray } from "lodash";
@@ -25,7 +25,7 @@ import EditTrading from "./EditTrading";
 
 interface Props {
   office: OfficeResponse;
-  wallet: OfficeWalletResponse;
+  wallet?: OfficeWalletResponse | undefined;
   tradings: WalletTradingResponse[];
   officeAccounts: AccountResponse[];
   agents: AgentReponseWithAccounts[];
@@ -48,6 +48,9 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
   const [pending, startTransition] = useTransition();
   const agentAccountsOptions = getAccountOptions(null, agents);
 
+  const getWallet = (trading: WalletTradingResponse) => {
+    return office.wallets?.find((w) => w.walletID == trading.walletID)!;
+  };
   const get_currency = (trade: WalletTradingResponse) => {
     switch (trade.trading_type) {
       case "BUY":
@@ -68,7 +71,7 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
         size: 100,
         Cell: ({ cell, row }) => {
           const [copied, setCopied] = useState(false);
-
+          const wallet = office.wallets?.find((w) => w.walletID == row.original.walletID)!;
           const handleCopyClick = () => {
             const message = isArray(row.original.notes) ? row.original.notes[0].message : "";
             const msg = `${wallet.wallet_name}\n${(+row.original.amount.toFixed(2)).toLocaleString()}${getMoneyPrefix(
@@ -126,16 +129,21 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
         header: "Crypto",
         accessorKey: "trading_crypto",
         size: 100,
-        Cell: ({ cell }) => (
-          <Badge size="md" radius={"sm"} variant="dot" color="violet">
-            <NumberFormatter
-              value={cell.getValue() as number}
-              thousandSeparator=","
-              decimalScale={2}
-              prefix={getMoneyPrefix(wallet.wallet_type == "CRYPTO" ? wallet.crypto_currency : wallet.trading_currency)}
-            />
-          </Badge>
-        ),
+        Cell: ({ cell, row }) => {
+          const wallet = getWallet(row.original);
+          return (
+            <Badge size="md" radius={"sm"} variant="dot" color="violet">
+              <NumberFormatter
+                value={cell.getValue() as number}
+                thousandSeparator=","
+                decimalScale={2}
+                prefix={getMoneyPrefix(
+                  wallet.wallet_type == "CRYPTO" ? wallet.crypto_currency : wallet.trading_currency
+                )}
+              />
+            </Badge>
+          );
+        },
       },
       {
         header: "State",
@@ -189,6 +197,9 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
     enableEditing: true,
     positionActionsColumn: "last",
     renderTopToolbarCustomActions: ({ table }) => {
+      if (!wallet) {
+        return null;
+      }
       return (
         <Group>
           <NewTrade agents={agentAccountsOptions} office={office} walletID={wallet.walletID} />
@@ -209,34 +220,11 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
               Export to PDF
             </Button>
           </Tooltip>
-          <Badge variant="dot" color="teal" size="lg">
-            Buying :{" "}
-            <NumberFormatter
-              thousandSeparator=","
-              prefix={getCryptoPrefix(wallet.crypto_currency)}
-              value={tradings.filter((t) => t.trading_type === "BUY").reduce((acc, t) => acc + t.amount, 0)}
-            />
-          </Badge>
-          <Badge variant="dot" color="pink" size="lg">
-            Selling :{" "}
-            <NumberFormatter
-              thousandSeparator=","
-              prefix={getCryptoPrefix(wallet.crypto_currency)}
-              value={tradings.filter((t) => t.trading_type === "SELL").reduce((acc, t) => acc + t.amount, 0)}
-            />
-          </Badge>
-          <Badge variant="dot" color="cyan" size="lg">
-            Exchange :{" "}
-            <NumberFormatter
-              thousandSeparator=","
-              prefix={getCryptoPrefix(wallet.crypto_currency)}
-              value={tradings.filter((t) => t.trading_type === "EXCHANGE").reduce((acc, t) => acc + t.amount, 0)}
-            />
-          </Badge>
         </Group>
       );
     },
     renderRowActions: ({ row }) => {
+      const wallet = getWallet(row.original);
       return (
         <Group gap="xs">
           <Tooltip label="Show details">

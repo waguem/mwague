@@ -6,7 +6,7 @@ from typing import List, Tuple
 from datetime import datetime
 from loguru import logger
 from sqlalchemy.ext.asyncio.session import AsyncSession
-from mkdi_backend.models.Account import Account, AccountType
+from mkdi_backend.models.Account import Account
 from mkdi_backend.models import (
     Activity,
     Deposit,
@@ -150,7 +150,7 @@ class AbstractTransaction(ABC):
         return accounts[0], accounts[1]
 
     def use_account(
-        self, initials: str, account_type: AccountType = AccountType.AGENT
+        self, initials: str, account_type: pr.AccountType = pr.AccountType.AGENT
     ) -> Account | None:
         """
         Retrieves an account from the database based on the provided

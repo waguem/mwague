@@ -181,7 +181,7 @@ const TransactionTable = ({ data, office, employees }: Props) => {
         header: "Description",
         enableEditing: false,
         Cell: ({ row }) => {
-          const notes: Note[] = row?.original.notes?.length ? JSON.parse(row?.original.notes) : [];
+          const notes: Note[] = typeof row?.original.notes === "string" ? JSON.parse(row?.original.notes) : [];
           return <HoverMessages messages={notes} />;
         },
       },

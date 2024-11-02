@@ -12,7 +12,7 @@ from mkdi_backend.models.transactions.transactions import (
 from mkdi_backend.models.models import KcUser
 
 from mkdi_backend.models.office import OfficeWallet, Office
-from mkdi_backend.models.Account import Account, AccountType, AccountMonthlyReport
+from mkdi_backend.models.Account import Account, AccountMonthlyReport
 from mkdi_backend.models.Agent import Agent
 
 from sqlmodel.sql.expression import select, or_
@@ -192,7 +192,9 @@ class ReportRepository:
             accounts = self.db.scalars(
                 select(Account)
                 .where(Account.office_id == office.id)
-                .where(Account.type.in_([AccountType.AGENT, AccountType.SUPPLIER]))
+                .where(
+                    Account.type.in_([protocol.AccountType.AGENT, protocol.AccountType.SUPPLIER])
+                )
             ).all()
 
             for account in accounts:
@@ -261,7 +263,9 @@ class ReportRepository:
             accounts = self.db.scalars(
                 select(Account)
                 .where(Account.office_id == office.id)
-                .where(Account.type.in_([AccountType.AGENT, AccountType.SUPPLIER]))
+                .where(
+                    Account.type.in_([protocol.AccountType.AGENT, protocol.AccountType.SUPPLIER])
+                )
             ).all()
 
             for account in accounts:

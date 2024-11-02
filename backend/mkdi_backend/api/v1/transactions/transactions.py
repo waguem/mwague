@@ -48,7 +48,7 @@ def get_office_transactions_by_interval(
 
 @router.get(
     "/agent/{initials}/transactions",
-    response_model=List[TransactionItem],
+    response_model=List[AllTransactions],
     status_code=200,
 )
 def get_agent_transactions(
@@ -58,7 +58,7 @@ def get_agent_transactions(
     start_date: str | None = None,
     end_date: str | None = None,
     db: Session = Depends(get_db),
-) -> list[TransactionItem]:
+) -> list[AllTransactions]:
     """get all transactions for an agent"""
     return TransactionRepository(db).get_agent_transactions(
         user.office_id, initials, start_date, end_date

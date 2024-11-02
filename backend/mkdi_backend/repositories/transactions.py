@@ -71,7 +71,7 @@ class TransactionRepository:
 
     def get_agent_transactions(
         self, office_id: str, initials: str, start_date_str: str, end_date_str: None
-    ) -> List[TransactionItem]:
+    ) -> List[AllTransactions]:
         """get all transactions for an agent"""
 
         start_date, end_date = self._get_month_range(start_date_str, end_date_str)
@@ -133,14 +133,7 @@ class TransactionRepository:
             )
         ).all()
 
-        result = []
-
-        for collection in [internals, deposits, externals, sendings, forexs]:
-            for item in collection:
-                notes = json.loads(item.notes) if len(item.notes) > 0 else []
-                result.append(TransactionItem(item=item, notes=notes))
-
-        return result
+        return forexs + internals + sendings + deposits + externals
 
     def get_concrete_type(self, transaction_type: str) -> AbstractTransaction:
         """return the concrete type for the transaction"""

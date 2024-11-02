@@ -29,6 +29,9 @@ export type AccountResponse = {
   balance: number;
   is_open: boolean;
   version: number;
+  pendings_in?: number;
+  pendings_out?: number;
+  effective_balance?: number;
   created_by?: string;
   office_id?: string;
 };

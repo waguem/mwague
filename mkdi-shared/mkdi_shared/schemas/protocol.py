@@ -228,6 +228,9 @@ class AccountResponse(AccountBase):
     balance: Decimal
     is_open: bool
     version: int
+    pendings_in: Decimal | None
+    pendings_out: Decimal | None
+    effective_balance: Decimal | None
     created_by: UUID | None = None
     office_id: UUID | None = None
 

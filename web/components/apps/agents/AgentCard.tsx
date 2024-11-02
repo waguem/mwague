@@ -31,9 +31,35 @@ export default function AgentCard({ accounts }: Props) {
                 </Badge>
               </Group>
               <Group grow>
-                <Title order={5}>Type</Title>
-                <Badge radius={"md"} size="xl" variant="dot" color={account.type === "AGENT" ? "teal" : "red"}>
-                  {account.type}
+                <Title order={5}>Pendings</Title>
+                <Badge
+                  radius={"md"}
+                  size="xl"
+                  variant="dot"
+                  color={Number(account.pendings_in) - Number(account.pendings_out) >= 0 ? "teal" : "red"}
+                >
+                  <NumberFormatter
+                    value={Number(account.pendings_in) - Number(account.pendings_out)}
+                    thousandSeparator
+                    decimalScale={4}
+                    prefix={getMoneyPrefix(account.currency)}
+                  />
+                </Badge>
+              </Group>
+              <Group grow>
+                <Title order={5}>Effective Balance</Title>
+                <Badge
+                  radius={"md"}
+                  size="xl"
+                  variant="dot"
+                  color={Number(account.effective_balance) >= 0 ? "teal" : "red"}
+                >
+                  <NumberFormatter
+                    value={account.effective_balance}
+                    thousandSeparator
+                    decimalScale={4}
+                    prefix={getMoneyPrefix(account.currency)}
+                  />
                 </Badge>
               </Group>
             </Stack>

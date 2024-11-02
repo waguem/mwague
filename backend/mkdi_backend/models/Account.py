@@ -3,11 +3,15 @@ from uuid import UUID, uuid4
 
 import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as pg
-from mkdi_shared.schemas.protocol import AccountBase, AccountMonthlyReportBase, AccountType
+from mkdi_shared.schemas.protocol import AccountBase, AccountMonthlyReportBase
 from sqlmodel import Field
 from datetime import datetime
 from decimal import Decimal
-from mkdi_backend.models.get_account_pendings import get_account_pendings
+from mkdi_backend.models.get_account_pendings import (
+    get_account_pendings,
+    get_account_pendings_in,
+    get_accounts_pendings_out,
+)
 from sqlalchemy.ext.hybrid import hybrid_property
 from pydantic import root_validator
 
@@ -33,6 +37,11 @@ class Account(AccountBase, table=True):
     created_by: UUID = Field(foreign_key="employees.id")
 
     office_id: UUID = Field(foreign_key="offices.id")
+    pendings_in: ClassVar[Decimal] = hybrid_property(get_account_pendings_in)
+    pendings_out: ClassVar[Decimal] = hybrid_property(get_accounts_pendings_out)
+    effective_balance: ClassVar[Decimal] = hybrid_property(
+        lambda cls: cls.balance + cls.pendings_in - cls.pendings_out
+    )
 
 
 class AccountMonthlyReport(AccountMonthlyReportBase, table=True):
