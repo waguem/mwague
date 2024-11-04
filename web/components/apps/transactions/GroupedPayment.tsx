@@ -50,7 +50,7 @@ export default function GroupedPayment({ table, office }: Props) {
     return table
       .getSelectedRowModel()
       .rows.reduce((ac: number, row: MRT_Row<AllTransactions>) => ac + getPayment(row.original as ForEx), 0);
-  }, [table]);
+  }, [table, table.getSelectedRowModel().rows]);
 
   const handleGroupPay = async () => {
     try {
