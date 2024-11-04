@@ -17,6 +17,9 @@ import {
   updateTransactionApiV1TransactionCodePut,
   cancelTransactionApiV1TransactionCodeCancelDelete as cancelTransactionApi,
   cancelPaymentApiV1PaymentIdCancelPost,
+  groupPayApiV1GroupPayForexPost,
+  GroupedPaymentItem,
+  GroupPayResponse,
 } from "@/lib/client";
 import { State } from "./state";
 import { getResolver, CancelTransactionType, CancelTransaction } from "../schemas/transactionsResolvers";
@@ -249,25 +252,36 @@ export const cancelTransaction = async (data: CancelTransactionType) => {
 };
 
 export const cancelPayment = async (id: string, cancellation: CancelTransactionType) => {
-  const parsed = CancelTransaction.safeParse(cancellation);
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: "Invalid Cancellation data",
-    };
-  }
-
-  const response = await cancelPaymentApiV1PaymentIdCancelPost({
-    id,
-    requestBody: cancellation,
-  });
-
-  revalidatePath(`/dashboard/office/[slug]/transactions`);
-
   return withToken(async () => {
+    const parsed = CancelTransaction.safeParse(cancellation);
+    if (!parsed.success) {
+      return {
+        status: "error",
+        message: "Invalid Cancellation data",
+      };
+    }
+
+    const response = await cancelPaymentApiV1PaymentIdCancelPost({
+      id,
+      requestBody: cancellation,
+    });
+
+    revalidatePath(`/dashboard/office/[slug]/transactions`);
     return {
       status: "success",
       message: `Payment for transaction ${response.transaction_type} with code ${cancellation.code} as been cancelled`,
     };
+  });
+};
+
+export const groupPay = async (payments: GroupedPaymentItem[]): Promise<GroupPayResponse> => {
+  return withToken(async () => {
+    const response = await groupPayApiV1GroupPayForexPost({
+      requestBody: {
+        payments,
+      },
+    });
+    revalidatePath(`/dashboard/office/[slug]/transactions`);
+    return response;
   });
 };

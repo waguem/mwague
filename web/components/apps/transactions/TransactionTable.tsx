@@ -26,6 +26,7 @@ import { decodeNotification } from "../notifications/notifications";
 import { HoverMessages } from "../wallet/HoverMessage";
 import DateRangePicker from "@/components/layouts/date-range-picker";
 import { AllTransactions } from "@/lib/types";
+import GroupedPayment from "./GroupedPayment";
 
 interface Props {
   data: Array<AllTransactions>;
@@ -249,6 +250,7 @@ const TransactionTable = ({ data, office, employees }: Props) => {
     enableEditing: true,
     positionActionsColumn: "last",
     paginationDisplayMode: "pages",
+    enableRowSelection: (row) => row.original.state === "PENDING" && row.original.type === "FOREX",
     editDisplayMode: "row", // ('modal', 'cell', 'table', and 'custom' are also available)
     initialState: {
       density: "xs",
@@ -321,6 +323,7 @@ const TransactionTable = ({ data, office, employees }: Props) => {
         >
           Export to PDF
         </Button>
+        <GroupedPayment office={office} table={table} />
       </Group>
     ),
   });

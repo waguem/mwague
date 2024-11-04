@@ -163,3 +163,13 @@ def cancel_payment(
     db: DBSessionDep,
 ) -> protocol.PaymentResponse:
     return TransactionRepository(db).cancel_payment(user, id, request)
+
+
+@router.post("/groupPay/forex", response_model=protocol.GroupPayResponse, status_code=201)
+async def group_pay(
+    *,
+    user: Annotated[KcUser, Security(check_authorization, scopes=["office_admin"])],
+    request: protocol.GroupPayRequest,
+    db: AsyncDBSessionDep,
+) -> protocol.GroupPayResponse:
+    return await TransactionRepository(db).group_pay(user, request)

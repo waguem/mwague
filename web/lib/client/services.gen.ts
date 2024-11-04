@@ -67,6 +67,8 @@ import type {
   CancelTransactionApiV1TransactionCodeCancelDeleteResponse,
   CancelPaymentApiV1PaymentIdCancelPostData,
   CancelPaymentApiV1PaymentIdCancelPostResponse,
+  GroupPayApiV1GroupPayForexPostData,
+  GroupPayApiV1GroupPayForexPostResponse,
   TradeWalletApiV1WalletPostData,
   TradeWalletApiV1WalletPostResponse,
   GetWalletTradingsApiV1WalletWalletIdTradingsGetData,
@@ -691,7 +693,7 @@ export const getOfficeTransactionsByIntervalApiV1OfficeTransactionsIntervalGet =
  * @param data.initials
  * @param data.startDate
  * @param data.endDate
- * @returns TransactionItem Successful Response
+ * @returns unknown Successful Response
  * @throws ApiError
  */
 export const getAgentTransactionsApiV1AgentInitialsTransactionsGet = (
@@ -882,6 +884,27 @@ export const cancelPaymentApiV1PaymentIdCancelPost = (
     path: {
       id: data.id,
     },
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Group Pay
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns GroupPayResponse Successful Response
+ * @throws ApiError
+ */
+export const groupPayApiV1GroupPayForexPost = (
+  data: GroupPayApiV1GroupPayForexPostData
+): CancelablePromise<GroupPayApiV1GroupPayForexPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/groupPay/forex",
     body: data.requestBody,
     mediaType: "application/json",
     errors: {

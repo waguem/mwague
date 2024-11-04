@@ -458,6 +458,24 @@ export type FundCommit = {
   activity_id: string;
 };
 
+export type GroupPayRequest = {
+  payments: Array<GroupedPaymentItem>;
+};
+
+export type GroupPayResponse = {
+  states: Array<GroupPayResponseItem>;
+};
+
+export type GroupPayResponseItem = {
+  code: string;
+  state: PaymentState;
+};
+
+export type GroupedPaymentItem = {
+  code: string;
+  request: PaymentRequest;
+};
+
 export type HTTPValidationError = {
   detail?: Array<ValidationError>;
 };
@@ -1027,7 +1045,9 @@ export type GetAgentTransactionsApiV1AgentInitialsTransactionsGetData = {
   startDate?: string;
 };
 
-export type GetAgentTransactionsApiV1AgentInitialsTransactionsGetResponse = Array<TransactionItem>;
+export type GetAgentTransactionsApiV1AgentInitialsTransactionsGetResponse = Array<
+  Internal | Deposit | Sending | External | ForEx
+>;
 
 export type RequestTransactionApiV1TransactionPostData = {
   requestBody: TransactionRequest;
@@ -1081,6 +1101,12 @@ export type CancelPaymentApiV1PaymentIdCancelPostData = {
 };
 
 export type CancelPaymentApiV1PaymentIdCancelPostResponse = PaymentResponse;
+
+export type GroupPayApiV1GroupPayForexPostData = {
+  requestBody: GroupPayRequest;
+};
+
+export type GroupPayApiV1GroupPayForexPostResponse = GroupPayResponse;
 
 export type TradeWalletApiV1WalletPostData = {
   requestBody: WalletTradingRequest;
@@ -1525,7 +1551,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Array<TransactionItem>;
+        200: Array<Internal | Deposit | Sending | External | ForEx>;
         /**
          * Validation Error
          */
@@ -1629,6 +1655,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: PaymentResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/groupPay/forex": {
+    post: {
+      req: GroupPayApiV1GroupPayForexPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        201: GroupPayResponse;
         /**
          * Validation Error
          */

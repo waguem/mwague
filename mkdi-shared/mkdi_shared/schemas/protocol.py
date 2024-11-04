@@ -668,3 +668,21 @@ class CommitTradeRequest(BaseModel):
     sold_amount: Decimal
     crypto_amount: Decimal
     trading_result: Decimal
+
+
+class GroupedPaymentItem(BaseModel):
+    code: str
+    request: PaymentRequest
+
+
+class GroupPayRequest(BaseModel):
+    payments: List[GroupedPaymentItem]
+
+
+class GroupPayResponseItem(BaseModel):
+    code: str
+    state: PaymentState
+
+
+class GroupPayResponse(BaseModel):
+    states: List[GroupPayResponseItem]

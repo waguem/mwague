@@ -229,7 +229,7 @@ export const getMoneyPrefix = (currency: Currency | CryptoCurrency | string | un
     case "RMB":
       return "¥";
     case "AED":
-      return "aed";
+      return " aed ";
     case "GNF":
     case "USDT":
       return "₮";

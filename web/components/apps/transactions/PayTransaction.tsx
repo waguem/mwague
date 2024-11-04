@@ -47,7 +47,6 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
 
   const [transaction, setTransaction] = useState<any>(undefined);
   const notes: Note[] = JSON.parse(row?.notes ?? "[]");
-  console.log("Parsed notes... ", notes);
   const form = useForm<PaymentRequest>({
     mode: "controlled",
     initialValues: {

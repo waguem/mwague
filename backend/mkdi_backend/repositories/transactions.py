@@ -538,3 +538,17 @@ class TransactionRepository:
 
         payment = reviewer.cancel_payment(id)
         return payment
+
+    async def _collect_payment(
+        self, user: KcUser, results: List[pr.GroupPayResponseItem], request: pr.GroupedPaymentItem
+    ):
+        result = await self.add_payment(user, request.code, request.request)
+        results.append(pr.GroupPayResponseItem(code=request.code, state=result.state))
+
+    async def group_pay(self, user: KcUser, request: pr.GroupPayRequest) -> pr.GroupPayResponse:
+        results: List[pr.GroupPayResponseItem] = []
+
+        for payment in request.payments:
+            await self._collect_payment(user, results, payment)
+
+        return pr.GroupPayResponse(states=results)

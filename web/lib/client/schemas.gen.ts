@@ -58,7 +58,7 @@ export const $AccountMonthlyReport = {
       type: "string",
       format: "date-time",
       title: "Updated At",
-      default: "2024-11-02T13:37:26.440270",
+      default: "2024-11-04T19:55:41.080715",
     },
   },
   type: "object",
@@ -1582,6 +1582,66 @@ export const $FundCommit = {
   type: "object",
   required: ["is_out", "v_from", "variation", "account", "description", "activity_id"],
   title: "FundCommit",
+} as const;
+
+export const $GroupPayRequest = {
+  properties: {
+    payments: {
+      items: {
+        $ref: "#/components/schemas/GroupedPaymentItem",
+      },
+      type: "array",
+      title: "Payments",
+    },
+  },
+  type: "object",
+  required: ["payments"],
+  title: "GroupPayRequest",
+} as const;
+
+export const $GroupPayResponse = {
+  properties: {
+    states: {
+      items: {
+        $ref: "#/components/schemas/GroupPayResponseItem",
+      },
+      type: "array",
+      title: "States",
+    },
+  },
+  type: "object",
+  required: ["states"],
+  title: "GroupPayResponse",
+} as const;
+
+export const $GroupPayResponseItem = {
+  properties: {
+    code: {
+      type: "string",
+      title: "Code",
+    },
+    state: {
+      $ref: "#/components/schemas/PaymentState",
+    },
+  },
+  type: "object",
+  required: ["code", "state"],
+  title: "GroupPayResponseItem",
+} as const;
+
+export const $GroupedPaymentItem = {
+  properties: {
+    code: {
+      type: "string",
+      title: "Code",
+    },
+    request: {
+      $ref: "#/components/schemas/PaymentRequest",
+    },
+  },
+  type: "object",
+  required: ["code", "request"],
+  title: "GroupedPaymentItem",
 } as const;
 
 export const $HTTPValidationError = {
