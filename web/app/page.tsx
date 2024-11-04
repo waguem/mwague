@@ -9,7 +9,11 @@ export const metadata: Metadata = {
 const Organization = async () => {
   const session = await getServerSession(authOptions);
   // redirec to the logged user office
-  redirect(`/dashboard/office/${session?.user.officeId}`);
+  if (!session?.user.officeId) {
+    redirect("/auth/login");
+  }
+
+  redirect(`/dashboard/office/${session!.user.officeId}`);
   // set session token to OpenAPI header
 };
 

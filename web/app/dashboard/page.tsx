@@ -11,6 +11,10 @@ const Organization = async () => {
   logger.info("Loading Dahboard page...");
   const session = await getServerSession(authOptions);
   // redirec to the logged user office
+  if (!session?.user.officeId) {
+    redirect("/auth/login");
+  }
+
   redirect(`/dashboard/office/${session?.user.officeId}`);
   // set session token to OpenAPI header
 };
