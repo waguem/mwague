@@ -242,7 +242,7 @@ const TransactionTable = ({ data, office, employees }: Props) => {
 
     table.setEditingRow(null); //exit editing mode
   };
-  
+
   const table = useMantineReactTable({
     columns,
     enableEditing: true,
@@ -312,13 +312,7 @@ const TransactionTable = ({ data, office, employees }: Props) => {
     renderTopToolbarCustomActions: ({ table }) => (
       <Group gap="xs">
         <DateRangePicker />
-        <Button
-          onClick={() => null}
-          leftSection={<IconDownload size={16} />}
-          size="xs"
-          variant="outline"
-          radius="md"
-        >
+        <Button onClick={() => null} leftSection={<IconDownload size={16} />} size="xs" variant="outline" radius="md">
           Export to PDF
         </Button>
         <GroupedPayment office={office} table={table} />
