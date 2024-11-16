@@ -242,7 +242,7 @@ const TransactionTable = ({ data, office, employees }: Props) => {
 
     table.setEditingRow(null); //exit editing mode
   };
-  const handleExportRows = (rows: any) => {};
+  
   const table = useMantineReactTable({
     columns,
     enableEditing: true,
@@ -313,7 +313,7 @@ const TransactionTable = ({ data, office, employees }: Props) => {
       <Group gap="xs">
         <DateRangePicker />
         <Button
-          onClick={() => handleExportRows(table.getPrePaginationRowModel().rows)}
+          onClick={() => null}
           leftSection={<IconDownload size={16} />}
           size="xs"
           variant="outline"
