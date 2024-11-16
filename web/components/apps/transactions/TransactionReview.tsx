@@ -555,8 +555,6 @@ export default function TransactionReview({ row, opened, close, office, getEmplo
     INIT: 1,
   };
 
-  console.log("Vlue", form.values.reason);
-
   return (
     <Drawer
       overlayProps={{ backgroundOpacity: 0.5, blur: 4 }}

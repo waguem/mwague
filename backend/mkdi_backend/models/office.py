@@ -9,48 +9,104 @@ from sqlalchemy.ext.mutable import MutableList
 import sqlalchemy.dialects.postgresql as pg
 from sqlalchemy.ext.hybrid import hybrid_property
 from mkdi_shared.schemas.protocol import OfficeBase, CryptoWalletBase
-from sqlmodel import Field, Relationship, Session, select, func, and_, or_
+from sqlmodel import Field, Relationship, Session, select, and_, or_
 from decimal import Decimal
 from mkdi_backend.models.transactions.transactions import WalletTrading
 from mkdi_shared.schemas import protocol as pr
 from mkdi_backend.database import engine
+from functools import reduce
+
+
+def in_reducer(acc: Decimal, tr: WalletTrading):
+    amount = tr.amount
+    if tr.trading_type == pr.TradingType.EXCHANGE_WITH_SIMPLE_WALLET:
+        amount = tr.amount * (tr.exchange_rate / tr.trading_rate) if tr.trading_rate else 0
+
+    return acc + Decimal(amount)
+
+
+def out_reducer(acc: Decimal, tr: WalletTrading):
+    amount = tr.amount
+
+    return acc + Decimal(amount)
 
 
 def get_pending_in(self) -> Decimal:
     """Get the pending in amount"""
     with Session(engine) as db:
-        result = db.execute(
-            select(
-                func.sum(WalletTrading.amount).filter(
+        condition = None
+        if self.wallet_type == pr.WalletType.SIMPLE:
+            condition = or_(
+                and_(
                     WalletTrading.walletID == self.walletID,
-                    and_(
-                        or_(
-                            WalletTrading.trading_type == pr.TradingType.BUY,
-                            WalletTrading.trading_type == pr.TradingType.DEPOSIT,
-                        ),
-                        WalletTrading.state == pr.TransactionState.PENDING,
-                    ),
-                )
+                    WalletTrading.trading_type == pr.TradingType.DEPOSIT,
+                ),
+                and_(
+                    WalletTrading.trading_type == pr.TradingType.EXCHANGE_WITH_SIMPLE_WALLET,
+                    WalletTrading.exchange_walletID == self.walletID,
+                ),
             )
-        ).scalar()
+        else:
+            condition = or_(
+                and_(
+                    WalletTrading.walletID == self.walletID,
+                    WalletTrading.trading_type == pr.TradingType.BUY,
+                ),
+                # or the trading type is Exchange with crypto and the exchange wallet ID maches the current wallet
+                and_(
+                    WalletTrading.trading_type == pr.TradingType.EXCHANGE,
+                    WalletTrading.exchange_walletID == self.walletID,
+                ),
+            )
 
-        return result or Decimal(0)
+        results = db.scalars(
+            select(WalletTrading).where(
+                and_(condition, WalletTrading.state == pr.TransactionState.PENDING)
+            )
+        ).all()
+        return reduce(in_reducer, results, Decimal(0))
 
 
 def get_pending_out(self) -> Decimal:
     """Get the pending out amount"""
-    with Session(engine) as db:
-        result = db.execute(
-            select(
-                func.sum(WalletTrading.amount).filter(
-                    WalletTrading.walletID == self.walletID,
-                    WalletTrading.trading_type != pr.TradingType.BUY,
-                    WalletTrading.state == pr.TransactionState.PENDING,
-                )
+    condition = None
+    if self.wallet_type == pr.WalletType.SIMPLE:
+        condition = or_(
+            and_(
+                WalletTrading.walletID == self.walletID,
+                WalletTrading.trading_type == pr.TradingType.SIMPLE_SELL,
             )
-        ).scalar()
+        )
+    else:
+        condition = or_(
+            and_(
+                WalletTrading.walletID == self.walletID,
+                WalletTrading.trading_type == pr.TradingType.SELL,
+            ),
+            # crypto exchange
+            and_(
+                WalletTrading.walletID == self.walletID,
+                WalletTrading.trading_type == pr.TradingType.EXCHANGE,
+            ),
+            # simple exchange
+            and_(
+                WalletTrading.walletID == self.walletID,
+                WalletTrading.trading_type == pr.TradingType.EXCHANGE_WITH_SIMPLE_WALLET,
+            ),
+        )
 
-        return result or Decimal(0)
+    with Session(engine) as db:
+        results = db.scalars(
+            select(WalletTrading).where(
+                and_(
+                    condition,
+                    WalletTrading.state == pr.TransactionState.PENDING,
+                ),
+            )
+        ).all()
+
+        reduced = reduce(out_reducer, results, Decimal(0))
+        return reduced
 
 
 class Office(OfficeBase, table=True):

@@ -242,9 +242,7 @@ const TransactionTable = ({ data, office, employees }: Props) => {
 
     table.setEditingRow(null); //exit editing mode
   };
-  const handleExportRows = (rows: any) => {
-    console.log(rows);
-  };
+  const handleExportRows = (rows: any) => {};
   const table = useMantineReactTable({
     columns,
     enableEditing: true,

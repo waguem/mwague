@@ -102,7 +102,6 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
       setTransaction(undefined);
       fetchTransaction(row.code, row.type);
       const notes: Note[] = JSON.parse(row?.notes ?? "[]");
-      console.log("Parsed notes...usefec ", notes);
       form.setValues((values) => ({
         ...values,
         notes: notes.find((n) => n.type === "REQUEST")?.message ?? "",

@@ -42,7 +42,6 @@ export default async function AgentPage({
     agentTransactionsPr,
   ]);
   const employees = await getEmployeesCached(office.id);
-  console.log(transactions);
   return (
     <Timeline bulletSize={24} lineWidth={1}>
       <TimelineItem bullet={<IconOpenBook />} title={<Title order={3}>Overview</Title>}>

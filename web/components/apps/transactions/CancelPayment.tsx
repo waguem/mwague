@@ -36,9 +36,7 @@ export default function CancelPayment({ payment, transaction }: Props) {
       }
 
       decodeNotification("CANCEL PAYMENT", response);
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   };
 
   const [pending, startTransition] = useTransition();

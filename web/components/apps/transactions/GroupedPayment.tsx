@@ -124,9 +124,7 @@ export default function GroupedPayment({ table, office }: Props) {
       }
       form.reset();
       table.resetRowSelection();
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   };
   if (table.getSelectedRowModel().rows.length == 0) {
     return null;

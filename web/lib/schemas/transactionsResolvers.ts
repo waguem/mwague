@@ -280,46 +280,6 @@ const ExternalFormResolver: FormResolver = {
   },
 };
 
-// const ForexFromResolver: FormResolver = {
-//   resolver: ForEx,
-//   run: (data: FormData) => {
-//     const parsed = ForEx.safeParse(data);
-//     const charges = 0;
-//     if (!parsed.success) {
-//       return {
-//         status: "error",
-//         error: "Invalid transaction data",
-//         errors: parsed.error.errors.map((error) => ({
-//           path: error.path.join("."),
-//           message: error.message,
-//         })),
-//       };
-//     }
-//     console.log("Parsed Forex ", parsed);
-
-//     return {
-//       amount: {
-//         amount: +parsed.data.amount,
-//         rate: +parsed.data.rate,
-//       },
-//       currency: data.get("currency") as string,
-//       charges: {
-//         amount: charges,
-//         rate: +parsed.data.daily_rate,
-//       },
-//       data: {
-//         type: "FOREX",
-//         walletID: parsed.data.walletID,
-//         is_buying: parsed.data.is_buying === "true",
-//         daily_rate: +parsed.data.daily_rate,
-//         account: parsed.data.account,
-//         rate: +parsed.data.rate,
-//         amount: +parsed.data.amount,
-//       },
-//     };
-//   },
-// };
-
 const ForexFromResolver: FormResolver = {
   resolver: ForEx,
   run: (data: FormData) => {

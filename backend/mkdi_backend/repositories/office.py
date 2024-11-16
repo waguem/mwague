@@ -169,9 +169,10 @@ class OfficeRepository:
 
     def get_wallets(self, office_id: str) -> List[OfficeWallet]:
         """get all wallet for an office"""
-        return self.db.scalars(
+        results = self.db.scalars(
             select(OfficeWallet).where(OfficeWallet.office_id == office_id)
         ).all()
+        return results
 
     def get_health(self, office_id: str):
         """return office health"""
