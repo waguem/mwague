@@ -15,6 +15,10 @@ import {
   TransactionState,
   TransactionType,
   Note,
+  Deposit,
+  Internal,
+  External,
+  Sending,
 } from "@/lib/client";
 import TransactionReview from "./TransactionReview";
 import { getBadgeType, getMoneyPrefix, getStateBadge } from "@/lib/utils";
@@ -77,6 +81,25 @@ const TransactionTable = ({ data, office, employees }: Props) => {
             {cell.getValue() as string}
           </Group>
         ),
+      },
+      {
+        accessorFn(originalRow) {
+          switch (originalRow.type) {
+            case "DEPOSIT":
+              return (originalRow as Deposit).owner_initials;
+            case "INTERNAL":
+              return (originalRow as Internal).sender_initials;
+            case "EXTERNAL":
+              return (originalRow as External).sender_initials;
+            case "SENDING":
+              return (originalRow as Sending).receiver_initials;
+            case "FOREX":
+              return (originalRow as ForEx).customer_account;
+            default:
+              break;
+          }
+        },
+        header: "Owner",
       },
       {
         accessorKey: "amount",

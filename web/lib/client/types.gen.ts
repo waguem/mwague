@@ -10,16 +10,35 @@ export type AccountMonthlyReport = {
   is_open: boolean;
   start_balance: number;
   end_balance: number;
-  report_json?: Array<{
-    [key: string]:
-      | {
-          [key: string]: unknown;
-        }
-      | unknown;
-  }>;
   id?: string;
   account_id: string;
   updated_at?: string;
+};
+
+/**
+ * Account monthly report.
+ */
+export type AccountMonthlyReportResponse = {
+  account: string;
+  start_date: string;
+  end_date: string;
+  is_open: boolean;
+  start_balance: number;
+  end_balance: number;
+  pendings: number;
+  updated_at: string;
+  reports: Array<AccountReportItem>;
+};
+
+export type AccountReportItem = {
+  created_at: string;
+  amount: number;
+  type: TransactionType;
+  converted: number;
+  code: string;
+  state: TransactionState;
+  description: string;
+  is_out: boolean;
 };
 
 export type AccountResponse = {
@@ -1174,6 +1193,12 @@ export type GetAgentYearlyReportsApiV1OfficeAgentInitialsMonthlyReportGetData = 
 
 export type GetAgentYearlyReportsApiV1OfficeAgentInitialsMonthlyReportGetResponse = Array<AccountMonthlyReport>;
 
+export type GetAgentFullReportApiV1OfficeAgentFullReportReportIdGetData = {
+  reportId: string;
+};
+
+export type GetAgentFullReportApiV1OfficeAgentFullReportReportIdGetResponse = AccountMonthlyReportResponse;
+
 export type $OpenApiTs = {
   "/api/v1/ping": {
     get: {
@@ -1820,6 +1845,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: Array<AccountMonthlyReport>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/office/agent/fullReport/{report_id}": {
+    get: {
+      req: GetAgentFullReportApiV1OfficeAgentFullReportReportIdGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: AccountMonthlyReportResponse;
         /**
          * Validation Error
          */

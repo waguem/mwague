@@ -104,6 +104,7 @@ class WalletRepository:
                 WalletTrading.account.in_(initials_list),
                 WalletTrading.created_at >= start,
                 WalletTrading.created_at <= end,
+                WalletTrading.trading_type.in_([pr.TradingType.SELL, pr.TradingType.SIMPLE_SELL]),
             )
             .order_by(WalletTrading.created_at.desc())
         ).all()

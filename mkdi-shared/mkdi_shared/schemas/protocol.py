@@ -379,6 +379,17 @@ class CreateOfficeRequest(OfficeBase):
     default_rates: List[Rate]
 
 
+class AccountReportItem(BaseModel):
+    created_at: datetime
+    amount: Decimal
+    type: TransactionType
+    converted: Decimal
+    code: str
+    state: TransactionState
+    description: str
+    is_out: bool
+
+
 class Note(BaseModel):
     date: str
     message: str
@@ -448,6 +459,26 @@ class TransactionDB(TransactionBase):
         notes["notes"].append(note.dict())
         self.notes = notes
         return self.notes
+
+    def report(self, is_out: bool = False) -> AccountReportItem:
+
+        def get_request_message(self) -> str:
+            notes = json.loads(self.notes)
+            request = next((note for note in notes if note["type"] == "REQUEST"), None)
+            if request:
+                return request["message"]
+            return ""
+
+        return AccountReportItem(
+            amount=self.amount,
+            code=self.code,
+            converted=self.amount * self.rate,
+            created_at=self.created_at,
+            is_out=is_out,
+            state=self.state,
+            type=self.type,
+            description=get_request_message(self),
+        )
 
     def update(self, request: TransactionRequest):
         valid_states = [
@@ -652,9 +683,6 @@ class AccountMonthlyReportBase(SQLModel):
     is_open: bool  # ///< report status
     start_balance: Decimal
     end_balance: Decimal
-    report_json: List[Mapping[Any, Mapping | Any]] = SQLModelField(
-        default={}, sa_column=sa.Column(MutableList.as_mutable(pg.JSONB))
-    )
 
 
 class CommitTradeRequest(BaseModel):
@@ -686,3 +714,9 @@ class GroupPayResponseItem(BaseModel):
 
 class GroupPayResponse(BaseModel):
     states: List[GroupPayResponseItem]
+
+
+class AccountMonthlyReportResponse(AccountMonthlyReportBase):
+    pendings: Decimal
+    updated_at: datetime
+    reports: List[AccountReportItem]

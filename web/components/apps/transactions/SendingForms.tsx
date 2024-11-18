@@ -114,6 +114,7 @@ export default function SendingForms({ agentWithAccounts, office }: Props) {
                 required
                 allowDecimal
                 thousandSeparator=","
+                decimalScale={3}
                 allowNegative={false}
               />
             </Group>
@@ -145,6 +146,7 @@ export default function SendingForms({ agentWithAccounts, office }: Props) {
                 key={form.key("charges")}
                 {...form.getInputProps("charge_pencentage")}
                 allowDecimal
+                decimalScale={2}
                 leftSection="%"
                 max={100}
                 min={0}
@@ -160,6 +162,7 @@ export default function SendingForms({ agentWithAccounts, office }: Props) {
                 {...form.getInputProps("amount")}
                 required
                 allowDecimal
+                decimalScale={2}
                 leftSection={getMoneyIcon(mainCurrency?.name)}
                 thousandSeparator=","
                 onChange={(value) =>
@@ -182,6 +185,16 @@ export default function SendingForms({ agentWithAccounts, office }: Props) {
                 leftSection={getMoneyIcon(baseCurrency?.name)}
                 allowDecimal
                 thousandSeparator=","
+                decimalScale={2}
+                onChange={(value) => {
+                  const converted = Number(value) / form.values.rate;
+                  form.setValues((values) => ({
+                    ...values,
+                    amount: converted,
+                    convertedAmount: Number(value),
+                    charges: (converted * form.values.charge_pencentage) / 100,
+                  }));
+                }}
                 allowNegative={false}
               />
               <NumberInput
@@ -195,6 +208,7 @@ export default function SendingForms({ agentWithAccounts, office }: Props) {
                 allowDecimal
                 thousandSeparator=","
                 allowNegative={false}
+                decimalScale={2}
               />
             </Group>
             <Group grow>

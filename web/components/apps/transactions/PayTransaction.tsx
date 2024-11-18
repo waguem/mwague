@@ -134,6 +134,7 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
         description: message.message,
         account: getAccount(),
         code: row.code,
+        phone: message.customer_phone,
       };
     };
     return (

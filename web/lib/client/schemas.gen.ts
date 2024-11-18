@@ -28,22 +28,6 @@ export const $AccountMonthlyReport = {
       type: "number",
       title: "End Balance",
     },
-    report_json: {
-      items: {
-        additionalProperties: {
-          anyOf: [
-            {
-              type: "object",
-            },
-            {},
-          ],
-        },
-        type: "object",
-      },
-      type: "array",
-      title: "Report Json",
-      default: {},
-    },
     id: {
       type: "string",
       format: "uuid",
@@ -58,13 +42,113 @@ export const $AccountMonthlyReport = {
       type: "string",
       format: "date-time",
       title: "Updated At",
-      default: "2024-11-04T19:55:41.080715",
+      default: "2024-11-18T06:36:41.476257",
     },
   },
   type: "object",
   required: ["account", "start_date", "end_date", "is_open", "start_balance", "end_balance", "account_id"],
   title: "AccountMonthlyReport",
   description: "Account monthly report.",
+} as const;
+
+export const $AccountMonthlyReportResponse = {
+  properties: {
+    account: {
+      type: "string",
+      title: "Account",
+    },
+    start_date: {
+      type: "string",
+      format: "date-time",
+      title: "Start Date",
+    },
+    end_date: {
+      type: "string",
+      format: "date-time",
+      title: "End Date",
+    },
+    is_open: {
+      type: "boolean",
+      title: "Is Open",
+    },
+    start_balance: {
+      type: "number",
+      title: "Start Balance",
+    },
+    end_balance: {
+      type: "number",
+      title: "End Balance",
+    },
+    pendings: {
+      type: "number",
+      title: "Pendings",
+    },
+    updated_at: {
+      type: "string",
+      format: "date-time",
+      title: "Updated At",
+    },
+    reports: {
+      items: {
+        $ref: "#/components/schemas/AccountReportItem",
+      },
+      type: "array",
+      title: "Reports",
+    },
+  },
+  type: "object",
+  required: [
+    "account",
+    "start_date",
+    "end_date",
+    "is_open",
+    "start_balance",
+    "end_balance",
+    "pendings",
+    "updated_at",
+    "reports",
+  ],
+  title: "AccountMonthlyReportResponse",
+  description: "Account monthly report.",
+} as const;
+
+export const $AccountReportItem = {
+  properties: {
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+    amount: {
+      type: "number",
+      title: "Amount",
+    },
+    type: {
+      $ref: "#/components/schemas/TransactionType",
+    },
+    converted: {
+      type: "number",
+      title: "Converted",
+    },
+    code: {
+      type: "string",
+      title: "Code",
+    },
+    state: {
+      $ref: "#/components/schemas/TransactionState",
+    },
+    description: {
+      type: "string",
+      title: "Description",
+    },
+    is_out: {
+      type: "boolean",
+      title: "Is Out",
+    },
+  },
+  type: "object",
+  required: ["created_at", "amount", "type", "converted", "code", "state", "description", "is_out"],
+  title: "AccountReportItem",
 } as const;
 
 export const $AccountResponse = {
@@ -174,8 +258,8 @@ export const $AgentReponseWithAccounts = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -216,8 +300,8 @@ export const $AgentResponse = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -436,8 +520,8 @@ export const $CreateAgentRequest = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     phone: {
       type: "string",
@@ -505,8 +589,8 @@ export const $CreateOfficeRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     name: {
       type: "string",
@@ -558,8 +642,8 @@ export const $CreateOrganizationRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     org_name: {
       type: "string",
@@ -1866,8 +1950,8 @@ export const $OfficeResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     name: {
       type: "string",
@@ -2017,8 +2101,8 @@ export const $OrganizationResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     org_name: {
       type: "string",
@@ -2551,8 +2635,8 @@ export const $TradeReviewReq = {
       type: "string",
       maxLength: 16,
       title: "Code",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     walletID: {
       type: "string",
@@ -2970,8 +3054,8 @@ export const $WalletTradingRequest = {
       type: "string",
       maxLength: 16,
       title: "Code",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     walletID: {
       type: "string",
@@ -3077,8 +3161,8 @@ export const $WalletTradingResponse = {
       type: "string",
       maxLength: 16,
       title: "Code",
-      unique: true,
       nullable: false,
+      unique: true,
     },
     walletID: {
       type: "string",

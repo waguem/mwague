@@ -51,6 +51,7 @@ export default function InternalForms({ agentWithAccounts, office, officeAccount
       rate: baseCurrency?.defaultRate || 0,
       charges: 0,
       tags: [],
+      message: "",
     },
     validate: {
       amount: (value) => (value <= 0 ? "Amount must be greater than 0" : undefined),

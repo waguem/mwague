@@ -1,13 +1,11 @@
 """Internal Transaction Repository"""
 
 from typing import List
-import random
 
 from datetime import datetime
-import string
 
 from sqlalchemy.ext.asyncio.session import AsyncSession
-from sqlalchemy import select, case, or_, and_
+from sqlalchemy import select, or_, and_
 from mkdi_backend.models.Account import Account
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.models.transactions.transactions import External, Payment

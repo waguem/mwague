@@ -46,6 +46,7 @@ export default function DepositForms({ agentWithAccounts, office, officeAccounts
       convertedAmount: 0,
       rate: baseCurrency?.defaultRate || 0,
       tags: [],
+      message: "",
     },
     validate: {
       receiver: (value) => (!value ? "Receiver is required" : undefined),
@@ -110,6 +111,7 @@ export default function DepositForms({ agentWithAccounts, office, officeAccounts
                 required
                 allowDecimal
                 thousandSeparator=","
+                decimalScale={2}
                 allowNegative={false}
               />
               {isOfficeSelected && <TagsInput label="Benefit Tag" data={defaultTags} {...form.getInputProps("tags")} />}
@@ -125,6 +127,7 @@ export default function DepositForms({ agentWithAccounts, office, officeAccounts
                 allowDecimal
                 leftSection={getMoneyIcon(mainCurrency?.name)}
                 thousandSeparator=","
+                decimalScale={2}
                 onChange={(value) =>
                   form.setValues((values) => ({
                     ...values,
@@ -151,15 +154,15 @@ export default function DepositForms({ agentWithAccounts, office, officeAccounts
                 }
                 allowDecimal
                 thousandSeparator=","
+                decimalScale={2}
                 allowNegative={false}
               />
             </Group>
             <Group grow>
               <Textarea
-                key={form.key("message")}
-                {...form.getInputProps("message")}
                 label="Your message"
                 placeholder="Leave a comment..."
+                {...form.getInputProps("message")}
                 onChange={(event) => form.setFieldValue("message", event.currentTarget.value)}
               />
             </Group>

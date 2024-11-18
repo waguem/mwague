@@ -55,11 +55,15 @@ export function TradingDetail({ trading, wallet }: { trading: WalletTradingRespo
   });
 
   const getReceipt = (payment: Payment): Receipt => {
+    const notes: any = payment.notes ?? [];
+    const message = notes["notes"].find((message: any) => message.type === "PAYMENT");
+
     return {
       account: trading.account ?? "",
       amount: payment.amount,
       code: trading.code ?? "No Code",
       description: "",
+      phone: message.customer_phone,
     };
   };
 

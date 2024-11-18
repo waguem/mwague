@@ -141,7 +141,7 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
             placeholder="Select a Tag"
             value={form.values.tag}
             onChange={(value) => form.setFieldValue("tag", value as string)}
-            data={["ALI PAY", "TT RMB", "BANK TT"]}
+            data={["ALI PAY", "TT RMB"]}
           />
           <NumberInput
             id="dailyRate"

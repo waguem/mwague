@@ -10,6 +10,8 @@ import {
   getAgentsApiV1OfficeAgentGet as getMyOfficeAgentsApi,
   getAgentYearlyReportsApiV1OfficeAgentInitialsMonthlyReportGet as getAgentYearlyReportsApi,
   GetAgentYearlyReportsApiV1OfficeAgentInitialsMonthlyReportGetResponse as AccountMonthlyReportResponse,
+  AccountMonthlyReport,
+  getAgentFullReportApiV1OfficeAgentFullReportReportIdGet,
 } from "@/lib/client";
 import { ZodError } from "zod";
 import { ApiError } from "../client";
@@ -103,3 +105,11 @@ export const getAgentYearlyReports = cache(
     });
   }
 );
+
+export const getFullReport = async (report: AccountMonthlyReport) => {
+  return withToken(async () => {
+    return await getAgentFullReportApiV1OfficeAgentFullReportReportIdGet({
+      reportId: report.id!,
+    });
+  });
+};

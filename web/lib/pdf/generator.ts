@@ -1,7 +1,8 @@
 import jsPDF from "jspdf";
 import { formatDate } from "date-fns";
 import {
-  AccountMonthlyReport,
+  AccountMonthlyReportResponse,
+  AccountReportItem,
   AccountResponse,
   FundCommit,
   OfficeResult,
@@ -19,6 +20,7 @@ export interface Receipt {
   description: string;
   code: string;
   account: string;
+  phone: string;
 }
 export interface ResultReport {
   result: OfficeResult[];
@@ -92,6 +94,9 @@ export const generateReceipt = (item: Receipt) => {
   );
 
   pdf.text("MOBILE NO.", 10, 10);
+  if (item.phone) {
+    pdf.text(item.phone, 13.5, 10);
+  }
   pdf.line(13.5, 10.2, 20, 10.2);
   pdf.text("AUTHORIZED ", startText, 11.5);
   pdf.line(startText + 4, 11.6, 9.6, 11.6);
@@ -282,15 +287,6 @@ export const generateFundReport = ({ commits, fund }: { commits: FundCommit[]; f
   pdf.save(`fund_report_${formatDate(new Date(), "yyyy_MM_dd_H_mm")}.pdf`);
 };
 
-interface ReportItem {
-  created_at: string;
-  code: string;
-  amount: number;
-  converted: number;
-  description: string;
-  is_out: boolean;
-}
-
 const getRowHeight = (description: string) => {
   const text = description.split(" ");
   const maxLine = 7;
@@ -306,7 +302,7 @@ const getRowHeight = (description: string) => {
   });
   return line;
 };
-export const genAgentReport = (report: AccountMonthlyReport) => {
+export const genAgentReport = (report: AccountMonthlyReportResponse) => {
   const pdf = new jsPDF({
     orientation: "portrait",
     unit: "cm",
@@ -330,10 +326,10 @@ export const genAgentReport = (report: AccountMonthlyReport) => {
   pdf.text("End Balance", 1.5, 5.4);
   pdf.text(new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(report.end_balance), 5, 5.4);
 
-  const reportData: ReportItem[] = report.report_json as unknown as ReportItem[];
+  const reportData: AccountReportItem[] = report.reports;
 
   const headers = ["Date", "Code", "In", "Out", "Description"];
-  const tableData: RowInput[] = reportData.map((item: ReportItem) => [
+  const tableData: RowInput[] = reportData.map((item: AccountReportItem) => [
     {
       content: formatDate(item.created_at, "dd"),
       styles: { minCellHeight: getRowHeight(item.description) },

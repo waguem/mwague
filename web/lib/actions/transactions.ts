@@ -165,6 +165,7 @@ export const reviewTransaction = async (prevSate: State, data: ReviewFormData): 
 export const payTransaction = async (officeId: string, data: PaymentRequest): Promise<State> => {
   return withToken(async () => {
     const validation = PaymentResolver.safeParse(data);
+    console.log(validation.error);
     if (!validation.success) {
       return {
         status: "error",
@@ -179,7 +180,7 @@ export const payTransaction = async (officeId: string, data: PaymentRequest): Pr
         payment_type: validation.data.type,
         rate: Number(validation.data.rate),
         customer: {
-          name: validation.data.customerName,
+          name: validation.data.customerName ?? "",
           phone: validation.data.customerPhone ?? "",
         },
         notes: validation.data.notes,

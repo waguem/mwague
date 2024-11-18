@@ -7,9 +7,8 @@ from sqlmodel import Session
 
 from mkdi_shared.schemas import protocol
 
-from mkdi_backend.api.deps import check_authorization, get_db
+from mkdi_backend.api.deps import check_authorization, get_db, DBSessionDep
 from mkdi_backend.models.models import KcUser
-
 from mkdi_backend.models.Account import AccountMonthlyReport
 from mkdi_backend.repositories.report_repo import ReportRepository
 
@@ -40,3 +39,17 @@ def get_agent_yearly_reports(
     db: Session = Depends(get_db),
 ) -> List[AccountMonthlyReport]:
     return ReportRepository(db).get_agent_yearly_reports(user, initials, year)
+
+
+@router.get(
+    "/office/agent/fullReport/{report_id}",
+    response_model=protocol.AccountMonthlyReportResponse,
+    status_code=200,
+)
+def get_agent_full_report(
+    *,
+    user: Annotated[KcUser, Security(check_authorization, scopes=[])],
+    report_id: str,
+    db: DBSessionDep,
+) -> protocol.AccountMonthlyReportResponse:
+    return ReportRepository(db).get_agent_full_report(user, report_id)

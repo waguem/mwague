@@ -181,8 +181,8 @@ export const PaymentResolver = zfd.formData({
   mainAmount: zfd.text(zPNumber),
   convertedAmount: zfd.text(zPNumber),
   rate: zfd.text(zPNumber),
-  customerName: zfd.text(zod.string()),
   type: zTransactionType,
-  customerPhone: zfd.text(zod.string()).optional(),
+  customerName: zod.optional(zod.string()),
+  customerPhone: zod.optional(zod.string()),
   notes: zfd.text(zod.string()).optional(),
 });

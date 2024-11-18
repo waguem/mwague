@@ -1,6 +1,7 @@
 from mkdi_shared.schemas import protocol
 from sqlmodel import Session
 from typing import List
+from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_backend.models.transactions.transactions import (
     Internal,
     External,
@@ -177,9 +178,6 @@ class ReportRepository:
           if there is then no action
           if not create the account report that should start now
         """
-        from loguru import logger
-
-        logger.info("Starting report cron job")
 
         # get current month date
         current_month = datetime.now().replace(day=1, hour=0, minute=0, second=0)
@@ -188,7 +186,6 @@ class ReportRepository:
 
         for office in offices:
             #
-
             accounts = self.db.scalars(
                 select(Account)
                 .where(Account.office_id == office.id)
@@ -209,7 +206,7 @@ class ReportRepository:
             has_report = self.db.scalar(
                 select(AccountMonthlyReport)
                 .where(AccountMonthlyReport.account_id == account.id)
-                .where(AccountMonthlyReport.start_date <= (current_month + timedelta(hours=3)))
+                .where(AccountMonthlyReport.start_date <= (current_month + timedelta(hours=1)))
                 .where(AccountMonthlyReport.end_date < next_month)
             )
 
@@ -224,9 +221,8 @@ class ReportRepository:
                     end_date=next_month - timedelta(days=1),
                     account=account.initials,
                     is_open=True,
-                    start_balance=account.balance,
-                    end_balance=account.balance,
-                    report_json={},
+                    start_balance=account.effective_balance,
+                    end_balance=account.effective_balance,
                     # Add other necessary fields
                 )
                 self.db.add(new_report)
@@ -255,6 +251,69 @@ class ReportRepository:
         ).all()
         return reports
 
+    def get_agent_full_report(self, user: KcUser, report_id: str):
+        account_report = self.db.scalar(
+            select(AccountMonthlyReport).where(AccountMonthlyReport.id == report_id)
+        )
+        if not account_report:
+            raise MkdiError(message="", error_code=MkdiErrorCode.GENERIC_ERROR)
+
+        account = account_report.account
+        next_month = datetime.now().replace(day=1, hour=0, minute=0, second=0) + timedelta(days=32)
+        end_date = next_month if account_report.is_open else account_report.end_date
+        deposits = self.db.scalars(
+            select(Deposit)
+            .where(Deposit.owner_initials == account)
+            .where(Deposit.created_at >= account_report.start_date)
+            .where(Deposit.created_at <= end_date)
+            .order_by(Deposit.created_at.desc())
+        ).all()
+
+        externals = self.db.scalars(
+            select(External)
+            .where(External.sender_initials == account)
+            .where(External.created_at >= account_report.start_date)
+            .where(External.created_at <= end_date)
+            .order_by(External.created_at.desc())
+        ).all()
+
+        internals = self.db.scalars(
+            select(Internal)
+            .where(or_(Internal.sender_initials == account, Internal.receiver_initials == account))
+            .where(Internal.created_at >= account_report.start_date)
+            .where(Internal.created_at <= end_date)
+            .order_by(Internal.created_at.desc())
+        ).all()
+
+        sendings = self.db.scalars(
+            select(Sending)
+            .where(Sending.receiver_initials == account)
+            .where(Sending.created_at >= account_report.start_date)
+            .where(Sending.created_at <= end_date)
+            .order_by(Sending.created_at.desc())
+        ).all()
+
+        forExs = self.db.scalars(
+            select(ForEx)
+            .where(ForEx.customer_account == account)
+            .where(ForEx.created_at >= account_report.start_date)
+            .where(ForEx.created_at <= end_date)
+            .order_by(ForEx.created_at.desc())
+        ).all()
+
+        results = []
+        for rep in deposits + externals + internals + sendings + forExs:
+            is_out = rep.type in [protocol.TransactionType.EXTERNAL, protocol.TransactionType.FOREX]
+            if rep.type == protocol.TransactionType.INTERNAL and rep.sender_initials == account:
+                is_out = True
+
+            results.append(rep.report(is_out))
+
+        res = protocol.AccountMonthlyReportResponse(
+            **account_report.dict(), reports=results, pendings=0
+        )
+        return res
+
     def update_reports(self):
         offices = self.db.scalars(select(Office)).all()
 
@@ -277,14 +336,6 @@ class ReportRepository:
     # @managed_tx_method()
     def update_report(self, account: Account):
         # Get the first day of the next month
-        repo = TransactionRepository(self.db)
-        current_month = datetime.now().replace(day=1, hour=0, minute=0, second=0)
-        end_of_month = (current_month + timedelta(days=32)).replace(
-            day=1, hour=0, minute=0, second=0
-        )
-
-        report = repo.get_account_report(account, current_month, end_of_month)
-
         account_report = self.db.scalar(
             select(AccountMonthlyReport)
             .where(AccountMonthlyReport.account_id == account.id)
@@ -292,8 +343,7 @@ class ReportRepository:
         )
 
         if account_report:
-            account_report.end_balance = account.balance
-            account_report.report_json = report
+            account_report.end_balance = account.effective_balance
             account_report.updated_at = datetime.now()
             self.db.add(account_report)
             self.db.commit()

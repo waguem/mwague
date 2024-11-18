@@ -1,10 +1,10 @@
 "use client";
 import { AccountMonthlyReport } from "@/lib/client";
-import { genAgentReport } from "@/lib/pdf/generator";
 import { Carousel } from "@mantine/carousel";
-import { ActionIcon, Badge, Card, Group, NumberFormatter, Space, Timeline, Title } from "@mantine/core";
-import { IconDownload, IconPlayerPlay, IconPlayerStop } from "@tabler/icons-react";
+import { Badge, Card, Group, NumberFormatter, Space, Timeline, Title } from "@mantine/core";
+import { IconPlayerPlay, IconPlayerStop } from "@tabler/icons-react";
 import { formatDate } from "date-fns";
+import GenerateAgentReport from "./GenerateReporte";
 
 export default function AgentReports({ reports }: { initials: string; reports: AccountMonthlyReport[] }) {
   /**
@@ -47,10 +47,7 @@ export default function AgentReports({ reports }: { initials: string; reports: A
             </Group>
             <Space h="md" />
             <Group grow>
-              <ActionIcon onClick={() => genAgentReport(report)} variant="gradient" size={"lg"} radius={"lg"}>
-                Download
-                <IconDownload size={20} className="ml-4" />
-              </ActionIcon>
+              <GenerateAgentReport report={report} />
             </Group>
           </Card>
         </Carousel.Slide>

@@ -116,8 +116,8 @@ class Settings(BaseSettings):
     RATE_LIMIT_PROMPTER_USER_MINUTES: int = 2
 
     TASK_VALIDITY_MINUTES: int = 60 * 24 * 2  # tasks expire after 2 days
-    TASK_CREATE_REPORTS_INTERVAL: int = 60 * 6  # 6 hours
-    TASK_UPDATE_REPORTS_INTERVAL: int = 60 * 1  # 1 min
+    TASK_CREATE_REPORTS_INTERVAL: int = 1 * 1  # 6 hours
+    TASK_UPDATE_REPORTS_INTERVAL: int = 1 * 1  # 1 min
 
     class Config:
         env_file = ".env"

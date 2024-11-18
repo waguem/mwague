@@ -6,7 +6,6 @@ import {
   Button,
   Divider,
   Group,
-  Loader,
   LoadingOverlay,
   Modal,
   NumberFormatter,
@@ -85,12 +84,7 @@ export default function CommitTrade({ wallet, trade }: CommitTradeProps) {
         </ActionIcon>
       </Tooltip>
       <Modal withCloseButton={false} size="60%" centered opened={opened} onClose={close}>
-        <LoadingOverlay
-          visible={pending}
-          loaderProps={{
-            children: <Loader size={32} color="blue" />,
-          }}
-        />
+        <LoadingOverlay visible={pending} loaderProps={{ color: "pink", type: "dots" }} />
         <form action={() => startTransition(() => commit())}>
           <Stack>
             <Divider label="Wallet" />

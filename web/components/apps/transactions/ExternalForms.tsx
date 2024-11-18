@@ -154,6 +154,7 @@ export default function ExternalForms({ agentWithAccounts, office, officeAccount
                 allowDecimal
                 leftSection={getMoneyIcon(mainCurrency?.name)}
                 thousandSeparator=","
+                decimalScale={2}
                 onChange={(value) =>
                   form.setValues((values) => ({
                     ...values,
@@ -173,8 +174,20 @@ export default function ExternalForms({ agentWithAccounts, office, officeAccount
                 required
                 leftSection={getMoneyIcon(baseCurrency?.name)}
                 allowDecimal
+                decimalScale={2}
                 thousandSeparator=","
                 allowNegative={false}
+                onChange={(value) =>
+                  form.setValues((values) => ({
+                    ...values,
+                    amount: Number(values.rate) > 0 ? Number(value) / Number(values.rate) : 0,
+                    convertedAmount: Number(value),
+                    charges:
+                      Number(values.rate) > 0
+                        ? ((Number(value) / Number(values.rate)) * Number(values.charge_pencentage)) / 100
+                        : 0,
+                  }))
+                }
               />
               <NumberInput
                 id="charges"
