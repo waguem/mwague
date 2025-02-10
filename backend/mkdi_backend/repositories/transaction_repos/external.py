@@ -38,10 +38,17 @@ class ExternalTransaction(PayableTransaction):
         commits = []
         accounts: List[Account] = await self.a_accounts()
 
-        office: Account = next((x for x in accounts if x.type == pr.AccountType.OFFICE), None)
-        sender: Account = next(
-            (x for x in accounts if x.initials == transaction.sender_initials), None
+        sender = await self.db.scalar(
+            select(Account).where(
+                or_(
+                    Account.type == pr.AccountType.AGENT,
+                    Account.type == pr.AccountType.OFFICE,
+                ),
+                Account.initials == transaction.sender_initials,
+            )
         )
+
+        office: Account = next((x for x in accounts if x.type == pr.AccountType.OFFICE), None)
         fund: Account = next((x for x in accounts if x.type == pr.AccountType.FUND), None)
 
         assert sender is not None
@@ -53,7 +60,7 @@ class ExternalTransaction(PayableTransaction):
             # int
             commits.append(fund.debit(commited_amount))
 
-        if has_complete and transaction.charges > 0:
+        if has_complete and transaction.charges > 0 and office.id != sender.id:
             # out
             commits.append(sender.debit(transaction.charges))
             # in
@@ -85,50 +92,7 @@ class ExternalTransaction(PayableTransaction):
         Returns:
             List[pr.TransactionCommit]: _description_
         """
-        if not hasattr(transaction, "amount") or not hasattr(transaction, "charges"):
-            raise ValueError("Transaction must have 'amount' and 'charges' attributes")
-        commits = []
-        accounts = self.accounts()
-        if len(accounts) < 2:
-            raise MkdiError(
-                error_code=MkdiErrorCode.INVALID_INPUT, message="Insufficient accounts available"
-            )
-
-        # Assuming accounts are in a list where the last two are sender and receiver
-        office = None
-        if len(accounts) == 3:
-            office = (
-                accounts.pop()
-            )  # Use the last account as the office account without removing it
-
-        receiver = accounts.pop()
-        sender = accounts.pop()
-
-        # Check if an office account should be used
-
-        if not sender or not receiver:
-            raise MkdiError(
-                error_code=MkdiErrorCode.INVALID_INPUT,
-                message="Unable to find sender or receiver account",
-            )
-
-        # Validate transaction amount and charges
-        amount = transaction.amount
-        charges = transaction.charges
-        if amount <= 0 or charges < 0:
-            raise ValueError("Transaction amount must be positive and charges cannot be negative")
-
-        # Debit the sender and credit the receiver
-
-        commits.append(sender.debit(amount))
-        commits.append(receiver.credit(amount))
-
-        # Handle charges if an office account is used
-        if office and charges > 0:
-            commits.append(office.credit(charges))
-            commits.append(sender.debit(charges))
-
-        return commits
+        pass
 
     def do_transaction(self) -> None:
         user: KcUser = self.user
@@ -139,7 +103,11 @@ class ExternalTransaction(PayableTransaction):
 
         sender = self.db.scalar(
             select(Account).where(
-                Account.type == pr.AccountType.AGENT, Account.initials == user_input.sender
+                or_(
+                    Account.type == pr.AccountType.AGENT,
+                    Account.type == pr.AccountType.OFFICE,
+                ),
+                Account.initials == user_input.sender,
             )
         )
 

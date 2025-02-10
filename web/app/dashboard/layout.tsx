@@ -86,7 +86,10 @@ export default async function DefaultLayout({ children }: { children: React.Reac
       section: "OFFICE",
       routes: routes,
     },
-    {
+  ];
+
+  if (office.wallets?.length) {
+    navSection.push({
       section: "WALLETS",
       routes: office
         .wallets!.sort((a, b) => (a.wallet_type! > b.wallet_type! ? 1 : -1))
@@ -100,8 +103,8 @@ export default async function DefaultLayout({ children }: { children: React.Reac
           label: wallet.wallet_name?.split(" ")[0] ?? "",
           icon: <IconWallet size={20} />,
         })),
-    },
-  ];
+    });
+  }
   return (
     <>
       {/* BEGIN MAIN CONTAINER */}
