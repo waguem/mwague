@@ -130,7 +130,7 @@ def upgrade() -> None:
             ["employees.id"],
         ),
         sa.ForeignKeyConstraint(
-            s["office_id"],
+            ["office_id"],
             ["offices.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
