@@ -42,7 +42,7 @@ export const $AccountMonthlyReport = {
       type: "string",
       format: "date-time",
       title: "Updated At",
-      default: "2024-11-18T06:36:41.476257",
+      default: "2025-02-16T14:31:08.465794",
     },
   },
   type: "object",
@@ -258,8 +258,8 @@ export const $AgentReponseWithAccounts = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     phone: {
       type: "string",
@@ -300,8 +300,8 @@ export const $AgentResponse = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     phone: {
       type: "string",
@@ -520,8 +520,8 @@ export const $CreateAgentRequest = {
       type: "string",
       maxLength: 4,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     phone: {
       type: "string",
@@ -589,8 +589,8 @@ export const $CreateOfficeRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     name: {
       type: "string",
@@ -642,8 +642,8 @@ export const $CreateOrganizationRequest = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     org_name: {
       type: "string",
@@ -1394,6 +1394,10 @@ export const $ForEx = {
       minimum: 0,
       title: "Charge Percentage",
     },
+    buying_amount: {
+      type: "number",
+      title: "Buying Amount",
+    },
   },
   type: "object",
   required: [
@@ -1413,6 +1417,7 @@ export const $ForEx = {
     "customer_account",
     "tag",
     "charge_percentage",
+    "buying_amount",
   ],
   title: "ForEx",
   description: "Une transaction de change est effectué",
@@ -1950,8 +1955,8 @@ export const $OfficeResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     name: {
       type: "string",
@@ -2101,8 +2106,8 @@ export const $OrganizationResponse = {
       type: "string",
       maxLength: 8,
       title: "Initials",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     org_name: {
       type: "string",
@@ -2635,8 +2640,8 @@ export const $TradeReviewReq = {
       type: "string",
       maxLength: 16,
       title: "Code",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     walletID: {
       type: "string",
@@ -3054,8 +3059,8 @@ export const $WalletTradingRequest = {
       type: "string",
       maxLength: 16,
       title: "Code",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     walletID: {
       type: "string",
@@ -3161,8 +3166,8 @@ export const $WalletTradingResponse = {
       type: "string",
       maxLength: 16,
       title: "Code",
-      nullable: false,
       unique: true,
+      nullable: false,
     },
     walletID: {
       type: "string",

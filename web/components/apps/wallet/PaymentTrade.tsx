@@ -1,5 +1,5 @@
 import { payTrade } from "@/lib/actions";
-import { AccountResponse, OfficeWalletResponse, WalletTradingResponse } from "@/lib/client";
+import { AccountResponse, OfficeResponse, OfficeWalletResponse, WalletTradingResponse } from "@/lib/client";
 import { getCryptoIcon, getCryptoPrefix, getMoneyIcon, getMoneyPrefix } from "@/lib/utils";
 import {
   ActionIcon,
@@ -21,18 +21,23 @@ import { useDisclosure } from "@mantine/hooks";
 import { IconCashRegister } from "@tabler/icons-react";
 import { Fragment, useState, useTransition } from "react";
 import { decodeNotification } from "../notifications/notifications";
+import { OfficeCurrency } from "@/lib/types";
 
 interface Props {
   trade: WalletTradingResponse;
   accounts: AccountResponse[];
   wallet: OfficeWalletResponse;
+  office: OfficeResponse;
 }
 
-export function PayTrade({ trade, accounts, wallet }: Props) {
+export function PayTrade({ trade, accounts, wallet, office }: Props) {
   const [opened, { close, open }] = useDisclosure(false);
   const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState<string>("");
   const fund = accounts.find((account) => account.type === "FUND");
+  const currencies: OfficeCurrency[] = (office.currencies ?? []) as OfficeCurrency[];
+  const main = currencies.find((cur) => cur.main);
+  const base = currencies.find((cur) => cur.base);
   if (!fund) return null;
   const pay = async () => {
     try {
@@ -70,7 +75,7 @@ export function PayTrade({ trade, accounts, wallet }: Props) {
                 label="Rate"
                 decimalScale={3}
                 readOnly
-                leftSection={trade.trading_type === "BUY" ? getMoneyIcon("USD") : "%"}
+                leftSection={trade.trading_type === "BUY" ? getMoneyIcon(main?.name ?? "USD") : "%"}
               />
               <NumberInput
                 label={`Amount (${getCryptoPrefix(wallet.crypto_currency)})`}
@@ -89,7 +94,7 @@ export function PayTrade({ trade, accounts, wallet }: Props) {
               />
               <NumberInput
                 placeholder="Amount"
-                label={`Amount (${getMoneyPrefix("USD")})`}
+                label={`Amount (${getMoneyPrefix(base?.name ?? "AED")})`}
                 value={
                   trade.trading_type == "BUY"
                     ? trade.amount * trade.trading_rate
@@ -98,7 +103,7 @@ export function PayTrade({ trade, accounts, wallet }: Props) {
                 readOnly
                 decimalScale={2}
                 thousandSeparator=","
-                leftSection={getMoneyIcon("AED", 16)}
+                leftSection={getMoneyIcon(base?.name ?? "AED", 16)}
               />
             </Group>
             <Divider label="Summary" />
@@ -114,7 +119,7 @@ export function PayTrade({ trade, accounts, wallet }: Props) {
                             value={fund?.balance}
                             thousandSeparator=","
                             decimalScale={3}
-                            prefix={getMoneyPrefix("USD")}
+                            prefix={getMoneyPrefix(main?.name ?? "USD")}
                           />
                         </Badge>
                       </Group>
@@ -129,7 +134,7 @@ export function PayTrade({ trade, accounts, wallet }: Props) {
                             }
                             thousandSeparator=","
                             decimalScale={2}
-                            prefix={getMoneyPrefix("USD")}
+                            prefix={getMoneyPrefix(main?.name ?? "USD")}
                           />{" "}
                           /{" "}
                           <NumberFormatter
@@ -155,7 +160,7 @@ export function PayTrade({ trade, accounts, wallet }: Props) {
                             }
                             thousandSeparator=","
                             decimalScale={3}
-                            prefix={getMoneyPrefix("USD")}
+                            prefix={getMoneyPrefix(main?.name ?? "USD")}
                           />
                         </Badge>
                       </Group>

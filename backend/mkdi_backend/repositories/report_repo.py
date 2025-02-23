@@ -447,3 +447,35 @@ class ReportRepository:
                 results,
             )
         )
+
+    
+    def get_provider_report(self,user,name,start,end):
+
+        today = datetime.now()
+
+        date_format = "%Y-%m-%dT%H:%M:%S.%fZ"
+
+        if not start:
+            start_date = self._first_day_of_month(today)
+        else:
+            start_date = self._start_of_day(datetime.strptime(start, date_format))
+
+        if not end:
+            end_date = self._last_day_of_month(today)
+        else:
+            end_date = self._end_of_day(datetime.strptime(end, date_format))
+
+        results = self.db.scalars(
+            select(ForEx)
+            .where(ForEx.created_at >= start_date)
+            .where(ForEx.created_at <= end_date)
+            .where(ForEx.office_id == user.office_id)
+            .order_by(ForEx.created_at)
+        ).all()
+        filtered = list()
+
+        for item in results:
+            if name == item.tag:
+                filtered.append(item)
+
+        return filtered

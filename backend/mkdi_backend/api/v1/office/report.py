@@ -11,6 +11,7 @@ from mkdi_backend.api.deps import check_authorization, get_db, DBSessionDep
 from mkdi_backend.models.models import KcUser
 from mkdi_backend.models.Account import AccountMonthlyReport
 from mkdi_backend.repositories.report_repo import ReportRepository
+from mkdi_backend.models.transactions.transactions import ForEx
 
 router = APIRouter()
 
@@ -53,3 +54,19 @@ def get_agent_full_report(
     db: DBSessionDep,
 ) -> protocol.AccountMonthlyReportResponse:
     return ReportRepository(db).get_agent_full_report(user, report_id)
+
+
+@router.get(
+    "/office/providers/report",
+    response_model=List[ForEx],
+    status_code=200
+)
+def get_provider_report(
+    *,
+    user: Annotated[KcUser,Security(check_authorization,scopes=[])],
+    name: str,
+    start: str| None = None,
+    end: str | None = None,
+    db: DBSessionDep
+) -> List[ForEx] :
+    return ReportRepository(db).get_provider_report(user,name,start,end)

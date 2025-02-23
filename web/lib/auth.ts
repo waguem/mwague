@@ -69,7 +69,7 @@ export const checkAuthorization: NextMiddlewareWithAuth = (request: NextRequestW
   }
 
   const roles = token.user.roles;
-  console.log("Roles :", roles);
+
   const protectedUri = protectedURIs.find((uri) => uri.uri.test(pathname));
   if (protectedUri && protectedUri.isAccessibleByRole(roles)) {
     response = NextResponse.next();

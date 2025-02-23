@@ -50,7 +50,7 @@ export default function BankTT({ agentWithAccounts, office }: Props) {
       amountInBaseCurrency: (value) => (value > 0 ? null : "Amount is required"),
       amountInBuyedCurrency: (value) => (value > 0 ? null : "Amount is required"),
       amountInMainCurrency: (value) => (value > 0 ? null : "Amount is required"),
-      sellingRate: (value) => (value > 0 ? null : "Rate is required"),
+      sellingRate: (value) => (value >= 0 ? null : "Rate is required"),
       dailyRate: (value) => (value > 0 ? null : "Rate is required"),
       provider: (value) => (value?.length > 0 ? null : "Provider is required"),
     },

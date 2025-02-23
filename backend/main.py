@@ -20,7 +20,7 @@ app = fastapi.FastAPI(
     lifespan=lifespan,
 )
 
-logger.add("file_{time}.log", rotation="2 MB", compression="zip")
+logger.add("file.log", rotation="10 MB", compression="zip")
 
 
 startup_time: datetime = utcnow()

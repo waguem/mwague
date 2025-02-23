@@ -13,6 +13,7 @@ import {
   getOfficeHealthApiV1OrganizationHealthGet as getOfficeHealthApi,
   getMonthlyReportApiV1OfficeMonthlyReportGet as getMonthlyReportApi,
   getFundCommitsApiV1OrganizationMyofficeFundCommitsGet as getDailyFundCommitsApi,
+  getProviderReportApiV1OfficeProvidersReportGet,
 } from "@/lib/client";
 import { AddOfficeSchema } from "@/lib/schemas/actions";
 import { revalidatePath } from "next/cache";
@@ -162,3 +163,14 @@ export const getDailyFundCommits = async (startDate?: string, endDate?: string) 
     });
   });
 };
+
+export const getProviderReport = async(name: string, startDate?: string, endDate?: string)=>{
+  return withToken(async()=>{
+    return await getProviderReportApiV1OfficeProvidersReportGet({
+      start:startDate,
+      end: endDate,
+      name: name,
+    }
+    )
+  })
+}

@@ -246,7 +246,8 @@ class ExternalTransaction(PayableTransaction):
         commits.append(fund.credit(payment.amount))
 
         if payment.amount == self.transaction.amount:
-            if self.get_charges() > 0:
+
+            if self.get_charges() > 0 and office.id != sender.id:
                 commits.append(sender.credit(self.transaction.charges))
                 commits.append(office.debit(self.transaction.charges))
                 self.db.add(office)
