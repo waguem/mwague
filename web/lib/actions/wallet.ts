@@ -18,6 +18,7 @@ import {
 import { withToken } from "./withToken";
 import { TradeWallet } from "@/lib/schemas";
 import { revalidatePath } from "next/cache";
+import { isNumber } from "lodash";
 
 type TradeWalletReq = z.infer<typeof TradeWallet>;
 
@@ -40,7 +41,7 @@ export const tradeWallet = async (tradingRequest: TradeWalletReq, path: string) 
     await tradeWalletApiV1WalletPost({
       requestBody: {
         ...validated.data,
-        trading_rate: +validated.data.trading_rate,
+        trading_rate:  !isNumber(validated?.data?.trading_rate) ? +validated?.data?.trading_rate! : 0,
       },
     });
 

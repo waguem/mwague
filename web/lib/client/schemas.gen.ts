@@ -42,7 +42,7 @@ export const $AccountMonthlyReport = {
       type: "string",
       format: "date-time",
       title: "Updated At",
-      default: "2024-11-18T06:36:41.476257",
+      default: "2025-04-19T11:46:28.149402",
     },
   },
   type: "object",
@@ -1376,6 +1376,16 @@ export const $ForEx = {
       minimum: 0,
       title: "Selling Rate",
     },
+    bank_fees: {
+      type: "number",
+      minimum: 0,
+      title: "Bank Fees",
+    },
+    bank_rate: {
+      type: "number",
+      minimum: 0,
+      title: "Bank Rate",
+    },
     provider_account: {
       type: "string",
       title: "Provider Account",
@@ -1449,6 +1459,18 @@ export const $ForExRequest = {
       title: "Daily Rate",
       strict: true,
     },
+    bank_rate: {
+      type: "number",
+      minimum: 0,
+      title: "Bank Rate",
+      strict: false,
+    },
+    bank_fees: {
+      type: "number",
+      minimum: 0,
+      title: "Bank Fees",
+      strict: false,
+    },
     buying_rate: {
       type: "number",
       exclusiveMinimum: 0,
@@ -1477,6 +1499,8 @@ export const $ForExRequest = {
     "currency",
     "base_currency",
     "daily_rate",
+    "bank_rate",
+    "bank_fees",
     "buying_rate",
     "selling_rate",
     "amount",
@@ -1573,6 +1597,16 @@ export const $ForExWithPayments = {
       type: "number",
       minimum: 0,
       title: "Selling Rate",
+    },
+    bank_fees: {
+      type: "number",
+      minimum: 0,
+      title: "Bank Fees",
+    },
+    bank_rate: {
+      type: "number",
+      minimum: 0,
+      title: "Bank Rate",
     },
     provider_account: {
       type: "string",

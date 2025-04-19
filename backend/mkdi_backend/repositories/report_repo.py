@@ -19,6 +19,7 @@ from mkdi_backend.models.Agent import Agent
 from sqlmodel.sql.expression import select, or_
 
 from datetime import timedelta, datetime
+from dateutil import parser
 from loguru import logger
 from mkdi_backend.repositories.transactions import TransactionRepository
 import json
@@ -115,15 +116,15 @@ class ReportRepository:
         )
 
     def _get_forex_result(self, office_id: str, start_date: datetime, end_date: datetime):
-        resulst = self.db.scalars(
+        results = self.db.scalars(
             select(ForEx)
-            .where(ForEx.forex_result != 0)
             .where(ForEx.created_at >= start_date)
             .where(ForEx.created_at <= end_date)
             .where(ForEx.office_id == office_id)
             .order_by(ForEx.created_at)
         ).all()
-
+        # filter the results to keep only those with forex_result != 0
+        results = list(filter(lambda transaction: transaction.forex_result != 0, results))
         return list(
             map(
                 lambda transaction: protocol.OfficeResult(
@@ -136,7 +137,7 @@ class ReportRepository:
                     state=transaction.state,
                     tag=transaction.tag,
                 ),
-                resulst,
+                results,
             )
         )
 
@@ -447,3 +448,35 @@ class ReportRepository:
                 results,
             )
         )
+
+    def get_provider_report(self, user, name, start, end):
+
+        today = datetime.now()
+
+        if not start:
+            start_date = self._first_day_of_month(today)
+        else:
+            try:
+                start_date = self._start_of_day(parser.parse(start))
+            except Exception as e:
+                logger.debug(f"Error parsing start date {e}")
+
+        if not end:
+            end_date = self._last_day_of_month(today)
+        else:
+            end_date = self._end_of_day(parser.parse(end))
+
+        results = self.db.scalars(
+            select(ForEx)
+            .where(ForEx.created_at >= start_date)
+            .where(ForEx.created_at <= end_date)
+            .where(ForEx.office_id == user.office_id)
+            .order_by(ForEx.created_at)
+        ).all()
+        filtered = list()
+
+        for item in results:
+            if name == item.tag:
+                filtered.append(item)
+
+        return filtered

@@ -86,7 +86,15 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
       let amount = data.amount;
       if (data.type === "FOREX") {
         // buying amount => amount / buying_rate
-        amount = data.tag == "BANKTT" ? data.amount : data.amount / data.buying_rate;
+        if (data.tag == "BANKTT") {
+          if (data.bank_fees && data.bank_rate) {
+            amount = (data.amount * data.bank_rate + data.bank_fees) / data.rate;
+          } else {
+            amount = data.amount;
+          }
+        } else {
+          amount = data.amount / data.buying_rate;
+        }
       }
       form.setValues({
         rate: data.rate,

@@ -1,5 +1,5 @@
 import { AgentReponseWithAccounts, Currency, OfficeResponse } from "@/lib/client";
-import { currencyOptions, getAccountOptions } from "@/lib/utils";
+import { currencyOptions, FOREX_TAGS, getAccountOptions } from "@/lib/utils";
 import { Group, NumberInput, Select, Stack, Avatar, Button, LoadingOverlay, Textarea } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconCurrencyDirham, IconCurrencyDollar, IconLoader, IconMessage, IconSend } from "@tabler/icons-react";
@@ -37,7 +37,7 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
   const form = useForm<FormInputs>({
     initialValues: {
       account: "",
-      currency: mainCurrency?.name,
+      currency: "RMB",
       provider: "",
       dailyRate: baseCurrency?.defaultRate,
       buyingRate: 0,
@@ -141,7 +141,7 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
             placeholder="Select a Tag"
             value={form.values.tag}
             onChange={(value) => form.setFieldValue("tag", value as string)}
-            data={["ALI PAY", "TT RMB"]}
+            data={FOREX_TAGS}
           />
           <NumberInput
             id="dailyRate"

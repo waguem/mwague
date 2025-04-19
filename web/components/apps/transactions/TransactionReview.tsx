@@ -52,6 +52,7 @@ import {
   IconCheck,
   IconArrowsExchange,
   IconTag,
+  IconBuildingBank,
 } from "@tabler/icons-react";
 import { useForm } from "react-hook-form";
 import { cancelTransaction, ReviewFormData, reviewTransaction } from "@/lib/actions/transactions";
@@ -229,10 +230,14 @@ function DepositView({ transaction }: { transaction: Deposit; mainCurrency: Curr
 function ForexView({ transaction, office }: { transaction: ForEx; office: OfficeResponse }) {
   const currencies: OfficeCurrency[] = (office?.currencies ?? []) as OfficeCurrency[];
   const mainCurrency = currencies?.find((currency: any) => currency.main);
+  const baseCurrency = currencies?.find((currency: any) => currency.base);
   let buying_amount = transaction.amount / transaction.buying_rate;
   let selling_amount = transaction.amount / transaction.selling_rate;
   if (transaction.tag === "BANKTT") {
     buying_amount = transaction.amount;
+    if (transaction.bank_rate && transaction.bank_fees) {
+      buying_amount = (transaction.amount * transaction.bank_rate + transaction.bank_fees) / transaction.rate;
+    }
     selling_amount = transaction.amount * (1 + transaction.selling_rate / 100);
   }
   const exchange_benefit = selling_amount - buying_amount;
@@ -360,6 +365,34 @@ function ForexView({ transaction, office }: { transaction: ForEx; office: Office
           decimalScale={3}
         />{" "}
       </List.Item>
+      {transaction.tag === "BANKTT" && (
+        <Fragment>
+          <List.Item
+            icon={
+              <ThemeIcon color="blue" size={"sm"} radius={"xl"}>
+                <IconBuildingBank style={{ width: rem(16), height: rem(16) }} />
+              </ThemeIcon>
+            }
+          >
+            Bank Rate : <NumberFormatter thousandSeparator value={transaction.bank_rate ?? 0} decimalScale={3} />{" "}
+          </List.Item>
+          <List.Item
+            icon={
+              <ThemeIcon color="blue" size={"sm"} radius={"xl"}>
+                <IconBuildingBank style={{ width: rem(16), height: rem(16) }} />
+              </ThemeIcon>
+            }
+          >
+            Bank Fees :{" "}
+            <NumberFormatter
+              thousandSeparator
+              prefix={`${getMoneyPrefix(baseCurrency?.name)} `}
+              value={transaction.bank_fees ?? 0}
+              decimalScale={3}
+            />{" "}
+          </List.Item>
+        </Fragment>
+      )}
     </List>
   );
 }

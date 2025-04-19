@@ -411,6 +411,8 @@ export type ForEx = {
   base_currency: Currency;
   buying_rate: number;
   selling_rate: number;
+  bank_fees?: number;
+  bank_rate?: number;
   provider_account: string;
   customer_account: string;
   tag: string;
@@ -425,6 +427,8 @@ export type ForExRequest = {
   currency: Currency;
   base_currency: Currency;
   daily_rate: number;
+  bank_rate: number;
+  bank_fees: number;
   buying_rate: number;
   selling_rate: number;
   amount: number;
@@ -459,6 +463,8 @@ export type ForExWithPayments = {
   base_currency: Currency;
   buying_rate: number;
   selling_rate: number;
+  bank_fees?: number;
+  bank_rate?: number;
   provider_account: string;
   customer_account: string;
   tag: string;
@@ -1199,6 +1205,14 @@ export type GetAgentFullReportApiV1OfficeAgentFullReportReportIdGetData = {
 
 export type GetAgentFullReportApiV1OfficeAgentFullReportReportIdGetResponse = AccountMonthlyReportResponse;
 
+export type GetProviderReportApiV1OfficeProvidersReportGetData = {
+  end?: string;
+  name: string;
+  start?: string;
+};
+
+export type GetProviderReportApiV1OfficeProvidersReportGetResponse = Array<ForEx>;
+
 export type $OpenApiTs = {
   "/api/v1/ping": {
     get: {
@@ -1860,6 +1874,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: AccountMonthlyReportResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/office/providers/report": {
+    get: {
+      req: GetProviderReportApiV1OfficeProvidersReportGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<ForEx>;
         /**
          * Validation Error
          */

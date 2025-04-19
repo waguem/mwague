@@ -91,6 +91,8 @@ import type {
   GetAgentYearlyReportsApiV1OfficeAgentInitialsMonthlyReportGetResponse,
   GetAgentFullReportApiV1OfficeAgentFullReportReportIdGetData,
   GetAgentFullReportApiV1OfficeAgentFullReportReportIdGetResponse,
+  GetProviderReportApiV1OfficeProvidersReportGetData,
+  GetProviderReportApiV1OfficeProvidersReportGetResponse,
 } from "./types.gen";
 
 /**
@@ -1170,6 +1172,32 @@ export const getAgentFullReportApiV1OfficeAgentFullReportReportIdGet = (
     url: "/api/v1/office/agent/fullReport/{report_id}",
     path: {
       report_id: data.reportId,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Get Provider Report
+ * @param data The data for the request.
+ * @param data.name
+ * @param data.start
+ * @param data.end
+ * @returns ForEx Successful Response
+ * @throws ApiError
+ */
+export const getProviderReportApiV1OfficeProvidersReportGet = (
+  data: GetProviderReportApiV1OfficeProvidersReportGetData
+): CancelablePromise<GetProviderReportApiV1OfficeProvidersReportGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/office/providers/report",
+    query: {
+      name: data.name,
+      start: data.start,
+      end: data.end,
     },
     errors: {
       422: "Validation Error",

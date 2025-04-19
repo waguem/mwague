@@ -233,7 +233,12 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
           {["BUY", "DEPOSIT"].includes(row.original.trading_type) && (
             <Group grow>
               <Tooltip label="Pay">
-                <PayTrade accounts={officeAccounts} trade={row.original as WalletTradingResponse} wallet={wallet} />
+                <PayTrade
+                  office={office}
+                  accounts={officeAccounts}
+                  trade={row.original as WalletTradingResponse}
+                  wallet={wallet}
+                />
               </Tooltip>
             </Group>
           )}
