@@ -21,7 +21,7 @@ import { notifications } from "@mantine/notifications";
 import { IconCashRegister, IconCheck, IconX } from "@tabler/icons-react";
 import { formatDate } from "date-fns";
 import { MRT_Row, MRT_TableInstance } from "mantine-react-table";
-import { Fragment, useMemo, useTransition } from "react";
+import { Fragment, useTransition } from "react";
 
 interface Props {
   table: MRT_TableInstance<AllTransactions>;
@@ -46,11 +46,9 @@ export default function GroupedPayment({ table, office }: Props) {
     return row.amount / row.buying_rate;
   };
 
-  const totals = useMemo(() => {
-    return table
-      .getSelectedRowModel()
-      .rows.reduce((ac: number, row: MRT_Row<AllTransactions>) => ac + getPayment(row.original as ForEx), 0);
-  }, [table]);
+  const totals = table
+    .getSelectedRowModel()
+    .rows.reduce((ac: number, row: MRT_Row<AllTransactions>) => ac + getPayment(row.original as ForEx), 0);
 
   const handleGroupPay = async () => {
     try {

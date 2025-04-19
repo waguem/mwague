@@ -28,10 +28,12 @@ export interface ResultReport {
   office: string;
 }
 interface ReportAmount {
-  usd: string
-  aed: string
-  buying: string
-  benefit: string
+  usd: string;
+  aed: string;
+  buying: string;
+  selling: string;
+  benefit: string;
+  amount: string;
 }
 
 const renderDescription = (pdf: jsPDF, description: string, x: number, y: number) => {
@@ -549,74 +551,84 @@ export const exportTradingData = (wallet: OfficeWalletResponse, data: WalletTrad
   pdf.save(`trading_${formatDate(new Date(), "MM")}.pdf`);
 };
 
-
 export const makeProviderReport = (
-  name:string,
-  range:{
-    start:string;
-    end:string;
+  name: string,
+  range: {
+    start: string;
+    end: string;
   },
   reports: ForEx[]
-)=>{
+) => {
   const pdf = new jsPDF({
     orientation: "portrait",
     unit: "cm",
     // A4 size
     format: [21.0, 29.7],
-  })
+  });
   pdf.addImage(logoBase64, "PNG", 0.5, 0.5, 0.8, 0.8);
   pdf.setFontSize(10);
   pdf.text(formatDate(new Date(), "MMM dd yyyy H:mm"), 17, 1);
   pdf.setFontSize(14);
   pdf.text(`${name} Report`, 8, 2);
   pdf.setFontSize(11);
-  const headers = [
-    "Date",
-    "Code",
-    "Agent",
-    "Amount",
-    "USD",
-    "AED",
-    "Cost",
-    "Benefit",
-    "Description"
-  ]
-  const getAmount = (item:ForEx):ReportAmount=>{
+  const headers = ["Date", "Code", "Agent", "Amount", "AED", "Buying", "Selling", "Benefit"];
+
+  const getAmount = (item: ForEx): ReportAmount => {
     let result: ReportAmount;
-    if(item.tag==FOREX_TAGS[0]){
+    if (item.tag != FOREX_TAGS[2]) {
       // ALI PAY
-      new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(item.amount)
-    }else if(item.tag==FOREX_TAGS[1]){
       // TT RMB
-    }else{
+      const buying = item.amount / item.buying_rate;
+      const selling = item.amount / item.selling_rate;
+      const benefit = selling - buying;
+
+      result = {
+        amount: new Intl.NumberFormat("en-US", { style: "currency", currency: item.currency }).format(item.amount),
+        usd: new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(selling),
+        aed: new Intl.NumberFormat("en-US", { style: "currency", currency: "AED" }).format(selling * 3.67),
+        buying: new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(buying),
+        benefit: new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(benefit),
+        selling: new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(selling)
+      };
+    } else {
       // BANKTT
       // cls.amount / cls.buying_rate if cls.tag != "BANKTT" and cls.buying_rate else cls.amount
-      const amount = item.amount / item.buying_rate
-      result ={
-        usd: new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount),
-        aed: new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount * 3.67),
-        buying:
+      let buying = item.amount;
+      if (item.bank_fees && item.bank_rate) {
+        buying = (item.amount * item.bank_rate + item.bank_fees) / item.rate;
       }
+      const selling = item.amount * (1 + item.selling_rate / 100);
+      const benefit = selling - buying;
+
+      result = {
+        usd: new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(item.amount),
+        aed: new Intl.NumberFormat("en-US", { style: "currency", currency: "AED" }).format(item.amount * 3.67),
+        amount: new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(item.amount),
+        buying: new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(buying),
+        selling: new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(selling),
+        benefit: new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(benefit),
+      };
     }
-    
-    return result
-  }
-  const tableData: RowInput[] = reports.map((item:ForEx)=>[
+
+    return result;
+  };
+
+  const tableData: RowInput[] = reports.map((item: ForEx) => [
     {
-      content: formatDate(item?.created_at!, "dd"),
+      content: formatDate(item?.created_at!, "dd/MM"),
     },
     item.code,
     item.customer_account,
-    getAmount(item).usd,
+    getAmount(item).amount,
     getAmount(item).aed,
     getAmount(item).buying,
+    getAmount(item).selling,
     getAmount(item).benefit,
-    "Description"
-  ])
-  autoTable(pdf,{
+  ]);
+  autoTable(pdf, {
     head: [headers],
     body: tableData,
     startY: 3,
-  })
-  pdf.save(`${name}_report.pdf`)
-}
+  });
+  pdf.save(`${name}_report.pdf`);
+};

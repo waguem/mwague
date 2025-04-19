@@ -70,6 +70,25 @@ class SendingBase(pr.TransactionDB):
     charges: Annotated[Decimal, Field(ge=0)]
 
 
+def get_forex_buying_amount(cls) -> Decimal:
+
+    if cls.tag != "BANKTT" and cls.buying_rate:
+        return cls.amount / cls.buying_rate
+
+    if cls.bank_fees and cls.bank_rate:
+        return ((cls.amount * cls.bank_rate) + cls.bank_fees) / cls.rate
+
+    return cls.amount
+
+
+def get_forex_selling_amount(cls) -> Decimal:
+
+    if cls.tag != "BANKTT" and cls.selling_rate:
+        return cls.amount / cls.selling_rate
+
+    return cls.amount * (1 + cls.selling_rate / 100)
+
+
 class ForExBase(pr.TransactionDB):
     """
     Une transaction de change est effectué
@@ -80,23 +99,15 @@ class ForExBase(pr.TransactionDB):
     base_currency: pr.Currency
     buying_rate: Annotated[Decimal, Field(ge=0)]
     selling_rate: Annotated[Decimal, Field(ge=0)]
+    bank_fees: Annotated[Optional[Decimal], Field(ge=0, nullable=True)]
+    bank_rate: Annotated[Optional[Decimal], Field(ge=0, nullable=True)]
     provider_account: str = Field(foreign_key="accounts.initials")
     customer_account: str = Field(foreign_key="accounts.initials")
     tag: str = Field(nullable=True)
     charge_percentage: Annotated[Decimal, Field(ge=0, le=100)]
     is_valid: ClassVar[bool] = hybrid_property(lambda cls: cls.buying_rate > cls.selling_rate)
-    buying_amount: ClassVar[Decimal] = hybrid_property(
-        lambda cls: (
-            cls.amount / cls.buying_rate if cls.tag != "BANKTT" and cls.buying_rate else cls.amount
-        )
-    )
-    selling_amount: ClassVar[Decimal] = hybrid_property(
-        lambda cls: (
-            cls.amount / cls.selling_rate
-            if cls.tag != "BANKTT" and cls.selling_rate
-            else cls.amount * (1 + cls.selling_rate / 100)
-        )
-    )
+    buying_amount: ClassVar[Decimal] = hybrid_property(get_forex_buying_amount)
+    selling_amount: ClassVar[Decimal] = hybrid_property(get_forex_selling_amount)
     forex_result: ClassVar[Decimal] = hybrid_property(
         lambda cls: cls.selling_amount - cls.buying_amount
     )

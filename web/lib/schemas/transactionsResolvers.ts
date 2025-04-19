@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { $TransactionType, DepositRequest, InternalRequest, TransactionRequest } from "../client";
+import { isNumber } from "lodash";
 
 // Step 1: Define the registry
 // Assuming you have Zod schemas defined somewhere
@@ -20,14 +21,20 @@ export const zNumber = z.preprocess(
     return value;
   },
   z.union([
-    z.number({
-      message: "must be a number",
-    }),
-    z.literal("").refine(() => false, {
-      message: "This field is required",
-    }),
+    z
+      .number({
+        message: "must be a number",
+      })
+      .optional(),
+    z
+      .literal("")
+      .refine(() => false, {
+        message: "This field is required",
+      })
+      .optional(),
   ])
 );
+
 export const zPNumber = z.preprocess(
   (value) => {
     // Attempt to convert string to number if it's a string that represents a number
@@ -94,6 +101,8 @@ const ForEx = zfd.formData({
   base_currency: zCurrency,
   currency: zCurrency,
   daily_rate: zfd.text(zPNumber),
+  bank_rate: zfd.text(zNumber),
+  bank_fees: zfd.text(zNumber),
   buying_rate: zfd.text(zPNumber),
   selling_rate: zfd.text(zPNumber),
   amount: zfd.text(zPNumber),
@@ -159,7 +168,7 @@ const InternalFormResolver: FormResolver = {
         rate: +parsed.data.rate,
       },
       charges: {
-        amount: +charges.data,
+        amount: isNumber(charges.data) ? charges.data : 0,
         rate: +parsed.data.rate,
       },
       currency: data.get("currency") as string,
@@ -314,6 +323,8 @@ const ForexFromResolver: FormResolver = {
         currency: parsed.data.currency,
         base_currency: parsed.data.base_currency,
         daily_rate: +parsed.data.daily_rate,
+        bank_rate: isNumber(parsed.data.bank_rate) ? +parsed.data.bank_rate : 0,
+        bank_fees: isNumber(parsed.data.bank_fees) ? +parsed.data.bank_fees : 0,
         buying_rate: +parsed.data.buying_rate,
         selling_rate: +parsed.data.selling_rate,
         amount: +parsed.data.amount,

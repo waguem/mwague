@@ -164,13 +164,12 @@ export const getDailyFundCommits = async (startDate?: string, endDate?: string) 
   });
 };
 
-export const getProviderReport = async(name: string, startDate?: string, endDate?: string)=>{
-  return withToken(async()=>{
+export const getProviderReport = async (name: string, startDate?: string, endDate?: string) => {
+  return withToken(async () => {
     return await getProviderReportApiV1OfficeProvidersReportGet({
-      start:startDate,
+      start: startDate,
       end: endDate,
       name: name,
-    }
-    )
-  })
-}
+    });
+  });
+};

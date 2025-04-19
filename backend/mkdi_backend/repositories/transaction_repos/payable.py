@@ -77,7 +77,7 @@ class PayableTransaction(AbstractTransaction):
         # the transaction should not have a paid amount greather than the amount
         # get the total amount paid on the transaction
         paid = await self.get_paid_amount(transaction.id)
-        if (paid + payment.amount) > transaction.amount:
+        if (paid + payment.amount) > transaction.amount and transaction.tag != "BANKTT":
             raise MkdiError(
                 error_code=MkdiErrorCode.INVALID_STATE,
                 message="Payment amount exceeds transaction amount",

@@ -1,6 +1,6 @@
 import { AgentReponseWithAccounts, Currency, OfficeResponse } from "@/lib/client";
 import { currencyOptions, getAccountOptions } from "@/lib/utils";
-import { Group, NumberInput, Select, Stack, Avatar, Button, LoadingOverlay, Textarea } from "@mantine/core";
+import { Group, NumberInput, Select, Stack, Avatar, Button, LoadingOverlay, Textarea, Divider } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconCurrencyDirham, IconCurrencyDollar, IconLoader, IconMessage, IconSend } from "@tabler/icons-react";
 import { useTransition } from "react";
@@ -21,7 +21,11 @@ interface FormInputs {
   amountInBuyedCurrency: number; // amount in buying currency
   amountInBaseCurrency: number;
   amountInMainCurrency: number;
+  bankAmountInBaseCurrency: number;
+  bankAmountInMainCurrency: number;
   dailyRate: number;
+  bankRate: number;
+  bankFees: number;
   message: string;
 }
 
@@ -36,9 +40,13 @@ export default function BankTT({ agentWithAccounts, office }: Props) {
       currency: mainCurrency?.name,
       provider: "",
       dailyRate: baseCurrency?.defaultRate,
+      bankRate: baseCurrency?.defaultRate,
       sellingRate: 0,
       amountInBuyedCurrency: 0,
       amountInBaseCurrency: 0,
+      bankAmountInBaseCurrency: 0,
+      bankAmountInMainCurrency: 0,
+      bankFees: 0,
       amountInMainCurrency: 0,
       mainCurrency: mainCurrency?.name,
       message: "",
@@ -64,6 +72,8 @@ export default function BankTT({ agentWithAccounts, office }: Props) {
     data.append("base_currency", baseCurrency?.name);
     data.append("currency", form.values.currency);
     data.append("daily_rate", form.values.dailyRate.toString());
+    data.append("bank_rate", form.values.bankRate.toString());
+    data.append("bank_fees", form.values.bankFees.toString());
     data.append("selling_rate", form.values.sellingRate.toString());
     data.append("buying_rate", form.values.sellingRate.toString());
     data.append("amount", form.values.amountInBuyedCurrency.toString());
@@ -149,8 +159,30 @@ export default function BankTT({ agentWithAccounts, office }: Props) {
             thousandSeparator=","
           />
           <NumberInput
+            id="bankRate"
+            label={"Bank Rate 1 " + mainCurrency?.name}
+            placeholder="Enter rate"
+            required
+            leftSection={<Group>{getMoneyIcon(baseCurrency?.name, 16)}</Group>}
+            value={form.values.bankRate}
+            onChange={(value) => form.setFieldValue("bankRate", value as any)}
+            thousandSeparator=","
+          />
+          <NumberInput
+            id="bankFees"
+            label={"Bank Fees"}
+            placeholder="Enter rate"
+            required
+            leftSection={<Group>{getMoneyIcon(baseCurrency?.name, 16)}</Group>}
+            value={form.values.bankFees}
+            onChange={(value) => form.setFieldValue("bankFees", value as any)}
+            thousandSeparator=","
+          />
+        </Group>
+        <Group grow>
+          <NumberInput
             id="charge_rate"
-            label={"Charge Percentage %"}
+            label={"Customer Charge Percentage %"}
             placeholder="Enter Charge Rate"
             required
             allowNegative={false}
@@ -160,13 +192,10 @@ export default function BankTT({ agentWithAccounts, office }: Props) {
             onChange={(value) => form.setFieldValue("sellingRate", Number(value))}
             thousandSeparator=","
           />
-        </Group>
-
-        <Group grow>
           <NumberInput
             decimalScale={2}
             thousandSeparator=","
-            label={"Amount in " + form.values.currency}
+            label={"TT Amount in " + form.values.currency}
             leftSection={getMoneyIcon(form.values.currency, 16)}
             placeholder="Enter amount"
             id="amount"
@@ -174,14 +203,48 @@ export default function BankTT({ agentWithAccounts, office }: Props) {
             allowNegative={false}
             value={form.values.amountInBuyedCurrency}
             onChange={(value) => {
+              const bankAmount = Number(value) * form.values.bankRate + form.values.bankFees;
+              console.log(form.values.bankRate, form.values.bankFees, bankAmount);
               form.setValues({
                 ...form.values,
                 amountInBuyedCurrency: Number(value),
                 amountInMainCurrency: Number(value) * (1 + form.values.sellingRate / 100),
                 amountInBaseCurrency: Number(value) * (1 + form.values.sellingRate / 100) * form.values.dailyRate,
+                bankAmountInBaseCurrency: bankAmount,
+                bankAmountInMainCurrency: bankAmount / form.values.dailyRate,
               });
             }}
           />
+        </Group>
+        <Divider label="Bank Payment" />
+        <Group grow>
+          <NumberInput
+            decimalScale={2}
+            thousandSeparator=","
+            label={"Amount in " + baseCurrency?.name}
+            placeholder="Enter amount"
+            id="amountInBaseCurrency"
+            required
+            readOnly
+            value={form.values.bankAmountInBaseCurrency}
+            allowNegative={false}
+            leftSection={<IconCurrencyDirham size={16} />}
+          />
+          <NumberInput
+            decimalScale={2}
+            thousandSeparator=","
+            label={"Payment in " + mainCurrency?.name}
+            leftSection={<IconCurrencyDollar size={16} />}
+            placeholder="Enter amount"
+            id="sellingAmount"
+            required
+            readOnly
+            allowNegative={false}
+            value={form.values.bankAmountInMainCurrency}
+          />
+        </Group>
+        <Divider label="Customer Payment" />
+        <Group grow>
           <NumberInput
             decimalScale={2}
             thousandSeparator=","
@@ -223,6 +286,7 @@ export default function BankTT({ agentWithAccounts, office }: Props) {
             }}
           />
         </Group>
+        <Divider label="Benefit" />
         <Group grow>
           <Textarea
             rows={2}

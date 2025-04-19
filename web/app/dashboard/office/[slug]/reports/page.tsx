@@ -18,16 +18,21 @@ export default async function OfficeReportPage({
 }) {
   const monthlyReport = await getMonthlyReport(searchParams?.from, searchParams?.to);
   const office = await getOfficeCached(params.slug);
-  const aliPayReport = await getProviderReport(FOREX_TAGS[0],searchParams?.from, searchParams?.to)
-  const ttRmbReport = await getProviderReport(FOREX_TAGS[1],searchParams?.from, searchParams?.to)
+  const aliPayReport = await getProviderReport(FOREX_TAGS[0], searchParams?.from, searchParams?.to);
+  const ttRmbReport = await getProviderReport(FOREX_TAGS[1], searchParams?.from, searchParams?.to);
+  const bankTTReport = await getProviderReport(FOREX_TAGS[2], searchParams?.from, searchParams?.to);
   const providers = [
     {
       name: FOREX_TAGS[0],
-      items: aliPayReport
+      items: aliPayReport,
     },
     {
       name: FOREX_TAGS[1],
-      items: ttRmbReport
+      items: ttRmbReport,
+    },
+    {
+      name: FOREX_TAGS[2],
+      items: bankTTReport,
     },
   ];
   return (

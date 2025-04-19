@@ -16,7 +16,7 @@ from mkdi_backend.repositories.report_repo import ReportRepository
 
 async def update_account_report():
     while True:
-        logger.info("Running peridic task to update account reports")
+        logger.debug("Running peridic task to update account reports")
 
         with Session(engine) as session:
             report_repo = ReportRepository(session)
@@ -54,7 +54,7 @@ def save_schema(app: FastAPI):
     """save the openapi schema to a file"""
     with open("openapi.json", "w", encoding="utf-8") as f:
         f.write(json.dumps(app.openapi()))
-        logger.info("Schema saved to openapi.json")
+        logger.debug("Schema saved to openapi.json")
 
 
 @asynccontextmanager
@@ -66,16 +66,16 @@ async def lifespan(app: FastAPI):
     # seed database
 
     # start the cron job
-    task = asyncio.create_task(create_account_report())
-    update_task = asyncio.create_task(update_account_report())
+    # task = asyncio.create_task(create_account_report())
+    # update_task = asyncio.create_task(update_account_report())
 
     yield
 
-    task.cancel()
-    update_task.cancel()
-    # wait for the task to finish
-    await task
-    await update_task
+    # task.cancel()
+    # update_task.cancel()
+    # # wait for the task to finish
+    # await task
+    # await update_task
 
     logger.info("Closing database connection")
     app.state.db.close()

@@ -411,11 +411,12 @@ export type ForEx = {
   base_currency: Currency;
   buying_rate: number;
   selling_rate: number;
+  bank_fees?: number;
+  bank_rate?: number;
   provider_account: string;
   customer_account: string;
   tag: string;
   charge_percentage: number;
-  buying_amount: number;
 };
 
 export type ForExRequest = {
@@ -426,6 +427,8 @@ export type ForExRequest = {
   currency: Currency;
   base_currency: Currency;
   daily_rate: number;
+  bank_rate: number;
+  bank_fees: number;
   buying_rate: number;
   selling_rate: number;
   amount: number;
@@ -460,6 +463,8 @@ export type ForExWithPayments = {
   base_currency: Currency;
   buying_rate: number;
   selling_rate: number;
+  bank_fees?: number;
+  bank_rate?: number;
   provider_account: string;
   customer_account: string;
   tag: string;

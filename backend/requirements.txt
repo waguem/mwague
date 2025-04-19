@@ -1,6 +1,7 @@
 aiohttp
 alembic==1.13.1
 asyncpg==0.28.0
+dateutils
 fastapi==0.111.0
 fastapi-utils
 httpx==0.24.1

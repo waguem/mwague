@@ -282,4 +282,4 @@ export const CANCELLATION_REASON = ["Duplicated", "Mistake", "Agent Cancelled"];
 
 export const reviewTags = ["Invalid Infos", "Duplicated", "Cancelled", "Error", "Everything is fine"];
 
-export const FOREX_TAGS = ["ALI PAY", "TT RMB","BANKTT"]
+export const FOREX_TAGS = ["ALI PAY", "TT RMB", "BANKTT"];

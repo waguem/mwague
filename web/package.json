@@ -74,6 +74,7 @@
     "autoprefixer": "^10.4.17",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
+    "dotenv": "^16.5.0",
     "postcss": "^8.4.35",
     "prettier": "^2.8.0",
     "prettier-plugin-tailwindcss": "^0.2.0",

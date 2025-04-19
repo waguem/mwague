@@ -20,11 +20,11 @@ export default function ProvidersReportTable({ providers }: Props) {
         header: "Name",
         accessorKey: "name",
         size: 100,
-        Cell:({cell})=>(
+        Cell: ({ cell }) => (
           <Badge variant="outline" size="xl" color="blue" radius={"md"}>
             {cell.getValue() as string}
           </Badge>
-        )
+        ),
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -51,7 +51,7 @@ export default function ProvidersReportTable({ providers }: Props) {
     },
     renderRowActions: ({ row }) => (
       <Box style={{ display: "flex", flexWrap: "nowrap", gap: "8px" }}>
-        <DownloadProviderReport name={row.original.name}/>
+        <DownloadProviderReport name={row.original.name} />
       </Box>
     ),
   });

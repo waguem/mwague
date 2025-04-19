@@ -56,17 +56,13 @@ def get_agent_full_report(
     return ReportRepository(db).get_agent_full_report(user, report_id)
 
 
-@router.get(
-    "/office/providers/report",
-    response_model=List[ForEx],
-    status_code=200
-)
+@router.get("/office/providers/report", response_model=List[ForEx], status_code=200)
 def get_provider_report(
     *,
-    user: Annotated[KcUser,Security(check_authorization,scopes=[])],
+    user: Annotated[KcUser, Security(check_authorization, scopes=[])],
     name: str,
-    start: str| None = None,
+    start: str | None = None,
     end: str | None = None,
-    db: DBSessionDep
-) -> List[ForEx] :
-    return ReportRepository(db).get_provider_report(user,name,start,end)
+    db: DBSessionDep,
+) -> List[ForEx]:
+    return ReportRepository(db).get_provider_report(user, name, start, end)
