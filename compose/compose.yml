@@ -55,21 +55,21 @@ services:
       - "8080:80"
       - "9696:9696" # debug port
 
-  bdd:
-    extends:
-      file: compose.common.yml
-      service: bdd
-    container_name: bdd
+  # bdd:
+  #   extends:
+  #     file: compose.common.yml
+  #     service: bdd
+  #   container_name: bdd
 
-    networks:
-      - dev
-    volumes:
-      - "../bdd/tests:/app/tests"
-      - "../bdd/run.sh:/run.sh"
-    environment:
-      PYTHONPATH: /app/gen/client/build/lib
-      API_URL: http://backend:80
-      DATABASE_URL: postgresql://postgres:postgres@backenddb:5432/postgres
+  #   networks:
+  #     - dev
+  #   volumes:
+  #     - "../bdd/tests:/app/tests"
+  #     - "../bdd/run.sh:/run.sh"
+  #   environment:
+  #     PYTHONPATH: /app/gen/client/build/lib
+  #     API_URL: http://backend:80
+  #     DATABASE_URL: postgresql://postgres:postgres@backenddb:5432/postgres
 
 volumes:
   pgadmin_dev:
