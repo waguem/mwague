@@ -20,7 +20,7 @@ app = fastapi.FastAPI(
     lifespan=lifespan,
 )
 
-logger.add("file_{time}.log", rotation="2 MB", compression="zip")
+logger.add("file.log", rotation="10 MB", compression="zip")
 
 
 startup_time: datetime = utcnow()
@@ -34,7 +34,7 @@ def save_schema():
     """save the openapi schema to a file"""
     with open("openapi.json", "w", encoding="utf-8") as f:
         f.write(get_openapi_schema())
-        logger.info("Schema saved to openapi.json")
+        logger.debug("Schema saved to openapi.json")
 
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
@@ -63,7 +63,7 @@ async def log_request_time(request: fastapi.Request, call_next):
     formatted_process_time = f"{process_time:.4f}"
 
     # Log the request method, URL, and time taken
-    logger.info(
+    logger.debug(
         f"Request: {request.method} {request.url} completed in {formatted_process_time} seconds"
     )
 

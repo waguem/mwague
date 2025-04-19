@@ -108,6 +108,8 @@ class ForExTransaction(PayableTransaction):
             type=pr.TransactionType.FOREX,
             created_by=user.user_db_id,
             tag=user_input.tag,
+            bank_fees=user_input.bank_fees,
+            bank_rate=user_input.bank_rate,
         )
 
         notes = []

@@ -317,6 +317,8 @@ class ForExRequest(BaseModel):
     currency: Currency
     base_currency: Currency
     daily_rate: Annotated[Decimal, Field(strict=True, gt=0)]
+    bank_rate: Annotated[Decimal, Field(strict=False, ge=0)]
+    bank_fees: Annotated[Decimal, Field(strict=False, ge=0)]
     buying_rate: Annotated[Decimal, Field(strict=True, gt=0)]
     selling_rate: Annotated[Decimal, Field(strict=True, gt=0)]
     amount: Annotated[Decimal, Field(strict=True, ge=0)]
