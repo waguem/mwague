@@ -14,7 +14,6 @@ import {
   CancelTransaction,
   WalletTradingResponse,
   updateTradeApiV1TradeUpdatePatch,
-  partnerPaidApiV1TradeTradeCodePartnerPaidPut,
   partnerPaidApiV1TradeTradeCodePartnerPaidPost,
 } from "@/lib/client";
 import { withToken } from "./withToken";
