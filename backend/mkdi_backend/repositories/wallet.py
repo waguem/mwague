@@ -59,6 +59,10 @@ class WalletRepository:
         db_session: UserDBSession = UserDBSession(user=self.user, db=self.db)
         return self.trade_manager.update(db_session, trade_request)
 
+    def partner_paid(self, trade_code: str) -> pr.WalletTradingResponse:
+        db_session: UserDBSession = UserDBSession(user=self.user, db=self.db)
+        return self.trade_manager.partner_paid(db_session, trade_code)
+
     def accounts(self) -> List[Account]:
         """Get user accounts."""
         return self.db.scalars(

@@ -90,6 +90,14 @@ class ITrade:
         return transitions[trade.state](trade)
 
     @managed_tx_method(auto_commit=CommitMode.COMMIT)
+    def partner_paid(self, trade: WalletTrading) -> WalletTrading:
+        """Rollback a trade"""
+        assert trade.partner_paid == False
+        trade.partner_paid = True
+        self.session.db.add(trade)
+        return trade
+
+    @managed_tx_method(auto_commit=CommitMode.COMMIT)
     def rollback_pending(self, trade: WalletTrading) -> WalletTrading:
         """Rollback pending State"""
         assert trade.state == pr.TransactionState.PENDING

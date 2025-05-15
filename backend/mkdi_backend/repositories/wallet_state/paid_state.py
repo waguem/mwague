@@ -10,3 +10,6 @@ class PaidState(TradeState):
 
     def rollback(self) -> WalletTrading:
         return TradeBuilder(self.db_session).rollback(self.request, self.trade)
+
+    def partner_paid(self):
+        return TradeBuilder(self.db_session).partner_paid(self.trade)

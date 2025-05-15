@@ -698,7 +698,7 @@ export default function TransactionReview({ row, opened, close, office, getEmplo
 
           <Timeline.Item color="red" title="Cancellation" bullet={<IconCancel size={12} />}>
             <Space h="xl" />
-            {row?.state === "PAID" ? (
+            {row?.state === "PAID" && row.type == "INTERNAL" ? (
               <form action={() => startTransition(() => handleCancel())}>
                 <Stack>
                   <Group grow>

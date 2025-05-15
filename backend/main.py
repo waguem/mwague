@@ -12,7 +12,7 @@ from mkdi_backend.utils.lifespan import lifespan
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
 from mkdi_shared.schemas import protocol as protocol_schema
 from mkdi_shared.utils import utcnow
-from fastapi_utils.tasks import repeat_every
+import asyncio
 
 app = fastapi.FastAPI(
     title=settings.PROJECT_NAME,
@@ -57,19 +57,26 @@ async def mkdi_exception_handler(request: fastapi.Request, ex: MkdiError):
 async def log_request_time(request: fastapi.Request, call_next):
     start_time = time.time()
 
-    response = await call_next(request)
-    # Calculate the total time taken
-    process_time = time.time() - start_time
-    formatted_process_time = f"{process_time:.4f}"
+    try:
+        response = await asyncio.wait_for(call_next(request), timeout=5)
+        # Calculate the total time taken
+        process_time = time.time() - start_time
+        formatted_process_time = f"{process_time:.4f}"
 
-    # Log the request method, URL, and time taken
-    logger.debug(
-        f"Request: {request.method} {request.url} completed in {formatted_process_time} seconds"
-    )
+        # Log the request method, URL, and time taken
+        logger.debug(
+            f"Request: {request.method} {request.url} completed in {formatted_process_time} seconds"
+        )
 
-    # Add a custom header to the response to show the process time
-    response.headers["X-Process-Time"] = formatted_process_time
-
+        # Add a custom header to the response to show the process time
+        response.headers["X-Process-Time"] = formatted_process_time
+    except asyncio.TimeoutError:
+        logger.error(f"{request.method} {request.url} failed: Timeout")
+        status = HTTPStatus.REQUEST_TIMEOUT
+        raise fastapi.HTTPException(
+            status_code=status.value,
+            detail={"message": status.name, "error_code": MkdiErrorCode.TIMEOUT},
+        )
     return response
 
 

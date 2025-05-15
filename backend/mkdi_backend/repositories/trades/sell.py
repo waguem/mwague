@@ -127,6 +127,7 @@ class SellTrade(ITrade):
             office.credit(delta)
 
         trade.state = pr.TransactionState.PAID
+        trade.partner_paid = False
         self.session.db.add(trade)
         self.session.db.add(office)
         self.session.db.add(account)
