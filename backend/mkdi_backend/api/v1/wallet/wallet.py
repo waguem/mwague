@@ -116,3 +116,13 @@ def update_trade(
     db: Session = Depends(get_db),
 ) -> pr.WalletTradingResponse:
     return WalletRepository(db, user).update(trade_request)
+
+
+@router.post("/trade/{trade_code}/partner_paid")
+def partner_paid(
+    *,
+    user: KcUser = Security(check_authorization, scopes=["office_admin"]),
+    trade_code: str,
+    db: Session = Depends(get_db),
+) -> pr.WalletTradingResponse:
+    return WalletRepository(db, user).partner_paid(trade_code)

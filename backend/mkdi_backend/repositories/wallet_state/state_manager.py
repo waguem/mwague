@@ -133,3 +133,16 @@ class TradeStateManager:
         t_state.set_trade(trade)
 
         return t_state.update()
+
+    def partner_paid(self, session: UserDBSession, trade_code: str) -> pr.WalletTradingResponse:
+        self.state = pr.TransactionState.INIT
+        init_state = self.get_state(session)
+        # query the trade
+        trade = init_state.get_trade(trade_code)
+        self.state = trade.state
+
+        # get it state manager
+        t_state = self.get_state(session)
+        t_state.set_trade(trade)
+        # call the partner paid method
+        return t_state.partner_paid()

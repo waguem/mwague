@@ -157,6 +157,7 @@ class OfficeWalletResponse(CryptoWalletBase):
     value: Decimal
     pending_in: Decimal
     pending_out: Decimal
+    pending_payment: Decimal
     office_id: UUID
 
 
@@ -563,6 +564,7 @@ class WalletTradingResponse(WalletTradingBase):
     wallet_value: Annotated[Decimal, Field(strict=True, ge=0)]
     wallet_crypto: Annotated[Decimal, Field(strict=True, ge=0)]
     wallet_trading: Annotated[Decimal, Field(strict=True, ge=0)]
+    partner_paid: bool | None
 
     trading_cost: Annotated[Decimal, Field(strict=True, ge=0)]
     trading_amount: Annotated[Decimal, Field(strict=True, ge=0)]

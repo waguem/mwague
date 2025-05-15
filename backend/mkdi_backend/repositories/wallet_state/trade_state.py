@@ -98,6 +98,10 @@ class TradeState(ITradeState):
         """Update Trade when it is under review"""
         raise StateException("Invalid action 'update' for state", self.state)
 
+    def partner_paid(self) -> WalletTrading:
+        """Transition from PENDING to PAID"""
+        raise StateException("Invalid action 'partner paid' for state", self.state)
+
     def get_request(self) -> TradeRequest:
         """Get Payload"""
         return self.request

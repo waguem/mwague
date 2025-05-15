@@ -83,6 +83,17 @@ export default function WalletCard({ wallet }: Props) {
                 />
               </Badge>
             </Group>
+            <Group>
+              <Title order={4}>Pendings Payment</Title>
+              <Badge radius={"md"} size="xl" variant="dot" color="blue">
+                <NumberFormatter
+                  value={wallet.pending_payment}
+                  thousandSeparator
+                  decimalScale={4}
+                  prefix={getCryptoPrefix(wallet.crypto_currency)}
+                />
+              </Badge>
+            </Group>
           </Stack>
         </GridCol>
       </Grid>

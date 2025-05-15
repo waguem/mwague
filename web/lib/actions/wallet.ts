@@ -14,6 +14,8 @@ import {
   CancelTransaction,
   WalletTradingResponse,
   updateTradeApiV1TradeUpdatePatch,
+  partnerPaidApiV1TradeTradeCodePartnerPaidPut,
+  partnerPaidApiV1TradeTradeCodePartnerPaidPost,
 } from "@/lib/client";
 import { withToken } from "./withToken";
 import { TradeWallet } from "@/lib/schemas";
@@ -26,7 +28,6 @@ export const tradeWallet = async (tradingRequest: TradeWalletReq, path: string) 
   return await withToken(async () => {
     // validate request
     const validated = TradeWallet.safeParse(tradingRequest);
-
     if (!validated.success) {
       return {
         status: "error",
@@ -41,7 +42,7 @@ export const tradeWallet = async (tradingRequest: TradeWalletReq, path: string) 
     await tradeWalletApiV1WalletPost({
       requestBody: {
         ...validated.data,
-        trading_rate:  !isNumber(validated?.data?.trading_rate) ? +validated?.data?.trading_rate! : 0,
+        trading_rate: isNumber(validated?.data?.trading_rate) ? +validated?.data?.trading_rate! : 0,
       },
     });
 
@@ -137,6 +138,21 @@ export const updateTrade = async (request: WalletTradingResponse) => {
   return withToken(async () => {
     const trade = await updateTradeApiV1TradeUpdatePatch({
       requestBody: request,
+    });
+
+    revalidatePath(`/dashboard/wallet/${trade.walletID}`);
+
+    return {
+      status: "success",
+      message: `${trade.code} has been updated`,
+    };
+  });
+};
+
+export const updatePartnerPaid = async (trade_code: string) => {
+  return withToken(async () => {
+    const trade = await partnerPaidApiV1TradeTradeCodePartnerPaidPost({
+      tradeCode: trade_code,
     });
 
     revalidatePath(`/dashboard/wallet/${trade.walletID}`);

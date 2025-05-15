@@ -328,6 +328,7 @@ class WalletTrading(pr.WalletTradingBase, table=True):
     trading_currency: str = Field(nullable=True)
 
     state: pr.TransactionState
+    partner_paid: bool | None = Field(nullable=True)
 
     amount: Decimal = Field(gt=0, nullable=False, max_digits=19, decimal_places=3)
 

@@ -588,7 +588,7 @@ export const makeProviderReport = (
         aed: new Intl.NumberFormat("en-US", { style: "currency", currency: "AED" }).format(selling * 3.67),
         buying: new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(buying),
         benefit: new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(benefit),
-        selling: new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(selling)
+        selling: new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(selling),
       };
     } else {
       // BANKTT

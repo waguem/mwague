@@ -196,7 +196,6 @@ class ForExTransaction(PayableTransaction):
 
         commits.append(sender.credit(self.transaction.selling_amount))
         commits.append(fund.credit(self.transaction.buying_amount))
-
         if self.transaction.forex_result > 0:
             commits.append(office.debit(self.transaction.forex_result))
 

@@ -42,7 +42,7 @@ export const $AccountMonthlyReport = {
       type: "string",
       format: "date-time",
       title: "Updated At",
-      default: "2025-04-19T11:46:28.149402",
+      default: "2025-05-15T12:29:26.005296",
     },
   },
   type: "object",
@@ -2108,6 +2108,10 @@ export const $OfficeWalletResponse = {
       type: "number",
       title: "Pending Out",
     },
+    pending_payment: {
+      type: "number",
+      title: "Pending Payment",
+    },
     office_id: {
       type: "string",
       format: "uuid",
@@ -2124,6 +2128,7 @@ export const $OfficeWalletResponse = {
     "value",
     "pending_in",
     "pending_out",
+    "pending_payment",
     "office_id",
   ],
   title: "OfficeWalletResponse",
@@ -3296,6 +3301,10 @@ export const $WalletTradingResponse = {
       minimum: 0,
       title: "Wallet Trading",
       strict: true,
+    },
+    partner_paid: {
+      type: "boolean",
+      title: "Partner Paid",
     },
     trading_cost: {
       type: "number",

@@ -13,10 +13,12 @@ export const zNumber = z.preprocess(
     if (typeof value === "string") {
       const parsed = parseFloat(value);
       // Check if the parsed value is a valid number and not NaN
+      console.log("parsed", parsed);
       if (!isNaN(parsed)) {
         return parsed; // Return the parsed number for further validation
       }
     }
+    console.log("value", value);
     // Return the original value if it's not a string representing a number
     return value;
   },

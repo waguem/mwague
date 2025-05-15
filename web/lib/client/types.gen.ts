@@ -603,6 +603,7 @@ export type OfficeWalletResponse = {
   value: number;
   pending_in: number;
   pending_out: number;
+  pending_payment: number;
   office_id: string;
 };
 
@@ -906,6 +907,7 @@ export type WalletTradingResponse = {
   wallet_value: number;
   wallet_crypto: number;
   wallet_trading: number;
+  partner_paid?: boolean;
   trading_cost: number;
   trading_amount: number;
   trading_crypto: number;
@@ -1184,6 +1186,12 @@ export type UpdateTradeApiV1TradeUpdatePatchData = {
 };
 
 export type UpdateTradeApiV1TradeUpdatePatchResponse = WalletTradingResponse;
+
+export type PartnerPaidApiV1TradeTradeCodePartnerPaidPostData = {
+  tradeCode: string;
+};
+
+export type PartnerPaidApiV1TradeTradeCodePartnerPaidPostResponse = WalletTradingResponse;
 
 export type GetMonthlyReportApiV1OfficeMonthlyReportGetData = {
   endDate?: string;
@@ -1824,6 +1832,21 @@ export type $OpenApiTs = {
   "/api/v1/trade/update": {
     patch: {
       req: UpdateTradeApiV1TradeUpdatePatchData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: WalletTradingResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/trade/{trade_code}/partner_paid": {
+    post: {
+      req: PartnerPaidApiV1TradeTradeCodePartnerPaidPostData;
       res: {
         /**
          * Successful Response

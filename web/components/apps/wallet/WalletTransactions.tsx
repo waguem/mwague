@@ -109,6 +109,16 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
         ),
       },
       {
+        header: "Customer",
+        accessorKey: "account",
+        size: 100,
+        Cell: ({ row }) => (
+          <Badge radius={"md"} variant="dot" color={getReviewBadgeColor(row.original.trading_type)} size="md">
+            {row.original.account}
+          </Badge>
+        ),
+      },
+      {
         header: "Amount",
         accessorKey: "amount",
         size: 100,
@@ -120,26 +130,6 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
                 thousandSeparator=","
                 decimalScale={2}
                 prefix={getMoneyPrefix(get_currency(row?.original))}
-              />
-            </Badge>
-          );
-        },
-      },
-      {
-        header: "Crypto",
-        accessorKey: "trading_crypto",
-        size: 100,
-        Cell: ({ cell, row }) => {
-          const wallet = getWallet(row.original);
-          return (
-            <Badge size="md" radius={"sm"} variant="dot" color="violet">
-              <NumberFormatter
-                value={cell.getValue() as number}
-                thousandSeparator=","
-                decimalScale={2}
-                prefix={getMoneyPrefix(
-                  wallet.wallet_type == "CRYPTO" ? wallet.crypto_currency : wallet.trading_currency
-                )}
               />
             </Badge>
           );

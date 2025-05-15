@@ -71,3 +71,5 @@ class TradeBuilder:
     
     def update(self,update_request:pr.WalletTradingResponse, trade: WalletTrading)-> WalletTrading:
         return self.get_instance(trade).update(update_request=update_request,trade=trade)
+    def partner_paid(self,trade:WalletTrading)-> WalletTrading:
+        return self.get_instance(trade).partner_paid(trade=trade)

@@ -85,6 +85,8 @@ import type {
   RollbackApiV1TradeRollbackPostResponse,
   UpdateTradeApiV1TradeUpdatePatchData,
   UpdateTradeApiV1TradeUpdatePatchResponse,
+  PartnerPaidApiV1TradeTradeCodePartnerPaidPostData,
+  PartnerPaidApiV1TradeTradeCodePartnerPaidPostResponse,
   GetMonthlyReportApiV1OfficeMonthlyReportGetData,
   GetMonthlyReportApiV1OfficeMonthlyReportGetResponse,
   GetAgentYearlyReportsApiV1OfficeAgentInitialsMonthlyReportGetData,
@@ -1101,6 +1103,28 @@ export const updateTradeApiV1TradeUpdatePatch = (
     url: "/api/v1/trade/update",
     body: data.requestBody,
     mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Partner Paid
+ * @param data The data for the request.
+ * @param data.tradeCode
+ * @returns WalletTradingResponse Successful Response
+ * @throws ApiError
+ */
+export const partnerPaidApiV1TradeTradeCodePartnerPaidPost = (
+  data: PartnerPaidApiV1TradeTradeCodePartnerPaidPostData
+): CancelablePromise<PartnerPaidApiV1TradeTradeCodePartnerPaidPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/trade/{trade_code}/partner_paid",
+    path: {
+      trade_code: data.tradeCode,
+    },
     errors: {
       422: "Validation Error",
     },

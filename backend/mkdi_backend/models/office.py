@@ -67,6 +67,20 @@ def get_pending_in(self) -> Decimal:
         return reduce(in_reducer, results, Decimal(0))
 
 
+def get_pending_payment(self) -> Decimal:
+    with Session(engine) as db:
+        results = db.scalars(
+            select(WalletTrading).where(
+                and_(
+                    WalletTrading.partner_paid == False,
+                    WalletTrading.walletID == self.walletID,
+                )
+            )
+        ).all()
+        reduced = reduce(out_reducer, results, Decimal(0))
+        return reduced
+
+
 def get_pending_out(self) -> Decimal:
     """Get the pending out amount"""
     condition = None
@@ -150,6 +164,7 @@ class OfficeWallet(CryptoWalletBase, table=True):
 
     pending_in: ClassVar[Decimal] = hybrid_property(get_pending_in)
     pending_out: ClassVar[Decimal] = hybrid_property(get_pending_out)
+    pending_payment: ClassVar[Decimal] = hybrid_property(get_pending_payment)
 
     counter: int = Field(nullable=True, default=0)
 

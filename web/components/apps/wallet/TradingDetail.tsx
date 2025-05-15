@@ -40,6 +40,7 @@ import TradeReview from "./TradeReview";
 import { useForm } from "@mantine/form";
 import { rollbackTrade } from "@/lib/actions/wallet";
 import { decodeNotification } from "../notifications/notifications";
+import PartnerPaid from "./PartnerPaid";
 
 export function TradingDetail({ trading, wallet }: { trading: WalletTradingResponse; wallet: OfficeWalletResponse }) {
   const [opened, { open, close }] = useDisclosure(false);
@@ -286,6 +287,17 @@ export function TradingDetail({ trading, wallet }: { trading: WalletTradingRespo
                 </Badge>
               </Box>
               <TrResult wallet={wallet} trading={trading} />
+            </Group>
+            <Group grow>
+              <Box>
+                <ThemeIcon color="blue" size={22} radius="xl">
+                  <IconCircleDashed style={{ width: rem(14), height: rem(14) }} />
+                </ThemeIcon>
+                <Badge size="lg" variant="transparent">
+                  Partner Paid
+                </Badge>
+              </Box>
+              <PartnerPaid trading={trading} />
             </Group>
           </Stack>
         </Card>
