@@ -151,12 +151,15 @@ const TransactionTable = ({ data, office, employees }: Props) => {
         },
         Footer: () => (
           <Badge variant="outline" color="blue" size="lg">
-            Total &#8658; {""}
+            Total PAID &#8658; {""}
             <NumberFormatter
               prefix="$"
               decimalScale={2}
               thousandSeparator
-              value={table.getFilteredRowModel().rows.reduce(reduceAmountItems, 0)}
+              value={table
+                .getFilteredRowModel()
+                .rows.filter((row) => row.original.state === "PAID")
+                .reduce(reduceAmountItems, 0)}
             />
           </Badge>
         ),

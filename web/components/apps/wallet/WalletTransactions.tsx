@@ -7,7 +7,7 @@ import {
   TransactionState,
   WalletTradingResponse,
 } from "@/lib/client";
-import { ActionIcon, Badge, Button, Group, MantineColor, NumberFormatter, Tooltip } from "@mantine/core";
+import { ActionIcon, Badge, Button, Group, MantineColor, Tooltip } from "@mantine/core";
 import { MantineReactTable, MRT_ColumnDef, useMantineReactTable } from "mantine-react-table";
 import { useMemo, useState, useTransition } from "react";
 import { NewTrade } from "./NewTrade";
@@ -22,6 +22,8 @@ import { IconCheck, IconCopy, IconDownload } from "@tabler/icons-react";
 import { useClipboard } from "@mantine/hooks";
 import { exportTradingData } from "@/lib/pdf/generator";
 import EditTrading from "./EditTrading";
+import TradeRateDisplay from "./Displays/TradeRateDisplay";
+import AmountDisplay from "./Displays/AmountDisplay";
 
 interface Props {
   office: OfficeResponse;
@@ -51,18 +53,7 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
   const getWallet = (trading: WalletTradingResponse) => {
     return office.wallets?.find((w) => w.walletID == trading.walletID)!;
   };
-  const get_currency = (trade: WalletTradingResponse) => {
-    switch (trade.trading_type) {
-      case "BUY":
-      case "DEPOSIT":
-        return trade.trading_currency;
-      case "SELL":
-        return trade.selling_currency;
-      case "EXCHANGE":
-      case "EXCHANGE WITH SIMPLE WALLET":
-        return trade.exchange_currency;
-    }
-  };
+
   const columns = useMemo<MRT_ColumnDef<WalletTradingResponse>[]>(
     () => [
       {
@@ -111,7 +102,7 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
       {
         header: "Customer",
         accessorKey: "account",
-        size: 100,
+        size: 80,
         Cell: ({ row }) => (
           <Badge radius={"md"} variant="dot" color={getReviewBadgeColor(row.original.trading_type)} size="md">
             {row.original.account}
@@ -119,20 +110,17 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
         ),
       },
       {
+        header: "Rate",
+        accessorKey: "trading_rate",
+        size: 50,
+        Cell: ({ cell, row }) => <TradeRateDisplay cell={cell} row={row} />,
+      },
+      {
         header: "Amount",
         accessorKey: "amount",
         size: 100,
         Cell: ({ cell, row }) => {
-          return (
-            <Badge radius={"sm"} size="md" variant="dot" color="violet">
-              <NumberFormatter
-                value={cell.getValue() as number}
-                thousandSeparator=","
-                decimalScale={2}
-                prefix={getMoneyPrefix(get_currency(row?.original))}
-              />
-            </Badge>
-          );
+          return <AmountDisplay cell={cell} row={row} />;
         },
       },
       {
