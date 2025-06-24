@@ -7,7 +7,7 @@ import {
   TransactionState,
   WalletTradingResponse,
 } from "@/lib/client";
-import { ActionIcon, Badge, Button, Group, MantineColor, NumberFormatter, Tooltip } from "@mantine/core";
+import { ActionIcon, Badge, Button, Group, MantineColor, Tooltip } from "@mantine/core";
 import { MantineReactTable, MRT_ColumnDef, useMantineReactTable } from "mantine-react-table";
 import { useMemo, useState, useTransition } from "react";
 import { NewTrade } from "./NewTrade";
