@@ -6,10 +6,6 @@ import { IRootState } from "@/store";
 import { toggleTheme, toggleSidebar, toggleRTL } from "@/store/themeConfigSlice";
 import Dropdown from "@/components/dropdown";
 import IconMenu from "@/components/icon/icon-menu";
-import IconCalendar from "@/components/icon/icon-calendar";
-import IconEdit from "@/components/icon/icon-edit";
-import IconChatNotification from "@/components/icon/icon-chat-notification";
-import IconSearch from "@/components/icon/icon-search";
 import IconXCircle from "@/components/icon/icon-x-circle";
 import IconSun from "@/components/icon/icon-sun";
 import IconMoon from "@/components/icon/icon-moon";
@@ -93,8 +89,6 @@ const Header = (props: HeaderProps) => {
     setNotifications(notifications.filter((user) => user.id !== value));
   };
 
-  const [search, setSearch] = useState(false);
-
   return (
     <header className={`z-40 ${themeConfig.semidark && themeConfig.menu === "horizontal" ? "dark" : ""}`}>
       <div className="shadow-sm">
@@ -124,75 +118,8 @@ const Header = (props: HeaderProps) => {
               <IconMenu className="h-5 w-5" />
             </button>
           </div>
-
-          <div className="hidden ltr:mr-2 rtl:ml-2 sm:block">
-            <ul className="flex items-center space-x-2 rtl:space-x-reverse dark:text-[#d0d2d6]">
-              <li>
-                <Link
-                  href="#"
-                  className="block rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60"
-                >
-                  <IconCalendar />
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="#"
-                  className="block rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60"
-                >
-                  <IconEdit />
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="#"
-                  className="block rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60"
-                >
-                  <IconChatNotification />
-                </Link>
-              </li>
-            </ul>
-          </div>
           <div className="flex items-center space-x-1.5 ltr:ml-auto rtl:mr-auto rtl:space-x-reverse dark:text-[#d0d2d6] sm:flex-1 ltr:sm:ml-0 sm:rtl:mr-0 lg:space-x-2">
-            <div className="sm:ltr:mr-auto sm:rtl:ml-auto">
-              <form
-                className={`${
-                  search && "!block"
-                } absolute inset-x-0 top-1/2 z-10 mx-4 hidden -translate-y-1/2 sm:relative sm:top-0 sm:mx-0 sm:block sm:translate-y-0`}
-                onSubmit={() => setSearch(false)}
-              >
-                <div className="relative">
-                  <input
-                    type="text"
-                    className="peer form-input bg-gray-100 placeholder:tracking-widest ltr:pl-9 ltr:pr-9 rtl:pl-9 rtl:pr-9 sm:bg-transparent ltr:sm:pr-4 rtl:sm:pl-4"
-                    placeholder="Search..."
-                  />
-                  <button
-                    title="Search"
-                    type="button"
-                    className="absolute inset-0 h-9 w-9 appearance-none peer-focus:text-primary ltr:right-auto rtl:left-auto"
-                  >
-                    <IconSearch className="mx-auto" />
-                  </button>
-                  <button
-                    type="button"
-                    title="Close"
-                    className="absolute top-1/2 block -translate-y-1/2 hover:opacity-80 ltr:right-2 rtl:left-2 sm:hidden"
-                    onClick={() => setSearch(false)}
-                  >
-                    <IconXCircle />
-                  </button>
-                </div>
-              </form>
-              <button
-                type="button"
-                title="Search"
-                onClick={() => setSearch(!search)}
-                className="search_btn rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 dark:bg-dark/40 dark:hover:bg-dark/60 sm:hidden"
-              >
-                <IconSearch className="mx-auto h-4.5 w-4.5 dark:text-[#d0d2d6]" />
-              </button>
-            </div>
+            <div className="sm:ltr:mr-auto sm:rtl:ml-auto"></div>
             <div>
               {themeConfig.theme === "light" ? (
                 <button

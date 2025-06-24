@@ -10,7 +10,7 @@ const ComponentsAuthUnlockForm = () => {
     <form
       className="space-y-5"
       action={async () => {
-        await signIn("keycloak", { callbackUrl: "/dashboard" });
+        await signIn("keycloak", { callbackUrl: "/" });
       }}
     >
       <button
