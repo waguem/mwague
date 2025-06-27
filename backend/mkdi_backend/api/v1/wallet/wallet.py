@@ -126,3 +126,15 @@ def partner_paid(
     db: Session = Depends(get_db),
 ) -> pr.WalletTradingResponse:
     return WalletRepository(db, user).partner_paid(trade_code)
+
+
+@router.post("/wallet/{walletID}/balance_tracking_enabled")
+def set_balance_tracking_enabled(
+    *,
+    user: KcUser = Security(check_authorization, scopes=["office_admin"]),
+    walletID: str,
+    enabled: bool,
+    db: Session = Depends(get_db),
+) -> pr.OfficeWalletResponse:
+    """Set balance tracking enabled for a wallet"""
+    return WalletRepository(db, user).set_balance_tracking_enabled(walletID, enabled)

@@ -107,8 +107,12 @@ class ExchangeTrade(ITrade):
         exchange_wallet.crypto_balance += (
             crypto if exchange_wallet.wallet_type == pr.WalletType.CRYPTO else 0
         )
-        exchange_wallet.trading_balance += self.exchange_amount(trade, exchange_wallet.wallet_type)
+        exchange_amount = self.exchange_amount(trade, exchange_wallet.wallet_type)
+        exchange_wallet.trading_balance += exchange_amount
         exchange_wallet.value += self.exchange_value(trade, exchange_wallet.wallet_type)
+
+        if exchange_wallet.balance_tracking_enabled:
+            exchange_wallet.partner_balance += exchange_amount
 
         if delta:
             office.credit(delta)
@@ -143,8 +147,12 @@ class ExchangeTrade(ITrade):
         exchange_wallet.crypto_balance -= (
             crypto if exchange_wallet.wallet_type == pr.WalletType.CRYPTO else 0
         )
-        exchange_wallet.trading_balance -= self.exchange_amount(trade, exchange_wallet.wallet_type)
+        exchange_amount = self.exchange_amount(trade, exchange_wallet.wallet_type)
+        exchange_wallet.trading_balance -= exchange_amount
         exchange_wallet.value -= self.exchange_value(trade, exchange_wallet.wallet_type)
+
+        if exchange_wallet.balance_tracking_enabled:
+            exchange_wallet.partner_balance -= exchange_amount
 
         if delta:
             office = self.get_office()

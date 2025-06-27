@@ -288,17 +288,19 @@ export function TradingDetail({ trading, wallet }: { trading: WalletTradingRespo
               </Box>
               <TrResult wallet={wallet} trading={trading} />
             </Group>
-            <Group grow>
-              <Box>
-                <ThemeIcon color="blue" size={22} radius="xl">
-                  <IconCircleDashed style={{ width: rem(14), height: rem(14) }} />
-                </ThemeIcon>
-                <Badge size="lg" variant="transparent">
-                  Partner Paid
-                </Badge>
-              </Box>
-              <PartnerPaid trading={trading} />
-            </Group>
+            {trading.state == "PAID" && (
+              <Group grow>
+                <Box>
+                  <ThemeIcon color="blue" size={22} radius="xl">
+                    <IconCircleDashed style={{ width: rem(14), height: rem(14) }} />
+                  </ThemeIcon>
+                  <Badge size="lg" variant="transparent">
+                    Partner Paid
+                  </Badge>
+                </Box>
+                <PartnerPaid trading={trading} />
+              </Group>
+            )}
           </Stack>
         </Card>
         <TradeReview trade={trading} />

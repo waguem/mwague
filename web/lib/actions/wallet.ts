@@ -15,6 +15,7 @@ import {
   WalletTradingResponse,
   updateTradeApiV1TradeUpdatePatch,
   partnerPaidApiV1TradeTradeCodePartnerPaidPost,
+  setBalanceTrackingEnabledApiV1WalletWalletIdBalanceTrackingEnabledPost as setBalanceTrackingEnabledApi,
 } from "@/lib/client";
 import { withToken } from "./withToken";
 import { TradeWallet } from "@/lib/schemas";
@@ -159,6 +160,20 @@ export const updatePartnerPaid = async (trade_code: string) => {
     return {
       status: "success",
       message: `${trade.code} has been updated`,
+    };
+  });
+};
+
+export const enablePartnerBalanceTracking = async (walletID: string, enabled: boolean) => {
+  return withToken(async () => {
+    const wallet = await setBalanceTrackingEnabledApi({
+      walletId: walletID,
+      enabled: enabled,
+    });
+    revalidatePath(`/dashboard/wallet/${walletID}`);
+    return {
+      status: "success",
+      message: `Partner Balance Tracking has been enabled for ${wallet.wallet_name}`,
     };
   });
 };

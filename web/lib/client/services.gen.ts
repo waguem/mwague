@@ -87,6 +87,8 @@ import type {
   UpdateTradeApiV1TradeUpdatePatchResponse,
   PartnerPaidApiV1TradeTradeCodePartnerPaidPostData,
   PartnerPaidApiV1TradeTradeCodePartnerPaidPostResponse,
+  SetBalanceTrackingEnabledApiV1WalletWalletIdBalanceTrackingEnabledPostData,
+  SetBalanceTrackingEnabledApiV1WalletWalletIdBalanceTrackingEnabledPostResponse,
   GetMonthlyReportApiV1OfficeMonthlyReportGetData,
   GetMonthlyReportApiV1OfficeMonthlyReportGetResponse,
   GetAgentYearlyReportsApiV1OfficeAgentInitialsMonthlyReportGetData,
@@ -1124,6 +1126,33 @@ export const partnerPaidApiV1TradeTradeCodePartnerPaidPost = (
     url: "/api/v1/trade/{trade_code}/partner_paid",
     path: {
       trade_code: data.tradeCode,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Set Balance Tracking Enabled
+ * Set balance tracking enabled for a wallet
+ * @param data The data for the request.
+ * @param data.walletId
+ * @param data.enabled
+ * @returns OfficeWalletResponse Successful Response
+ * @throws ApiError
+ */
+export const setBalanceTrackingEnabledApiV1WalletWalletIdBalanceTrackingEnabledPost = (
+  data: SetBalanceTrackingEnabledApiV1WalletWalletIdBalanceTrackingEnabledPostData
+): CancelablePromise<SetBalanceTrackingEnabledApiV1WalletWalletIdBalanceTrackingEnabledPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/wallet/{walletID}/balance_tracking_enabled",
+    path: {
+      walletID: data.walletId,
+    },
+    query: {
+      enabled: data.enabled,
     },
     errors: {
       422: "Validation Error",
