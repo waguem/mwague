@@ -4,7 +4,7 @@ import { OfficeWalletResponse } from "@/lib/client";
 import { Badge, Group, NumberFormatter, Switch, Title } from "@mantine/core";
 import { Fragment, useState } from "react";
 import { decodeNotification } from "../notifications/notifications";
-import { getCryptoPrefix, getMoneyPrefix } from "@/lib/utils";
+import {  getMoneyPrefix } from "@/lib/utils";
 
 export default function WalletPartnerBalance({ wallet }: { wallet: OfficeWalletResponse }) {
   if (!wallet.balance_tracking_enabled) {
