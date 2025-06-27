@@ -1,6 +1,7 @@
 import { OfficeWalletResponse } from "@/lib/client";
 import { getCryptoPrefix, getMoneyPrefix } from "@/lib/utils";
 import { Badge, Card, Grid, GridCol, Group, NumberFormatter, Stack, Title } from "@mantine/core";
+import WalletPartnerBalance from "./WalletPartnerBalance";
 
 interface Props {
   wallet: OfficeWalletResponse;
@@ -57,6 +58,7 @@ export default function WalletCard({ wallet }: Props) {
                 />
               </Badge>
             </Group>
+            <WalletPartnerBalance wallet={wallet} />
           </Stack>
         </GridCol>
         <GridCol span={4}>
@@ -90,7 +92,7 @@ export default function WalletCard({ wallet }: Props) {
                   value={wallet.pending_payment}
                   thousandSeparator
                   decimalScale={4}
-                  prefix={getCryptoPrefix(wallet.crypto_currency)}
+                  prefix={getMoneyPrefix(wallet.trading_currency)}
                 />
               </Badge>
             </Group>

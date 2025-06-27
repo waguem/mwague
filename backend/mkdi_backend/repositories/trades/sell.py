@@ -95,6 +95,7 @@ class SellTrade(ITrade):
     def approve(self, review: pr.TradeReviewReq, trade: WalletTrading) -> WalletTrading:
 
         wallet = self.get_wallet(trade.walletID)
+
         avaiable_fund = (
             wallet.trading_balance
             if trade.selling_currency == wallet.trading_currency.value
@@ -188,6 +189,13 @@ class SellTrade(ITrade):
             self.session.db.add(office)
 
         trade.state = pr.TransactionState.REVIEW
+
+        # in case the trade was partner paid, we need to revert the partner balance
+        if trade.partner_paid and wallet.balance_tracking_enabled:
+            wallet.partner_balance += trade.amount
+            self.session.db.add(wallet)
+
+        trade.partner_paid = False
         self.session.db.add(trade)
         self.session.db.add(office)
         self.session.db.add(account)

@@ -95,6 +95,10 @@ class ITrade:
         assert trade.partner_paid == False
         trade.partner_paid = True
         self.session.db.add(trade)
+        wallet = self.get_wallet(trade.walletID)
+        if wallet.balance_tracking_enabled:
+            wallet.partner_balance -= trade.amount
+            self.session.db.add(wallet)
         return trade
 
     @managed_tx_method(auto_commit=CommitMode.COMMIT)

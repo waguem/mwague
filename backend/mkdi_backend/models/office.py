@@ -158,6 +158,10 @@ class OfficeWallet(CryptoWalletBase, table=True):
     # how much balance if was able to get in the trading currency
     trading_balance: Decimal = Field(max_digits=19, decimal_places=4, default=0, ge=0)
     # how much this wallet is worth in the main currency of the office
+    balance_tracking_enabled: bool = Field(default=False, nullable=True)
+    partner_balance: Decimal = Field(
+        default=0, nullable=True, max_digits=19, decimal_places=4, ge=0
+    )
     value: Decimal = Field(max_digits=19, decimal_places=4, default=0, ge=0)
 
     initials: str = Field(nullable=True, max_length=16)

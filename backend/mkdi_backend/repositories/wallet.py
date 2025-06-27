@@ -14,6 +14,7 @@ from mkdi_backend.models.Agent import Agent
 from mkdi_backend.utils.dateutils import get_month_range
 from mkdi_backend.api.deps import UserDBSession
 from mkdi_backend.repositories.wallet_state import TradeStateManager
+from mkdi_backend.utils.database import managed_tx_method, CommitMode
 
 
 class WalletRepository:
@@ -122,3 +123,14 @@ class WalletRepository:
         message["type"] = msg_type
         message["user"] = self.user.user_db_id
         return message
+
+    @managed_tx_method(auto_commit=CommitMode.COMMIT)
+    def set_balance_tracking_enabled(self, walletID: str, enabled: bool) -> OfficeWallet:
+        """Set balance tracking enabled for a wallet."""
+        wallet = self.get_wallet(walletID)
+        if wallet and (wallet.partner_balance is None or wallet.partner_balance == 0):
+            wallet.balance_tracking_enabled = enabled
+            wallet.partner_balance = 0
+            return wallet
+        else:
+            raise ValueError(f"Wallet with ID {walletID} not found.")

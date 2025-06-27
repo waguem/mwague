@@ -42,7 +42,7 @@ export const $AccountMonthlyReport = {
       type: "string",
       format: "date-time",
       title: "Updated At",
-      default: "2025-05-15T12:29:26.005296",
+      default: "2025-06-27T11:24:34.442915",
     },
   },
   type: "object",
@@ -2099,6 +2099,14 @@ export const $OfficeWalletResponse = {
     value: {
       type: "number",
       title: "Value",
+    },
+    balance_tracking_enabled: {
+      type: "boolean",
+      title: "Balance Tracking Enabled",
+    },
+    partner_balance: {
+      type: "number",
+      title: "Partner Balance",
     },
     pending_in: {
       type: "number",

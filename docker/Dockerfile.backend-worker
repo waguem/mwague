@@ -11,7 +11,7 @@ RUN --mount=type=cache,target=/root/.cache/pip pip install -e /mkdi-shared
 COPY ./backend/requirements_worker.txt /worker/requirements.txt
 RUN --mount=type=cache,target=/root/.cache/pip pip install --upgrade -r /worker/requirements.txt
 
-ENV PORT 8080
+ENV PORT=8080
 EXPOSE 8080
 
 COPY ./backend/alembic /worker/alembic

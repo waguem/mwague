@@ -155,6 +155,8 @@ class OfficeWalletResponse(CryptoWalletBase):
     crypto_balance: Decimal
     trading_balance: Decimal
     value: Decimal
+    balance_tracking_enabled: bool | None
+    partner_balance: Decimal | None = None
     pending_in: Decimal
     pending_out: Decimal
     pending_payment: Decimal

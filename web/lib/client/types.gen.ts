@@ -601,6 +601,8 @@ export type OfficeWalletResponse = {
   crypto_balance: number;
   trading_balance: number;
   value: number;
+  balance_tracking_enabled?: boolean;
+  partner_balance?: number;
   pending_in: number;
   pending_out: number;
   pending_payment: number;
@@ -1192,6 +1194,13 @@ export type PartnerPaidApiV1TradeTradeCodePartnerPaidPostData = {
 };
 
 export type PartnerPaidApiV1TradeTradeCodePartnerPaidPostResponse = WalletTradingResponse;
+
+export type SetBalanceTrackingEnabledApiV1WalletWalletIdBalanceTrackingEnabledPostData = {
+  enabled: boolean;
+  walletId: string;
+};
+
+export type SetBalanceTrackingEnabledApiV1WalletWalletIdBalanceTrackingEnabledPostResponse = OfficeWalletResponse;
 
 export type GetMonthlyReportApiV1OfficeMonthlyReportGetData = {
   endDate?: string;
@@ -1852,6 +1861,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: WalletTradingResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/wallet/{walletID}/balance_tracking_enabled": {
+    post: {
+      req: SetBalanceTrackingEnabledApiV1WalletWalletIdBalanceTrackingEnabledPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: OfficeWalletResponse;
         /**
          * Validation Error
          */

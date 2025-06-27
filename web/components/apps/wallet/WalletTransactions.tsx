@@ -15,7 +15,6 @@ import { getAccountOptions, getMoneyPrefix, getStateBadge } from "@/lib/utils";
 import { formatDistanceToNowStrict } from "date-fns";
 import { PayTrade } from "./PaymentTrade";
 import { isArray } from "lodash";
-import { HoverMessage } from "./HoverMessage";
 import { TradingDetail } from "./TradingDetail";
 import CommitTrade from "./CommitTrade";
 import { IconCheck, IconCopy, IconDownload } from "@tabler/icons-react";
@@ -24,6 +23,7 @@ import { exportTradingData } from "@/lib/pdf/generator";
 import EditTrading from "./EditTrading";
 import TradeRateDisplay from "./Displays/TradeRateDisplay";
 import AmountDisplay from "./Displays/AmountDisplay";
+import ValuationDisplay from "./Displays/ValuationDisplay";
 
 interface Props {
   office: OfficeResponse;
@@ -126,19 +126,36 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
       {
         header: "State",
         accessorKey: "state",
-        Cell: ({ cell, row }) => {
-          const firstMessage = isArray(row.original.notes) ? (row.original.notes[0] as any) : "";
-          const message = firstMessage.message;
+        size: 80,
+        Cell: ({ cell }) => {
           return (
             <Group>
               <Badge size="md" {...getStateBadge(cell.getValue() as TransactionState)}>
                 {cell.getValue() as string}
               </Badge>
-              {firstMessage && (
-                <Tooltip label="Message">
-                  <HoverMessage show message={message} />
-                </Tooltip>
-              )}
+            </Group>
+          );
+        },
+      },
+      {
+        header: "Valuation",
+        accessorKey: "trading_cost",
+        size: 100,
+        Cell: ({ row }) => {
+          const wallet = getWallet(row.original);
+          return <ValuationDisplay wallet={wallet} row={row} />;
+        },
+      },
+      {
+        header: "Partner Paid",
+        accessorKey: "partner_paid",
+        size: 60,
+        Cell: ({ row }) => {
+          return (
+            <Group>
+              <Badge size="md" variant="dot" color={row.original.partner_paid ? "green" : "red"}>
+                {row.original.partner_paid ? "Yes" : "No"}
+              </Badge>
             </Group>
           );
         },
