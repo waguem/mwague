@@ -38,17 +38,19 @@ const ResultTable = ({ data }: Props) => {
             <NumberFormatter decimalScale={2} prefix="$" thousandSeparator value={cell.getValue() as number} />
           </Badge>
         ),
-        Footer: () => (
-          <Badge variant="outline" color="blue" size="lg">
-            Total &#8658; {""}
-            <NumberFormatter
-              prefix="$"
-              decimalScale={2}
-              thousandSeparator
-              value={table.getFilteredRowModel().rows.reduce((acc, row) => acc + (row.original.amount as number), 0)}
-            />
-          </Badge>
-        ),
+        Footer: () => {
+          return (
+            <Badge variant="outline" color="blue" size="lg">
+              Total &#8658; {""}
+              <NumberFormatter
+                prefix="$"
+                decimalScale={2}
+                thousandSeparator
+                value={table.getFilteredRowModel().rows.filter((row)=>row.original.state==="PAID" && row.original.amount > 0).reduce((acc, row) => acc + (row.original.amount as number), 0)}
+              />
+            </Badge>
+          )
+        }
       },
       {
         header: "State",
