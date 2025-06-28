@@ -70,7 +70,7 @@ export const payTrade = async (walletID: string, trade_code: string, request: Pa
       tradeCode: trade_code,
       requestBody: request,
     });
-    revalidatePath(`/dashboard/wallet/${walletID}`);
+    revalidatePath(`/wallet/${walletID}`);
     return {
       status: "success",
       message: "Trade Paid Successfully",
@@ -95,7 +95,7 @@ export const commitTrade = async (code: string, request: CommitTradeRequest) => 
       requestBody: request,
     });
 
-    revalidatePath(`/dashboard/wallet/${request.walletID}`);
+    revalidatePath(`/wallet/${request.walletID}`);
 
     return {
       status: "success",
@@ -110,7 +110,7 @@ export const reviewTrade = async (review: TradeReviewReq) => {
       requestBody: review,
     });
 
-    revalidatePath(`/dashboard/wallet/${review.walletID}`);
+    revalidatePath(`/wallet/${review.walletID}`);
 
     return {
       status: "success",
@@ -125,7 +125,7 @@ export const rollbackTrade = async (cancellation: CancelTransaction) => {
       requestBody: cancellation,
     });
 
-    revalidatePath(`/dashboard/wallet/${trade.walletID}`);
+    revalidatePath(`/wallet/${trade.walletID}`);
 
     return {
       status: "success",
@@ -140,7 +140,7 @@ export const updateTrade = async (request: WalletTradingResponse) => {
       requestBody: request,
     });
 
-    revalidatePath(`/dashboard/wallet/${trade.walletID}`);
+    revalidatePath(`/wallet/${trade.walletID}`);
 
     return {
       status: "success",
@@ -155,7 +155,7 @@ export const updatePartnerPaid = async (trade_code: string) => {
       tradeCode: trade_code,
     });
 
-    revalidatePath(`/dashboard/wallet/${trade.walletID}`);
+    revalidatePath(`/wallet/${trade.walletID}`);
 
     return {
       status: "success",
@@ -170,7 +170,7 @@ export const enablePartnerBalanceTracking = async (walletID: string, enabled: bo
       walletId: walletID,
       enabled: enabled,
     });
-    revalidatePath(`/dashboard/wallet/${walletID}`);
+    revalidatePath(`/wallet/${walletID}`);
     return {
       status: "success",
       message: `Partner Balance Tracking has been enabled for ${wallet.wallet_name}`,

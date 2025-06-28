@@ -51,7 +51,7 @@ export default function AgentTableMant({ agents }: AgentTableProps) {
                 color="cyan"
                 size="xs"
                 component="a"
-                href={`/dashboard/agent/${row.original.initials}`}
+                href={`/agent/${row.original.initials}`}
               >
                 page
                 <IconArrowRight size={16} />

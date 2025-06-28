@@ -47,7 +47,7 @@ export async function addOffice(prevSate: State, data: FormData): Promise<State>
       },
     });
 
-    revalidatePath("/dashboard/organization");
+    revalidatePath("/organization");
 
     return { status: "success", message: `Office ${response.name} Added Successfully` };
   } catch (e) {
@@ -126,7 +126,7 @@ export const createWallet = async (
     });
 
     // revalidate path
-    revalidatePath(`/dashboard/office/${response.office_id}`);
+    revalidatePath(`/office/${response.office_id}`);
     return {
       status: "success",
       message: "Wallet Created Successfully",

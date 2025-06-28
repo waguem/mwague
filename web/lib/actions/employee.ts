@@ -32,7 +32,7 @@ export const updateEmployee = async (prevState: State, data: FormData): Promise<
       employeeId: updatedFields.data.id,
     });
     // revalidate path to update the form
-    revalidatePath(`/dashboard/office/${updatedFields.data.office_id}`);
+    revalidatePath(`/office/${updatedFields.data.office_id}`);
     return { status: "success", message: `Employee ${response.username} Updated Successfully` };
   });
 };
@@ -77,7 +77,7 @@ export const addEmployee = async (prevState: State, data: FormData): Promise<Sta
     });
 
     // revalidate path to update the form
-    revalidatePath(`/dashboard/office/${userInput.data.office_id}`);
+    revalidatePath(`/office/${userInput.data.office_id}`);
     return { status: "success", message: `Employee ${response.username} Updated Successfully` };
   });
 };
@@ -100,7 +100,7 @@ export const updateOfficeEmployees = async (prevState: State, data: UpdateEmploy
       },
     });
     const officeId = data.editedRows[0].office_id;
-    revalidatePath(`/dashboard/office/${officeId}`);
+    revalidatePath(`/office/${officeId}`);
     return {
       status: "success",
       message: "Employees Updated Successfully",

@@ -40,19 +40,19 @@ export default async function DefaultLayout({ children }: { children: React.Reac
   }
   const officeRoutesChildren: NavRoute[] = [
     {
-      href: `/dashboard/office/${office.id}/accounts`,
+      href: `/office/${office.id}/accounts`,
       label: "Accounts",
       permissions: ALLOWED_ROLES,
       icon: <IconBook size={20} />,
     },
     {
-      href: `/dashboard/office/${office.id}/agents`,
+      href: `/office/${office.id}/agents`,
       label: "Agents",
       permissions: ADMINS,
       icon: <IconUsersGroup size={20} />,
     },
     {
-      href: `/dashboard/office/${office.id}/reports`,
+      href: `/office/${office.id}/reports`,
       label: "Reports",
       permissions: ADMINS,
       icon: <IconReport size={20} />,
@@ -61,20 +61,20 @@ export default async function DefaultLayout({ children }: { children: React.Reac
 
   const routes: NavRoute[] = makeRoutes(session.user.roles, [
     {
-      href: `/dashboard/office/${office.id}`,
+      href: `/office/${office.id}`,
       label: "Office",
       icon: <IconBuildingWarehouse size={20} />,
       permissions: ALLOWED_ROLES,
       children: officeRoutesChildren,
     },
     {
-      href: "/dashboard/payments",
+      href: "/payments",
       label: "Payments",
       icon: <IconCashRegister size={20} />,
       permissions: ADMINS,
     },
     {
-      href: `/dashboard/office/${office.id}/transactions`,
+      href: `/office/${office.id}/transactions`,
       label: "Transactions",
       icon: <IconTransactionBitcoin size={20} />,
       permissions: ADMINS,
@@ -94,7 +94,7 @@ export default async function DefaultLayout({ children }: { children: React.Reac
       routes: office
         .wallets!.sort((a, b) => (a.wallet_type! > b.wallet_type! ? 1 : -1))
         ?.map((wallet) => ({
-          href: `/dashboard/wallet/${wallet.walletID}`,
+          href: `/wallet/${wallet.walletID}`,
           badge:
             wallet.wallet_type === "CRYPTO"
               ? `${wallet.crypto_currency}-${wallet.trading_currency}`

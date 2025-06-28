@@ -14,7 +14,7 @@ export async function OrgOfficeTab({ offices }: TabProps) {
   }
 
   const handleClick = (officeId: string) => {
-    router.push(`/dashboard/office/${officeId}`);
+    router.push(`/office/${officeId}`);
   };
 
   return (
