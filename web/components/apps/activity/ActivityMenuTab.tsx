@@ -72,7 +72,7 @@ export default function ActivityMenuTab({ agents, office, activity }: Props) {
                       "flex w-full items-center justify-between rounded-md p-1 hover:bg-gray-100 hover:text-primary dark:hover:bg-[#050b14] dark:hover:text-primary",
                       {
                         "border-l-4 border-primary mb-1 bg-gray-100 text-primary dark:bg-[#050b14] dark:text-primary":
-                          pathname.startsWith(`/dashboard/activity/${agent.initials}`),
+                          pathname.startsWith(`/activity/${agent.initials}`),
                       }
                     )}
                   >

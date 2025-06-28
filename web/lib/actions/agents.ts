@@ -42,7 +42,7 @@ export async function addAgent(prevState: State, data: FormData): Promise<State>
       const response = await createAgentApi({
         requestBody: userInput.data,
       });
-      revalidatePath("/dashboard/office/[slug]/agents");
+      revalidatePath("/office/[slug]/agents");
       return { status: "success", message: `Agent ${response.name} Added Successfully` };
     } catch (e) {
       if (e instanceof ZodError) {

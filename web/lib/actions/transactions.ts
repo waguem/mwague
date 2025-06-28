@@ -65,7 +65,7 @@ export async function addTransaction(prevSate: State, data: FormData): Promise<S
       const response = await requestTransactionApi({
         requestBody: validation,
       });
-      revalidatePath("/dashboard/office/[slug]/transactions");
+      revalidatePath("/office/[slug]/transactions");
       return { message: `${response.type} Transaction ${response.code} added successfully`, status: "success" };
     } catch (e) {
       if (e instanceof ApiError) {
@@ -153,7 +153,7 @@ export const reviewTransaction = async (prevSate: State, data: ReviewFormData): 
     });
 
     revalidatePath(
-      officeId.length > 0 ? `/dashboard/office/${officeId}/transactions` : "/dashboard/office/[slug]/transactions"
+      officeId.length > 0 ? `/office/${officeId}/transactions` : "/office/[slug]/transactions"
     );
 
     return {
@@ -188,7 +188,7 @@ export const payTransaction = async (officeId: string, data: PaymentRequest): Pr
       },
     });
 
-    revalidatePath("/dashboard/office/[slug]/transactions");
+    revalidatePath("/office/[slug]/transactions");
 
     return {
       status: "success",
@@ -223,7 +223,7 @@ export const updateTransaction = async (officeId: string, data: any): Promise<St
       },
     });
 
-    revalidatePath(`/dashboard/office/${officeId}/transactions`);
+    revalidatePath(`/office/${officeId}/transactions`);
 
     return {
       status: "success",
@@ -245,7 +245,7 @@ export const cancelTransaction = async (data: CancelTransactionType) => {
       code: data.code,
       requestBody: data,
     });
-    revalidatePath(`/dashboard/office/[slug]/transactions`);
+    revalidatePath(`/office/[slug]/transactions`);
     return {
       status: "success",
       message: `${response.type} Transaction ${response.code} has been cancelled`,
@@ -268,7 +268,7 @@ export const cancelPayment = async (id: string, cancellation: CancelTransactionT
       requestBody: cancellation,
     });
 
-    revalidatePath(`/dashboard/office/[slug]/transactions`);
+    revalidatePath(`/office/[slug]/transactions`);
     return {
       status: "success",
       message: `Payment for transaction ${response.transaction_type} with code ${cancellation.code} as been cancelled`,
@@ -283,7 +283,7 @@ export const groupPay = async (payments: GroupedPaymentItem[]): Promise<GroupPay
         payments,
       },
     });
-    revalidatePath(`/dashboard/office/[slug]/transactions`);
+    revalidatePath(`/office/[slug]/transactions`);
     return response;
   });
 };

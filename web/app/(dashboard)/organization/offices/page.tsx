@@ -41,7 +41,7 @@ export default async function OrgOfficePage() {
         {offices.map((item: OfficeResponse, index: number) => {
           return (
             <Link
-              href={`/dashboard/office/${item.id}`}
+              href={`/office/${item.id}`}
               key={index}
               className="flex min-w-[625px] items-center justify-between rounded-xl h-10 bg-white p-3 font-semibold
                             text-gray-500 shadow-[0_0_4px_2px_rgb(31_45_61_/_10%)] transition-all duration-300 hover:scale-[1.01] hover:text-primary dark:bg-[#1b2e4b]"

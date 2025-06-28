@@ -24,17 +24,17 @@ export default async function OrganizationLayout({
     return [
       {
         name: "Home",
-        url: `/dashboard/organization`,
+        url: `/organization`,
         icon: <IconHome className="h-5 w-5" />,
       },
       {
         name: "Offices",
-        url: `/dashboard/organization/offices`,
+        url: `/organization/offices`,
         icon: <IconMapPin className="h-5 w-5" />,
       },
       {
         name: "Configurations",
-        url: "/dashboard/organization/configurations",
+        url: "/organization/configurations",
         icon: <IconSettings className="h-5 w-5" />,
       },
     ];

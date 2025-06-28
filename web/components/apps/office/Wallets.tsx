@@ -260,7 +260,7 @@ export default function Wallets({ office }: Props) {
   );
 
   const visit = (walletID: string) => {
-    router.push(`/dashboard/wallet/${walletID}`);
+    router.push(`/wallet/${walletID}`);
   };
   const table = useMantineReactTable({
     columns,

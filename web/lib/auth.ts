@@ -27,13 +27,13 @@ class ProtectedURI {
 
 // Define the protection roles for each URI
 export const protectedURIs = [
-  new ProtectedURI(/^\/dashboard$/, "basic"),
-  new ProtectedURI(/^\/dashboard\/org(\/.*)?$/, ["org_admin"]),
-  new ProtectedURI(/^\/dashboard\/organization(\/.*)?$/, ["org_admin"]),
-  new ProtectedURI(/^\/dashboard\/office(\/.*)?$/, ["office_admin"]),
-  new ProtectedURI(/^\/dashboard\/wallet(\/.*)?$/, ["office_admin"]),
-  new ProtectedURI(/^\/dashboard\/agent(\/.*)?$/, "basic"),
-  new ProtectedURI(/^\/dashboard\/payments$/, "basic"),
+  new ProtectedURI(/^\$/, "basic"),
+  new ProtectedURI(/^\/org(\/.*)?$/, ["org_admin"]),
+  new ProtectedURI(/^\/organization(\/.*)?$/, ["org_admin"]),
+  new ProtectedURI(/^\/office(\/.*)?$/, ["office_admin"]),
+  new ProtectedURI(/^\/wallet(\/.*)?$/, ["office_admin"]),
+  new ProtectedURI(/^\/agent(\/.*)?$/, "basic"),
+  new ProtectedURI(/^\/payments$/, "basic"),
   new ProtectedURI(/^\/$/, "basic"),
   // Add more URIs and their roles here
   // new ProtectedURI(/^\/dashboard\/activity$/, "basic"),

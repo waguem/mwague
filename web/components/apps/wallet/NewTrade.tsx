@@ -124,7 +124,7 @@ export function NewTrade({ walletID, office, agents }: Props) {
         request: request,
         message: form.values.message,
       };
-      const response = await tradeWallet(data, `/dashboard/wallet/${walletID}`);
+      const response = await tradeWallet(data, `/wallet/${walletID}`);
 
       decodeNotification("Trade Wallet", response);
 

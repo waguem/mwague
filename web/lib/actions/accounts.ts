@@ -33,7 +33,7 @@ export async function openAccount(prevState: State, data: FormData): Promise<Sta
       });
 
       const source = userInput.data.type === "FUND" ? "office" : "agent";
-      revalidatePath(`/dashboard/${source}/${userInput.data.owner_initials}/accounts`);
+      revalidatePath(`/${source}/${userInput.data.owner_initials}/accounts`);
       return { status: "success", message: `Account ${response.initials} created Successfully` };
     } catch (e) {
       if (e instanceof ZodError) {

@@ -39,7 +39,7 @@ export async function startActivity(prevState: State, data: FormData) {
       await startActivityApi({
         requestBody: userInput.data,
       });
-      //revalidatePath("/dashboard/activity");
+      //revalidatePath("/activity");
       return { status: "success", message: "Activity started successfully" };
     } catch (e) {
       if (e instanceof ApiError) {

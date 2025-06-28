@@ -42,22 +42,22 @@ export default async function OfficeLayout({
     let items = [
       {
         name: "Transactions",
-        url: `/dashboard/office/${office.id}/transactions`,
+        url: `/office/${office.id}/transactions`,
         icon: <IconTransactionDollar size={18} />,
       },
       {
         name: "Office",
-        url: `/dashboard/office/${office.id}`,
+        url: `/office/${office.id}`,
         icon: <IconHome2 className="h-5 w-5" />,
       },
       {
         name: "Agents",
-        url: `/dashboard/office/${office.id}/agents`,
+        url: `/office/${office.id}/agents`,
         icon: <IconUsersGroup className="h-5 w-5" />,
       },
       {
         name: "Reports",
-        url: `/dashboard/office/${office.id}/reports`,
+        url: `/office/${office.id}/reports`,
         icon: <IconReport className="h-5 w-5" />,
       },
     ];
@@ -65,7 +65,7 @@ export default async function OfficeLayout({
     if (session?.user?.roles.includes("office_admin")) {
       items.push({
         name: "Fund",
-        url: `/dashboard/office/${office.id}/accounts`,
+        url: `/office/${office.id}/accounts`,
         icon: <IconCashRegister className="h-5 w-5" />,
       });
     }
