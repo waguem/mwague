@@ -34,7 +34,7 @@ export default function GroupedCommit({ wallet, tradings }: Props) {
       const tradingAmount = trading.amount || 0;
       return trading.state === "PENDING" && tradingAmount <= walletBalance;
     });
-  }, [tradings, wallet]);
+  }, [tradings, wallet]); 
 
   const commit = async () => {
     try {
