@@ -134,29 +134,6 @@ export function NewTrade({ walletID, office, agents }: Props) {
       }
     } catch (e) {}
   };
-  const getTradeResult = () => {
-    if (form.values.tradeType !== "SELL") {
-      return 0;
-    }
-
-    const walletRate = wallet.crypto_balance / wallet.trading_balance;
-    const valueRate = wallet.value / wallet.crypto_balance;
-
-    let selling = form.values?.exchange_rate ? form.values.amount / form.values.exchange_rate : 0;
-
-    if (wallet.crypto_currency === wallet.crypto_currency) {
-      // USDT selling
-      const sellingCost = (form.values.amount * wallet.value) / wallet.crypto_balance;
-      selling = form.values.amount * (form.values.trading_rate! / form.values.daily_rate);
-      return selling - sellingCost;
-    }
-    // how much the amount that we are selling might worth when we buyed it.
-    // basically we spent wallet.trading_balance to buy wallet.crypto_balance
-
-    const amount_in_crypto = form.values.amount * walletRate;
-    const sellingCost = amount_in_crypto * valueRate;
-    return selling - sellingCost;
-  };
 
   const getForm = () => {
     switch (form.values.tradeType) {

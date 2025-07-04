@@ -90,7 +90,7 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
         if (data.tag == "BANKTT") {
           if (data.bank_fees && data.bank_rate) {
             amount = (data.amount * data.bank_rate + data.bank_fees) / data.rate;
-            convertedAmount = ((data.amount * data.bank_rate ) + data.bank_fees)
+            convertedAmount = data.amount * data.bank_rate + data.bank_fees;
           } else {
             amount = data.amount;
           }
@@ -101,7 +101,7 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
       form.setValues({
         rate: data.rate,
         mainAmount: amount,
-        convertedAmount:  amount * data.rate,
+        convertedAmount: convertedAmount,
         type: data.type,
         code: data.code,
       });
