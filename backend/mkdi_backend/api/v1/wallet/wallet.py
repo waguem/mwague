@@ -87,6 +87,17 @@ def commit_trade(
     return WalletRepository(db, user).commit_trade(trade_code, commit)
 
 
+@router.post("/wallet/trade/grouped_commit")
+def grouped_commit(
+    *,
+    user: KcUser = Security(check_authorization, scopes=["office_admin"]),
+    group: List[pr.CommitTradeRequest],
+    db: Session = Depends(get_db),
+) -> List[pr.WalletTradingResponse]:
+    """Commit grouped trades"""
+    return WalletRepository(db, user).grouped_commit(group)
+
+
 @router.post("/trade/review", response_model=pr.WalletTradingResponse, status_code=201)
 def review_trade(
     *,

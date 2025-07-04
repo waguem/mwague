@@ -16,6 +16,7 @@ import {
   updateTradeApiV1TradeUpdatePatch,
   partnerPaidApiV1TradeTradeCodePartnerPaidPost,
   setBalanceTrackingEnabledApiV1WalletWalletIdBalanceTrackingEnabledPost as setBalanceTrackingEnabledApi,
+  groupedCommitApiV1WalletTradeGroupedCommitPost,
 } from "@/lib/client";
 import { withToken } from "./withToken";
 import { TradeWallet } from "@/lib/schemas";
@@ -101,6 +102,23 @@ export const commitTrade = async (code: string, request: CommitTradeRequest) => 
       status: "success",
       message: "Trade Committed Successfully",
     };
+  });
+};
+
+export const groupedCommit = async (group: CommitTradeRequest[]) => {
+  return withToken(async () => {
+    const trades = await groupedCommitApiV1WalletTradeGroupedCommitPost({
+      requestBody: group,
+    });
+
+    revalidatePath(`/wallet/${trades[0].walletID}`);
+
+    return trades.map((trade) => {
+      return {
+        status: "success",
+        message: `${trade.code} has been committed`,
+      };
+    });
   });
 };
 

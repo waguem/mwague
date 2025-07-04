@@ -15,7 +15,7 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
-import { IconGitPullRequest, IconMessage2, IconSend } from "@tabler/icons-react";
+import { IconGitPullRequest, IconMessage2, IconPlus, IconSend } from "@tabler/icons-react";
 import { Fragment, useTransition } from "react";
 import { decodeNotification } from "../notifications/notifications";
 import { TradeWallet, WalletTradeRequest } from "@/lib/schemas";
@@ -178,7 +178,7 @@ export function NewTrade({ walletID, office, agents }: Props) {
     <Fragment>
       <Button variant="gradient" size="compact-md" onClick={open}>
         <ActionIcon>
-          <IconGitPullRequest size={18} />
+          <IconPlus size={18} />
         </ActionIcon>
         New Trade
       </Button>

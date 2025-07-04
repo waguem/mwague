@@ -52,6 +52,10 @@ def get_pending_in(self) -> Decimal:
                     WalletTrading.walletID == self.walletID,
                     WalletTrading.trading_type == pr.TradingType.BUY,
                 ),
+                and_(
+                    WalletTrading.walletID == self.walletID,
+                    WalletTrading.trading_type == pr.TradingType.DEPOSIT,
+                ),
                 # or the trading type is Exchange with crypto and the exchange wallet ID maches the current wallet
                 and_(
                     WalletTrading.trading_type == pr.TradingType.EXCHANGE,

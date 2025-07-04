@@ -1,6 +1,6 @@
 import { OfficeResponse } from "@/lib/client";
 import { OfficeCurrency } from "@/lib/types";
-import { getMoneyIcon } from "@/lib/utils";
+import { getMoneyIcon, getMoneyPrefix } from "@/lib/utils";
 import { Group, NumberInput, Select, Stack } from "@mantine/core";
 import { IconPercentage } from "@tabler/icons-react";
 
@@ -12,13 +12,13 @@ interface Props {
 }
 
 export default function WalletDeposit({ form, office, walletID, agents }: Props) {
-  const simpleWallet = office.wallets?.find((w) => w.walletID === walletID && w.wallet_type === "SIMPLE");
+  const wallet = office.wallets?.find((w) => w.walletID === walletID);
   const currencies: OfficeCurrency[] = office.currencies as unknown as OfficeCurrency[];
-
   const baseCurrency = currencies.find((c) => c.base);
-  if (!simpleWallet) {
+  if (!wallet) {
     return null;
   }
+  const isCryptoWallet = wallet!.wallet_type == "CRYPTO";
 
   return (
     <Stack>
@@ -43,7 +43,7 @@ export default function WalletDeposit({ form, office, walletID, agents }: Props)
           allowNegative={false}
         />
         <NumberInput
-          label="Deposit Rate (%)"
+          label={"Deposit Rate " + (isCryptoWallet ? `${wallet!.trading_currency}` : "(%)")}
           required
           value={form.values.trading_rate}
           onChange={(value) => form.setFieldValue("trading_rate", Number(value))}
@@ -51,13 +51,13 @@ export default function WalletDeposit({ form, office, walletID, agents }: Props)
           decimalScale={4}
           allowDecimal
           allowNegative={false}
-          leftSection={<IconPercentage size={16} />}
+          leftSection={isCryptoWallet ? getMoneyPrefix(wallet!.trading_currency) : <IconPercentage size={16} />}
         />
       </Group>
       <Group grow>
         <NumberInput
-          label={"Wallet Deposit (" + simpleWallet.trading_currency + ")"}
-          leftSection={getMoneyIcon(simpleWallet.trading_currency)}
+          label={"Wallet Deposit (" + (isCryptoWallet ? "USD" : wallet.trading_currency) + ")"}
+          leftSection={getMoneyIcon(isCryptoWallet ? "USD" : wallet.trading_currency)}
           value={form.values.amount}
           thousandSeparator=","
           onChange={(value) => {
@@ -83,13 +83,21 @@ export default function WalletDeposit({ form, office, walletID, agents }: Props)
           allowNegative={false}
         />
         <NumberInput
-          label={"Provider Payment (" + simpleWallet.trading_currency + ")"}
+          label={"Provider Payment (" + wallet.trading_currency + ")"}
           leftSection={getMoneyIcon(baseCurrency!.name)}
-          value={form.values.payment_in_main}
+          value={isCryptoWallet ? form.values.amount * form.values.trading_rate : form.values.payment_in_main}
           thousandSeparator=","
           decimalScale={2}
           allowDecimal
           allowNegative={false}
+          onChange={(value) => {
+            const amount = Number(value);
+            const deposit_rate = amount / form.values.amount;
+            form.setValues((values: any) => ({
+              ...values,
+              trading_rate: deposit_rate,
+            }));
+          }}
         />
       </Group>
     </Stack>

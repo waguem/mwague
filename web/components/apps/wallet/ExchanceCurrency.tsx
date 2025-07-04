@@ -118,7 +118,7 @@ export function ExchangeCurrency({ form, office, walletID }: Props) {
           allowDecimal
           allowNegative={false}
         />
-        {form.values.tradeType === "EXCHANGE" && form.values.exchange_rate && (
+        {form.values.tradeType === "EXCHANGE" && (
           <NumberInput
             label={exchange_wallet?.trading_currency + " Amount"}
             leftSection={getMoneyIcon(baseCurrency?.name ?? "USD", 16)}
@@ -127,6 +127,14 @@ export function ExchangeCurrency({ form, office, walletID }: Props) {
             decimalScale={4}
             allowDecimal
             allowNegative={false}
+            onChange={(value) => {
+              const amount = Number(value);
+              const exchangeRate = amount / form.values.amount;
+              form.setValues((values: any) => ({
+                ...values,
+                exchange_rate: exchangeRate,
+              }));
+            }}
           />
         )}
       </Group>

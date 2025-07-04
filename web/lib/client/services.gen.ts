@@ -79,6 +79,8 @@ import type {
   GetAgentTradingsApiV1OfficeAgentInitialsTradingsGetResponse,
   CommitTradeApiV1WalletTradeTradeCodeCommitPostData,
   CommitTradeApiV1WalletTradeTradeCodeCommitPostResponse,
+  GroupedCommitApiV1WalletTradeGroupedCommitPostData,
+  GroupedCommitApiV1WalletTradeGroupedCommitPostResponse,
   ReviewTradeApiV1TradeReviewPostData,
   ReviewTradeApiV1TradeReviewPostResponse,
   RollbackApiV1TradeRollbackPostData,
@@ -1039,6 +1041,28 @@ export const commitTradeApiV1WalletTradeTradeCodeCommitPost = (
     path: {
       trade_code: data.tradeCode,
     },
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Grouped Commit
+ * Commit grouped trades
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns WalletTradingResponse Successful Response
+ * @throws ApiError
+ */
+export const groupedCommitApiV1WalletTradeGroupedCommitPost = (
+  data: GroupedCommitApiV1WalletTradeGroupedCommitPostData
+): CancelablePromise<GroupedCommitApiV1WalletTradeGroupedCommitPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/wallet/trade/grouped_commit",
     body: data.requestBody,
     mediaType: "application/json",
     errors: {

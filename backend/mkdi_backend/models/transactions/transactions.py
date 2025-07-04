@@ -8,6 +8,7 @@ from typing import Annotated, Mapping, Any, Optional, Union, List, ClassVar
 from uuid import UUID, uuid4
 from sqlalchemy.ext.mutable import MutableDict, MutableList
 from pydantic import Field as PydanticField
+
 from mkdi_shared.schemas import protocol as pr
 from sqlmodel import Field, SQLModel, Session, select
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -241,6 +242,10 @@ def get_trading_cost(cls) -> Decimal:
         return cls.amount * br
 
     if cls.trading_type == pr.TradingType.DEPOSIT:
+        # if the trading rate is greater than 1, it means we are depositing in a crypto wallet
+
+        if cls.trading_currency != "NA":
+            return cls.amount
         return cls.amount * (1 + cls.trading_rate / 100)
 
     if cls.state == pr.TransactionState.PENDING or cls.wallet_trading == 0:

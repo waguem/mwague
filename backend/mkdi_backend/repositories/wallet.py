@@ -52,6 +52,10 @@ class WalletRepository:
         db_session: UserDBSession = UserDBSession(user=self.user, db=self.db)
         return self.trade_manager.commit(db_session, trade_code, commit)
 
+    def grouped_commit(self, group: List[pr.CommitTradeRequest]) -> List[pr.WalletTradingResponse]:
+        db_session: UserDBSession = UserDBSession(user=self.user, db=self.db)
+        return self.trade_manager.grouped_commit(db_session, group)
+
     def rollback(self, cancellation: pr.CancelTransaction) -> pr.WalletTradingResponse:
         db_session: UserDBSession = UserDBSession(user=self.user, db=self.db)
         return self.trade_manager.rollback(db_session, cancellation)

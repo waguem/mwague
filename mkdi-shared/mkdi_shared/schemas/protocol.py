@@ -83,12 +83,20 @@ class Currency(Enum):
     GNF = "GNF"
     RMB = "RMB"
 
+    def is_valid_currency(currency: str) -> bool:
+        """Check if the currency is a valid currency. list"""
+        return currency in [c.value for c in Currency]
+
 
 class CryptoCurrency(Enum):
     BITCOINT = "BTC"
     ETHEREUM = "ETH"
     USDT = "USDT"  # Tether
     NA = "NA"
+
+    def is_valid_currency(currency: str) -> bool:
+        """Check if the currency is a valid crypto currency."""
+        return currency in [c.value for c in CryptoCurrency] and currency != "NA"
 
 
 class TradingType(Enum):
@@ -694,6 +702,7 @@ class AccountMonthlyReportBase(SQLModel):
 class CommitTradeRequest(BaseModel):
     """Commit trade request."""
 
+    code: str
     walletID: str
     tradeID: str
     trading_rate: Decimal

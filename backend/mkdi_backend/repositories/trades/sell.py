@@ -33,6 +33,7 @@ class SellTrade(ITrade):
             account=account.initials,
             selling_currency=request.selling_currency,
             trading_currency=wallet.trading_currency.value,
+            partner_paid=False,
             code=code,
             notes=[],
         )

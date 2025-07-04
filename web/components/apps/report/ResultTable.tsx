@@ -46,11 +46,14 @@ const ResultTable = ({ data }: Props) => {
                 prefix="$"
                 decimalScale={2}
                 thousandSeparator
-                value={table.getFilteredRowModel().rows.filter((row)=>row.original.state==="PAID" && row.original.amount > 0).reduce((acc, row) => acc + (row.original.amount as number), 0)}
+                value={table
+                  .getFilteredRowModel()
+                  .rows.filter((row) => row.original.state === "PAID" && row.original.amount > 0)
+                  .reduce((acc, row) => acc + (row.original.amount as number), 0)}
               />
             </Badge>
-          )
-        }
+          );
+        },
       },
       {
         header: "State",

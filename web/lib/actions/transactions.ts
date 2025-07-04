@@ -152,9 +152,7 @@ export const reviewTransaction = async (prevSate: State, data: ReviewFormData): 
       requestBody: reviewInput,
     });
 
-    revalidatePath(
-      officeId.length > 0 ? `/office/${officeId}/transactions` : "/office/[slug]/transactions"
-    );
+    revalidatePath(officeId.length > 0 ? `/office/${officeId}/transactions` : "/office/[slug]/transactions");
 
     return {
       message: `Transaction ${response.code} has been ${validation.data.action} successfully`,

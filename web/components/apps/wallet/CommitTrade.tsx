@@ -59,6 +59,7 @@ export default function CommitTrade({ wallet, trade }: CommitTradeProps) {
   const commit = async () => {
     try {
       const request: CommitTradeRequest = {
+        code: trade.code!,
         amount: form.values.amount,
         trading_rate: form.values.trading_rate,
         trading_cost: form.values.trading_cost,
@@ -76,6 +77,8 @@ export default function CommitTrade({ wallet, trade }: CommitTradeProps) {
       }
     } catch (e) {}
   };
+  console.log("Falues ", form.values);
+  console.log("wallet ", (wallet.value / wallet.trading_balance) * trade.amount);
   return (
     <Fragment>
       <Tooltip label="Commit Trade">

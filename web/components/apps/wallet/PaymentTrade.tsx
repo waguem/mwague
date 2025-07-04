@@ -43,7 +43,7 @@ export function PayTrade({ trade, accounts, wallet, office }: Props) {
     try {
       let payment = trade.amount * (trade.trading_rate / trade.daily_rate);
       if (trade.trading_type === "DEPOSIT") {
-        payment = trade.amount * (1 + trade.trading_rate / 100);
+        payment = trade.trading_currency == "NA" ? trade.amount * (1 + trade.trading_rate / 100) : trade.amount;
       }
       const response = await payTrade(wallet.walletID, trade.code ?? "", {
         amount: payment,
@@ -130,7 +130,9 @@ export function PayTrade({ trade, accounts, wallet, office }: Props) {
                             value={
                               trade.trading_type === "BUY"
                                 ? trade.amount * (trade.trading_rate / trade.daily_rate)
-                                : trade.amount * (1 + trade.trading_rate / 100)
+                                : trade.trading_currency == "NA"
+                                ? trade.amount * (1 + trade.trading_rate / 100)
+                                : trade.amount
                             }
                             thousandSeparator=","
                             decimalScale={2}
@@ -141,7 +143,9 @@ export function PayTrade({ trade, accounts, wallet, office }: Props) {
                             value={
                               trade.trading_type === "BUY"
                                 ? trade.amount * trade.trading_rate
-                                : trade.amount * (1 + trade.trading_rate / 100) * trade.daily_rate
+                                : trade.trading_currency == "NA"
+                                ? trade.amount * (1 + trade.trading_rate / 100) * trade.daily_rate
+                                : trade.amount * trade.daily_rate
                             }
                             thousandSeparator=","
                             decimalScale={3}
@@ -156,7 +160,9 @@ export function PayTrade({ trade, accounts, wallet, office }: Props) {
                               fund.balance -
                               (trade.trading_type === "BUY"
                                 ? trade.amount * (trade.trading_rate / trade.daily_rate)
-                                : trade.amount * (1 + trade.trading_rate / 100))
+                                : trade.trading_currency == "NA"
+                                ? trade.amount * (1 + trade.trading_rate / 100)
+                                : trade.amount)
                             }
                             thousandSeparator=","
                             decimalScale={3}

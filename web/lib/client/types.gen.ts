@@ -134,6 +134,7 @@ export type CancelTransaction = {
  * Commit trade request.
  */
 export type CommitTradeRequest = {
+  code: string;
   walletID: string;
   tradeID: string;
   trading_rate: number;
@@ -1171,6 +1172,12 @@ export type CommitTradeApiV1WalletTradeTradeCodeCommitPostData = {
 
 export type CommitTradeApiV1WalletTradeTradeCodeCommitPostResponse = WalletTradingResponse;
 
+export type GroupedCommitApiV1WalletTradeGroupedCommitPostData = {
+  requestBody: Array<CommitTradeRequest>;
+};
+
+export type GroupedCommitApiV1WalletTradeGroupedCommitPostResponse = Array<WalletTradingResponse>;
+
 export type ReviewTradeApiV1TradeReviewPostData = {
   requestBody: TradeReviewReq;
 };
@@ -1801,6 +1808,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: WalletTradingResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/api/v1/wallet/trade/grouped_commit": {
+    post: {
+      req: GroupedCommitApiV1WalletTradeGroupedCommitPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<WalletTradingResponse>;
         /**
          * Validation Error
          */

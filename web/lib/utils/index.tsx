@@ -272,6 +272,7 @@ export const tradeOptions: {
   { value: "SELL", label: "Sell From CRYPTO Wallet", wallet: "CRYPTO" },
   { value: "SIMPLE SELL", label: "Sell From SIMPLE Wallet", wallet: "SIMPLE" },
   { value: "DEPOSIT", label: "Wallet Deposit", wallet: "SIMPLE" },
+  { value: "DEPOSIT", label: "Crypto Deposit", wallet: "CRYPTO" },
   { value: "EXCHANGE", label: "Exchange with Crypto Wallet", wallet: "CRYPTO" },
   { value: "EXCHANGE WITH SIMPLE WALLET", label: "Exchange with Simple Wallet", wallet: "CRYPTO" },
 ];

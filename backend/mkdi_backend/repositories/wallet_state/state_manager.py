@@ -146,3 +146,20 @@ class TradeStateManager:
         t_state.set_trade(trade)
         # call the partner paid method
         return t_state.partner_paid()
+
+    def grouped_commit(
+        self, session: UserDBSession, group: list[pr.CommitTradeRequest]
+    ) -> list[pr.WalletTradingResponse]:
+        """Commit grouped trades"""
+        trades = []
+        for commit in group:
+            # find the trade by code
+            try:
+
+                trades.append(self.commit(session, commit.code, commit))
+            except Exception as e:
+                # log the error and continue
+                print(f"Error committing trade {commit.code}: {e}")
+                continue
+
+        return trades

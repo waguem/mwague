@@ -24,6 +24,7 @@ import EditTrading from "./EditTrading";
 import TradeRateDisplay from "./Displays/TradeRateDisplay";
 import AmountDisplay from "./Displays/AmountDisplay";
 import ValuationDisplay from "./Displays/ValuationDisplay";
+import GroupedCommit from "./GroupedCommit";
 
 interface Props {
   office: OfficeResponse;
@@ -198,6 +199,13 @@ export function WalletTransactions({ office, wallet, tradings, officeAccounts, a
       return (
         <Group>
           <NewTrade agents={agentAccountsOptions} office={office} walletID={wallet.walletID} />
+          <GroupedCommit
+            office={office}
+            wallet={wallet}
+            tradings={tradings.filter(
+              (tr) => tr.state == "PENDING" && (tr.trading_type == "SIMPLE SELL" || tr.trading_type == "SELL")
+            )}
+          />
           <Tooltip label="Export Data to pdf">
             <Button
               onClick={() =>

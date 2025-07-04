@@ -27,7 +27,11 @@ class DepositTrade(IPayableTrade):
             created_by=self.session.get_user().user_db_id,
             account=provider.initials,
             code=code,
-            trading_currency=wallet.crypto_currency.value,
+            trading_currency=(
+                wallet.crypto_currency.value
+                if wallet.wallet_type == pr.WalletType.SIMPLE
+                else wallet.trading_currency.value
+            ),
             notes=[],
         )
 
@@ -37,7 +41,9 @@ class DepositTrade(IPayableTrade):
         return trade
 
     def get_payment_amount(self, trade: WalletTrading) -> pr.Decimal:
-        return trade.amount * (1 + trade.trading_rate / 100)
+        if trade.trading_currency == pr.CryptoCurrency.NA:
+            return trade.amount * (1 + trade.trading_rate / 100)
+        return trade.amount
 
     def apply_payment(
         self,
@@ -50,11 +56,14 @@ class DepositTrade(IPayableTrade):
         """Apply payment for deposit trade"""
         fund_out = self.get_payment_amount(trade)
         assert abs(request.amount - fund_out) < 0.05
-        assert wallet.wallet_type == pr.WalletType.SIMPLE
         fund.debit(fund_out)
-        wallet.crypto_balance = 0
         wallet.value += fund_out
-        wallet.trading_balance += trade.amount
+        if wallet.wallet_type == pr.WalletType.SIMPLE:
+            wallet.crypto_balance = 0
+            wallet.trading_balance += trade.amount
+        else:
+            wallet.crypto_balance += trade.amount
+            wallet.trading_balance += trade.amount * trade.trading_rate
 
     def rollback_payment(
         self,
@@ -65,8 +74,11 @@ class DepositTrade(IPayableTrade):
     ) -> WalletTrading:
         """Apply payment for deposit trade"""
         fund_out = self.get_payment_amount(trade)
-        assert wallet.wallet_type == pr.WalletType.SIMPLE
         fund.credit(fund_out)
-        wallet.crypto_balance = 0
         wallet.value -= fund_out
-        wallet.trading_balance -= trade.amount
+        if wallet.wallet_type == pr.WalletType.SIMPLE:
+            wallet.crypto_balance = 0
+            wallet.trading_balance -= trade.amount
+        else:
+            wallet.crypto_balance -= trade.amount
+            wallet.trading_balance -= trade.amount * trade.trading_rate

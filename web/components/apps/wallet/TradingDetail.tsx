@@ -130,7 +130,7 @@ export function TradingDetail({ trading, wallet }: { trading: WalletTradingRespo
                 {trading?.trading_type === "BUY" ? (
                   <NumberFormatter value={trading.trading_rate} />
                 ) : trading?.trading_type == "DEPOSIT" ? (
-                  trading.trading_rate + "%"
+                  trading.trading_rate + (trading.trading_currency === "NA" ? "%" : "") // If it's a simple wallet, we show the rate as a percentage
                 ) : (
                   "-"
                 )}
@@ -266,6 +266,19 @@ export function TradingDetail({ trading, wallet }: { trading: WalletTradingRespo
               </Box>
               <TrCost wallet={wallet} trading={trading} />
             </Group>
+            {trading.trading_type == "DEPOSIT" && (
+              <Group grow>
+                <Box>
+                  <ThemeIcon color="teal" size={22} radius="xl">
+                    <IconMinus style={{ width: rem(14), height: rem(14) }} />
+                  </ThemeIcon>
+                  <Badge size="lg" color="teal" variant="transparent">
+                    Received
+                  </Badge>
+                </Box>
+                <TrDeposit wallet={wallet} trading={trading} />
+              </Group>
+            )}
             <Group grow>
               <Box>
                 <ThemeIcon color="teal" size={22} radius="xl">
@@ -389,12 +402,12 @@ export function TradingDetail({ trading, wallet }: { trading: WalletTradingRespo
   );
 }
 
-function TrAmount({ trading }: { wallet: OfficeWalletResponse; trading: WalletTradingResponse }) {
+function TrAmount({ trading, wallet }: { wallet: OfficeWalletResponse; trading: WalletTradingResponse }) {
   let currency = getMoneyPrefix(trading.trading_currency as Currency);
   switch (trading.trading_type) {
     case "BUY":
     case "DEPOSIT":
-      currency = getMoneyPrefix(trading.trading_currency);
+      currency = getMoneyPrefix(trading.trading_currency == "NA" ? wallet.trading_currency : trading.trading_currency);
       break;
     case "SELL":
       currency = getMoneyPrefix(trading.selling_currency);
@@ -453,6 +466,19 @@ function TrExchange({ trading }: { wallet: OfficeWalletResponse; trading: Wallet
   return (
     <Badge size="lg" variant="dot">
       <NumberFormatter value={trading.trading_exchange} thousandSeparator decimalScale={3} prefix={currency} />
+    </Badge>
+  );
+}
+
+function TrDeposit({ trading, wallet }: { wallet: OfficeWalletResponse; trading: WalletTradingResponse }) {
+  let currency = getMoneyPrefix(wallet.trading_currency as Currency);
+  if (!["DEPOSIT"].includes(trading.trading_type)) {
+    return <Badge color="gray" variant="dot"></Badge>;
+  }
+  const value = trading.trading_currency == "NA" ? trading.amount : trading.amount * trading.trading_rate;
+  return (
+    <Badge size="lg" variant="dot">
+      <NumberFormatter value={value} thousandSeparator decimalScale={3} prefix={currency} />
     </Badge>
   );
 }
