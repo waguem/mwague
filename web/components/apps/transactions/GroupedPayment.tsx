@@ -148,6 +148,7 @@ export default function GroupedPayment({ table, office }: Props) {
               const { code, created_at } = row.original;
               const forex = row.original as ForEx;
               const amount = forex.tag == "BANKTT" ? forex.amount : forex.amount / forex.buying_rate;
+              const convertedAmount = forex.tag == "BANKTT" ? forex.amount * forex.bank_rate! + forex?.bank_fees! : amount * Number(baseCurrency?.defaultRate);
               return (
                 <Table.Tr tabIndex={index} key={index}>
                   <Table.Td>{formatDate(created_at as string, "MMM dd")}</Table.Td>
@@ -164,7 +165,7 @@ export default function GroupedPayment({ table, office }: Props) {
                       thousandSeparator
                       decimalScale={2}
                       suffix={getMoneyPrefix(baseCurrency?.name)}
-                      value={amount * Number(baseCurrency?.defaultRate)}
+                      value={convertedAmount}
                     />
                   </Table.Td>
                 </Table.Tr>

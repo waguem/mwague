@@ -16,15 +16,37 @@ import { Fragment, useMemo, useState, useTransition } from "react";
 import { getMoneyPrefix } from "@/lib/utils";
 import { groupedCommit } from "@/lib/actions/wallet";
 import { decodeNotification } from "../notifications/notifications";
+import { formatDistanceToNowStrict } from "date-fns/formatDistanceToNowStrict";
 
 interface Props {
   office: OfficeResponse;
   tradings: WalletTradingResponse[];
   wallet: OfficeWalletResponse;
 }
+
+function getDefaultSelectedRows(wallet:OfficeWalletResponse, tradings: WalletTradingResponse[]) {
+  let sum = 0;
+  const matchedBalance = []
+  // sort the list of tradings by amount in descending order the oldest first
+  const sortedTradings = tradings.sort((a, b) => {
+    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+  })
+  // iterate through the sorted tradings and select the ones that can be committed
+  for (const trading of sortedTradings) {
+    if (trading.state === "PENDING" && (trading.amount + sum ) <= wallet.trading_balance) {
+      sum += trading.amount;
+      matchedBalance.push(trading.code!);
+    }
+    // stop when the sum is greater than the wallet balance
+    if (sum >= wallet.trading_balance) {
+      break;
+    }
+  }
+  return matchedBalance;
+}
 export default function GroupedCommit({ wallet, tradings }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [selectedRows, setSelectedRows] = useState<string[]>(getDefaultSelectedRows(wallet, tradings));
   const [pending, startTransition] = useTransition();
   const isCommitable = useMemo(() => {
     // check if there is at least one commitable trading
@@ -63,7 +85,9 @@ export default function GroupedCommit({ wallet, tradings }: Props) {
     }
   };
 
-  const rows = tradings.map((trade) => (
+  const rows = tradings.sort((a, b) => {
+    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+  }).map((trade) => (
     <Table.Tr key={trade.code} bg={selectedRows.includes(trade?.code!) ? "var(--mantine-color-blue-light)" : undefined}>
       <Table.Td>
         <Checkbox
@@ -79,6 +103,14 @@ export default function GroupedCommit({ wallet, tradings }: Props) {
         />
       </Table.Td>
       <Table.Td>{trade.code}</Table.Td>
+      <Table.Td>
+        <Badge variant="dot" color="gray" size="sm" style={{ marginLeft: 0 }}>
+          {formatDistanceToNowStrict(trade.created_at as string, {
+            addSuffix: true,
+            roundingMethod: "ceil",
+          })}
+        </Badge>
+      </Table.Td>
       <Table.Td>{trade.account}</Table.Td>
       <Table.Td>{trade.trading_rate}</Table.Td>
       <Table.Td>
@@ -110,7 +142,7 @@ export default function GroupedCommit({ wallet, tradings }: Props) {
       </Button>
       <Drawer
         overlayProps={{ backgroundOpacity: 0.5, blur: 4 }}
-        size={"lg"}
+        size={"xl"}
         offset={8}
         opened={opened}
         onClose={close}
@@ -122,8 +154,14 @@ export default function GroupedCommit({ wallet, tradings }: Props) {
         <Table>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th />
+              <Table.Th>
+                <Checkbox
+                  aria-label="Select row"
+                  checked={true}
+                />
+              </Table.Th>
               <Table.Th>Code</Table.Th>
+              <Table.Th>Date</Table.Th>
               <Table.Th>Customer</Table.Th>
               <Table.Th>Rate</Table.Th>
               <Table.Th>Amount</Table.Th>
@@ -132,6 +170,15 @@ export default function GroupedCommit({ wallet, tradings }: Props) {
           <Table.Tbody>{rows}</Table.Tbody>
         </Table>
         <Group grow className="mt-4">
+          <Badge size="lg" variant="dot">
+            Wallet Balance:{" "}
+            <NumberFormatter
+              value={wallet.trading_balance}
+              thousandSeparator=","
+              decimalScale={2}
+              prefix={getMoneyPrefix(wallet.crypto_currency)}
+            />
+          </Badge>
           <Badge size="lg" variant="dot">
             Total Amount:{" "}
             <NumberFormatter

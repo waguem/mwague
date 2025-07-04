@@ -84,11 +84,13 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
       const data = await res.json();
 
       let amount = data.amount;
+      let convertedAmount = data.amount * data.rate;
       if (data.type === "FOREX") {
         // buying amount => amount / buying_rate
         if (data.tag == "BANKTT") {
           if (data.bank_fees && data.bank_rate) {
             amount = (data.amount * data.bank_rate + data.bank_fees) / data.rate;
+            convertedAmount = ((data.amount * data.bank_rate ) + data.bank_fees)
           } else {
             amount = data.amount;
           }
@@ -99,7 +101,7 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
       form.setValues({
         rate: data.rate,
         mainAmount: amount,
-        convertedAmount: amount * data.rate,
+        convertedAmount:  amount * data.rate,
         type: data.type,
         code: data.code,
       });

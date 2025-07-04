@@ -211,14 +211,6 @@ export function NewTrade({ walletID, office, agents }: Props) {
               />{" "}
               {"$"}
             </Badge>
-            {form.values.tradeType === "SELL" && (
-              <Fragment>
-                Trade Result :
-                <Badge size="lg" variant="dot" color="teal" radius={"md"}>
-                  <NumberFormatter value={getTradeResult()} thousandSeparator decimalScale={2} />
-                </Badge>
-              </Fragment>
-            )}
           </Group>
         }
         size="70%"
