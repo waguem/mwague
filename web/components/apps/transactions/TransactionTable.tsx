@@ -179,6 +179,35 @@ const TransactionTable = ({ data, office, employees }: Props) => {
         ),
       },
       {
+        accessorKey: "sold", //access nested data with dot notation
+        enableEditing: false,
+        header: "Sold",
+        size: 80,
+        Cell: ({ cell }) => {
+          let fCurrency: Currency = "USD";
+          let forexAmount = 0;
+          if (cell.row.original.type === "FOREX") {
+            const tr: ForEx = cell.row.original as ForEx;
+            forexAmount =
+              tr.tag === "BANKTT" ? (tr.amount * Number(tr?.bank_rate)) / tr.rate : tr.amount / tr.selling_rate;
+          }
+          return (
+            <Group gap={"xs"}>
+              {cell.row.original.type === "FOREX" && (
+                <Badge variant="dot" color="gray" size="md">
+                  <NumberFormatter
+                    decimalScale={3}
+                    prefix={`${getMoneyPrefix(fCurrency)}`}
+                    thousandSeparator
+                    value={forexAmount}
+                  />
+                </Badge>
+              )}
+            </Group>
+          );
+        },
+      },
+      {
         header: "Type",
         accessorKey: "type",
         enableEditing: false,
