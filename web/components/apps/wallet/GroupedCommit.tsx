@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconGitPullRequest } from "@tabler/icons-react";
-import { Fragment, useMemo, useState, useTransition } from "react";
+import { Fragment, useEffect, useMemo, useState, useTransition } from "react";
 import { getMoneyPrefix } from "@/lib/utils";
 import { groupedCommit } from "@/lib/actions/wallet";
 import { decodeNotification } from "../notifications/notifications";
@@ -46,8 +46,13 @@ function getDefaultSelectedRows(wallet: OfficeWalletResponse, tradings: WalletTr
 }
 export default function GroupedCommit({ wallet, tradings }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
-  const [selectedRows, setSelectedRows] = useState<string[]>(getDefaultSelectedRows(wallet, tradings));
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [pending, startTransition] = useTransition();
+
+  useEffect(() => {
+    // reset selected rows when the wallet or tradings change
+    setSelectedRows(getDefaultSelectedRows(wallet, tradings));
+  }, [wallet, tradings]);
   const isCommitable = useMemo(() => {
     // check if there is at least one commitable trading
     // a commitable trading is a trading that the trading amount is less than or equal to the wallet balance
@@ -160,7 +165,17 @@ export default function GroupedCommit({ wallet, tradings }: Props) {
           <Table.Thead>
             <Table.Tr>
               <Table.Th>
-                <Checkbox aria-label="Select row" checked={true} />
+                <Checkbox
+                  aria-label="Select row"
+                  checked={selectedRows.length > 0}
+                  onChange={(event) => {
+                    if (event.currentTarget.checked) {
+                      setSelectedRows(getDefaultSelectedRows(wallet, tradings));
+                    } else {
+                      setSelectedRows([]);
+                    }
+                  }}
+                />
               </Table.Th>
               <Table.Th>Code</Table.Th>
               <Table.Th>Date</Table.Th>
