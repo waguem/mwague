@@ -235,8 +235,8 @@ function ForexView({ transaction, office }: { transaction: ForEx; office: Office
   let selling_amount = transaction.amount / transaction.selling_rate;
   if (transaction.tag === "BANKTT") {
     buying_amount = transaction.amount;
-    if (transaction.bank_rate && transaction.bank_fees) {
-      buying_amount = (transaction.amount * transaction.bank_rate + transaction.bank_fees) / transaction.rate;
+    if (transaction.bank_rate) {
+      buying_amount = (transaction.amount * transaction.bank_rate + Number(transaction?.bank_fees)) / transaction.rate;
     }
     selling_amount = transaction.amount * (1 + transaction.selling_rate / 100);
   }

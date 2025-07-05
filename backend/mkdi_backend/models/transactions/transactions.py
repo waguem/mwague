@@ -76,7 +76,7 @@ def get_forex_buying_amount(cls) -> Decimal:
     if cls.tag != "BANKTT" and cls.buying_rate:
         return cls.amount / cls.buying_rate
 
-    if cls.bank_fees and cls.bank_rate:
+    if cls.bank_rate:
         return ((cls.amount * cls.bank_rate) + cls.bank_fees) / cls.rate
 
     return cls.amount
