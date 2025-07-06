@@ -19,7 +19,6 @@ import { AddOfficeSchema } from "@/lib/schemas/actions";
 import { revalidatePath } from "next/cache";
 import { ZodError } from "zod";
 import { State } from "./state";
-import { cache } from "react";
 import { withToken } from "./withToken";
 import { zCryptoCurrency, zCurrency } from "../schemas/transactionsResolvers";
 export async function addOffice(prevSate: State, data: FormData): Promise<State> {
@@ -72,20 +71,20 @@ export async function addOffice(prevSate: State, data: FormData): Promise<State>
   }
 }
 
-export const getOfficeCached = cache(async (slug: string) => {
+export const getOfficeCached = async (slug: string) => {
   return withToken(async () => {
     return await getOfficeById({ officeId: slug });
   });
-});
+};
 
-export const getEmployeesCached = cache(async (officeId: string) => {
+export const getEmployeesCached = async (officeId: string) => {
   return withToken(
     async () =>
       await getEmployeesByOfficeId({
         officeId,
       })
   );
-});
+};
 
 export const updateOfficeInfo = async (officeId: string, data: Record<string, string | string[]>): Promise<State> => {
   return withToken(async () => {

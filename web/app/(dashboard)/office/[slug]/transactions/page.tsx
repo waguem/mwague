@@ -4,6 +4,16 @@ import { getMyOfficeTransactions } from "@/lib/actions/transactions";
 import { getCurrentActivity } from "@/lib/actions/activity";
 import TransactionTable from "@/components/apps/transactions/TransactionTable";
 
+export const revalidate = 60; // revalidate every 60 seconds
+
+
+function withTimeout(promise:Promise<any>, timeoutMs: number) : Promise<any> {
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Timeout")), timeoutMs)
+  );
+  return Promise.race([promise, timeout]);
+}
+
 const getData = async (slug: string, searchParams?: { from?: string; to?: string }) => {
   const transactionsPr = getMyOfficeTransactions(searchParams?.from, searchParams?.to);
   const agentAccountsPr = getMyOfficeAgents();
@@ -11,14 +21,14 @@ const getData = async (slug: string, searchParams?: { from?: string; to?: string
   const officePr = getOfficeCached(slug);
   const employeesPr = getEmployeesCached(slug);
   const officeAccountsPr = getOfficeAccountsCached();
-  const [transactions, agentAccounts, activity, office, employees, officeAccounts] = await Promise.all([
+  const [transactions, agentAccounts, activity, office, employees, officeAccounts] = await withTimeout(Promise.all([
     transactionsPr,
     agentAccountsPr,
     activityPr,
     officePr,
     employeesPr,
     officeAccountsPr,
-  ]);
+  ]), 5000); // 5 seconds timeout
 
   return { transactions, agentAccounts, activity, office, employees, officeAccounts };
 };

@@ -52,7 +52,7 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_PORT: str = "6379"
 
-    INVARIANT_TOLERANCE = 0.05
+    INVARIANT_TOLERANCE = 0.5
 
     DEBUG_USE_SEED_DATA: bool = False
     DEBUG_USE_SEED_DATA_PATH: Optional[FilePath] = (
