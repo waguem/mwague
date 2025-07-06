@@ -31,8 +31,11 @@ export default async function OfficeLayout({
   params: { slug: string };
 }) {
   const session = await getServerSession(authOptions);
+  if(!session?.accessToken) {
+    // redirect to login page
+    redirect("/auth/login");
+  }
   const office = await getOffice(params.slug);
-
   if (!office) {
     // redirect to not found page
     redirect("/not-found");
@@ -41,14 +44,14 @@ export default async function OfficeLayout({
   const getNavigationItems = (office: OfficeResponse) => {
     let items = [
       {
-        name: "Transactions",
-        url: `/office/${office.id}/transactions`,
-        icon: <IconTransactionDollar size={18} />,
-      },
-      {
         name: "Office",
         url: `/office/${office.id}`,
         icon: <IconHome2 className="h-5 w-5" />,
+      },
+      {
+        name: "Transactions",
+        url: `/office/${office.id}/transactions`,
+        icon: <IconTransactionDollar size={18} />,
       },
       {
         name: "Agents",

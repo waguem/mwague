@@ -77,8 +77,6 @@ export default function CommitTrade({ wallet, trade }: CommitTradeProps) {
       }
     } catch (e) {}
   };
-  console.log("Falues ", form.values);
-  console.log("wallet ", (wallet.value / wallet.trading_balance) * trade.amount);
   return (
     <Fragment>
       <Tooltip label="Commit Trade">
