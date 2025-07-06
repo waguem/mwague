@@ -15,7 +15,7 @@ const Organization = async () => {
     redirect("/auth/login");
   }
 
-  redirect(`/office/${session?.user.officeId}/transactions`);
+  redirect(`/office/${session?.user.officeId}`);
   // set session token to OpenAPI header
 };
 

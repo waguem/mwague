@@ -44,14 +44,14 @@ export default async function OfficeLayout({
   const getNavigationItems = (office: OfficeResponse) => {
     let items = [
       {
-        name: "Transactions",
-        url: `/office/${office.id}/transactions`,
-        icon: <IconTransactionDollar size={18} />,
-      },
-      {
         name: "Office",
         url: `/office/${office.id}`,
         icon: <IconHome2 className="h-5 w-5" />,
+      },
+      {
+        name: "Transactions",
+        url: `/office/${office.id}/transactions`,
+        icon: <IconTransactionDollar size={18} />,
       },
       {
         name: "Agents",
