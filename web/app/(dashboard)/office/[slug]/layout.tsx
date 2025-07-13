@@ -31,7 +31,7 @@ export default async function OfficeLayout({
   params: { slug: string };
 }) {
   const session = await getServerSession(authOptions);
-  if(!session?.accessToken) {
+  if (!session?.accessToken) {
     // redirect to login page
     redirect("/auth/login");
   }

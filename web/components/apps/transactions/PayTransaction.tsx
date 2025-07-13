@@ -96,6 +96,7 @@ export default function PayTransaction({ row, opened, close, officeId, getAvatar
           }
         } else {
           amount = data.amount / data.buying_rate;
+          convertedAmount = amount * data.rate;
         }
       }
       form.setValues({
