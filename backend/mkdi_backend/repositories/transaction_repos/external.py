@@ -225,9 +225,6 @@ class ExternalTransaction(PayableTransaction):
         """
         return self.db.query(External).filter(External.code == code).one()
 
-    def rollback(self, transaction: External) -> pr.TransactionResponse:
-        pass
-
     def cancel_payment_commit(self, payment: Payment):
         commits = list()
         accounts = self.accounts()

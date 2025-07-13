@@ -122,7 +122,6 @@ class TransactionRepository:
         internals = self.db.scalars(
             select(Internal)
             .where(Internal.office_id == office_id)
-            .where(Internal.sender_initials.in_(initials_str))
             .where(Internal.created_at >= start_date)
             .where(Internal.created_at <= end_date)
             .where(

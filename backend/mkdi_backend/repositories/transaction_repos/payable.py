@@ -4,8 +4,8 @@ from sqlalchemy.ext.asyncio.session import AsyncSession
 from mkdi_backend.repositories.transaction_repos.invariant import (
     async_managed_invariant_tx_method,
     managed_invariant_tx_method,
-    CommitMode,
 )
+from mkdi_backend.utils.database import CommitMode, managed_tx_method
 from mkdi_backend.repositories.transaction_repos.abstract_transaction import AbstractTransaction
 from mkdi_backend.models.transactions.transactions import Payment
 from mkdi_shared.exceptions.mkdi_api_error import MkdiError, MkdiErrorCode
@@ -139,3 +139,15 @@ class PayableTransaction(AbstractTransaction):
 
         payment.state = pr.PaymentState.CANCELLED
         return payment
+
+    @managed_tx_method(auto_commit=CommitMode.COMMIT)
+    def rollback(self, transaction: pr.TransactionDB) -> pr.TransactionResponse:
+        # this will rollback the transaction to it's previous state
+        assert (
+            transaction.state != pr.TransactionState.PAID
+        ), "Transaction must not be paid to rollback"
+        assert (
+            transaction.state != pr.TransactionState.CANCELLED
+        ), "Transaction must not be cancelled to rollback"
+        transaction.state = pr.TransactionState.CANCELLED
+        return transaction

@@ -177,9 +177,6 @@ class ForExTransaction(PayableTransaction):
         """
         return self.db.scalar(select(ForeignEx).where(ForeignEx.code == code))
 
-    def rollback(self, transaction: ForeignEx) -> pr.TransactionResponse:
-        pass
-
     def cancel_payment_commit(self, payment: Payment):
         commits = list()
 
