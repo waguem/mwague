@@ -41,7 +41,7 @@ class DepositTrade(IPayableTrade):
         return trade
 
     def get_payment_amount(self, trade: WalletTrading) -> pr.Decimal:
-        if trade.trading_currency == pr.CryptoCurrency.NA:
+        if trade.trading_currency == pr.CryptoCurrency.NA.value:
             return trade.amount * (1 + trade.trading_rate / 100)
         return trade.amount
 
@@ -58,12 +58,18 @@ class DepositTrade(IPayableTrade):
         assert abs(request.amount - fund_out) < 0.05
         fund.debit(fund_out)
         wallet.value += fund_out
+        partner_in = trade.amount
         if wallet.wallet_type == pr.WalletType.SIMPLE:
             wallet.crypto_balance = 0
             wallet.trading_balance += trade.amount
         else:
+            partner_in = trade.amount * trade.trading_rate
             wallet.crypto_balance += trade.amount
             wallet.trading_balance += trade.amount * trade.trading_rate
+        if wallet.balance_tracking_enabled:
+            wallet.partner_balance += partner_in
+
+        return trade
 
     def rollback_payment(
         self,
@@ -76,9 +82,16 @@ class DepositTrade(IPayableTrade):
         fund_out = self.get_payment_amount(trade)
         fund.credit(fund_out)
         wallet.value -= fund_out
+        partner_in = trade.amount
         if wallet.wallet_type == pr.WalletType.SIMPLE:
             wallet.crypto_balance = 0
             wallet.trading_balance -= trade.amount
         else:
             wallet.crypto_balance -= trade.amount
             wallet.trading_balance -= trade.amount * trade.trading_rate
+            partner_in = trade.amount * trade.trading_rate
+
+        if wallet.balance_tracking_enabled:
+            wallet.partner_balance -= partner_in
+
+        return trade

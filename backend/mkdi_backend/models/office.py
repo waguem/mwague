@@ -74,10 +74,17 @@ def get_pending_in(self) -> Decimal:
 def get_pending_payment(self) -> Decimal:
     with Session(engine) as db:
         results = db.scalars(
-            select(WalletTrading).where(
+            select(WalletTrading)
+            .where(
                 and_(
                     WalletTrading.partner_paid == False,
                     WalletTrading.walletID == self.walletID,
+                )
+            )
+            .where(
+                and_(
+                    WalletTrading.state != pr.TransactionState.CANCELLED,
+                    WalletTrading.state != pr.TransactionState.REVIEW,
                 )
             )
         ).all()
