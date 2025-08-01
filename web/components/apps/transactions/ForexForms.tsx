@@ -175,6 +175,7 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
             value={form.values.intermeditateByingRate}
             leftSection={getMoneyIcon(form.values.currency, 16)}
             allowNegative={false}
+            decimalScale={4}
             onChange={(value) => {
               form.setValues({
                 ...form.values,
@@ -194,7 +195,14 @@ export default function ForexForms({ agentWithAccounts, office }: Props) {
             decimalScale={5}
             value={form.values.buyingRate}
             leftSection={getMoneyIcon(form.values.currency, 16)}
-            onChange={(value) => form.setFieldValue("buyingRate", Number(value))}
+            onChange={(value) => {
+              const rateInMain = Number(value);
+              form.setValues({
+                ...form.values,
+                buyingRate: rateInMain,
+                intermeditateByingRate: rateInMain / form.values.dailyRate,
+              });
+            }}
             thousandSeparator=","
           />
           <NumberInput
