@@ -20,7 +20,7 @@ export default function PartnerPaid({ trading }: PartnerPaidProps) {
       } catch (e) {}
     }
   };
-  if (trading.trading_type !== "SELL") {
+  if (!["SELL", "SIMPLE SELL"].includes(trading.trading_type)) {
     return "N/A";
   }
   if (trading.partner_paid) {

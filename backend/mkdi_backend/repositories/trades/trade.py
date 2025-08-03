@@ -74,6 +74,9 @@ class ITrade:
         trade.trading_rate = update_request.trading_rate
         trade.notes = update_request.notes
 
+        if Decimal(update_request.exchange_rate) > 0:
+            trade.exchange_rate = update_request.exchange_rate
+
         self.session.db.add(trade)
 
         return trade

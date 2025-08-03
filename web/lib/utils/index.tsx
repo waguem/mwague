@@ -268,9 +268,9 @@ export const tradeOptions: {
   label: string;
   wallet: WalletType | "ALL";
 }[] = [
-  { value: "BUY", label: "Buy", wallet: "CRYPTO" },
   { value: "SELL", label: "Sell From CRYPTO Wallet", wallet: "CRYPTO" },
   { value: "SIMPLE SELL", label: "Sell From SIMPLE Wallet", wallet: "SIMPLE" },
+  { value: "BUY", label: "Buy", wallet: "CRYPTO" },
   { value: "DEPOSIT", label: "Wallet Deposit", wallet: "SIMPLE" },
   { value: "DEPOSIT", label: "Crypto Deposit", wallet: "CRYPTO" },
   { value: "EXCHANGE", label: "Exchange with Crypto Wallet", wallet: "CRYPTO" },

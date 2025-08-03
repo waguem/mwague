@@ -65,7 +65,7 @@ export function NewTrade({ walletID, office, agents }: Props) {
 
   const form = useForm<FormInput>({
     initialValues: {
-      tradeType: "BUY",
+      tradeType: "SELL",
       daily_rate: baseCurrency?.defaultRate ?? 0,
       trading_rate: 0,
       payment_in_main: 0,

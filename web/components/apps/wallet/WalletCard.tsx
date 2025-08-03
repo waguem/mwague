@@ -13,9 +13,9 @@ export default function WalletCard({ wallet }: Props) {
         <GridCol span={4}>
           <Stack>
             <Group>
-              <Title order={4}>Wallet ID</Title>
+              <Title order={4}>Wallet Name</Title>
               <Badge radius={"md"} size="xl" variant="dot" color="blue">
-                {wallet.crypto_currency}-{wallet.trading_currency}
+                {wallet.wallet_name}
               </Badge>
               <Badge radius={"md"} size="xl" variant="dot" color="blue">
                 {wallet.wallet_type} WALLET
